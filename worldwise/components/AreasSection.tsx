@@ -1,14 +1,14 @@
 import Link from 'next/link'
 
 const areas = [
-  { name: 'Dubai Marina', avgPrice: 'AED 1,850/sqft', roi: '7–8%', img: 'https://images.unsplash.com/photo-1548778943-5bbeeb1ba6c1?w=600&q=75' },
-  { name: 'Downtown Dubai', avgPrice: 'AED 2,200/sqft', roi: '6–7%', img: 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=600&q=75' },
-  { name: 'Palm Jumeirah', avgPrice: 'AED 2,800/sqft', roi: '6–8%', img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=75' },
-  { name: 'Business Bay', avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=75' },
-  { name: 'Dubai Hills', avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&q=75' },
-  { name: 'JLT', avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: 'https://images.unsplash.com/photo-1544985361-b420d7a77043?w=600&q=75' },
-  { name: 'Creek Harbour', avgPrice: 'AED 1,700/sqft', roi: '7–8%', img: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=75' },
-  { name: 'Emaar Beachfront', avgPrice: 'AED 2,500/sqft', roi: '7–8%', img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=75' },
+  { name: 'Dubai Marina', avgPrice: 'AED 1,850/sqft', roi: '7–8%', img: '/images/areas/dubai-marina.jpg' },
+  { name: 'Downtown Dubai', avgPrice: 'AED 2,200/sqft', roi: '6–7%', img: '/images/areas/downtown-dubai.jpg' },
+  { name: 'Palm Jumeirah', avgPrice: 'AED 2,800/sqft', roi: '6–8%', img: '/images/areas/palm-jumeirah.jpg' },
+  { name: 'Business Bay', avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: '/images/areas/business-bay.jpg' },
+  { name: 'Dubai Hills', avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: '/images/areas/dubai-hills.jpg' },
+  { name: 'JLT', avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: '/images/areas/jlt.jpg' },
+  { name: 'Creek Harbour', avgPrice: 'AED 1,700/sqft', roi: '7–8%', img: '/images/areas/creek-harbour.jpg' },
+  { name: 'Emaar Beachfront', avgPrice: 'AED 2,500/sqft', roi: '7–8%', img: '/images/areas/emaar-beachfront.jpg' },
 ]
 
 export default function AreasSection() {
