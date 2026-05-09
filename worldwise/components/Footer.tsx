@@ -18,6 +18,9 @@ export default function Footer() {
               {[
                 { href: 'https://www.instagram.com/worldwiseofficial?igsh=bzlvNXZya2Vjbm9x', label: 'Instagram' },
                 { href: 'https://www.linkedin.com/company/worldwise-real-estate-llc/', label: 'LinkedIn' },
+                { href: 'https://www.youtube.com/@worldwiserealestate', label: 'YouTube' },
+                { href: 'https://www.facebook.com/people/Worldwise-Real-Estate/61572461707148/', label: 'Facebook' },
+                { href: 'https://www.tiktok.com/@worldwiseestate', label: 'TikTok' },
               ].map(s => (
                 <a
                   key={s.label}
