@@ -6,10 +6,30 @@ import PropertiesClient from './PropertiesClient'
 
 export const revalidate = 60
 
-export const metadata = {
-  title: 'Dubai Properties for Investment | Worldwise Real Estate',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dubai Properties for Investment | Off-Plan & Secondary Market',
   description:
-    'Browse off-plan and secondary market properties in Dubai. Filter by area, price and type. Expert guidance for international investors.',
+    'Browse 148+ off-plan and secondary market properties in Dubai. Filter by area, price, type and ROI. Expert guidance for international investors. Free consultation.',
+  alternates: { canonical: 'https://worldwise.pro/properties' },
+  openGraph: {
+    title: 'Dubai Investment Properties — Off-Plan & Secondary Market',
+    description: 'Browse 148+ properties in Dubai Marina, Downtown, Palm Jumeirah and more. 8-10% ROI. RERA-certified listings.',
+    url: 'https://worldwise.pro/properties',
+    images: [
+      {
+        url: '/images/areas/downtown-dubai.jpg',
+        width: 1600,
+        height: 2468,
+        alt: 'Downtown Dubai Properties — Worldwise Real Estate',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/areas/downtown-dubai.jpg'],
+  },
 }
 
 export default function PropertiesPage() {

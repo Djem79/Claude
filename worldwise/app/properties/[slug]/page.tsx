@@ -13,18 +13,36 @@ export async function generateStaticParams() {
   return getProperties().map(p => ({ slug: p.slug }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const p = getPropertyBySlug(params.slug)
-  if (!p) return {}
-  return {
-    title: `${p.title} by ${p.developer} | Worldwise Real Estate`,
-    description: p.shortDescription,
-  }
-}
-
 function formatPrice(aed: number) {
   if (aed >= 1_000_000) return `AED ${(aed / 1_000_000).toFixed(2)}M`
   return `AED ${(aed / 1000).toFixed(0)}K`
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const p = getPropertyBySlug(params.slug)
+  if (!p) return {}
+  const url = `https://worldwise.pro/properties/${p.slug}`
+  const img = p.images[0] ?? '/images/areas/dubai-marina.jpg'
+  const title = `${p.title} by ${p.developer} — ${formatPrice(p.priceAed)}`
+  const description = `${p.shortDescription} Located in ${p.area}, Dubai.${p.roi ? ` Est. ROI ${p.roi}%.` : ''}${p.completionDate ? ` Handover ${p.completionDate}.` : ''} RERA-certified listing.`
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      images: [{ url: img, width: 1200, height: 800, alt: p.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [img],
+    },
+  }
 }
 
 export default function PropertyPage({ params }: { params: { slug: string } }) {
@@ -35,8 +53,64 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
     .filter(p => p.id !== property.id && (p.area === property.area || p.developer === property.developer))
     .slice(0, 3)
 
+  const base = 'https://worldwise.pro'
+  const url = `${base}/properties/${property.slug}`
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: base },
+      { '@type': 'ListItem', position: 2, name: 'Properties', item: `${base}/properties` },
+      { '@type': 'ListItem', position: 3, name: property.title, item: url },
+    ],
+  }
+
+  const listingLd = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    '@id': `${url}#listing`,
+    name: property.title,
+    description: property.description,
+    url,
+    image: property.images.slice(0, 5).map(img =>
+      img.startsWith('http') ? img : `${base}${img}`
+    ),
+    datePosted: property.createdAt,
+    offers: {
+      '@type': 'Offer',
+      price: property.priceAed,
+      priceCurrency: 'AED',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'RealEstateAgent',
+        '@id': `${base}/#agency`,
+        name: 'Worldwise Real Estate',
+      },
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: property.area,
+      addressRegion: 'Dubai',
+      addressCountry: 'AE',
+    },
+    numberOfRooms: property.bedrooms,
+    ...(property.roi ? { annualPercentageRate: property.roi } : {}),
+    ...(property.amenities.length > 0
+      ? {
+          amenityFeature: property.amenities.map(a => ({
+            '@type': 'LocationFeatureSpecification',
+            name: a,
+            value: true,
+          })),
+        }
+      : {}),
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(listingLd) }} />
       <Navigation />
       <main className="pt-16">
         {/* Gallery */}
