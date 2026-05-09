@@ -1,0 +1,127 @@
+'use client'
+
+import { useState } from 'react'
+
+const BUDGETS = [
+  'Under AED 1M',
+  'AED 1M – 3M',
+  'AED 3M – 7M',
+  'AED 7M – 15M',
+  'Above AED 15M',
+]
+
+export default function LeadCaptureSection() {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [budget, setBudget] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim() || !phone.trim()) {
+      setError('Please enter your name and phone number.')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, budget, source: 'main_cta_section' }),
+      })
+      if (!res.ok) throw new Error()
+      setSuccess(true)
+    } catch {
+      setError('Something went wrong. Please contact us via WhatsApp.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <section id="contact" className="py-20 bg-navy">
+      <div className="max-w-2xl mx-auto px-6 text-center">
+        <p className="text-gold text-sm font-medium uppercase tracking-widest mb-3">
+          Get Started Today
+        </p>
+        <h2 className="font-serif text-4xl md:text-5xl text-white mb-3">
+          Ready to Invest in Dubai?
+        </h2>
+        <p className="text-white/60 text-lg mb-10">
+          Get a free consultation. We&apos;ll match you with the best properties for your goals and budget.
+        </p>
+
+        {success ? (
+          <div className="bg-white/10 border border-gold/30 rounded-sm px-8 py-10">
+            <div className="text-4xl mb-3">✓</div>
+            <h3 className="font-serif text-2xl text-gold mb-2">Thank You, {name}!</h3>
+            <p className="text-white/70">
+              We&apos;ll be in touch within 2 hours via WhatsApp or email.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-sm p-8 space-y-4 text-left">
+            <div className="grid md:grid-cols-2 gap-4">
+              <input
+                className="input-field"
+                placeholder="Full Name *"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
+              <input
+                className="input-field"
+                placeholder="WhatsApp / Phone *"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                required
+              />
+            </div>
+            <select
+              className="input-field"
+              value={budget}
+              onChange={e => setBudget(e.target.value)}
+            >
+              <option value="">Your Investment Budget</option>
+              {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+
+            {error && <p className="text-red-400 text-sm">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full text-center text-base disabled:opacity-60"
+            >
+              {loading ? 'Sending...' : 'Request Free Consultation'}
+            </button>
+
+            <p className="text-white/30 text-xs text-center">
+              🔒 Your data is safe. No spam. No obligation. We reply within 2 hours.
+            </p>
+          </form>
+        )}
+
+        <div className="flex flex-wrap justify-center gap-8 mt-12 pt-10 border-t border-white/10 text-white/60 text-sm">
+          <a
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP ?? '971506960435'}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+          >
+            💬 WhatsApp
+          </a>
+          <a href="tel:+971506960435" className="hover:text-white transition-colors">
+            📞 +971 50 696 0435
+          </a>
+          <a href="mailto:info@worldwise.pro" className="hover:text-white transition-colors">
+            ✉ info@worldwise.pro
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}

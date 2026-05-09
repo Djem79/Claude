@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0D1B2A;
+  --gold: #C9A84C;
+  --gold-light: #D4B96A;
+  --bg: #F8F8F6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--navy);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold text-navy font-semibold px-8 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold-light active:scale-95 inline-block text-center;
+  }
+
+  .btn-outline {
+    @apply border border-white text-white font-semibold px-8 py-3.5 rounded-sm transition-all duration-200 hover:bg-white hover:text-navy active:scale-95 inline-block text-center;
+  }
+
+  .btn-outline-gold {
+    @apply border border-gold text-gold font-semibold px-8 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold hover:text-navy active:scale-95 inline-block text-center;
+  }
+
+  .section-title {
+    @apply font-serif text-4xl md:text-5xl text-navy leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-gray-500 text-lg mt-3;
+  }
+
+  .input-field {
+    @apply w-full border border-gray-200 bg-white px-4 py-3 rounded-sm text-navy placeholder-gray-400 focus:outline-none focus:border-gold transition-colors;
+  }
+
+  .badge {
+    @apply text-xs font-semibold px-3 py-1 rounded-sm uppercase tracking-wide;
+  }
+}
+
+/* Scroll animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }

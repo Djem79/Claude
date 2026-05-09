@@ -1,0 +1,47 @@
+export interface Property {
+  id: string
+  slug: string
+  title: string
+  developer: string
+  area: string
+  type: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+  status: 'off-plan' | 'ready' | 'secondary' | 'rent'
+  priceAed: number
+  pricePerSqft?: number
+  roi?: number
+  completionDate?: string
+  paymentPlan?: string
+  bedrooms: string
+  description: string
+  shortDescription: string
+  amenities: string[]
+  images: string[]
+  featured: boolean
+  badge?: string
+  qrImage?: string
+  permitNumber?: string
+  projectNumber?: string
+  createdAt: string
+}
+
+export interface Lead {
+  id: string
+  name: string
+  phone: string
+  email?: string
+  budget?: string
+  message?: string
+  source: string
+  propertySlug?: string
+  propertyTitle?: string
+  createdAt: string
+}
+
+export interface Area {
+  name: string
+  slug: string
+  image: string
+  avgPricePerSqft: string
+  avgRoi: string
+  description: string
+}

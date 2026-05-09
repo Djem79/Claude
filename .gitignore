@@ -1,0 +1,29 @@
+# Dependencies
+**/node_modules/
+
+# Next.js build output
+**/.next/
+**/out/
+
+# Environment files (contain secrets like ADMIN_PASSWORD)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Lead submissions — contain customer PII (names, phones).
+# Back up via server snapshot, NOT git.
+worldwise/data/leads.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+npm-debug.log*
