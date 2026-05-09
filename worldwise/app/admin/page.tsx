@@ -23,9 +23,13 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-navy text-white px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <span className="font-serif text-xl">WORLDWISE</span>
           <span className="text-white/40 text-sm">Admin Panel</span>
+          <nav className="flex gap-5 text-sm">
+            <Link href="/admin" className="text-white">Properties</Link>
+            <Link href="/admin/leads" className="text-white/60 hover:text-white">Leads</Link>
+          </nav>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/" target="_blank" className="text-white/60 hover:text-white text-sm">

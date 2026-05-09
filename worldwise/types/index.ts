@@ -24,6 +24,8 @@ export interface Property {
   createdAt: string
 }
 
+export type LeadStatus = 'new' | 'contacted' | 'in-progress' | 'won' | 'lost'
+
 export interface Lead {
   id: string
   name: string
@@ -34,6 +36,10 @@ export interface Lead {
   source: string
   propertySlug?: string
   propertyTitle?: string
+  status?: LeadStatus
+  notes?: string
+  contactedAt?: string
+  updatedAt?: string
   createdAt: string
 }
 
