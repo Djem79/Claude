@@ -1,13 +1,20 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifySessionToken, SESSION_COOKIE } from '@/lib/session'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const session = request.cookies.get('ww_admin_session')
-    if (session?.value !== 'authenticated') {
+    const token = request.cookies.get(SESSION_COOKIE)?.value
+    const session = token ? await verifySessionToken(token) : null
+
+    if (!session) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+
+    if (pathname.startsWith('/admin/users') && session.role !== 'owner') {
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
   }
 

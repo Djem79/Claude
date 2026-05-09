@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getProperties } from '@/lib/properties'
 import { getLeads } from '@/lib/leads'
+import { getSession } from '@/lib/auth'
 import AdminPropertyActions from './AdminPropertyActions'
 import LogoutButton from './LogoutButton'
 
@@ -10,14 +11,11 @@ function formatPrice(aed: number) {
   return aed >= 1_000_000 ? `AED ${(aed / 1_000_000).toFixed(2)}M` : `AED ${(aed / 1000).toFixed(0)}K`
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const session = await getSession()
   const properties = getProperties()
   const leads = getLeads()
-  const recentLeads = leads.slice(0, 20)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,9 +27,13 @@ export default function AdminPage() {
           <nav className="flex gap-5 text-sm">
             <Link href="/admin" className="text-white">Properties</Link>
             <Link href="/admin/leads" className="text-white/60 hover:text-white">Leads</Link>
+            {session?.role === 'owner' && (
+              <Link href="/admin/users" className="text-white/60 hover:text-white">Users</Link>
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          {session && <span className="text-white/50 text-sm">{session.name}</span>}
           <Link href="/" target="_blank" className="text-white/60 hover:text-white text-sm">
             View Site ↗
           </Link>
@@ -112,54 +114,6 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Leads table */}
-        <div>
-          <h2 className="font-serif text-2xl text-navy mb-5">
-            Recent Leads{' '}
-            <span className="text-gray-400 text-lg font-sans font-normal">({leads.length} total)</span>
-          </h2>
-
-          <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-100">
-                  <tr>
-                    {['Date', 'Name', 'Phone', 'Budget', 'Source', 'Property'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {recentLeads.map(l => (
-                    <tr key={l.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-400 whitespace-nowrap">{formatDate(l.createdAt)}</td>
-                      <td className="px-4 py-3 font-medium text-navy">{l.name}</td>
-                      <td className="px-4 py-3">
-                        <a href={`https://wa.me/${l.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">
-                          {l.phone}
-                        </a>
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">{l.budget ?? '—'}</td>
-                      <td className="px-4 py-3">
-                        <span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">{l.propertyTitle ?? '—'}</td>
-                    </tr>
-                  ))}
-                  {recentLeads.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
-                        No leads yet. Leads appear here when visitors fill in a form.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

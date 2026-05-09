@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  if (!isAuthenticated()) {
+  if (!(await isAuthenticated())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   return NextResponse.json(getLeads())

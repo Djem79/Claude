@@ -26,6 +26,13 @@ export interface Property {
 
 export type LeadStatus = 'new' | 'contacted' | 'in-progress' | 'won' | 'lost'
 
+export interface ActivityEntry {
+  at: string
+  by: string
+  byName: string
+  action: string
+}
+
 export interface Lead {
   id: string
   name: string
@@ -41,6 +48,20 @@ export interface Lead {
   contactedAt?: string
   updatedAt?: string
   createdAt: string
+  activityLog?: ActivityEntry[]
+}
+
+export type AdminRole = 'owner' | 'manager'
+
+export interface AdminUser {
+  id: string
+  name: string
+  username: string
+  passwordHash: string
+  role: AdminRole
+  active: boolean
+  createdAt: string
+  lastLoginAt?: string
 }
 
 export interface Area {

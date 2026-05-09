@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { getLeads, leadStats } from '@/lib/leads'
+import { getSession } from '@/lib/auth'
 import LogoutButton from '../LogoutButton'
 import LeadsClient from './LeadsClient'
 
 export const dynamic = 'force-dynamic'
 
-export default function LeadsPage() {
+export default async function LeadsPage() {
+  const session = await getSession()
   const leads = getLeads()
   const stats = leadStats(leads)
 
@@ -26,9 +28,13 @@ export default function LeadsPage() {
           <nav className="flex gap-5 text-sm">
             <Link href="/admin" className="text-white/60 hover:text-white">Properties</Link>
             <Link href="/admin/leads" className="text-white">Leads</Link>
+            {session?.role === 'owner' && (
+              <Link href="/admin/users" className="text-white/60 hover:text-white">Users</Link>
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          {session && <span className="text-white/50 text-sm">{session.name}</span>}
           <Link href="/" target="_blank" className="text-white/60 hover:text-white text-sm">View Site ↗</Link>
           <LogoutButton />
         </div>

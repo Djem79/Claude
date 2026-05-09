@@ -1,16 +1,15 @@
 import { cookies } from 'next/headers'
+import { verifySessionToken, SESSION_COOKIE, SessionPayload } from '@/lib/session'
 
-const SESSION_COOKIE = 'ww_admin_session'
-const SESSION_VALUE = 'authenticated'
+export { SESSION_COOKIE }
 
-export function isAuthenticated(): boolean {
+export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = cookies()
-  return cookieStore.get(SESSION_COOKIE)?.value === SESSION_VALUE
+  const token = cookieStore.get(SESSION_COOKIE)?.value
+  if (!token) return null
+  return verifySessionToken(token)
 }
 
-export function checkPassword(password: string): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'worldwise2026'
-  return password === adminPassword
+export async function isAuthenticated(): Promise<boolean> {
+  return (await getSession()) !== null
 }
-
-export { SESSION_COOKIE, SESSION_VALUE }

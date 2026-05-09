@@ -1,14 +1,14 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Lead, LeadStatus } from '@/types'
+import { Lead, LeadStatus, ActivityEntry } from '@/types'
 
 const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
   new: { label: 'New', color: 'bg-blue-50 text-blue-700' },
   contacted: { label: 'Contacted', color: 'bg-amber-50 text-amber-700' },
   'in-progress': { label: 'In Progress', color: 'bg-purple-50 text-purple-700' },
   won: { label: 'Won', color: 'bg-green-50 text-green-700' },
-  lost: { label: 'Lost', color: 'bg-gray-100 text-gray-500' },
+  lost: { label: 'Lost', color: 'bg-red-100 text-red-700' },
 }
 
 const STATUS_ORDER: LeadStatus[] = ['new', 'contacted', 'in-progress', 'won', 'lost']
@@ -197,7 +197,13 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
                                       key={s}
                                       onClick={() => patchLead(l.id, { status: s })}
                                       disabled={savingId === l.id}
-                                      className={`text-xs px-3 py-1.5 rounded-sm border ${status === s ? 'border-gold bg-gold/10 text-navy font-medium' : 'border-gray-200 text-gray-500 hover:border-gold'}`}
+                                      className={`text-xs px-3 py-1.5 rounded-sm border ${
+                                        status === s && s === 'lost'
+                                          ? 'border-red-500 bg-red-100 text-red-700 font-medium'
+                                          : status === s
+                                          ? 'border-gold bg-gold/10 text-navy font-medium'
+                                          : 'border-gray-200 text-gray-500 hover:border-gold'
+                                      }`}
                                     >
                                       {STATUS_META[s].label}
                                     </button>
@@ -218,6 +224,20 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Saved on blur (click outside).</p>
                               </div>
+                              {l.activityLog && l.activityLog.length > 0 && (
+                                <div className="pt-2">
+                                  <p className="text-xs text-gray-400 font-medium mb-2">Activity Log</p>
+                                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                                    {[...l.activityLog].reverse().map((entry: ActivityEntry, i: number) => (
+                                      <div key={i} className="flex gap-2 text-xs text-gray-500">
+                                        <span className="text-gray-300 shrink-0">{fmt(entry.at)}</span>
+                                        <span className="font-medium text-navy shrink-0">{entry.byName}</span>
+                                        <span>{entry.action}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                               <div className="pt-2">
                                 <button
                                   onClick={() => removeLead(l.id)}

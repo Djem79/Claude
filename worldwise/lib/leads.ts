@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Lead, LeadStatus } from '@/types'
+import { Lead, LeadStatus, ActivityEntry } from '@/types'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'leads.json')
 
@@ -32,18 +32,36 @@ export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead 
 
 export function updateLead(
   id: string,
-  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt'>>
+  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt'>>,
+  actor?: { uid: string; username: string; name: string }
 ): Lead | null {
   const leads = getLeads()
   const idx = leads.findIndex(l => l.id === id)
   if (idx === -1) return null
+  const prev = leads[idx]
   const updated: Lead = {
-    ...leads[idx],
+    ...prev,
     ...data,
     updatedAt: new Date().toISOString(),
   }
-  if (data.status === 'contacted' && !leads[idx].contactedAt) {
+  if (data.status === 'contacted' && !prev.contactedAt) {
     updated.contactedAt = new Date().toISOString()
+  }
+  if (actor) {
+    const parts: string[] = []
+    if (data.status && data.status !== prev.status) {
+      parts.push(`Status: ${prev.status ?? 'new'} → ${data.status}`)
+    }
+    if ('notes' in data && data.notes !== prev.notes) {
+      parts.push('Notes updated')
+    }
+    const entry: ActivityEntry = {
+      at: new Date().toISOString(),
+      by: actor.username,
+      byName: actor.name,
+      action: parts.join(', ') || 'Updated',
+    }
+    updated.activityLog = [...(prev.activityLog ?? []), entry]
   }
   leads[idx] = updated
   saveLeads(leads)
