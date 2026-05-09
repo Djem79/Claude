@@ -17,21 +17,25 @@ function leadText(lead: Lead, baseUrl: string) {
 
 export async function notifyTelegram(lead: Lead, baseUrl: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN
-  const chatId = process.env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return
-  try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: leadText(lead, baseUrl),
-        disable_web_page_preview: true,
-      }),
-    })
-  } catch {
-    // notification failure must not block lead capture
-  }
+  const ids = (process.env.TELEGRAM_CHAT_ID ?? '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+  if (!token || ids.length === 0) return
+  const text = leadText(lead, baseUrl)
+  await Promise.all(
+    ids.map(chatId =>
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          disable_web_page_preview: true,
+        }),
+      }).catch(() => undefined)
+    )
+  )
 }
 
 export async function notifyEmail(lead: Lead) {
