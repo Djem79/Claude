@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 const BUDGETS = [
   'Under AED 1M',
@@ -17,6 +17,7 @@ export default function LeadCaptureSection() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const hpRef = useRef<HTMLInputElement>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,7 +31,7 @@ export default function LeadCaptureSection() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, budget, source: 'main_cta_section' }),
+        body: JSON.stringify({ name, phone, budget, source: 'main_cta_section', _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)
@@ -64,6 +65,8 @@ export default function LeadCaptureSection() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-sm p-8 space-y-4 text-left">
+            {/* Honeypot — hidden from users, visible to bots */}
+            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
             <div className="grid md:grid-cols-2 gap-4">
               <input
                 className="input-field"

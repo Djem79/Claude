@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface Props {
   isOpen: boolean
@@ -36,6 +36,7 @@ export default function LeadModal({
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const hpRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
@@ -57,7 +58,7 @@ export default function LeadModal({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, source, propertySlug, propertyTitle }),
+        body: JSON.stringify({ name, phone, email, budget, source, propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)
@@ -105,6 +106,7 @@ export default function LeadModal({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
               <input
                 className="input-field"
                 placeholder="Full Name *"

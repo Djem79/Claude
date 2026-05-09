@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 const BUDGETS = ['Under AED 1M', 'AED 1M – 3M', 'AED 3M – 7M', 'AED 7M – 15M', 'Above AED 15M']
 
@@ -19,6 +19,7 @@ export default function PropertyEnquiryForm({
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const hpRef = useRef<HTMLInputElement>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -32,7 +33,7 @@ export default function PropertyEnquiryForm({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_page', propertySlug, propertyTitle }),
+        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_page', propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)
@@ -57,6 +58,7 @@ export default function PropertyEnquiryForm({
           <p className="text-gray-400 text-sm mb-5">Free consultation · No obligation</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
+            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
             <input className="input-field" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required />
             <input className="input-field" placeholder="WhatsApp / Phone *" value={phone} onChange={e => setPhone(e.target.value)} required />
             <input className="input-field" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
