@@ -3,7 +3,7 @@ import Navigation from '@/components/Navigation'
 import Hero from '@/components/Hero'
 import TrustBar from '@/components/TrustBar'
 import FeaturedProperties from '@/components/FeaturedProperties'
-import ROICalculator from '@/components/ROICalculator'
+import MortgageCalculator from '@/components/MortgageCalculator'
 import AreasSection from '@/components/AreasSection'
 import WhyWorldwise from '@/components/WhyWorldwise'
 import HowItWorks from '@/components/HowItWorks'
@@ -25,7 +25,7 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <FeaturedProperties properties={featured} />
-        <ROICalculator />
+        <MortgageCalculator />
         <AreasSection />
         <WhyWorldwise />
         <HowItWorks />
