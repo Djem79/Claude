@@ -8,10 +8,14 @@ The git root is `/Users/dzhambulat/Documents/Claude/`. The actual Next.js app li
 
 ## Common commands
 
-Node is managed via NVM; the binary is not on the default PATH. Prefix or export before running npm:
+Node is managed via NVM. If `npm` is not found, run one of these:
 
 ```bash
+# Option 1 — export for the current shell session
 export PATH="/Users/dzhambulat/.nvm/versions/node/v24.15.0/bin:$PATH"
+
+# Option 2 — let nvm activate the right version
+source ~/.nvm/nvm.sh && nvm use 24
 ```
 
 From `worldwise/`:
@@ -21,7 +25,20 @@ From `worldwise/`:
 - `npm run lint` — ESLint check
 - `npm run start` — run production build (PM2 uses this on server)
 
-There is no test suite.
+There is no test suite. Always run `npm run build` locally before deploying.
+
+## What NOT to do
+
+These constraints are non-negotiable — violating them causes data loss or security issues:
+
+- **Never touch `data/` locally.** `data/leads.json`, `data/users.json`, `data/properties.json` exist only on the server. Never create, edit, or rsync them from local — they hold live business data.
+- **Never add a database.** The JSON file approach is intentional — simple, zero-dependency, backed up automatically. A database would require a migration and breaks the single-PM2-instance assumption.
+- **Never run multiple PM2 instances.** The file-based data layer has no locking. Two processes writing simultaneously will corrupt JSON.
+- **Never change the session token payload structure** (`SessionPayload` in `lib/session.ts`) without invalidating all existing sessions first — the HMAC signs the exact payload shape.
+- **Never install npm packages with native bindings** (C++ addons). `middleware.ts` runs in the Edge runtime which does not support native modules.
+- **Never use external image URLs** for property photos or area images. All images must be in `public/images/`. Unsplash URLs in Hero.tsx are an accepted legacy exception.
+- **Never add a lead capture form without the honeypot field.** Every form must include a hidden `<input ref={hpRef} />` and send `_hp` in the POST body. See existing components for the pattern.
+- **Never `git add -A` or `git add .`** — stage files by name to avoid accidentally committing `.env.local` or leftover data files.
 
 ## Production deployment
 
@@ -41,8 +58,6 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cd /var/www/worldwise && npm install && npm run build && pm2 restart worldwise"
 ```
 
-**Critical:** `data/` lives only on the server. Never rsync it from local — it holds live leads, properties, and user accounts. Always exclude `data/`.
-
 The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
 
 ## DNS & infrastructure
@@ -50,6 +65,53 @@ The server has a separate git repo at `/var/www/worldwise/` tracking only `data/
 DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `sterling.ns.cloudflare.com`). A records for `worldwise.pro` and `www` point to `62.238.35.20`. Email MX records point to `mx1.hosting.reg.ru` / `mx2.hosting.reg.ru` (reg.ru hosting handles the mailbox for `dzhambulat@worldwise.pro`).
 
 SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, valid until August 2026. To renew: `certbot renew --nginx` on the server, then `systemctl reload nginx`.
+
+## Project status (May 2025)
+
+**Live and complete:**
+
+- Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
+- Blog: `/blog` listing + `/blog/[slug]` article pages (3 articles in `lib/articles.ts`)
+- Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
+- Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
+- Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`)
+- Activity log on leads, anti-spam on lead capture, CSV export
+- SEO layer: sitemap, robots, JSON-LD, per-property og:image
+- Infrastructure: Cloudflare DNS, Hetzner VPS, PM2 + Nginx, Let's Encrypt SSL, git-based data backup
+
+**Not built yet (possible next steps):**
+
+- More blog articles in `lib/articles.ts`
+- Area-specific landing pages (e.g. `/dubai-marina`, `/downtown-dubai`)
+- Google Analytics / Meta Pixel integration
+- WhatsApp chat widget
+- Property comparison feature
+
+## Conversion & UX logic
+
+The primary goal of the site is lead capture: getting a visitor to submit their phone number and name. Every page decision should serve this.
+
+**Conversion hierarchy:**
+
+1. `FloatingCTA` — persistent WhatsApp + phone buttons, present on every page. Never remove.
+2. `LeadModal` — modal form triggered by CTAs throughout the site. Tracks `source` for analytics.
+3. `LeadCaptureSection` — full-width section at the bottom of the homepage, last chance before footer.
+
+**Key conversion pages:**
+
+- `/properties/[slug]` — warmest traffic (visitor looked at a specific property). Has `PropertyEnquiryForm` embedded. This is the highest-converting page.
+- `/mortgage-calculator` — designed as a Google Ads landing page. Calculator as the hook, lead form as the exit. Do not clutter with navigation distractions.
+- Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
+
+**Lead `source` strings in use** (keep consistent for CRM analytics):
+`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`
+
+**UX rules:**
+
+- Every page must include `<FloatingCTA />` and `<Footer />`.
+- New feature pages that are meant for ads (high-intent traffic) should have minimal navigation — calculator or tool at the top, CTA at the bottom.
+- Blog articles end with a CTA to consultation — do not make them dead ends.
+- All copy in English. No Russian on any public-facing page.
 
 ## Architecture
 
@@ -118,7 +180,7 @@ Every mutating API handler also calls `isAuthenticated()` / `getSession()` from 
 
 `POST /api/leads` enforces: honeypot field (`_hp`) check → phone digit validation (7–15 digits) → in-memory rate limit (10 submissions/IP/hour). Rate limit is counted after validation so typos don't consume quota. The `rateMap` resets per 1-hour window and lives in module state (single PM2 instance).
 
-All lead capture components (`LeadModal`, `ROICalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, `FloatingCTA`) include a hidden honeypot `<input>` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
+All lead capture components (`LeadModal`, `MortgageCalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, `FloatingCTA`) include a hidden honeypot `<input>` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
 
 ### Blog / articles
 
@@ -132,9 +194,10 @@ To add a new article: push an entry to the `articles` array in `lib/articles.ts`
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
-- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /properties + all property and article slugs)
+- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + all property and article slugs)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
+- `app/mortgage-calculator/page.tsx` — JSON-LD `WebApplication` + `FAQPage` (5 questions)
 - `public/llms.txt` — plain-text site summary for AI crawlers
 
 ### Images
@@ -154,7 +217,3 @@ See `.env.example`. Key vars:
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
 - `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
-
-## Target audience
-
-All user-facing copy must be in **English**. The audience is international investors.
