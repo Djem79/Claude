@@ -120,10 +120,19 @@ Every mutating API handler also calls `isAuthenticated()` / `getSession()` from 
 
 All lead capture components (`LeadModal`, `ROICalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, `FloatingCTA`) include a hidden honeypot `<input>` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
 
+### Blog / articles
+
+Static editorial content lives in `lib/articles.ts` as a plain array of `Article` objects (no database, no CMS). Each article has `slug`, `tag`, `title`, `excerpt`, `readTime`, and `content` (Markdown-like string).
+
+- `app/blog/page.tsx` — listing of all articles
+- `app/blog/[slug]/page.tsx` — individual article; uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table) and renders them with Tailwind styling. `generateStaticParams()` pre-renders all slugs at build time.
+
+To add a new article: push an entry to the `articles` array in `lib/articles.ts`. The listing page, article page and sitemap all pick it up automatically.
+
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
-- `app/sitemap.ts` — dynamic sitemap (homepage + /properties + all property slugs)
+- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /properties + all property and article slugs)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
 - `public/llms.txt` — plain-text site summary for AI crawlers
