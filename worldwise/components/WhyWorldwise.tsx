@@ -1,23 +1,44 @@
 const points = [
   {
-    icon: '🔑',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <path d="M3 12L12 3l9 9" />
+        <path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
+      </svg>
+    ),
     title: 'End-to-End Support',
     text: 'From property search and negotiation to DLD registration, utilities and visa — we handle everything.',
   },
   {
-    icon: '📊',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </svg>
+    ),
     title: 'Data-Driven Advice',
     text: 'We analyse market trends, rental yields and growth potential to find the best deals — not just any listing.',
   },
   {
-    icon: '🌍',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+      </svg>
+    ),
     title: '30+ Countries Served',
     text: 'Our team speaks multiple languages and has guided investors from India, UK, Europe, the US and beyond.',
   },
   {
-    icon: '✅',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <polyline points="9 12 11 14 15 10" />
+      </svg>
+    ),
     title: 'RERA Certified',
-    text: 'Fully licensed by Dubai\'s Real Estate Regulatory Authority. Your investment is protected at every step.',
+    text: "Fully licensed by Dubai's Real Estate Regulatory Authority. Your investment is protected at every step.",
   },
 ]
 
@@ -57,7 +78,9 @@ export default function WhyWorldwise() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {points.map(p => (
               <div key={p.title} className="bg-white rounded-sm p-6 shadow-sm">
-                <div className="text-3xl mb-3">{p.icon}</div>
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 text-gold">
+                  {p.icon}
+                </div>
                 <h3 className="font-serif text-lg text-navy mb-2">{p.title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{p.text}</p>
               </div>
