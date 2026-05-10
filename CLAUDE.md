@@ -28,6 +28,10 @@ There is no test suite.
 Hetzner VPS `62.238.35.20` (Ubuntu 24.04). SSH key: `~/.ssh/id_ed25519`. Project at `/var/www/worldwise/`, PM2 process `worldwise`, Nginx reverse-proxies `localhost:3000`.
 
 ```bash
+# 0. Backup data on server before any deploy
+ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
+  "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
+
 # 1. Sync (exclude git, node_modules, build artifacts, and server-only data)
 rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
@@ -37,7 +41,15 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cd /var/www/worldwise && npm install && npm run build && pm2 restart worldwise"
 ```
 
-**Critical:** `data/properties.json` and `data/leads.json` live only on the server. Never rsync them from local — they hold live leads and admin edits. Always exclude `data/`.
+**Critical:** `data/` lives only on the server. Never rsync it from local — it holds live leads, properties, and user accounts. Always exclude `data/`.
+
+The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
+
+## DNS & infrastructure
+
+DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `sterling.ns.cloudflare.com`). A records for `worldwise.pro` and `www` point to `62.238.35.20`. Email MX records point to `mx1.hosting.reg.ru` / `mx2.hosting.reg.ru` (reg.ru hosting handles the mailbox for `dzhambulat@worldwise.pro`).
+
+SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, valid until August 2026. To renew: `certbot renew --nginx` on the server, then `systemctl reload nginx`.
 
 ## Architecture
 
@@ -45,79 +57,95 @@ Next.js 14 App Router, TypeScript, Tailwind CSS.
 
 ### Data layer — file-based JSON, no database
 
-`lib/properties.ts` and `lib/leads.ts` read/write `data/properties.json` and `data/leads.json` synchronously on every request. Consequences:
+Three JSON files, all read/written synchronously by their respective `lib/` modules:
 
-- Single PM2 instance only — concurrent writes from multiple processes would corrupt JSON.
-- In dev, admin edits mutate `data/*.json` in place and appear in `git diff`.
+| File | Library | Type |
+| ---- | ------- | ---- |
+| `data/properties.json` | `lib/properties.ts` | `Property[]` |
+| `data/leads.json` | `lib/leads.ts` | `Lead[]` |
+| `data/users.json` | `lib/users.ts` | `AdminUser[]` |
 
-`types/index.ts` is the single source of truth for `Property` and `Lead` shapes. `LeadStatus` is `'new' | 'contacted' | 'in-progress' | 'won' | 'lost'`.
+`types/index.ts` is the single source of truth for all shapes. Key types: `Property`, `Lead`, `LeadStatus` (`'new' | 'contacted' | 'in-progress' | 'won' | 'lost'`), `AdminUser`, `AdminRole` (`'owner' | 'manager'`), `ActivityEntry`.
 
-### Auth — cookie-based, single password
+Single PM2 instance only — concurrent writes from multiple processes would corrupt JSON.
 
-`middleware.ts` guards `/admin/:path*` by checking the `ww_admin_session` cookie (value `"authenticated"`). Middleware does **not** run on API routes, so every mutating API handler (`POST/PUT/DELETE`) must also call `isAuthenticated()` from `lib/auth.ts` — this is defence-in-depth, not redundant.
+### Auth — multi-user, signed session tokens
 
-The cookie's `Secure` flag is set only when the request uses HTTPS (`req.nextUrl.protocol === 'https:'`), so HTTP dev login works.
+`lib/session.ts` issues and verifies signed tokens using Web Crypto (`crypto.subtle` HMAC-SHA256). Token format: `base64url(JSON(payload)).hmac-sha256`. Signed with `ADMIN_PASSWORD` env var. `SessionPayload` carries `uid`, `username`, `name`, `role`.
 
-### Public routes
+`lib/users.ts` handles user CRUD with bcryptjs password hashing. `data/users.json` stores `AdminUser[]` (passwords as bcrypt hashes).
 
-- `/` — marketing homepage; all sections are server components in `components/`
-- `/properties` — client-side filtered listing (`PropertiesClient.tsx`)
-- `/properties/[slug]` — ISR (`revalidate = 60`), statically pre-rendered via `generateStaticParams`
+**First-run bootstrap:** if `data/users.json` is empty and the login password matches `ADMIN_PASSWORD`, the owner account is auto-created. No manual seeding needed.
+
+`middleware.ts` (Edge runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`.
+
+Every mutating API handler also calls `isAuthenticated()` / `getSession()` from `lib/auth.ts` — defence-in-depth since middleware does not run on API routes.
+
+`lib/auth.ts` exports:
+
+- `getSession()` → `SessionPayload | null` — use when you need the user identity (e.g. activity log)
+- `isAuthenticated()` → `boolean` — use for simple auth checks
+- Both are `async` (HMAC verification).
 
 ### Admin routes
 
-- `/admin` — property table + recent leads summary
-- `/admin/leads` — full CRM: filter by status/source/search, inline status change, notes, CSV export
-- `/admin/property/new` and `/admin/property/[id]` — both use `PropertyForm`, which handles drag-and-drop image upload, gallery reorder, and a PERMISSION section (DLD QR + permit/project numbers)
+- `/admin` — property table + stats (properties count, lead counts)
+- `/admin/leads` — full CRM: filter by status/source/search, inline status change, notes, activity log, CSV export
+- `/admin/users` — owner-only: add/edit/deactivate/delete admin accounts, reset passwords
+- `/admin/property/new` and `/admin/property/[id]` — both use `PropertyForm` (drag-and-drop gallery, DLD QR + permit/project numbers)
 
 ### API routes
 
-| Route | Purpose |
-| ----- | ------- |
-| `POST /api/leads` | Save lead → fire-and-forget Telegram + email notify |
-| `GET /api/leads` | List leads (admin auth required) |
-| `PUT /api/leads/[id]` | Update `status`, `notes`, `contactedAt` |
-| `DELETE /api/leads/[id]` | Remove lead |
-| `POST /api/upload?kind=gallery\|qr` | Save property images or QR codes to `public/images/` |
-| `GET/POST /api/properties` | List / create properties |
-| `PUT/DELETE /api/properties/[id]` | Update / delete property |
+| Route | Auth | Purpose |
+| ----- | ---- | ------- |
+| `POST /api/leads` | none | Save lead → Telegram + email notify |
+| `GET /api/leads` | any admin | List all leads |
+| `PUT /api/leads/[id]` | any admin | Update status/notes; appends `ActivityEntry` with actor from session |
+| `DELETE /api/leads/[id]` | any admin | Remove lead |
+| `GET /api/admin/users` | owner only | List users (passwordHash stripped) |
+| `POST /api/admin/users` | owner only | Create user |
+| `PUT /api/admin/users/[id]` | owner only | Update name/role/active/password |
+| `DELETE /api/admin/users/[id]` | owner only | Delete user (cannot delete self) |
+| `POST /api/upload?kind=gallery\|qr` | any admin | Save images to `public/images/` |
+| `GET/POST /api/properties` | GET public | List / create properties |
+| `PUT/DELETE /api/properties/[id]` | any admin | Update / delete property |
 
-### Lead notifications (`lib/notify.ts`)
+### Activity log
 
-`notifyTelegram` and `notifyEmail` are called fire-and-forget from `POST /api/leads` — failures are swallowed so they never block lead capture.
+`lib/leads.ts` `updateLead()` accepts an optional `actor` param `{ uid, username, name }`. When provided, it appends an `ActivityEntry` to `lead.activityLog[]` describing what changed (status transition and/or notes update). The `PUT /api/leads/[id]` handler always passes the session user as actor. The log is displayed in reverse-chronological order in the expanded lead row in `LeadsClient.tsx`.
 
-Telegram supports multiple recipients: `TELEGRAM_CHAT_ID` accepts a comma-separated list of IDs (group IDs are negative, e.g. `-1001234567890`).
+### Anti-spam (lead capture)
 
-### Lead capture sources
+`POST /api/leads` enforces: honeypot field (`_hp`) check → phone digit validation (7–15 digits) → in-memory rate limit (10 submissions/IP/hour). Rate limit is counted after validation so typos don't consume quota. The `rateMap` resets per 1-hour window and lives in module state (single PM2 instance).
 
-`LeadModal`, `ROICalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, and `FloatingCTA` all `POST /api/leads` with a `source` field identifying the originating component. Keep source strings consistent for analytics.
+All lead capture components (`LeadModal`, `ROICalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, `FloatingCTA`) include a hidden honeypot `<input>` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
 
 ### SEO / crawler layer
 
-- `app/robots.ts` — generates `robots.txt`; blocks `/admin` and `/api`
-- `app/sitemap.ts` — dynamic XML sitemap (151 URLs: homepage + /properties + all 148 property slugs)
+- `app/robots.ts` — blocks `/admin` and `/api`
+- `app/sitemap.ts` — dynamic sitemap (homepage + /properties + all property slugs)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
-- `app/properties/[slug]/page.tsx` — per-property `og:image` from `property.images[0]`, JSON-LD `RealEstateListing` + `BreadcrumbList`
-- `public/llms.txt` — plain-text site summary for AI crawlers (Claude, ChatGPT, Perplexity)
+- `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
+- `public/llms.txt` — plain-text site summary for AI crawlers
 
 ### Images
 
-Local area images are in `public/images/areas/` — use these paths in `AreasSection.tsx`, never external Unsplash URLs. Property gallery images land in `public/images/properties/<id>/`, QR codes in `public/images/qr/`.
+Local area images: `public/images/areas/` — never use external URLs. Property galleries: `public/images/properties/<id>/`. QR codes: `public/images/qr/`.
 
 ### Styling
 
-Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global button utilities `btn-primary`, `btn-outline`, `btn-outline-gold` are defined in `app/globals.css` — prefer them for all CTAs.
+Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global button utilities `btn-primary`, `btn-outline`, `btn-outline-gold` in `app/globals.css` — use for all CTAs.
 
 ## Environment variables
 
 See `.env.example`. Key vars:
 
-- `ADMIN_PASSWORD` — admin login (no default in production; set in `.env.local`)
-- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications; `TELEGRAM_CHAT_ID` is comma-separated for multiple recipients
+- `ADMIN_PASSWORD` — used to sign/verify session tokens and for first-run owner bootstrap
+- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications; comma-separated for multiple recipients
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
-- `NEXT_PUBLIC_SITE_URL` — used to build absolute URLs in Telegram messages and sitemap
+- `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
 
 ## Target audience
 
-All user-facing copy must be in **English**. The audience is international investors, not Russian-speaking only.
+All user-facing copy must be in **English**. The audience is international investors.

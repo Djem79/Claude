@@ -25,7 +25,7 @@ export default function Hero() {
           </div>
 
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white leading-tight">
-            Dubai Real Estate
+            UAE Real Estate
             <br />
             <span className="text-gold">8–10% Yield.</span>
             <br />
@@ -51,7 +51,7 @@ export default function Hero() {
             {[
               { value: '500+', label: 'Investors Served' },
               { value: 'AED 2B+', label: 'In Transactions' },
-              { value: '4.9 ★', label: 'Google Rating' },
+              { value: '5.0 ★', label: 'Google Rating' },
               { value: '30+', label: 'Countries' },
             ].map(stat => (
               <div key={stat.label}>

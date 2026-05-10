@@ -135,7 +135,7 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                {['Date', 'Status', 'Name', 'Phone', 'Source', 'Property', 'Actions'].map(h => (
+                {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Property', 'Actions'].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
                     {h}
                   </th>
@@ -144,7 +144,7 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-gray-400">No leads match filters.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-10 text-center text-gray-400">No leads match filters.</td></tr>
               )}
               {filtered.map(l => {
                 const status = (l.status ?? 'new') as LeadStatus
@@ -162,6 +162,13 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
                       </td>
                       <td className="px-4 py-3 font-medium text-navy">{l.name}</td>
                       <td className="px-4 py-3 text-gray-700">{l.phone}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate">
+                        {l.email ? (
+                          <a href={`mailto:${l.email}`} className="text-blue-600 hover:underline" onClick={e => e.stopPropagation()}>
+                            {l.email}
+                          </a>
+                        ) : '—'}
+                      </td>
                       <td className="px-4 py-3"><span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></td>
                       <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{l.propertyTitle ?? '—'}</td>
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -174,7 +181,7 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
                     </tr>
                     {isOpen && (
                       <tr key={l.id + '-detail'} className="bg-gray-50/50">
-                        <td colSpan={7} className="px-4 py-5">
+                        <td colSpan={8} className="px-4 py-5">
                           <div className="grid md:grid-cols-3 gap-6">
                             <div className="md:col-span-1 space-y-2 text-sm">
                               <div><span className="text-gray-400 text-xs">Email:</span> {l.email ?? '—'}</div>

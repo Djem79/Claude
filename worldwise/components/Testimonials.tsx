@@ -77,7 +77,7 @@ export default function Testimonials() {
         </div>
 
         <p className="text-gray-400 text-sm mt-6">
-          ★ 4.9 · Rated on Google Reviews
+          ★ 5.0 · Rated on Google Reviews
         </p>
       </div>
     </section>

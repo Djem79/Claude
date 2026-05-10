@@ -42,7 +42,7 @@ export default function BlogPreview() {
             <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
               Worldwise Insights
             </p>
-            <h2 className="section-title">Dubai Real Estate<br />Expert Guides</h2>
+            <h2 className="section-title">UAE Real Estate<br />Expert Guides</h2>
             <p className="section-subtitle">
               Practical knowledge for international property investors
             </p>
