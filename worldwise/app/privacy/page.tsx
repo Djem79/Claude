@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 export const metadata = {
   title: 'Privacy & Cookie Policy | Worldwise Real Estate',
   description: 'How Worldwise Real Estate collects, uses, and protects your personal data and cookies.',
+  alternates: { canonical: 'https://worldwise.pro/privacy' },
 }
 
 export default function PrivacyPage() {
