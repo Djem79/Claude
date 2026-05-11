@@ -35,7 +35,7 @@ There is no test suite. Always run `npm run build` locally before deploying.
 
 These constraints are non-negotiable — violating them causes data loss or security issues:
 
-- **Never touch `data/` locally.** `data/leads.json`, `data/users.json`, `data/properties.json` exist only on the server. Never create, edit, or rsync them from local — they hold live business data.
+- **Never touch `data/` locally.** All files in `data/` exist only on the server — this includes `leads.json`, `users.json`, `properties.json`, `articles.json`, `article-draft.json`, `article-mode.json`, `article-keywords.json`, and `article-tag-index.json`. Never create, edit, or rsync them from local — they hold live business and state data.
 - **Never add a database.** The JSON file approach is intentional — simple, zero-dependency, backed up automatically. A database would require a migration and breaks the single-PM2-instance assumption.
 - **Never run multiple PM2 instances.** The file-based data layer has no locking. Two processes writing simultaneously will corrupt JSON.
 - **Never change the session token payload structure** (`SessionPayload` in `lib/session.ts`) without invalidating all existing sessions first — the HMAC signs the exact payload shape.
@@ -70,22 +70,22 @@ DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `st
 
 SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, valid until August 2026. To renew: `certbot renew --nginx` on the server, then `systemctl reload nginx`.
 
-## Project status (May 2025)
+## Project status (May 2026)
 
 **Live and complete:**
 
 - Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
-- Blog: `/blog` listing + `/blog/[slug]` article pages (3 articles in `lib/articles.ts`)
+- Blog: `/blog` listing + `/blog/[slug]` — static editorial articles in `lib/articles.ts` + AI-generated articles from `data/articles.json`
+- Auto-blog pipeline: Gemini-powered article generator runs every 3 days, alternates keyword/news mode, Telegram approval flow
 - Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
 - Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
 - Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`)
 - Activity log on leads, anti-spam on lead capture, CSV export
-- SEO layer: sitemap, robots, JSON-LD, per-property og:image
+- SEO layer: sitemap (ISR 1h revalidation), robots, JSON-LD, per-property og:image
 - Infrastructure: Cloudflare DNS, Hetzner VPS, PM2 + Nginx, Let's Encrypt SSL, git-based data backup
 
 **Not built yet (possible next steps):**
 
-- More blog articles in `lib/articles.ts`
 - Area-specific landing pages (e.g. `/dubai-marina`, `/downtown-dubai`)
 - Google Analytics / Meta Pixel integration
 - WhatsApp chat widget
@@ -123,13 +123,18 @@ Next.js 14 App Router, TypeScript, Tailwind CSS.
 
 ### Data layer — file-based JSON, no database
 
-Three JSON files, all read/written synchronously by their respective `lib/` modules:
+All JSON files live in `data/` on the server only — never committed to git, never rsynced from local. Read/written synchronously.
 
 | File | Library | Type |
 | ---- | ------- | ---- |
 | `data/properties.json` | `lib/properties.ts` | `Property[]` |
 | `data/leads.json` | `lib/leads.ts` | `Lead[]` |
 | `data/users.json` | `lib/users.ts` | `AdminUser[]` |
+| `data/articles.json` | `lib/dynamic-articles.ts` | `DynamicArticle[]` (published AI articles) |
+| `data/article-draft.json` | `lib/dynamic-articles.ts` | `DynamicArticle \| null` (pending Telegram approval) |
+| `data/article-mode.json` | `scripts/generate-article.mjs` | `{ mode: "keyword" \| "news" }` |
+| `data/article-keywords.json` | `scripts/generate-article.mjs` | `{ keywords: string[], index: number }` |
+| `data/article-tag-index.json` | `lib/dynamic-articles.ts` + script | `{ index: number }` (round-robin tag rotation) |
 
 `types/index.ts` is the single source of truth for all shapes. Key types: `Property`, `Lead`, `LeadStatus` (`'new' | 'contacted' | 'in-progress' | 'won' | 'lost'`), `AdminUser`, `AdminRole` (`'owner' | 'manager'`), `ActivityEntry`.
 
@@ -175,6 +180,7 @@ Every mutating API handler also calls `isAuthenticated()` / `getSession()` from 
 | `POST /api/upload?kind=gallery\|qr` | any admin | Save images to `public/images/` |
 | `GET/POST /api/properties` | GET public | List / create properties |
 | `PUT/DELETE /api/properties/[id]` | any admin | Update / delete property |
+| `POST /api/telegram-webhook` | `WEBHOOK_SECRET` header | Receives Telegram callbacks: publish/skip article buttons, `/add_keyword` command |
 
 ### Activity log
 
@@ -188,12 +194,43 @@ All lead capture components (`LeadModal`, `MortgageCalculator`, `LeadCaptureSect
 
 ### Blog / articles
 
-Static editorial content lives in `lib/articles.ts` as a plain array of `Article` objects (no database, no CMS). Each article has `slug`, `tag`, `title`, `excerpt`, `readTime`, and `content` (Markdown-like string).
+Two article sources, merged by `lib/articles.ts`:
 
-- `app/blog/page.tsx` — listing of all articles
-- `app/blog/[slug]/page.tsx` — individual article; uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table) and renders them with Tailwind styling. `generateStaticParams()` pre-renders all slugs at build time.
+1. **Static editorial** — `articles` array in `lib/articles.ts`. Add an entry here for manually written articles. Shape: `{ slug, tag, title, excerpt, readTime, content }` where `content` is a Markdown-like string parsed by `parseContent()`.
 
-To add a new article: push an entry to the `articles` array in `lib/articles.ts`. The listing page, article page and sitemap all pick it up automatically.
+2. **AI-generated** — `data/articles.json` on the server (server-only, never committed). Managed by `lib/dynamic-articles.ts`. Shape adds `publishedAt` and `source: 'ai-generated'`.
+
+`getAllArticles()` in `lib/articles.ts` returns `[...dynamic, ...static]` — dynamic articles sort first (newest at top). `getArticleBySlug()` checks dynamic first, then static. Both functions are used by the blog listing page, article page, and sitemap.
+
+`app/blog/[slug]/page.tsx` uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table). `generateStaticParams()` pre-renders static article slugs at build time; dynamic article routes are rendered on demand.
+
+### Auto-blog pipeline
+
+Cron runs `scripts/generate-article.mjs` every 3 days at 09:00 UTC (`0 9 */3 * *`). The script is a Node.js ESM module invoked with `node --env-file=.env.local scripts/generate-article.mjs`.
+
+**Mode alternation:** `data/article-mode.json` holds `{ mode: "keyword" | "news" }`. Each successful generation flips the mode. On Gemini failure the mode is NOT flipped — the next run retries the same mode.
+
+- **keyword mode** — picks the next query from `data/article-keywords.json` (`keywords[index]`), fetches Google News RSS for supporting context, prompts Gemini to write a 600–800 word SEO article answering that specific investor search query, increments `index`.
+- **news mode** — fetches Google News RSS, prompts Gemini to summarise recent UAE property headlines.
+
+**Keyword bank exhaustion:** when `index >= keywords.length`, the script sends a Telegram notification and exits without generating an article or flipping the mode.
+
+**Approval flow:** generated article is saved to `data/article-draft.json`. Telegram message is sent with Publish / Skip inline buttons. `POST /api/telegram-webhook` handles button callbacks via `publishDraft()` / `deleteDraft()` from `lib/dynamic-articles.ts`. The `/add_keyword <query>` Telegram text command appends to `data/article-keywords.json` — only accepted from the first chat ID in `TELEGRAM_CHAT_ID`.
+
+**Tag rotation:** `data/article-tag-index.json` cycles through `['Market Update', 'Investment Guide', 'Area Spotlight', 'Legal Guide', 'Visa & Residency']`. This index is shared between the script and `lib/dynamic-articles.ts` — do not rename `TAGS` or change its order without updating both files.
+
+**To run manually on server:**
+
+```bash
+ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
+  "cd /var/www/worldwise && node --env-file=.env.local scripts/generate-article.mjs"
+```
+
+**To monitor cron logs:**
+
+```bash
+ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log"
+```
 
 ### SEO / crawler layer
 
@@ -217,7 +254,9 @@ Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global butt
 See `.env.example`. Key vars:
 
 - `ADMIN_PASSWORD` — used to sign/verify session tokens and for first-run owner bootstrap
-- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications; comma-separated for multiple recipients
+- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications and auto-blog approvals; comma-separated for multiple recipients. The first ID is the admin who can use `/add_keyword`.
+- `WEBHOOK_SECRET` — validates `X-Telegram-Bot-Api-Secret-Token` header on `POST /api/telegram-webhook`
+- `GEMINI_API_KEY` — Gemini 2.0 Flash API key used by `scripts/generate-article.mjs`
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
 - `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
