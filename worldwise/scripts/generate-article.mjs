@@ -7,6 +7,8 @@ const ROOT = path.join(__dirname, '..')
 const DATA_DIR = path.join(ROOT, 'data')
 const DRAFT_PATH = path.join(DATA_DIR, 'article-draft.json')
 const TAG_INDEX_PATH = path.join(DATA_DIR, 'article-tag-index.json')
+const KEYWORDS_PATH = path.join(DATA_DIR, 'article-keywords.json')
+const MODE_PATH = path.join(DATA_DIR, 'article-mode.json')
 
 const TAGS = ['Market Update', 'Investment Guide', 'Area Spotlight', 'Legal Guide', 'Visa & Residency']
 
@@ -63,8 +65,49 @@ function incrementTagIndex(current) {
   fs.writeFileSync(TAG_INDEX_PATH, JSON.stringify({ index: (current + 1) % TAGS.length }), 'utf-8')
 }
 
-async function generateArticle(tag, headlines) {
-  const prompt = `Write a 600–800 word SEO article about UAE real estate for international investors.
+function getMode() {
+  try {
+    if (!fs.existsSync(MODE_PATH)) return 'keyword'
+    return JSON.parse(fs.readFileSync(MODE_PATH, 'utf-8')).mode ?? 'keyword'
+  } catch { return 'keyword' }
+}
+
+function setMode(mode) {
+  fs.writeFileSync(MODE_PATH, JSON.stringify({ mode }), 'utf-8')
+}
+
+function getKeywords() {
+  try {
+    if (!fs.existsSync(KEYWORDS_PATH)) return { keywords: [], index: 0 }
+    return JSON.parse(fs.readFileSync(KEYWORDS_PATH, 'utf-8'))
+  } catch { return { keywords: [], index: 0 } }
+}
+
+function incrementKeywordIndex(currentIndex) {
+  const data = getKeywords()
+  data.index = currentIndex + 1
+  fs.writeFileSync(KEYWORDS_PATH, JSON.stringify(data, null, 2), 'utf-8')
+}
+
+async function generateArticle(tag, headlines, keyword) {
+  const prompt = keyword
+    ? `A potential investor just searched Google for: "${keyword}"
+
+Write a 600–800 word SEO article that directly and thoroughly answers this question for international property investors.
+
+Use these recent UAE market headlines as supporting context to make the article timely:
+${headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')}
+
+Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
+{
+  "title": "Article title (max 70 chars, SEO-optimised)",
+  "slug": "url-slug-kebab-case-no-special-chars",
+  "tag": "${tag}",
+  "excerpt": "2-3 sentence summary (max 200 chars)",
+  "readTime": "X min read",
+  "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation."
+}`
+    : `Write a 600–800 word SEO article about UAE real estate for international investors.
 Use these recent news headlines as context:
 ${headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')}
 
@@ -103,7 +146,6 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   const data = await res.json()
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 
-  // Strip markdown code fences if present
   let jsonStr = raw.trim()
   if (jsonStr.startsWith('```')) {
     jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
@@ -115,10 +157,23 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   return JSON.parse(jsonStr.trim())
 }
 
-async function sendTelegram(article) {
+async function sendTelegramMessage(text, inlineKeyboard) {
+  const body = { chat_id: TG_CHAT_ID, text }
+  if (inlineKeyboard) body.reply_markup = { inline_keyboard: inlineKeyboard }
+  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) throw new Error(`Telegram ${res.status}: ${await res.text()}`)
+}
+
+async function sendTelegram(article, keyword) {
   const preview = article.content.replace(/#{1,3} /g, '').slice(0, 400)
+  const sourceLine = keyword ? `🔑 Keyword: "${keyword}"` : '📡 Source: Google News'
   const text = [
     '📰 Новая статья готова к публикации',
+    sourceLine,
     '',
     `🏷 ${article.tag}`,
     `📌 ${article.title}`,
@@ -128,29 +183,35 @@ async function sendTelegram(article) {
     'Опубликовать или пропустить?',
   ].join('\n')
 
-  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: TG_CHAT_ID,
-      text,
-      reply_markup: {
-        inline_keyboard: [[
-          { text: '✅ Опубликовать', callback_data: 'publish_article' },
-          { text: '❌ Пропустить', callback_data: 'skip_article' },
-        ]],
-      },
-    }),
-  })
-
-  if (!res.ok) throw new Error(`Telegram ${res.status}: ${await res.text()}`)
+  await sendTelegramMessage(text, [[
+    { text: '✅ Опубликовать', callback_data: 'publish_article' },
+    { text: '❌ Пропустить', callback_data: 'skip_article' },
+  ]])
 }
 
 async function main() {
   log('Starting article generation')
 
   if (!GEMINI_KEY) { log('ERROR: Missing GEMINI_API_KEY'); process.exit(1) }
-  if (!TG_TOKEN || !TG_CHAT_ID) { log('ERROR: Missing Telegram config'); process.exit(1) }
+  if (!TG_TOKEN || !TG_CHAT_ID) { log('ERROR: Missing Telegram config'); process.exit(0) }
+
+  const mode = getMode()
+  log(`Mode: ${mode}`)
+
+  let keyword = null
+  let kwIndex = -1
+
+  if (mode === 'keyword') {
+    const { keywords, index } = getKeywords()
+    if (index >= keywords.length) {
+      log('Keyword bank exhausted, notifying via Telegram')
+      await sendTelegramMessage('⚠️ Банк ключевых слов исчерпан. Добавьте новые запросы командой /add_keyword <запрос>')
+      process.exit(0)
+    }
+    keyword = keywords[index]
+    kwIndex = index
+    log(`Keyword [${index}]: "${keyword}"`)
+  }
 
   const [feed1, feed2] = await Promise.all(RSS_FEEDS.map(fetchRss))
   const seen = new Set()
@@ -173,7 +234,7 @@ async function main() {
   let article
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      article = await generateArticle(tag, headlines)
+      article = await generateArticle(tag, headlines, keyword)
       article.publishedAt = new Date().toISOString()
       article.source = 'ai-generated'
       log(`Article generated: "${article.title}"`)
@@ -190,8 +251,15 @@ async function main() {
   log('Draft saved')
 
   incrementTagIndex(tagIndex)
+  if (mode === 'keyword') {
+    incrementKeywordIndex(kwIndex)
+    setMode('news')
+  } else {
+    setMode('keyword')
+  }
+  log(`Mode flipped to: ${mode === 'keyword' ? 'news' : 'keyword'}`)
 
-  await sendTelegram(article)
+  await sendTelegram(article, keyword)
   log('Telegram notification sent — waiting for approval')
 }
 
