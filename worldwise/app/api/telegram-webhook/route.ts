@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { publishDraft, deleteDraft } from '@/lib/dynamic-articles'
+import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-articles'
 import fs from 'fs'
 import path from 'path'
 
@@ -14,6 +14,50 @@ async function sendMessage(chatId: number, text: string) {
     if (!res.ok) console.error('[telegram-webhook] sendMessage failed', await res.text())
   } catch (e) {
     console.error('[telegram-webhook] sendMessage network error', e)
+  }
+}
+
+const TAG_EMOJI: Record<string, string> = {
+  'Market Update': '📊',
+  'Investment Guide': '📌',
+  'Area Spotlight': '📍',
+  'Legal Guide': '⚖️',
+  'Visa & Residency': '🛂',
+}
+
+function escapeMarkdownV2(text: string): string {
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&')
+}
+
+async function postToChannel(article: DynamicArticle) {
+  const channelId = process.env.TELEGRAM_CHANNEL_ID
+  if (!channelId) return
+  const token = process.env.TELEGRAM_BOT_TOKEN!
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://worldwise.pro').replace(/\/$/, '')
+  const emoji = TAG_EMOJI[article.tag] ?? '📄'
+  const tagHashtag = '\\#' + article.tag.replace(/[^a-zA-Z]/g, '')
+  const url = `${siteUrl}/blog/${article.slug}`
+  const text = [
+    `${emoji} ${escapeMarkdownV2(article.tag)}`,
+    '',
+    `*${escapeMarkdownV2(article.title)}*`,
+    '',
+    escapeMarkdownV2(article.excerpt),
+    '',
+    `\\#DubaiRealEstate ${tagHashtag}`,
+    '',
+    `👉 [Читать статью](${url})`,
+  ].join('\n')
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: channelId, text, parse_mode: 'MarkdownV2' }),
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) console.error('[telegram-webhook] postToChannel failed', await res.text())
+  } catch (e) {
+    console.error('[telegram-webhook] postToChannel error', e)
   }
 }
 
@@ -72,6 +116,7 @@ export async function POST(req: NextRequest) {
   if (data === 'publish_article') {
     const published = publishDraft()
     answerText = published ? '✅ Опубликовано' : '⚠️ Черновик не найден'
+    if (published) await postToChannel(published)
   } else if (data === 'skip_article') {
     deleteDraft()
     answerText = '❌ Пропущено'
