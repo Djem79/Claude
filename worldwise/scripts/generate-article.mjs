@@ -11,8 +11,8 @@ const TAG_INDEX_PATH = path.join(DATA_DIR, 'article-tag-index.json')
 const TAGS = ['Market Update', 'Investment Guide', 'Area Spotlight', 'Legal Guide', 'Visa & Residency']
 
 const RSS_FEEDS = [
-  'https://gulfnews.com/rss/property',
-  'https://www.arabianbusiness.com/rss/real-estate',
+  'https://news.google.com/rss/search?q=UAE+real+estate+property+Dubai&hl=en-US&gl=US&ceid=US:en',
+  'https://news.google.com/rss/search?q=Dubai+property+market+investment+2026&hl=en-US&gl=US&ceid=US:en',
 ]
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY
@@ -79,7 +79,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
 }`
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -104,7 +104,14 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 
   // Strip markdown code fences if present
-  const jsonStr = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/)?.[1] ?? raw.match(/(\{[\s\S]*\})/)?.[1] ?? raw
+  let jsonStr = raw.trim()
+  if (jsonStr.startsWith('```')) {
+    jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
+  }
+  if (!jsonStr.startsWith('{')) {
+    const m = jsonStr.match(/\{[\s\S]*\}/)
+    if (m) jsonStr = m[0]
+  }
   return JSON.parse(jsonStr.trim())
 }
 

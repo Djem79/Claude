@@ -2,6 +2,8 @@ import { MetadataRoute } from 'next'
 import { getProperties } from '@/lib/properties'
 import { getAllArticles } from '@/lib/articles'
 
+export const revalidate = 3600
+
 const BASE = 'https://worldwise.pro'
 
 export default function sitemap(): MetadataRoute.Sitemap {
