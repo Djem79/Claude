@@ -28,12 +28,12 @@ export default function Navigation({ transparent = false }: { transparent?: bool
         </Link>
 
         {/* Desktop menu */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/80">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/80 uppercase tracking-widest">
           <Link href="/properties" className="hover:text-gold transition-colors">Properties</Link>
           <Link href="/#areas" className="hover:text-gold transition-colors">Areas</Link>
           <Link href="/#about" className="hover:text-gold transition-colors">About</Link>
           <Link href="/#blog" className="hover:text-gold transition-colors">Insights</Link>
-          <Link href="/#contact" className="btn-primary text-sm px-6 py-2.5">
+          <Link href="/#contact" className="btn-primary text-sm px-6 py-2.5 normal-case tracking-normal">
             Free Consultation
           </Link>
         </div>
@@ -54,12 +54,12 @@ export default function Navigation({ transparent = false }: { transparent?: bool
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-navy border-t border-white/10 px-6 py-6 flex flex-col gap-5 text-white">
+        <div className="md:hidden bg-navy border-t border-white/10 px-6 py-6 flex flex-col gap-5 text-white uppercase tracking-widest text-sm">
           <Link href="/properties" onClick={() => setMenuOpen(false)} className="hover:text-gold">Properties</Link>
           <Link href="/#areas" onClick={() => setMenuOpen(false)} className="hover:text-gold">Areas</Link>
           <Link href="/#about" onClick={() => setMenuOpen(false)} className="hover:text-gold">About</Link>
           <Link href="/#blog" onClick={() => setMenuOpen(false)} className="hover:text-gold">Insights</Link>
-          <Link href="/#contact" onClick={() => setMenuOpen(false)} className="btn-primary text-center">
+          <Link href="/#contact" onClick={() => setMenuOpen(false)} className="btn-primary text-center normal-case tracking-normal">
             Free Consultation
           </Link>
         </div>
