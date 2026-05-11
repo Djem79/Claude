@@ -55,7 +55,7 @@ export default async function LeadsPage() {
           ))}
         </div>
 
-        <LeadsClient initialLeads={leads} />
+        <LeadsClient initialLeads={leads} isOwner={session?.role === 'owner'} />
       </div>
     </div>
   )

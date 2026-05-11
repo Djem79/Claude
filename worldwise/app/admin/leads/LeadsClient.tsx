@@ -24,7 +24,16 @@ function digitsOnly(s: string) {
   return s.replace(/\D/g, '')
 }
 
-export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) {
+const KNOWN_SOURCES = [
+  'hero_cta',
+  'mortgage_calculator',
+  'property_enquiry',
+  'lead_capture_section',
+  'floating_cta',
+  'blog_cta',
+]
+
+export default function LeadsClient({ initialLeads, isOwner = false }: { initialLeads: Lead[]; isOwner?: boolean }) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all')
   const [sourceFilter, setSourceFilter] = useState('all')
@@ -32,7 +41,11 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
   const [openId, setOpenId] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
 
-  const sources = useMemo(() => Array.from(new Set(leads.map(l => l.source).filter(Boolean))).sort(), [leads])
+  const sources = useMemo(() => {
+    const dynamic = leads.map(l => l.source).filter(Boolean) as string[]
+    const extra = dynamic.filter(s => !KNOWN_SOURCES.includes(s))
+    return [...KNOWN_SOURCES, ...Array.from(new Set(extra)).sort()]
+  }, [leads])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -245,14 +258,16 @@ export default function LeadsClient({ initialLeads }: { initialLeads: Lead[] }) 
                                   </div>
                                 </div>
                               )}
-                              <div className="pt-2">
-                                <button
-                                  onClick={() => removeLead(l.id)}
-                                  className="text-xs text-red-500 hover:text-red-700"
-                                >
-                                  Delete lead
-                                </button>
-                              </div>
+                              {isOwner && (
+                                <div className="pt-2">
+                                  <button
+                                    onClick={() => removeLead(l.id)}
+                                    className="text-xs text-red-500 hover:text-red-700"
+                                  >
+                                    Delete lead
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </td>
