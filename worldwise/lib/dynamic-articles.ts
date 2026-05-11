@@ -29,7 +29,8 @@ function readJson<T>(filePath: string, fallback: T): T {
   try {
     if (!fs.existsSync(filePath)) return fallback
     return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T
-  } catch {
+  } catch (e) {
+    console.error(`[dynamic-articles] Failed to read ${filePath}:`, e)
     return fallback
   }
 }
@@ -51,7 +52,7 @@ export function publishDraft(): boolean {
   if (!draft) return false
   const existing = getDynamicArticles()
   existing.unshift(draft)
-  fs.writeFileSync(ARTICLES_PATH, JSON.stringify(existing, null, 2))
+  fs.writeFileSync(ARTICLES_PATH, JSON.stringify(existing, null, 2), 'utf-8')
   deleteDraft()
   return true
 }
@@ -63,6 +64,7 @@ export function getTagIndex(): number {
 export function incrementTagIndex(current: number): void {
   fs.writeFileSync(
     TAG_INDEX_PATH,
-    JSON.stringify({ index: (current + 1) % TAGS.length })
+    JSON.stringify({ index: (current + 1) % TAGS.length }),
+    'utf-8'
   )
 }
