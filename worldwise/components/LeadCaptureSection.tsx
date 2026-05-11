@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { track } from '@/lib/analytics'
 
 const BUDGETS = [
   'Under AED 1M',
@@ -35,6 +36,7 @@ export default function LeadCaptureSection() {
       })
       if (!res.ok) throw new Error()
       setSuccess(true)
+      track('lead_form_submit', { source: 'lead_capture_section' })
     } catch {
       setError('Something went wrong. Please contact us via WhatsApp.')
     } finally {

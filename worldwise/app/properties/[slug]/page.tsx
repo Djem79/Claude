@@ -222,7 +222,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
               <div className="grid md:grid-cols-3 gap-6">
                 {similar.map(p => (
                   <Link key={p.id} href={`/properties/${p.slug}`} className="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative h-44 overflow-hidden">
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
                         src={p.images[0]}
                         alt={p.title}

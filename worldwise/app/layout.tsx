@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
+import Analytics from '@/components/Analytics'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {children}
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   )

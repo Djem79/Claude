@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { track } from '@/lib/analytics'
 
 interface Props {
   isOpen: boolean
@@ -62,6 +63,7 @@ export default function LeadModal({
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)
+      track('lead_form_submit', { source, ...(propertyTitle ? { property: propertyTitle } : {}) })
     } catch {
       setError('Something went wrong. Please try WhatsApp instead.')
     } finally {

@@ -1,10 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { track } from '@/lib/analytics'
 
 export default function PropertyGallery({ images, title }: { images: string[]; title: string }) {
   const [current, setCurrent] = useState(0)
+
+  useEffect(() => {
+    track('property_view', { property: title })
+  }, [title])
 
   return (
     <div className="relative bg-navy">
@@ -13,7 +18,7 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
           src={images[current]}
           alt={`${title} — photo ${current + 1}`}
           fill
-          className="object-cover"
+          className="object-contain"
           priority
           sizes="100vw"
         />

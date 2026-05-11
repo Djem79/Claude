@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { track } from '@/lib/analytics'
 
 const BUDGETS = ['Under AED 1M', 'AED 1M – 3M', 'AED 3M – 7M', 'AED 7M – 15M', 'Above AED 15M']
 
@@ -37,6 +38,7 @@ export default function PropertyEnquiryForm({
       })
       if (!res.ok) throw new Error()
       setSuccess(true)
+      track('lead_form_submit', { source: 'property_enquiry', property: propertyTitle })
     } catch {
       setError('Something went wrong. Try WhatsApp.')
     } finally {
@@ -85,6 +87,7 @@ export default function PropertyEnquiryForm({
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 bg-[#25D366] text-white text-sm font-medium py-2.5 rounded-sm text-center hover:opacity-90 transition-opacity"
+              onClick={() => track('whatsapp_click', { source: 'property_enquiry', property: propertyTitle })}
             >
               💬 WhatsApp
             </a>
