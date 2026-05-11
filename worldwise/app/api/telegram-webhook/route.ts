@@ -26,7 +26,7 @@ const TAG_EMOJI: Record<string, string> = {
 }
 
 function escapeMarkdownV2(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&')
+  return text.replace(/[\\*_[\]()~`>#+\-=|{}.!]/g, '\\$&')
 }
 
 async function postToChannel(article: DynamicArticle) {
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
   if (data === 'publish_article') {
     const published = publishDraft()
     answerText = published ? '✅ Опубликовано' : '⚠️ Черновик не найден'
-    if (published) await postToChannel(published)
+    if (published) postToChannel(published)
   } else if (data === 'skip_article') {
     deleteDraft()
     answerText = '❌ Пропущено'
