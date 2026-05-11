@@ -77,6 +77,7 @@ SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, va
 - Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
 - Blog: `/blog` listing + `/blog/[slug]` — static editorial articles in `lib/articles.ts` + AI-generated articles from `data/articles.json`
 - Auto-blog pipeline: Gemini-powered article generator runs every 3 days, alternates keyword/news mode, Telegram approval flow
+- Analytics: GA4 (consent-aware) with conversion event tracking on all lead forms and CTAs
 - Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
 - Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
 - Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`)
@@ -87,9 +88,9 @@ SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, va
 **Not built yet (possible next steps):**
 
 - Area-specific landing pages (e.g. `/dubai-marina`, `/downtown-dubai`)
-- Google Analytics / Meta Pixel integration
 - WhatsApp chat widget
 - Property comparison feature
+- Meta Pixel integration
 
 ## Conversion & UX logic
 
@@ -232,6 +233,14 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log"
 ```
 
+### Analytics
+
+`components/Analytics.tsx` — consent-aware GA4 loader. Renders `<Script>` tags only after the user accepts cookies. Listens for the `ww_consent_accepted` custom event dispatched by `CookieBanner.tsx` (also checks `localStorage` on mount for returning visitors). Mounted in `app/layout.tsx`.
+
+`lib/analytics.ts` — thin `track(event, params?)` helper that calls `window.gtag()` when available. Import this in any client component that needs to fire a GA4 event. Do not call `window.gtag` directly.
+
+**Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title).
+
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
@@ -259,4 +268,5 @@ See `.env.example`. Key vars:
 - `GEMINI_API_KEY` — Gemini 2.0 Flash API key used by `scripts/generate-article.mjs`
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
 - `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
+- `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); GA loads only after cookie consent
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
