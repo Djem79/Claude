@@ -54,6 +54,7 @@ async function fetchRss(url) {
   }
 }
 
+// Tag index format must stay in sync with lib/dynamic-articles.ts
 function getTagIndex() {
   try {
     if (!fs.existsSync(TAG_INDEX_PATH)) return 0
@@ -135,6 +136,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
       }),
+      signal: AbortSignal.timeout(30000),
     }
   )
 
@@ -164,6 +166,7 @@ async function sendTelegramMessage(text, inlineKeyboard) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10000),
   })
   if (!res.ok) throw new Error(`Telegram ${res.status}: ${await res.text()}`)
 }
@@ -193,7 +196,7 @@ async function main() {
   log('Starting article generation')
 
   if (!GEMINI_KEY) { log('ERROR: Missing GEMINI_API_KEY'); process.exit(1) }
-  if (!TG_TOKEN || !TG_CHAT_ID) { log('ERROR: Missing Telegram config'); process.exit(0) }
+  if (!TG_TOKEN || !TG_CHAT_ID) { log('ERROR: Missing Telegram config'); process.exit(1) }
 
   const mode = getMode()
   log(`Mode: ${mode}`)
@@ -250,17 +253,16 @@ async function main() {
   fs.writeFileSync(DRAFT_PATH, JSON.stringify(article, null, 2), 'utf-8')
   log('Draft saved')
 
-  incrementTagIndex(tagIndex)
-  if (mode === 'keyword') {
-    incrementKeywordIndex(kwIndex)
-    setMode('news')
-  } else {
-    setMode('keyword')
-  }
-  log(`Mode flipped to: ${mode === 'keyword' ? 'news' : 'keyword'}`)
-
   await sendTelegram(article, keyword)
   log('Telegram notification sent — waiting for approval')
+
+  incrementTagIndex(tagIndex)
+  const newMode = mode === 'keyword' ? 'news' : 'keyword'
+  if (mode === 'keyword') {
+    incrementKeywordIndex(kwIndex)
+  }
+  setMode(newMode)
+  log(`Mode flipped to: ${newMode}`)
 }
 
 main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
