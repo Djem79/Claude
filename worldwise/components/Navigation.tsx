@@ -22,8 +22,9 @@ export default function Navigation({ transparent = false }: { transparent?: bool
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <img src="/images/logo-white.svg" alt="Worldwise Real Estate" className="h-12 w-auto" />
+        <Link href="/" className="flex items-center gap-3">
+          <img src="/images/logo.png" alt="Worldwise" className="h-10 w-auto" />
+          <span className="font-serif text-2xl text-white tracking-wide hidden sm:inline">WORLDWISE</span>
         </Link>
 
         {/* Desktop menu */}
