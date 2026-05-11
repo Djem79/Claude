@@ -79,6 +79,7 @@ const orgJsonLd = {
   },
   areaServed: { '@type': 'City', name: 'Dubai' },
   sameAs: [
+    'https://www.google.com/maps/place/WORLDWISE+REAL+ESTATE+LLC/@25.1071856,55.1984163,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f69003d5d7793:0xcb632527c181460e!8m2!3d25.1071856!4d55.1984163!16s%2Fg%2F11vzbltfqp',
     'https://www.instagram.com/worldwiseofficial',
     'https://www.linkedin.com/company/worldwise-real-estate-llc/',
     'https://www.youtube.com/@worldwiserealestate',
