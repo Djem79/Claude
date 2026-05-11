@@ -1,6 +1,6 @@
 # Worldwise Real Estate
 
-> Dubai-based real estate investment agency. Off-plan, secondary market and rental properties in the UAE.
+> Dubai-based real estate investment agency. Off-plan, secondary market and rental properties in the UAE. Last updated: May 2026.
 
 Worldwise Real Estate is a RERA-certified agency helping international investors find and purchase properties in Dubai. We specialise in off-plan developments from top developers (Emaar, Sobha, Damac, Nakheel) and secondary market apartments, villas and townhouses across prime Dubai locations. Typical rental yields: 8–10% per year. UAE has 0% income tax and 0% capital gains tax.
 
@@ -40,6 +40,16 @@ Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 - Golden Visa eligibility from AED 2M investment
 - RERA & DLD-regulated market (transparent, investor-friendly)
 - 500+ international investors served from 30+ countries
+
+## Blog & Guides
+
+SEO articles and investment guides at https://worldwise.pro/blog
+Topics: off-plan investment, Golden Visa, Dubai mortgage, area guides, market updates.
+
+## Legal
+
+- Terms of Use: https://worldwise.pro/terms
+- Privacy Policy: https://worldwise.pro/privacy
 
 ## Social Media
 
