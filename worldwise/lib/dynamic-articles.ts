@@ -47,14 +47,14 @@ export function deleteDraft(): void {
   if (fs.existsSync(DRAFT_PATH)) fs.unlinkSync(DRAFT_PATH)
 }
 
-export function publishDraft(): boolean {
+export function publishDraft(): DynamicArticle | null {
   const draft = getDraft()
-  if (!draft) return false
+  if (!draft) return null
   const existing = getDynamicArticles()
   existing.unshift(draft)
   fs.writeFileSync(ARTICLES_PATH, JSON.stringify(existing, null, 2), 'utf-8')
   deleteDraft()
-  return true
+  return draft
 }
 
 export function getTagIndex(): number {
