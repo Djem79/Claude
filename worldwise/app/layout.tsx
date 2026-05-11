@@ -32,20 +32,13 @@ export const metadata: Metadata = {
     siteName: 'Worldwise Real Estate',
     type: 'website',
     locale: 'en_AE',
-    images: [
-      {
-        url: '/images/areas/dubai-marina.jpg',
-        width: 1600,
-        height: 1067,
-        alt: 'Dubai Marina — Worldwise Real Estate',
-      },
-    ],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Worldwise Real Estate' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Dubai Real Estate Investment | Worldwise',
     description: 'Buy off-plan and ready properties in Dubai with 8-10% annual yield.',
-    images: ['/images/areas/dubai-marina.jpg'],
+    images: ['/opengraph-image'],
   },
   alternates: {
     canonical: 'https://worldwise.pro',
