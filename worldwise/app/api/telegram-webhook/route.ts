@@ -5,11 +5,16 @@ import path from 'path'
 
 async function sendMessage(chatId: number, text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN!
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  })
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text }),
+    })
+    if (!res.ok) console.error('[telegram-webhook] sendMessage failed', await res.text())
+  } catch (e) {
+    console.error('[telegram-webhook] sendMessage network error', e)
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -18,12 +23,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ ok: true })
+  }
 
   // /add_keyword text command
-  const message = body.message
+  const message = body.message as any
   if (message?.text) {
-    const expectedChatId = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim()
+    const expectedChatId = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim() // first chat ID is the admin who can use /add_keyword
     if (String(message.chat.id) === expectedChatId) {
       const text: string = message.text
       if (text.toLowerCase().startsWith('/add_keyword')) {
@@ -36,7 +46,9 @@ export async function POST(req: NextRequest) {
         let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
         try {
           data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
-        } catch {}
+        } catch (e) {
+          console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
+        }
         data.keywords.push(query)
         fs.writeFileSync(keywordsPath, JSON.stringify(data, null, 2), 'utf-8')
         await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
@@ -47,10 +59,11 @@ export async function POST(req: NextRequest) {
   }
 
   // publish / skip callback buttons
-  const callback = body.callback_query
+  const callback = body.callback_query as any
   if (!callback) return NextResponse.json({ ok: true })
 
   const { id: callbackId, data, message: cbMessage } = callback
+  if (!cbMessage) return NextResponse.json({ ok: true })
   const chatId = cbMessage.chat.id
   const messageId = cbMessage.message_id
   const token = process.env.TELEGRAM_BOT_TOKEN!
