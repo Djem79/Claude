@@ -3,15 +3,17 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
-import { getArticleBySlug, articles } from '@/lib/articles'
+import { getArticleBySlug, getAllArticles } from '@/lib/articles'
 import type { Metadata } from 'next'
+
+export const revalidate = 60
 
 interface Props {
   params: { slug: string }
 }
 
 export function generateStaticParams() {
-  return articles.map(a => ({ slug: a.slug }))
+  return getAllArticles().map(a => ({ slug: a.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,6 +35,8 @@ const TAG_COLORS: Record<string, string> = {
   'Investment Guide': 'bg-blue-50 text-blue-700',
   'Legal Guide': 'bg-purple-50 text-purple-700',
   'Visa & Residency': 'bg-green-50 text-green-700',
+  'Market Update': 'bg-amber-50 text-amber-700',
+  'Area Spotlight': 'bg-rose-50 text-rose-700',
 }
 
 export default function ArticlePage({ params }: Props) {

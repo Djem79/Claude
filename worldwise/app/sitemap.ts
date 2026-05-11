@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getProperties } from '@/lib/properties'
-import { articles } from '@/lib/articles'
+import { getAllArticles } from '@/lib/articles'
 
 const BASE = 'https://worldwise.pro'
 
@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: p.featured ? 0.9 : 0.7,
   }))
 
-  const blogPages: MetadataRoute.Sitemap = articles.map(a => ({
+  const blogPages: MetadataRoute.Sitemap = getAllArticles().map(a => ({
     url: `${BASE}/blog/${a.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
