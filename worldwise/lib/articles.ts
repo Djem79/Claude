@@ -1,3 +1,5 @@
+import { getDynamicArticles, DynamicArticle } from './dynamic-articles'
+
 export interface Article {
   slug: string
   tag: string
@@ -242,6 +244,12 @@ For investors purchasing at AED 2M+, we recommend applying directly for the 10-y
   },
 ]
 
-export function getArticleBySlug(slug: string): Article | null {
-  return articles.find(a => a.slug === slug) ?? null
+export function getAllArticles(): (Article | DynamicArticle)[] {
+  const dynamic = getDynamicArticles()
+  return [...dynamic, ...articles]
+}
+
+export function getArticleBySlug(slug: string): Article | DynamicArticle | null {
+  const dynamic = getDynamicArticles()
+  return dynamic.find(a => a.slug === slug) ?? articles.find(a => a.slug === slug) ?? null
 }
