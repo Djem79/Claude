@@ -26,12 +26,11 @@ export async function POST(
     sentByName: session.name,
   }
 
-  const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = updateLead(params.id, {
     attachments: (lead.attachments ?? []).map(a =>
       a.id === params.fileId ? { ...a, sentLog: [...a.sentLog, entry] } : a
     ),
-  }, actor)
+  })
 
   if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   return NextResponse.json(updated)

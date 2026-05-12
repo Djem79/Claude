@@ -67,6 +67,7 @@ function FilesSection({ lead, onUpdate }: { lead: Lead; onUpdate: (updated: Lead
   }
 
   async function handleDelete(fileId: string) {
+    if (!confirm('Delete this file? This cannot be undone.')) return
     const res = await fetch(`/api/leads/${lead.id}/files/${fileId}`, { method: 'DELETE' })
     if (res.ok) onUpdate(await res.json())
     else alert((await res.json()).error ?? 'Delete failed')
@@ -94,7 +95,7 @@ function FilesSection({ lead, onUpdate }: { lead: Lead; onUpdate: (updated: Lead
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ via: 'whatsapp' }),
-    }).then(r => r.ok && r.json()).then(updated => updated && onUpdate(updated))
+    }).then(r => r.ok && r.json()).then(updated => updated && onUpdate(updated)).catch(console.error)
   }
 
   const attachments = lead.attachments ?? []
