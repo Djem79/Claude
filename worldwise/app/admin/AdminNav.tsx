@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { AdminRole } from '@/types'
 import LogoutButton from './LogoutButton'
 
-type NavSession = { name: string; role: string } | null
+type NavSession = { name: string; role: AdminRole } | null
 
 const NAV_LINKS = [
   {
@@ -28,6 +29,10 @@ const NAV_LINKS = [
 export default function AdminNav({ session }: { session: NavSession }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
 
   if (pathname === '/admin/login') return null
 
@@ -72,6 +77,7 @@ export default function AdminNav({ session }: { session: NavSession }) {
           <Link
             href="/"
             target="_blank"
+            rel="noopener noreferrer"
             className="hidden md:inline text-white/60 hover:text-white text-sm"
           >
             View Site ↗
@@ -134,6 +140,7 @@ export default function AdminNav({ session }: { session: NavSession }) {
               <Link
                 href="/"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="text-white/60 hover:text-white text-sm"
               >
                 View Site ↗
