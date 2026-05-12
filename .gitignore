@@ -14,6 +14,10 @@
 # Back up via server snapshot, NOT git.
 worldwise/data/leads.json
 
+# Uploaded client documents — contain customer PII.
+# Served from public/ but must never be committed.
+worldwise/public/files/
+
 # OS
 .DS_Store
 Thumbs.db

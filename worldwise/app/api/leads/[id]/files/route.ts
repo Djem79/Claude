@@ -14,6 +14,7 @@ const ALLOWED_MIME = new Set([
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ])
+const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png', 'webp', 'doc', 'docx'])
 
 function sanitizeName(name: string): string {
   return name
@@ -49,12 +50,27 @@ export async function POST(
   if (file.size > MAX_BYTES) {
     return NextResponse.json({ error: 'File exceeds 10 MB limit' }, { status: 400 })
   }
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
+    return NextResponse.json({ error: 'Unsupported file extension' }, { status: 400 })
+  }
 
   const fileId = makeId()
   const safeName = sanitizeName(file.name)
-  const dir = path.join(process.cwd(), 'public', 'files', 'leads', params.id, fileId)
-  fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(path.join(dir, safeName), Buffer.from(await file.arrayBuffer()))
+
+  const base = path.join(process.cwd(), 'public', 'files', 'leads')
+  const dir = path.resolve(base, params.id, fileId)
+  if (!dir.startsWith(base + path.sep)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+  }
+
+  try {
+    fs.mkdirSync(dir, { recursive: true })
+    fs.writeFileSync(path.join(dir, safeName), Buffer.from(await file.arrayBuffer()))
+  } catch (e) {
+    console.error('[files/upload] fs error', e)
+    return NextResponse.json({ error: 'Failed to save file' }, { status: 500 })
+  }
 
   const attachment: FileAttachment = {
     id: fileId,
@@ -66,9 +82,11 @@ export async function POST(
     sentLog: [],
   }
 
+  const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = updateLead(params.id, {
     attachments: [...(lead.attachments ?? []), attachment],
-  })
+  }, actor)
+  if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
   return NextResponse.json(updated, { status: 201 })
 }

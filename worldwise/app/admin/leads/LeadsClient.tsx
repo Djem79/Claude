@@ -69,6 +69,7 @@ function FilesSection({ lead, onUpdate }: { lead: Lead; onUpdate: (updated: Lead
   async function handleDelete(fileId: string) {
     const res = await fetch(`/api/leads/${lead.id}/files/${fileId}`, { method: 'DELETE' })
     if (res.ok) onUpdate(await res.json())
+    else alert((await res.json()).error ?? 'Delete failed')
   }
 
   async function handleEmail(fileId: string) {

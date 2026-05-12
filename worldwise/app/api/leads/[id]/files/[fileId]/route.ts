@@ -23,7 +23,12 @@ export async function DELETE(
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
 
-  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
+  try {
+    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
+  } catch (e) {
+    console.error('[files/delete] fs error', e)
+    return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 })
+  }
 
   const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = updateLead(params.id, {
