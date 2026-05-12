@@ -17,12 +17,19 @@ export async function DELETE(
   const attachment = (lead.attachments ?? []).find(a => a.id === params.fileId)
   if (!attachment) return NextResponse.json({ error: 'File not found' }, { status: 404 })
 
-  const dir = path.join(process.cwd(), 'public', 'files', 'leads', params.id, params.fileId)
+  const base = path.join(process.cwd(), 'public', 'files', 'leads')
+  const dir = path.resolve(base, params.id, params.fileId)
+  if (!dir.startsWith(base + path.sep)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+  }
+
   if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
 
+  const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = updateLead(params.id, {
     attachments: (lead.attachments ?? []).filter(a => a.id !== params.fileId),
-  })
+  }, actor)
 
+  if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   return NextResponse.json(updated)
 }

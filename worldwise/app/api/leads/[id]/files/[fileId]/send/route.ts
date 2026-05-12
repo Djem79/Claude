@@ -23,9 +23,13 @@ export async function POST(
     return NextResponse.json({ error: 'SMTP not configured' }, { status: 503 })
   }
 
-  const filePath = path.join(
-    process.cwd(), 'public', 'files', 'leads', params.id, params.fileId, attachment.name
-  )
+  const base = path.join(process.cwd(), 'public', 'files', 'leads')
+  const resolvedDir = path.resolve(base, params.id, params.fileId)
+  if (!resolvedDir.startsWith(base + path.sep)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+  }
+  const filePath = path.join(resolvedDir, attachment.name)
+
   if (!fs.existsSync(filePath)) {
     return NextResponse.json({ error: 'File not found on disk' }, { status: 404 })
   }
@@ -41,7 +45,7 @@ export async function POST(
       from: process.env.SMTP_USER,
       to: lead.email,
       subject: `${lead.name} — ${attachment.name}`,
-      text: `Здравствуйте, ${lead.name}!\n\nПожалуйста, найдите прикреплённый файл: ${attachment.name}\n\nС уважением,\nWorldwise Real Estate\n+971 50 696 0435\ninfo@worldwise.pro`,
+      text: `Hello, ${lead.name}!\n\nPlease find the attached file: ${attachment.name}\n\nBest regards,\nWorldwise Real Estate\n${process.env.NEXT_PUBLIC_PHONE ?? '+971 50 696 0435'}\ninfo@worldwise.pro`,
       attachments: [{ filename: attachment.name, path: filePath }],
     })
   } catch (e) {
@@ -56,11 +60,13 @@ export async function POST(
     sentByName: session.name,
   }
 
+  const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = updateLead(params.id, {
     attachments: (lead.attachments ?? []).map(a =>
       a.id === params.fileId ? { ...a, sentLog: [...a.sentLog, entry] } : a
     ),
-  })
+  }, actor)
 
+  if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   return NextResponse.json(updated)
 }
