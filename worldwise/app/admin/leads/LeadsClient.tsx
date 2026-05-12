@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
 
 const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
@@ -232,7 +232,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   const [view, setView] = useState<'table' | 'kanban'>('table')
   const [mobileColumn, setMobileColumn] = useState<LeadStatus>('new')
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMobileColumn('new')
   }, [statusFilter])
 
