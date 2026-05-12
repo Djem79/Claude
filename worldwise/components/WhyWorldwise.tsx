@@ -52,12 +52,12 @@ export default function WhyWorldwise() {
               Why Worldwise
             </p>
             <h2 className="section-title">
-              Trusted by Investors<br />Around the World
+              Brokers sell.<br /><em className="not-italic text-gold">We advise.</em>
             </h2>
             <p className="text-gray-500 text-lg mt-4 leading-relaxed">
-              Worldwise Real Estate L.L.C. is a Dubai-based agency specialising in international
-              investment property. Our team of experts makes buying, selling and investing
-              in UAE real estate seamless — from your first enquiry to handover and beyond.
+              We&apos;re RERA-licensed brokers — but our model is built so we win when
+              you win, five years out, not just at closing. That changes everything
+              about the conversation.
             </p>
 
             <div className="grid grid-cols-2 gap-6 mt-8">

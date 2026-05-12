@@ -8,6 +8,7 @@ import AreasSection from '@/components/AreasSection'
 import WhyWorldwise from '@/components/WhyWorldwise'
 import HowItWorks from '@/components/HowItWorks'
 import Testimonials from '@/components/Testimonials'
+import TeamSection from '@/components/TeamSection'
 import BlogPreview from '@/components/BlogPreview'
 import LeadCaptureSection from '@/components/LeadCaptureSection'
 import Footer from '@/components/Footer'
@@ -30,6 +31,7 @@ export default function Home() {
         <WhyWorldwise />
         <HowItWorks />
         <Testimonials />
+        <TeamSection />
         <BlogPreview />
         <LeadCaptureSection />
       </main>
