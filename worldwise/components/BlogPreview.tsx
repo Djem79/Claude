@@ -1,39 +1,17 @@
 import Link from 'next/link'
-
-const articles = [
-  {
-    slug: 'off-plan-investment-guide',
-    tag: 'Investment Guide',
-    title: 'Off-Plan Property Investment in Dubai: A Beginner\'s Guide',
-    excerpt:
-      'A step-by-step walkthrough for first-time investors: setting goals, selecting a trusted agent, booking your unit, managing payment milestones and receiving handover.',
-    readTime: '7 min read',
-  },
-  {
-    slug: 'legal-process-secondary-market',
-    tag: 'Legal Guide',
-    title: 'Step-by-Step Legal Process for Buying Property on the Secondary Market',
-    excerpt:
-      'Everything you need to know about the four key legal stages of a resale transaction — including cost estimates for cash buyers and mortgage buyers.',
-    readTime: '6 min read',
-  },
-  {
-    slug: 'uae-property-residence-visa',
-    tag: 'Visa & Residency',
-    title: 'Does Buying Property in the UAE Grant a Residence Visa?',
-    excerpt:
-      'An overview of the three investor visa types — 2-year, 5-year Green Visa and 10-year Golden Visa — with minimum investment thresholds and required documentation.',
-    readTime: '5 min read',
-  },
-]
+import { getAllArticles } from '@/lib/articles'
 
 const TAG_COLORS: Record<string, string> = {
   'Investment Guide': 'bg-blue-50 text-blue-700',
   'Legal Guide': 'bg-purple-50 text-purple-700',
   'Visa & Residency': 'bg-green-50 text-green-700',
+  'Market Update': 'bg-amber-50 text-amber-700',
+  'Area Spotlight': 'bg-teal-50 text-teal-700',
 }
 
 export default function BlogPreview() {
+  const articles = getAllArticles().slice(0, 3)
+
   return (
     <section id="blog" className="py-20 bg-[#F8F8F6]">
       <div className="max-w-7xl mx-auto px-6">
