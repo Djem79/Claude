@@ -46,6 +46,30 @@ const KNOWN_SOURCES = [
   'blog_cta',
 ]
 
+const CARD_BORDER: Record<LeadStatus, string> = {
+  new: 'border-l-blue-400',
+  contacted: 'border-l-amber-400',
+  'in-progress': 'border-l-purple-400',
+  won: 'border-l-gold',
+  lost: 'border-l-gray-300',
+}
+
+const COLUMN_BADGE: Record<LeadStatus, string> = {
+  new: 'bg-blue-50 text-blue-700',
+  contacted: 'bg-amber-50 text-amber-800',
+  'in-progress': 'bg-purple-50 text-purple-700',
+  won: 'bg-amber-50 text-gold border border-gold/30',
+  lost: 'bg-gray-100 text-gray-500',
+}
+
+const COLUMN_HEADER_COLOR: Record<LeadStatus, string> = {
+  new: 'text-navy',
+  contacted: 'text-navy',
+  'in-progress': 'text-navy',
+  won: 'text-gold',
+  lost: 'text-gray-400',
+}
+
 function FilesSection({ lead, onUpdate }: { lead: Lead; onUpdate: (updated: Lead) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -205,6 +229,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
+  const [view, setView] = useState<'table' | 'kanban'>('table')
+  const [mobileColumn, setMobileColumn] = useState<LeadStatus>('new')
 
   const sources = useMemo(() => {
     const dynamic = leads.map(l => l.source).filter(Boolean) as string[]
@@ -268,6 +294,28 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
 
   return (
     <div className="space-y-6">
+      {/* View toggle */}
+      <div className="flex justify-end">
+        <div className="flex border border-gray-200 rounded overflow-hidden">
+          <button
+            onClick={() => setView('table')}
+            className={`px-4 py-2 text-sm ${
+              view === 'table' ? 'bg-navy text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            ☰ Table
+          </button>
+          <button
+            onClick={() => setView('kanban')}
+            className={`px-4 py-2 text-sm ${
+              view === 'kanban' ? 'bg-navy text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            ▦ Kanban
+          </button>
+        </div>
+      </div>
+
       {/* Filters & search */}
       <div className="bg-white rounded-sm shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3 items-end">
         <div className="flex-1 min-w-60">
@@ -307,148 +355,290 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
         <p className="text-xs text-gray-400 self-center">{filtered.length} of {leads.length}</p>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Property', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-gray-400">No leads match filters.</td></tr>
-              )}
-              {filtered.map(l => {
-                const status = (l.status ?? 'new') as LeadStatus
-                const isOpen = openId === l.id
-                return (
-                  <>
-                    <tr
-                      key={l.id}
-                      className={`cursor-pointer hover:bg-gray-50 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}
-                      onClick={() => setOpenId(isOpen ? null : l.id)}
-                    >
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmt(l.createdAt)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`badge text-xs ${STATUS_META[status].color}`}>{STATUS_META[status].label}</span>
-                      </td>
-                      <td className="px-4 py-3 font-medium text-navy">{l.name}</td>
-                      <td className="px-4 py-3 text-gray-700">{l.phone}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate">
-                        {l.email ? (
-                          <a href={`mailto:${l.email}`} className="text-blue-600 hover:underline" onClick={e => e.stopPropagation()}>
-                            {l.email}
-                          </a>
-                        ) : '—'}
-                      </td>
-                      <td className="px-4 py-3"><span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></td>
-                      <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{l.propertyTitle ?? '—'}</td>
-                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                        <div className="flex gap-3">
-                          <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
-                          <a href={`tel:${l.phone}`} className="text-xs text-gold hover:underline">Call</a>
-                          {l.email && <a href={`mailto:${l.email}`} className="text-xs text-blue-600 hover:underline">Email</a>}
-                        </div>
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr key={l.id + '-detail'} className="bg-gray-50/50">
-                        <td colSpan={8} className="px-4 py-5">
-                          <div className="grid md:grid-cols-3 gap-6">
-                            <div className="md:col-span-1 space-y-2 text-sm">
-                              <div><span className="text-gray-400 text-xs">Email:</span> {l.email ?? '—'}</div>
-                              <div><span className="text-gray-400 text-xs">Budget:</span> {l.budget ?? '—'}</div>
-                              <div><span className="text-gray-400 text-xs">Contacted at:</span> {fmt(l.contactedAt)}</div>
-                              <div><span className="text-gray-400 text-xs">Updated at:</span> {fmt(l.updatedAt)}</div>
-                              {l.message && (
-                                <div className="pt-2">
-                                  <p className="text-gray-400 text-xs mb-1">Message from client:</p>
-                                  <p className="text-gray-700 italic bg-white border border-gray-100 rounded-sm p-2">{l.message}</p>
-                                </div>
-                              )}
-                            </div>
-                            <div className="md:col-span-2 space-y-3">
-                              <div>
-                                <label className="text-xs text-gray-500 font-medium block mb-1">Status</label>
-                                <div className="flex gap-2 flex-wrap">
-                                  {STATUS_ORDER.map(s => (
-                                    <button
-                                      key={s}
-                                      onClick={() => patchLead(l.id, { status: s })}
-                                      disabled={savingId === l.id}
-                                      className={`text-xs px-3 py-1.5 rounded-sm border ${
-                                        status === s && s === 'lost'
-                                          ? 'border-red-500 bg-red-100 text-red-700 font-medium'
-                                          : status === s
-                                          ? 'border-gold bg-gold/10 text-navy font-medium'
-                                          : 'border-gray-200 text-gray-500 hover:border-gold'
-                                      }`}
-                                    >
-                                      {STATUS_META[s].label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-500 font-medium block mb-1">Internal notes</label>
-                                <textarea
-                                  defaultValue={l.notes ?? ''}
-                                  rows={3}
-                                  onBlur={e => {
-                                    const next = e.target.value
-                                    if (next !== (l.notes ?? '')) patchLead(l.id, { notes: next })
-                                  }}
-                                  placeholder="Call notes, follow-up dates, agent assignment..."
-                                  className="w-full border border-gray-200 px-3 py-2 rounded-sm text-sm focus:outline-none focus:border-gold resize-none"
-                                />
-                                <p className="text-xs text-gray-400 mt-1">Saved on blur (click outside).</p>
-                              </div>
-                              {l.activityLog && l.activityLog.length > 0 && (
-                                <div className="pt-2">
-                                  <p className="text-xs text-gray-400 font-medium mb-2">Activity Log</p>
-                                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                                    {[...l.activityLog].reverse().map((entry: ActivityEntry, i: number) => (
-                                      <div key={i} className="flex gap-2 text-xs text-gray-500">
-                                        <span className="text-gray-300 shrink-0">{fmt(entry.at)}</span>
-                                        <span className="font-medium text-navy shrink-0">{entry.byName}</span>
-                                        <span>{entry.action}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              <FilesSection
-                                lead={l}
-                                onUpdate={updated => setLeads(prev => prev.map(x => x.id === updated.id ? updated : x))}
-                              />
-                              {isOwner && (
-                                <div className="pt-2">
-                                  <button
-                                    onClick={() => removeLead(l.id)}
-                                    className="text-xs text-red-500 hover:text-red-700"
-                                  >
-                                    Delete lead
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+      {/* Table view */}
+      {view === 'table' && (
+        <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Property', 'Actions'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filtered.length === 0 && (
+                  <tr><td colSpan={8} className="px-4 py-10 text-center text-gray-400">No leads match filters.</td></tr>
+                )}
+                {filtered.map(l => {
+                  const status = (l.status ?? 'new') as LeadStatus
+                  const isOpen = openId === l.id
+                  return (
+                    <>
+                      <tr
+                        key={l.id}
+                        className={`cursor-pointer hover:bg-gray-50 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}
+                        onClick={() => setOpenId(isOpen ? null : l.id)}
+                      >
+                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmt(l.createdAt)}</td>
+                        <td className="px-4 py-3">
+                          <span className={`badge text-xs ${STATUS_META[status].color}`}>{STATUS_META[status].label}</span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-navy">{l.name}</td>
+                        <td className="px-4 py-3 text-gray-700">{l.phone}</td>
+                        <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate">
+                          {l.email ? (
+                            <a href={`mailto:${l.email}`} className="text-blue-600 hover:underline" onClick={e => e.stopPropagation()}>
+                              {l.email}
+                            </a>
+                          ) : '—'}
+                        </td>
+                        <td className="px-4 py-3"><span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></td>
+                        <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{l.propertyTitle ?? '—'}</td>
+                        <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                          <div className="flex gap-3">
+                            <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
+                            <a href={`tel:${l.phone}`} className="text-xs text-gold hover:underline">Call</a>
+                            {l.email && <a href={`mailto:${l.email}`} className="text-xs text-blue-600 hover:underline">Email</a>}
                           </div>
                         </td>
                       </tr>
-                    )}
-                  </>
+                      {isOpen && (
+                        <tr key={l.id + '-detail'} className="bg-gray-50/50">
+                          <td colSpan={8} className="px-4 py-5">
+                            <div className="grid md:grid-cols-3 gap-6">
+                              <div className="md:col-span-1 space-y-2 text-sm">
+                                <div><span className="text-gray-400 text-xs">Email:</span> {l.email ?? '—'}</div>
+                                <div><span className="text-gray-400 text-xs">Budget:</span> {l.budget ?? '—'}</div>
+                                <div><span className="text-gray-400 text-xs">Contacted at:</span> {fmt(l.contactedAt)}</div>
+                                <div><span className="text-gray-400 text-xs">Updated at:</span> {fmt(l.updatedAt)}</div>
+                                {l.message && (
+                                  <div className="pt-2">
+                                    <p className="text-gray-400 text-xs mb-1">Message from client:</p>
+                                    <p className="text-gray-700 italic bg-white border border-gray-100 rounded-sm p-2">{l.message}</p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="md:col-span-2 space-y-3">
+                                <div>
+                                  <label className="text-xs text-gray-500 font-medium block mb-1">Status</label>
+                                  <div className="flex gap-2 flex-wrap">
+                                    {STATUS_ORDER.map(s => (
+                                      <button
+                                        key={s}
+                                        onClick={() => patchLead(l.id, { status: s })}
+                                        disabled={savingId === l.id}
+                                        className={`text-xs px-3 py-1.5 rounded-sm border ${
+                                          status === s && s === 'lost'
+                                            ? 'border-red-500 bg-red-100 text-red-700 font-medium'
+                                            : status === s
+                                            ? 'border-gold bg-gold/10 text-navy font-medium'
+                                            : 'border-gray-200 text-gray-500 hover:border-gold'
+                                        }`}
+                                      >
+                                        {STATUS_META[s].label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-500 font-medium block mb-1">Internal notes</label>
+                                  <textarea
+                                    defaultValue={l.notes ?? ''}
+                                    rows={3}
+                                    onBlur={e => {
+                                      const next = e.target.value
+                                      if (next !== (l.notes ?? '')) patchLead(l.id, { notes: next })
+                                    }}
+                                    placeholder="Call notes, follow-up dates, agent assignment..."
+                                    className="w-full border border-gray-200 px-3 py-2 rounded-sm text-sm focus:outline-none focus:border-gold resize-none"
+                                  />
+                                  <p className="text-xs text-gray-400 mt-1">Saved on blur (click outside).</p>
+                                </div>
+                                {l.activityLog && l.activityLog.length > 0 && (
+                                  <div className="pt-2">
+                                    <p className="text-xs text-gray-400 font-medium mb-2">Activity Log</p>
+                                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                                      {[...l.activityLog].reverse().map((entry: ActivityEntry, i: number) => (
+                                        <div key={i} className="flex gap-2 text-xs text-gray-500">
+                                          <span className="text-gray-300 shrink-0">{fmt(entry.at)}</span>
+                                          <span className="font-medium text-navy shrink-0">{entry.byName}</span>
+                                          <span>{entry.action}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                <FilesSection
+                                  lead={l}
+                                  onUpdate={updated => setLeads(prev => prev.map(x => x.id === updated.id ? updated : x))}
+                                />
+                                {isOwner && (
+                                  <div className="pt-2">
+                                    <button
+                                      onClick={() => removeLead(l.id)}
+                                      className="text-xs text-red-500 hover:text-red-700"
+                                    >
+                                      Delete lead
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Kanban view */}
+      {view === 'kanban' && (
+        <>
+          {/* Desktop: 5-column grid (hidden on mobile) */}
+          <div className="hidden md:grid grid-cols-5 gap-3">
+            {STATUS_ORDER.map(status => {
+              const columnLeads = filtered.filter(l => (l.status ?? 'new') === status)
+              return (
+                <div key={status}>
+                  <div className="flex items-center justify-between mb-2 px-0.5">
+                    <span className={`text-xs font-bold uppercase tracking-wider ${COLUMN_HEADER_COLOR[status]}`}>
+                      {STATUS_META[status].label}
+                    </span>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${COLUMN_BADGE[status]}`}>
+                      {columnLeads.length}
+                    </span>
+                  </div>
+                  {columnLeads.map(l => (
+                    <div
+                      key={l.id}
+                      onClick={() => { setView('table'); setOpenId(l.id) }}
+                      className={`border-l-[3px] ${CARD_BORDER[(l.status ?? 'new') as LeadStatus]} bg-white border border-gray-100 rounded-sm p-3 mb-2 cursor-pointer hover:shadow-sm transition-shadow`}
+                    >
+                      <p className="font-semibold text-navy text-sm leading-tight">{l.name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{l.phone}</p>
+                      {l.email && <p className="text-gray-500 text-xs">{l.email}</p>}
+                      <span className="bg-green-50 text-green-800 text-[10px] px-1.5 py-0.5 rounded inline-block my-1">
+                        {l.source}
+                      </span>
+                      {(l.propertyTitle || l.budget) && (
+                        <div className="border-t border-gray-100 pt-1.5 mt-1 space-y-0.5">
+                          {l.propertyTitle && (
+                            <p className="text-gray-400 text-[10px]">{l.propertyTitle}</p>
+                          )}
+                          {l.budget && (
+                            <p className="text-gray-400 text-[10px]">Budget: {l.budget}</p>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
+                        <a
+                          href={`https://wa.me/${digitsOnly(l.phone)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
+                        >
+                          W
+                        </a>
+                        {l.email && (
+                          <a
+                            href={`mailto:${l.email}`}
+                            className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
+                          >
+                            ✉
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {columnLeads.length === 0 && (
+                    <p className="text-gray-300 text-xs text-center py-4">—</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Mobile: pill column selector + single column */}
+          <div className="md:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+              {STATUS_ORDER.map(status => {
+                const count = filtered.filter(l => (l.status ?? 'new') === status).length
+                return (
+                  <button
+                    key={status}
+                    onClick={() => setMobileColumn(status)}
+                    className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-medium ${
+                      mobileColumn === status
+                        ? 'bg-navy text-white'
+                        : 'bg-white text-gray-500 border border-gray-200'
+                    }`}
+                  >
+                    {STATUS_META[status].label} {count}
+                  </button>
                 )
               })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </div>
+            <div>
+              {filtered
+                .filter(l => (l.status ?? 'new') === mobileColumn)
+                .map(l => (
+                  <div
+                    key={l.id}
+                    onClick={() => { setView('table'); setOpenId(l.id) }}
+                    className={`border-l-[3px] ${CARD_BORDER[(l.status ?? 'new') as LeadStatus]} bg-white border border-gray-100 rounded-sm p-3 mb-2 cursor-pointer hover:shadow-sm transition-shadow`}
+                  >
+                    <p className="font-semibold text-navy text-sm">{l.name}</p>
+                    <p className="text-gray-500 text-xs mt-0.5">{l.phone}</p>
+                    {l.email && <p className="text-gray-500 text-xs">{l.email}</p>}
+                    <span className="bg-green-50 text-green-800 text-[10px] px-1.5 py-0.5 rounded inline-block my-1">
+                      {l.source}
+                    </span>
+                    {(l.propertyTitle || l.budget) && (
+                      <div className="border-t border-gray-100 pt-1.5 mt-1 space-y-0.5">
+                        {l.propertyTitle && (
+                          <p className="text-gray-400 text-[10px]">{l.propertyTitle}</p>
+                        )}
+                        {l.budget && (
+                          <p className="text-gray-400 text-[10px]">Budget: {l.budget}</p>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
+                      <a
+                        href={`https://wa.me/${digitsOnly(l.phone)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
+                      >
+                        W
+                      </a>
+                      {l.email && (
+                        <a
+                          href={`mailto:${l.email}`}
+                          className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
+                        >
+                          ✉
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              {filtered.filter(l => (l.status ?? 'new') === mobileColumn).length === 0 && (
+                <p className="text-gray-400 text-sm text-center py-8">No leads in this column.</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
