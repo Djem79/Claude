@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
 
 const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
@@ -232,6 +232,10 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   const [view, setView] = useState<'table' | 'kanban'>('table')
   const [mobileColumn, setMobileColumn] = useState<LeadStatus>('new')
 
+  React.useEffect(() => {
+    setMobileColumn('new')
+  }, [statusFilter])
+
   const sources = useMemo(() => {
     const dynamic = leads.map(l => l.source).filter(Boolean) as string[]
     const extra = dynamic.filter(s => !KNOWN_SOURCES.includes(s))
@@ -377,9 +381,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                   const status = (l.status ?? 'new') as LeadStatus
                   const isOpen = openId === l.id
                   return (
-                    <>
+                    <React.Fragment key={l.id}>
                       <tr
-                        key={l.id}
                         className={`cursor-pointer hover:bg-gray-50 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}
                         onClick={() => setOpenId(isOpen ? null : l.id)}
                       >
@@ -491,7 +494,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </tbody>
@@ -544,6 +547,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                           href={`https://wa.me/${digitsOnly(l.phone)}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label="WhatsApp"
                           className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
                         >
                           W
@@ -551,6 +555,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                         {l.email && (
                           <a
                             href={`mailto:${l.email}`}
+                            aria-label="Send email"
                             className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
                           >
                             ✉
@@ -587,55 +592,60 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                 )
               })}
             </div>
-            <div>
-              {filtered
-                .filter(l => (l.status ?? 'new') === mobileColumn)
-                .map(l => (
-                  <div
-                    key={l.id}
-                    onClick={() => { setView('table'); setOpenId(l.id) }}
-                    className={`border-l-[3px] ${CARD_BORDER[(l.status ?? 'new') as LeadStatus]} bg-white border border-gray-100 rounded-sm p-3 mb-2 cursor-pointer hover:shadow-sm transition-shadow`}
-                  >
-                    <p className="font-semibold text-navy text-sm">{l.name}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">{l.phone}</p>
-                    {l.email && <p className="text-gray-500 text-xs">{l.email}</p>}
-                    <span className="bg-green-50 text-green-800 text-[10px] px-1.5 py-0.5 rounded inline-block my-1">
-                      {l.source}
-                    </span>
-                    {(l.propertyTitle || l.budget) && (
-                      <div className="border-t border-gray-100 pt-1.5 mt-1 space-y-0.5">
-                        {l.propertyTitle && (
-                          <p className="text-gray-400 text-[10px]">{l.propertyTitle}</p>
-                        )}
-                        {l.budget && (
-                          <p className="text-gray-400 text-[10px]">Budget: {l.budget}</p>
+            {(() => {
+              const mobileLeads = filtered.filter(l => (l.status ?? 'new') === mobileColumn)
+              return (
+                <div>
+                  {mobileLeads.map(l => (
+                    <div
+                      key={l.id}
+                      onClick={() => { setView('table'); setOpenId(l.id) }}
+                      className={`border-l-[3px] ${CARD_BORDER[mobileColumn]} bg-white border border-gray-100 rounded-sm p-3 mb-2 cursor-pointer hover:shadow-sm transition-shadow`}
+                    >
+                      <p className="font-semibold text-navy text-sm">{l.name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{l.phone}</p>
+                      {l.email && <p className="text-gray-500 text-xs">{l.email}</p>}
+                      <span className="bg-green-50 text-green-800 text-[10px] px-1.5 py-0.5 rounded inline-block my-1">
+                        {l.source}
+                      </span>
+                      {(l.propertyTitle || l.budget) && (
+                        <div className="border-t border-gray-100 pt-1.5 mt-1 space-y-0.5">
+                          {l.propertyTitle && (
+                            <p className="text-gray-400 text-[10px]">{l.propertyTitle}</p>
+                          )}
+                          {l.budget && (
+                            <p className="text-gray-400 text-[10px]">Budget: {l.budget}</p>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
+                        <a
+                          href={`https://wa.me/${digitsOnly(l.phone)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="WhatsApp"
+                          className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
+                        >
+                          W
+                        </a>
+                        {l.email && (
+                          <a
+                            href={`mailto:${l.email}`}
+                            aria-label="Send email"
+                            className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
+                          >
+                            ✉
+                          </a>
                         )}
                       </div>
-                    )}
-                    <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
-                      <a
-                        href={`https://wa.me/${digitsOnly(l.phone)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
-                      >
-                        W
-                      </a>
-                      {l.email && (
-                        <a
-                          href={`mailto:${l.email}`}
-                          className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
-                        >
-                          ✉
-                        </a>
-                      )}
                     </div>
-                  </div>
-                ))}
-              {filtered.filter(l => (l.status ?? 'new') === mobileColumn).length === 0 && (
-                <p className="text-gray-400 text-sm text-center py-8">No leads in this column.</p>
-              )}
-            </div>
+                  ))}
+                  {mobileLeads.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-8">No leads in this column.</p>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </>
       )}
