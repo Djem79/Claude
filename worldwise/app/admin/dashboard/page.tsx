@@ -29,7 +29,7 @@ const FUNNEL: { status: LeadStatus; fill: string }[] = [
 ]
 
 function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
+  const diff = Math.max(0, Date.now() - new Date(iso).getTime())
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}m ago`
   const hrs = Math.floor(mins / 60)
@@ -152,6 +152,14 @@ export default function DashboardPage() {
           </Link>
         </div>
         <table className="w-full text-sm">
+          <thead className="sr-only">
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
           <tbody className="divide-y divide-gray-50">
             {recentLeads.length === 0 && (
               <tr>
