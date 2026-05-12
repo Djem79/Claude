@@ -1,30 +1,44 @@
+import Image from 'next/image'
+
 const TEAM = [
   {
-    initials: 'DT',
+    slug: 'dzhambulat',
+    ext: 'png',
     name: 'Dzhambulat Tkhazaplizhev',
     role: 'Co-Founder',
     bio: 'Leads strategy, partnerships, and the firm\'s investor relationships across the Middle East and Asia.',
   },
   {
-    initials: 'AC',
+    slug: 'arina',
+    ext: 'png',
     name: 'Arina Chekmazova',
     role: 'Co-Founder',
     bio: 'Specialises in mortgage-backed acquisitions and complex international transactions.',
   },
   {
-    initials: 'MR',
+    slug: 'max',
+    ext: 'jpg',
     name: 'Max Rean',
-    role: 'Property Advisor',
+    role: 'Business Director & Property Advisor',
     bio: 'Senior advisor focused on off-plan and ready inventory. Manages on-site viewings and bespoke shortlists for HNW clients.',
   },
   {
-    initials: 'SV',
+    slug: 'rizwan',
+    ext: 'jpg',
+    name: 'Rizwan Taj',
+    role: 'Property Advisor · Off-Plan',
+    bio: 'Specialist in off-plan acquisitions, helping international buyers navigate developer relationships and payment plans.',
+  },
+  {
+    slug: 'swathi',
+    ext: 'jpg',
     name: 'Swathi Vinod',
     role: 'Office & Admin Manager',
     bio: 'Runs operations, scheduling, and client coordination. Your first point of contact for documentation and logistics.',
   },
   {
-    initials: 'ZR',
+    slug: 'zhanna',
+    ext: 'jpg',
     name: 'Zhanna Rean',
     role: 'Creative Director · London',
     bio: 'External creative director based in London. Oversees brand, editorial output, and the Worldwise Journal.',
@@ -62,20 +76,28 @@ export default function TeamSection() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {TEAM.map((m, i) => (
-            <div key={m.name} className="group">
-              <div className="relative mb-4">
-                <div className="w-16 h-16 rounded-full bg-navy flex items-center justify-center">
-                  <span className="font-serif text-xl text-gold">{m.initials}</span>
+            <div key={m.name} className="flex gap-4 items-start">
+              <div className="relative flex-shrink-0">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-navy/10">
+                  <Image
+                    src={`/images/team/${m.slug}.${m.ext}`}
+                    alt={m.name}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover object-top"
+                  />
                 </div>
-                <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-[10px] font-medium">
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gold flex items-center justify-center text-white text-[9px] font-semibold">
                   {String(i + 1).padStart(2, '0')}
                 </span>
               </div>
-              <p className="text-gold text-xs font-medium uppercase tracking-wider mb-1">{m.role}</p>
-              <h3 className="font-serif text-navy text-lg leading-snug mb-2">{m.name}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{m.bio}</p>
+              <div className="min-w-0">
+                <p className="text-gold text-[11px] font-medium uppercase tracking-wider mb-0.5">{m.role}</p>
+                <h3 className="font-serif text-navy text-lg leading-snug mb-1.5">{m.name}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{m.bio}</p>
+              </div>
             </div>
           ))}
         </div>
