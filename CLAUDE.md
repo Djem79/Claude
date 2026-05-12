@@ -54,7 +54,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
 
 # 1. Sync (exclude git, node_modules, build artifacts, and server-only data)
-rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' \
+rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
 
 # 2. Build and restart on server
