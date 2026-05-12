@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: article.title,
       description: article.excerpt,
       url: `https://worldwise.pro/blog/${article.slug}`,
+      type: 'article',
     },
   }
 }
@@ -42,6 +43,29 @@ const TAG_COLORS: Record<string, string> = {
 export default function ArticlePage({ params }: Props) {
   const article = getArticleBySlug(params.slug)
   if (!article) notFound()
+
+  const publishedAt = 'publishedAt' in article ? article.publishedAt : null
+  const dateISO = publishedAt ?? new Date().toISOString()
+  const dateDisplay = new Date(dateISO).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  })
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.excerpt,
+    datePublished: dateISO,
+    dateModified: dateISO,
+    author: { '@type': 'Organization', name: 'Worldwise Real Estate', url: 'https://worldwise.pro' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Worldwise Real Estate',
+      logo: { '@type': 'ImageObject', url: 'https://worldwise.pro/images/logo.png' },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://worldwise.pro/blog/${article.slug}` },
+    url: `https://worldwise.pro/blog/${article.slug}`,
+  }
 
   const lines = article.content.split('\n')
   const rendered = lines.map((line, i) => {
@@ -90,6 +114,10 @@ export default function ArticlePage({ params }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navigation />
       <main>
         {/* Header */}
@@ -104,7 +132,9 @@ export default function ArticlePage({ params }: Props) {
             <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-4">
               {article.title}
             </h1>
-            <p className="text-white/60 text-sm">{article.readTime}</p>
+            <p className="text-white/60 text-sm">
+              {dateDisplay} · {article.readTime}
+            </p>
           </div>
         </section>
 
