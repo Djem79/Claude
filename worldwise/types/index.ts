@@ -33,6 +33,22 @@ export interface ActivityEntry {
   action: string
 }
 
+export interface SentEntry {
+  via: 'whatsapp' | 'email'
+  sentAt: string
+  sentBy: string
+}
+
+export interface FileAttachment {
+  id: string
+  name: string
+  size: number
+  url: string
+  uploadedAt: string
+  uploadedBy: string
+  sentLog: SentEntry[]
+}
+
 export interface Lead {
   id: string
   name: string
@@ -49,6 +65,7 @@ export interface Lead {
   updatedAt?: string
   createdAt: string
   activityLog?: ActivityEntry[]
+  attachments?: FileAttachment[]
 }
 
 export type AdminRole = 'owner' | 'manager'

@@ -32,7 +32,7 @@ export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead 
 
 export function updateLead(
   id: string,
-  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt'>>,
+  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments'>>,
   actor?: { uid: string; username: string; name: string }
 ): Lead | null {
   const leads = getLeads()
