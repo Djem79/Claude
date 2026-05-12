@@ -50,7 +50,7 @@ const CARD_BORDER: Record<LeadStatus, string> = {
   new: 'border-l-blue-400',
   contacted: 'border-l-amber-400',
   'in-progress': 'border-l-purple-400',
-  won: 'border-l-gold',
+  won: 'border-l-[#C9A84C]',
   lost: 'border-l-gray-300',
 }
 
