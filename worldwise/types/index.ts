@@ -37,6 +37,7 @@ export interface SentEntry {
   via: 'whatsapp' | 'email'
   sentAt: string
   sentBy: string
+  sentByName: string
 }
 
 export interface FileAttachment {

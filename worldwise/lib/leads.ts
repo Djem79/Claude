@@ -55,6 +55,13 @@ export function updateLead(
     if ('notes' in data && data.notes !== prev.notes) {
       parts.push('Notes updated')
     }
+    if ('attachments' in data) {
+      const prevCount = prev.attachments?.length ?? 0
+      const nextCount = data.attachments?.length ?? 0
+      if (nextCount > prevCount) parts.push('File attached')
+      else if (nextCount < prevCount) parts.push('File removed')
+      else parts.push('File updated')
+    }
     const entry: ActivityEntry = {
       at: new Date().toISOString(),
       by: actor.username,
