@@ -1,15 +1,17 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=85')",
-        }}
+      {/* Background image — local, priority-loaded for LCP */}
+      <Image
+        src="/images/hero-dubai.jpg"
+        alt="Dubai skyline"
+        fill
+        priority
+        className="object-cover object-center"
+        sizes="100vw"
       />
       {/* Overlay */}
       <div className="absolute inset-0 bg-navy/65" />
