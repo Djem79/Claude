@@ -76,7 +76,7 @@ SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, va
 
 - Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
 - Blog: `/blog` listing + `/blog/[slug]` — static editorial articles in `lib/articles.ts` + AI-generated articles from `data/articles.json`
-- Auto-blog pipeline: Gemini-powered article generator runs every 3 days, alternates keyword/news mode, Telegram approval flow
+- Auto-blog pipeline: Gemini-powered article generator runs daily at 09:00 UTC, alternates keyword/news mode, Telegram approval flow
 - Analytics: GA4 (consent-aware) with conversion event tracking on all lead forms and CTAs
 - Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
 - Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
@@ -207,7 +207,7 @@ Two article sources, merged by `lib/articles.ts`:
 
 ### Auto-blog pipeline
 
-Cron runs `scripts/generate-article.mjs` every 3 days at 09:00 UTC (`0 9 */3 * *`). The script is a Node.js ESM module invoked with `node --env-file=.env.local scripts/generate-article.mjs`.
+Cron runs `scripts/generate-article.mjs` daily at 09:00 UTC (`0 9 * * *`). The script is a Node.js ESM module invoked with `node --env-file=.env.local scripts/generate-article.mjs`.
 
 **Mode alternation:** `data/article-mode.json` holds `{ mode: "keyword" | "news" }`. Each successful generation flips the mode. On Gemini failure the mode is NOT flipped — the next run retries the same mode.
 
