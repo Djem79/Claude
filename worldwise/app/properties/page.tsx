@@ -17,18 +17,11 @@ export const metadata: Metadata = {
     title: 'Dubai Investment Properties — Off-Plan & Secondary Market',
     description: 'Browse 148+ properties in Dubai Marina, Downtown, Palm Jumeirah and more. 8-10% ROI. RERA-certified listings.',
     url: 'https://worldwise.pro/properties',
-    images: [
-      {
-        url: '/images/areas/downtown-dubai.jpg',
-        width: 1600,
-        height: 2468,
-        alt: 'Downtown Dubai Properties — Worldwise Real Estate',
-      },
-    ],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Dubai Investment Properties — Worldwise Real Estate' }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/images/areas/downtown-dubai.jpg'],
+    images: ['/opengraph-image'],
   },
 }
 

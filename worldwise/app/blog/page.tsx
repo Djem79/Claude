@@ -16,6 +16,11 @@ export const metadata: Metadata = {
     title: 'UAE Real Estate Guides & Insights — Worldwise',
     description: 'Expert guides for international investors buying property in the UAE.',
     url: 'https://worldwise.pro/blog',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'UAE Real Estate Guides — Worldwise' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/opengraph-image'],
   },
 }
 
