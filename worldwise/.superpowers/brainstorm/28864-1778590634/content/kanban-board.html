@@ -1,0 +1,190 @@
+<h2>Kanban — переключатель Table / Kanban</h2>
+<p class="subtitle">Страница /admin/leads — активен режим Kanban (детальные карточки)</p>
+
+<div class="mockup" style="max-width:1060px">
+  <div class="mockup-header">worldwise.pro — /admin/leads</div>
+  <div class="mockup-body" style="background:#f8fafc;padding:0">
+
+    <!-- Nav -->
+    <div style="background:#0D1B2A;color:white;padding:12px 24px;display:flex;align-items:center;gap:24px;font-size:13px">
+      <span style="font-family:Georgia,serif;font-size:16px;letter-spacing:2px">WORLDWISE</span>
+      <span style="color:rgba(255,255,255,0.3);font-size:11px">Admin Panel</span>
+      <span style="color:rgba(255,255,255,0.5)">Dashboard</span>
+      <span style="color:#C9A84C;border-bottom:2px solid #C9A84C;padding-bottom:2px;font-weight:500">Leads</span>
+      <span style="color:rgba(255,255,255,0.5)">Properties</span>
+      <span style="color:rgba(255,255,255,0.5)">Users</span>
+      <span style="margin-left:auto;color:rgba(255,255,255,0.4);font-size:12px">Alex &nbsp;·&nbsp; View Site ↗ &nbsp;·&nbsp; Logout</span>
+    </div>
+
+    <div style="padding:24px">
+
+      <!-- Page header + toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <h2 style="font-family:Georgia,serif;color:#0D1B2A;font-size:24px;margin:0;font-weight:400">Leads</h2>
+          <p style="color:#94a3b8;font-size:12px;margin:3px 0 0">47 total</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <!-- Table / Kanban toggle -->
+          <div style="display:flex;border:1px solid #e2e8f0;border-radius:5px;overflow:hidden;background:white">
+            <div style="padding:6px 14px;font-size:12px;color:#64748b;background:white;cursor:pointer;border-right:1px solid #e2e8f0">☰ Table</div>
+            <div style="padding:6px 14px;font-size:12px;color:white;background:#0D1B2A;cursor:pointer">▦ Kanban</div>
+          </div>
+          <button style="background:#C9A84C;color:white;border:none;padding:7px 16px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500">+ New Lead</button>
+        </div>
+      </div>
+
+      <!-- Kanban board -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+
+        <!-- NEW -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+            <span style="font-size:10px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:.08em">New</span>
+            <span style="background:#eff6ff;color:#1d4ed8;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">14</span>
+          </div>
+
+          <!-- Card -->
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #3b82f6">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">Maria S.</div>
+            <div style="color:#64748b;font-size:11px">+971 50 123 4567</div>
+            <div style="color:#64748b;font-size:11px">maria@email.com</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">hero_cta</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">Marina Vista · 2BR · AED 1.2M</div>
+            <div style="color:#94a3b8;font-size:10px">Budget: AED 1–2M</div>
+            <div style="display:flex;gap:5px;margin-top:7px">
+              <div style="width:24px;height:24px;background:#25D366;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+                <span style="color:white;font-size:11px">W</span>
+              </div>
+              <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+                <span style="color:white;font-size:11px">✉</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #3b82f6">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">Ahmed K.</div>
+            <div style="color:#64748b;font-size:11px">+971 55 987 6543</div>
+            <div style="color:#64748b;font-size:11px">ahmed@gmail.com</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">property_enquiry</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">Downtown Lux · Studio</div>
+            <div style="color:#94a3b8;font-size:10px">Budget: AED 800K</div>
+            <div style="display:flex;gap:5px;margin-top:7px">
+              <div style="width:24px;height:24px;background:#25D366;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">W</span>
+              </div>
+              <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">✉</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;color:#cbd5e1;font-size:10px;padding:4px">+ 12 more</div>
+        </div>
+
+        <!-- CONTACTED -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+            <span style="font-size:10px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:.08em">Contacted</span>
+            <span style="background:#fffbeb;color:#92400e;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">9</span>
+          </div>
+
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #f59e0b">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">Elena V.</div>
+            <div style="color:#64748b;font-size:11px">+7 916 555 4433</div>
+            <div style="color:#64748b;font-size:11px">elena@mail.ru</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">mortgage_calculator</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">Palm Res. · 3BR · AED 2.8M</div>
+            <div style="color:#94a3b8;font-size:10px">Budget: AED 2–4M</div>
+            <div style="display:flex;gap:5px;margin-top:7px">
+              <div style="width:24px;height:24px;background:#25D366;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">W</span>
+              </div>
+              <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">✉</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;color:#cbd5e1;font-size:10px;padding:4px">+ 8 more</div>
+        </div>
+
+        <!-- IN PROGRESS -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+            <span style="font-size:10px;font-weight:700;color:#0D1B2A;text-transform:uppercase;letter-spacing:.08em">In Progress</span>
+            <span style="background:#f5f3ff;color:#6d28d9;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">12</span>
+          </div>
+
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #8b5cf6">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">James R.</div>
+            <div style="color:#64748b;font-size:11px">+44 7700 900123</div>
+            <div style="color:#64748b;font-size:11px">james@outlook.com</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">property_enquiry</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">Marina Vista · 2BR · AED 1.4M</div>
+            <div style="color:#94a3b8;font-size:10px">Budget: AED 1–2M</div>
+            <div style="display:flex;gap:5px;margin-top:7px">
+              <div style="width:24px;height:24px;background:#25D366;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">W</span>
+              </div>
+              <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">✉</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;color:#cbd5e1;font-size:10px;padding:4px">+ 11 more</div>
+        </div>
+
+        <!-- WON -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+            <span style="font-size:10px;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.08em">Won</span>
+            <span style="background:#fffbeb;color:#C9A84C;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;border:1px solid rgba(201,168,76,0.3)">8</span>
+          </div>
+
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #C9A84C">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">Raj P.</div>
+            <div style="color:#64748b;font-size:11px">+91 98765 43210</div>
+            <div style="color:#64748b;font-size:11px">raj@corp.in</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">hero_cta</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">Downtown Lux · 2BR · AED 1.8M</div>
+            <div style="color:#94a3b8;font-size:10px">Budget: AED 1.5–2.5M</div>
+            <div style="display:flex;gap:5px;margin-top:7px">
+              <div style="width:24px;height:24px;background:#25D366;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">W</span>
+              </div>
+              <div style="width:24px;height:24px;background:#3b82f6;border-radius:4px;display:flex;align-items:center;justify-content:center">
+                <span style="color:white;font-size:11px">✉</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;color:#cbd5e1;font-size:10px;padding:4px">+ 7 more</div>
+        </div>
+
+        <!-- LOST -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+            <span style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em">Lost</span>
+            <span style="background:#f1f5f9;color:#94a3b8;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600">4</span>
+          </div>
+
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #cbd5e1;opacity:0.75">
+            <div style="font-weight:600;color:#0D1B2A;font-size:12px;margin-bottom:2px">Sven L.</div>
+            <div style="color:#64748b;font-size:11px">+46 70 123 4567</div>
+            <div style="color:#64748b;font-size:11px">sven@gmail.com</div>
+            <div style="background:#f0fdf4;color:#166534;font-size:10px;padding:2px 6px;border-radius:3px;display:inline-block;margin:5px 0 4px">lead_capture_section</div>
+            <div style="color:#94a3b8;font-size:10px;border-top:1px solid #f1f5f9;padding-top:5px;margin-top:3px">—</div>
+            <div style="color:#94a3b8;font-size:10px">No budget shared</div>
+          </div>
+
+          <div style="text-align:center;color:#cbd5e1;font-size:10px;padding:4px">+ 3 more</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;color:#64748b;font-size:13px">Цвет левой полосы карточки = статус. Кнопки W/✉ открывают WhatsApp/email прямо из канбана.</p>

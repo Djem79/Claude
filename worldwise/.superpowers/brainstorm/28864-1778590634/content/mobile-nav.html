@@ -1,0 +1,92 @@
+<h2>Mobile — бургер-навигация</h2>
+<p class="subtitle">Экран < 768px: шапка с бургером + дропдаун меню</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;max-width:860px">
+
+  <!-- State 1: nav closed -->
+  <div>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Обычное состояние</p>
+    <div style="width:200px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+      <div style="background:#0D1B2A;color:white;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:2px">WORLDWISE</span>
+        <!-- burger -->
+        <div style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:2px">
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+        </div>
+      </div>
+      <div style="background:#f8fafc;padding:16px 14px">
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:12px;margin-bottom:8px">
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Total Leads</div>
+          <div style="font-family:Georgia,serif;font-size:22px;color:#0D1B2A;margin-top:2px">47</div>
+        </div>
+        <div style="color:#94a3b8;font-size:11px;text-align:center">страница дашборда...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 2: menu open -->
+  <div>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Меню открыто</p>
+    <div style="width:200px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+      <div style="background:#0D1B2A;color:white;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:2px">WORLDWISE</span>
+        <!-- X -->
+        <div style="cursor:pointer;font-size:16px;color:rgba(255,255,255,0.8);line-height:1">✕</div>
+      </div>
+      <!-- Dropdown nav -->
+      <div style="background:#0D1B2A;border-top:1px solid rgba(255,255,255,.08)">
+        <div style="padding:10px 14px;color:#C9A84C;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px">
+          <span style="width:3px;height:14px;background:#C9A84C;display:inline-block;border-radius:2px"></span>
+          Dashboard
+        </div>
+        <div style="padding:10px 14px;color:rgba(255,255,255,.6);font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">Leads</div>
+        <div style="padding:10px 14px;color:rgba(255,255,255,.6);font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">Properties</div>
+        <div style="padding:10px 14px;color:rgba(255,255,255,.6);font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)">Users</div>
+        <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:rgba(255,255,255,.4);font-size:12px">Alex</span>
+          <span style="color:rgba(255,255,255,.3);font-size:12px">Logout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 3: kanban single column -->
+  <div>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Kanban мобайл</p>
+    <div style="width:200px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+      <div style="background:#0D1B2A;color:white;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:Georgia,serif;font-size:14px;letter-spacing:2px">WORLDWISE</span>
+        <div style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:2px">
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+          <div style="width:18px;height:2px;background:rgba(255,255,255,0.8);border-radius:1px"></div>
+        </div>
+      </div>
+      <div style="background:#f8fafc;padding:12px">
+        <!-- Column selector pills -->
+        <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px">
+          <div style="background:#0D1B2A;color:white;font-size:10px;padding:3px 10px;border-radius:20px;white-space:nowrap;font-weight:600">New 14</div>
+          <div style="background:white;color:#64748b;font-size:10px;padding:3px 10px;border-radius:20px;white-space:nowrap;border:1px solid #e2e8f0">Cont. 9</div>
+          <div style="background:white;color:#64748b;font-size:10px;padding:3px 10px;border-radius:20px;white-space:nowrap;border:1px solid #e2e8f0">Prog. 12</div>
+          <div style="background:white;color:#C9A84C;font-size:10px;padding:3px 10px;border-radius:20px;white-space:nowrap;border:1px solid #e2e8f0">Won 8</div>
+        </div>
+        <!-- Single column cards -->
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px;margin-bottom:6px;border-left:3px solid #3b82f6">
+          <div style="font-weight:600;color:#0D1B2A;font-size:12px">Maria S.</div>
+          <div style="color:#64748b;font-size:11px">+971 50 123 4567</div>
+          <div style="color:#94a3b8;font-size:10px;margin-top:3px">Marina Vista · AED 1.2M</div>
+        </div>
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:4px;padding:10px;border-left:3px solid #3b82f6">
+          <div style="font-weight:600;color:#0D1B2A;font-size:12px">Ahmed K.</div>
+          <div style="color:#64748b;font-size:11px">+971 55 987 6543</div>
+          <div style="color:#94a3b8;font-size:10px;margin-top:3px">Downtown · AED 800K</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="margin-top:20px;color:#64748b;font-size:13px">На мобиле Kanban превращается в одну колонку с горизонтальным переключателем колонок (пиллы вверху). Таблица — горизонтальный скролл.</p>

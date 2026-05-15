@@ -1,0 +1,43 @@
+<h2>Архитектура реализации</h2>
+<p class="subtitle">Как лучше структурировать код для этих трёх фич</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>С рефакторингом шапки (рекомендую)</h3>
+      <p>Сейчас nav-шапка продублирована в 4 файлах. Перед добавлением Dashboard вынесем её в <code>app/admin/layout.tsx</code> — тогда ссылку на Dashboard добавим в одном месте, а не в четырёх.</p>
+      <p><strong>Порядок:</strong> layout.tsx → Dashboard → Kanban-тоггл → мобайл</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Одно место для навигации</li><li>Меньше дублирования</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>+1 задача в начале</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Без рефакторинга — добавить фичи</h3>
+      <p>Добавляем Dashboard, Kanban и мобайл, вручную обновляя nav в каждом из 4 файлов. Технический долг растёт, но работает.</p>
+      <p><strong>Порядок:</strong> Dashboard → Kanban-тоггл → мобайл</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Проще, меньше риска сломать</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>Nav в 4 местах, сложнее менять потом</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Kanban в первую очередь</h3>
+      <p>Начинаем с самой сложной части — Kanban-тоггл в <code>LeadsClient</code>. Потом Dashboard. Nav обновляем в процессе.</p>
+      <p><strong>Порядок:</strong> Kanban → Dashboard → мобайл</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Главная фича готова раньше</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>Nav всё равно придётся трогать дважды</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

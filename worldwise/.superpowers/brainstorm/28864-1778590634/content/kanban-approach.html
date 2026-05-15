@@ -1,0 +1,40 @@
+<h2>Kanban-доска: как добавить?</h2>
+<p class="subtitle">Выберите подход к интеграции Kanban в текущий CRM</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Переключатель Table / Kanban</h3>
+      <p>На странице <code>/admin/leads</code> появляется кнопка-тоггл. Оба вида — одни и те же данные, переключение без перезагрузки.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Всё в одном месте</li><li>Быстрое переключение</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>Сложнее реализовать</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Отдельная страница /admin/kanban</h3>
+      <p>Канбан — отдельный маршрут, таблица остаётся как есть. Ссылка в навигации.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Простая реализация</li><li>Не трогает существующий код</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>Два места для одних данных</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Канбан заменяет таблицу</h3>
+      <p>Таблица полностью уходит, Kanban становится основным видом лидов.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Плюсы</h4><ul><li>Чистый UX, один вид</li></ul></div>
+        <div class="cons"><h4>Минусы</h4><ul><li>Теряем поиск/фильтры/CSV export</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
