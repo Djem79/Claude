@@ -156,6 +156,22 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
     const m = jsonStr.match(/\{[\s\S]*\}/)
     if (m) jsonStr = m[0]
   }
+  // Escape literal control chars Gemini sometimes emits inside JSON string values
+  const chars = []
+  let inStr = false, esc = false
+  for (const ch of jsonStr) {
+    if (esc) { chars.push(ch); esc = false; continue }
+    if (ch === '\\') { esc = true; chars.push(ch); continue }
+    if (ch === '"') inStr = !inStr
+    if (inStr && ch.charCodeAt(0) < 32) {
+      if (ch === '\n') chars.push('\\n')
+      else if (ch === '\r') chars.push('\\r')
+      else if (ch === '\t') chars.push('\\t')
+    } else {
+      chars.push(ch)
+    }
+  }
+  jsonStr = chars.join('')
   return JSON.parse(jsonStr.trim())
 }
 
