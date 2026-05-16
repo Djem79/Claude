@@ -6,6 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Before writing a single line of code, state in one sentence how you will verify the work is correct — for example: "I'll run `npm run build`, open `/mortgage-calculator` in the browser and confirm the monthly payment updates when sliders change." Only then proceed. This applies to every task, including small edits.
 
+## Core principles
+
+- **Simplicity first** — every change as simple as possible. Minimum code.
+- **No lazy fixes** — find root causes. No temporary patches. Senior-engineer standard.
+- **Minimal footprint** — touch only what's necessary. No side effects.
+
+## Workflow orchestration
+
+### 1. Default planning mode
+
+Use Plan mode for any non-trivial task (3+ steps or architecture). If something goes wrong — STOP and replan immediately. Use the plan for verification steps, not just building. Write detailed specs upfront — eliminate ambiguity before writing a line of code.
+
+### 2. Subagent strategy
+
+Use subagents generously — keep main context clean. Offload research, reconnaissance, and parallel analysis to subagents. For complex tasks, throw more compute at subagents. One task per subagent for focus.
+
+### 3. Self-improvement cycle
+
+After ANY user correction: update `tasks/lessons.md` with the pattern. Write yourself rules that prevent repeating the mistake. Ruthlessly iterate on lessons until errors drop. Re-read lessons at session start for the relevant project.
+
+### 4. Verification before "done"
+
+Never mark a task done without proving it works. Compare main behavior vs your changes when relevant. Ask yourself: "Would a staff engineer approve this?" Run tests, check logs, demonstrate correctness.
+
+### 5. Demand elegance (in moderation)
+
+On non-trivial changes: pause and ask "is there a more elegant path?" If a fix is a hack: "knowing everything now, make it elegant." Skip this for simple obvious fixes — no over-engineering. Doubt your work before showing it.
+
+### 6. Autonomous bug fixing
+
+Got a bug report — just fix it. Don't ask to be led by the hand. Point to logs, errors, failing tests — and close them. Zero context switching on the user's side. Go fix failing CI tests without hints on "how."
+
+## Task management
+
+1. **Plan first** — write plan in `tasks/todo.md` with checkboxes
+2. **Review plan** — check before starting implementation
+3. **Track progress** — mark items as you go
+4. **Explain changes** — brief summary at each step
+5. **Document** — add a review section to `tasks/todo.md` when done
+6. **Fix lessons** — update `tasks/lessons.md` after any user correction
+
 ## Repository layout
 
 The git root is `/Users/dzhambulat/Documents/Claude/`. The actual Next.js app lives in the `worldwise/` subdirectory — all commands below must be run from there.
