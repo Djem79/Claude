@@ -6,7 +6,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/admin/', '/api/', '/api', '/files/leads/'],
+        disallow: [
+        '/admin',
+        '/admin/',
+        '/api/',
+        '/api',
+        '/files/leads/',
+        '/*?_rsc=',
+        '/*?gtm_latency=',
+      ],
       },
     ],
     sitemap: 'https://worldwise.pro/sitemap.xml',

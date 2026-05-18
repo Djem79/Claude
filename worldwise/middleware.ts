@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/session'
 
+const NOINDEX_PARAMS = ['_rsc', 'gtm_latency']
+
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
+
+  // Internal Next.js RSC params and GTM test params must not be indexed
+  if (NOINDEX_PARAMS.some(p => searchParams.has(p))) {
+    const response = NextResponse.next()
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return response
+  }
 
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const token = request.cookies.get(SESSION_COOKIE)?.value
@@ -31,5 +40,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/files/leads/:path*'],
+  // Exclude Next.js internals and static files; run on all other requests
+  // so query-param checks (_rsc, gtm_latency) can fire on any URL
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
