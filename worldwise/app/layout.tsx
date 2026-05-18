@@ -71,6 +71,43 @@ const orgJsonLd = {
     addressCountry: 'AE',
   },
   areaServed: { '@type': 'City', name: 'Dubai' },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '5',
+    reviewCount: '4',
+    bestRating: '5',
+    worstRating: '1',
+  },
+  review: [
+    {
+      '@type': 'Review',
+      author: { '@type': 'Person', name: 'James H.' },
+      reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+      reviewBody:
+        'I was looking to diversify outside the UK property market. Worldwise found me an off-plan apartment in Business Bay with 8.5% projected ROI. The whole process — from first call to signing — took less than 3 weeks. Exceptional team.',
+    },
+    {
+      '@type': 'Review',
+      author: { '@type': 'Person', name: 'Priya S.' },
+      reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+      reviewBody:
+        'As an NRI investor, I was worried about the legal process and trust. Worldwise guided me through every step, handled the DLD registration remotely and even helped me set up the rental management. Highly recommend.',
+    },
+    {
+      '@type': 'Review',
+      author: { '@type': 'Person', name: 'Markus W.' },
+      reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+      reviewBody:
+        "What impressed me most was their market knowledge. They didn't just sell me a listing — they explained the yield potential, resale dynamics and neighbourhood growth projections. A genuinely data-driven team.",
+    },
+    {
+      '@type': 'Review',
+      author: { '@type': 'Person', name: 'Ahmed Al F.' },
+      reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+      reviewBody:
+        "I've worked with several agencies in Dubai. Worldwise stands out for their follow-through. Even after the sale closed they assisted with furnishing, DEWA setup and finding tenants. Truly full-service.",
+    },
+  ],
   sameAs: [
     'https://www.google.com/maps/place/WORLDWISE+REAL+ESTATE+LLC/@25.1071856,55.1984163,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f69003d5d7793:0xcb632527c181460e!8m2!3d25.1071856!4d55.1984163!16s%2Fg%2F11vzbltfqp',
     'https://www.instagram.com/worldwiseofficial',

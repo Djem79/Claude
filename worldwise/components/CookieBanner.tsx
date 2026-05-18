@@ -33,7 +33,7 @@ export default function CookieBanner() {
         <div className="flex-1 text-sm text-white/80 leading-relaxed">
           <p>
             We use cookies to improve your experience, analyze site traffic and personalize content.
-            By clicking <span className="text-gold">"Accept All"</span> you agree to our use of cookies.{' '}
+            By clicking <span className="text-gold">&ldquo;Accept All&rdquo;</span> you agree to our use of cookies.{' '}
             <Link href="/privacy" className="underline text-gold hover:text-gold-light">
               Read our Privacy Policy
             </Link>

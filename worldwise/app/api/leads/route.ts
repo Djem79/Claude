@@ -7,7 +7,12 @@ import { notifyTelegram, notifyEmail } from '@/lib/notify'
 const rateMap = new Map<string, { count: number; resetAt: number }>()
 
 function getIp(req: NextRequest): string {
-  return req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  return (
+    req.headers.get('cf-connecting-ip') ??
+    req.headers.get('x-real-ip') ??
+    req.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() ??
+    'unknown'
+  )
 }
 
 function isRateLimited(ip: string): boolean {

@@ -19,7 +19,7 @@ export default function TermsPage() {
           <section>
             <h2 className="font-serif text-2xl text-navy mt-8 mb-3">1. Acceptance</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              By accessing or using worldwise.pro ("the Site"), you agree to be bound by these Terms of
+              By accessing or using worldwise.pro (&ldquo;the Site&rdquo;), you agree to be bound by these Terms of
               Use. If you do not agree, please do not use the Site. These terms apply to all visitors,
               registered users, and enquiry submitters.
             </p>
@@ -81,7 +81,7 @@ export default function TermsPage() {
               To the maximum extent permitted by applicable law, Worldwise Real Estate shall not be
               liable for any direct, indirect, incidental, or consequential loss arising from your use
               of the Site, reliance on information provided, or inability to access the Site. The Site
-              is provided "as is" without warranties of any kind.
+              is provided &ldquo;as is&rdquo; without warranties of any kind.
             </p>
 
             <h2 className="font-serif text-2xl text-navy mt-8 mb-3">9. Governing law</h2>
@@ -93,7 +93,7 @@ export default function TermsPage() {
 
             <h2 className="font-serif text-2xl text-navy mt-8 mb-3">10. Changes</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              We may update these Terms at any time. The current version with the "Last updated" date
+              We may update these Terms at any time. The current version with the &ldquo;Last updated&rdquo; date
               will always be available at this URL. Continued use of the Site after changes constitutes
               acceptance of the revised Terms.
             </p>

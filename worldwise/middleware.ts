@@ -18,9 +18,18 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Lead files are stored in public/ but must not be accessible without auth
+  if (pathname.startsWith('/files/leads/')) {
+    const token = request.cookies.get(SESSION_COOKIE)?.value
+    const session = token ? await verifySessionToken(token) : null
+    if (!session) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/files/leads/:path*'],
 }

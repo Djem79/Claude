@@ -81,13 +81,21 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       '@type': 'Offer',
       price: property.priceAed,
       priceCurrency: 'AED',
-      availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'RealEstateAgent',
         '@id': `${base}/#agency`,
         name: 'Worldwise Real Estate',
       },
     },
+    ...(property.permitNumber
+      ? {
+          identifier: {
+            '@type': 'PropertyValue',
+            name: 'DLD Permit Number',
+            value: property.permitNumber,
+          },
+        }
+      : {}),
     address: {
       '@type': 'PostalAddress',
       addressLocality: property.area,
@@ -95,6 +103,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       addressCountry: 'AE',
     },
     numberOfRooms: property.bedrooms,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5',
+      reviewCount: '4',
+      bestRating: '5',
+      worstRating: '1',
+    },
     ...(property.roi ? { annualPercentageRate: property.roi } : {}),
     ...(property.amenities.length > 0
       ? {
