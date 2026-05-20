@@ -2,20 +2,19 @@ import type { NextRequest } from 'next/server'
 
 // Resolve the client IP for rate limiting.
 //
-// SECURITY (audit H3): these headers are client-supplied and only trustworthy
-// when the request actually passed through our front proxy. `cf-connecting-ip`
-// is set by Cloudflare on every proxied request; `x-real-ip` is set by nginx.
-// We deliberately do NOT trust the `x-forwarded-for` chain (fully attacker-
-// controlled) so a spoofed header can't mint a fresh rate-limit bucket.
+// SECURITY (audit H3): trust ONLY `x-real-ip`. nginx sets it to `$remote_addr`
+// (the real connecting peer) and overrides any client-supplied value, so it is
+// the only header that isn't spoofable in our topology.
 //
-// This is only sound if the origin rejects traffic that bypasses Cloudflare
-// (firewall to Cloudflare IPs / Authenticated Origin Pulls). Without that,
-// an attacker hitting the origin directly can still spoof these — close that
-// at the infrastructure layer.
+// We deliberately do NOT trust `cf-connecting-ip` or the `x-forwarded-for`
+// chain: worldwise.pro is currently DNS-only on Cloudflare (traffic hits the
+// origin directly, NOT through the CF proxy), so those headers are fully
+// attacker-controlled and would let a client mint a fresh rate-limit bucket.
+//
+// If the site is ever moved behind the Cloudflare proxy, configure nginx's
+// real_ip module (`set_real_ip_from <CF ranges>; real_ip_header CF-Connecting-IP`)
+// so `$remote_addr` (and thus X-Real-IP) stays the real visitor IP — this code
+// then needs no change.
 export function getClientIp(req: NextRequest): string {
-  return (
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-real-ip') ??
-    'unknown'
-  )
+  return req.headers.get('x-real-ip') ?? 'unknown'
 }
