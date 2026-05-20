@@ -94,8 +94,8 @@ Hetzner VPS `62.238.35.20` (Ubuntu 24.04). SSH key: `~/.ssh/id_ed25519`. Project
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
 
-# 1. Sync (exclude git, node_modules, build artifacts, and server-only data)
-rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' \
+# 1. Sync (exclude git, node_modules, build artifacts, server-only data, and env secrets)
+rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='.env.local' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
 
 # 2. Build and restart on server
@@ -107,9 +107,13 @@ The server has a separate git repo at `/var/www/worldwise/` tracking only `data/
 
 ## DNS & infrastructure
 
-DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `sterling.ns.cloudflare.com`). A records for `worldwise.pro` and `www` point to `62.238.35.20`. Email MX records point to `mx1.hosting.reg.ru` / `mx2.hosting.reg.ru` (reg.ru hosting handles the mailbox for `dzhambulat@worldwise.pro`).
+DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `sterling.ns.cloudflare.com`). A records for `worldwise.pro` and `www` point to `62.238.35.20` and are **Proxied** (orange cloud) — all visitor traffic flows through the Cloudflare edge, not directly to the origin. Cloudflare SSL/TLS mode is **Full (strict)**. Email MX records point to `mx1.hosting.reg.ru` / `mx2.hosting.reg.ru` (reg.ru hosting handles the mailbox for `dzhambulat@worldwise.pro`).
 
-SSL certificate on the Hetzner server is issued by Let's Encrypt via certbot, valid until August 2026. To renew: `certbot renew --nginx` on the server, then `systemctl reload nginx`.
+**Origin is locked to Cloudflare.** `ufw` allows ports 80/443 only from Cloudflare IP ranges (plus SSH on 22); direct requests to `62.238.35.20` are dropped. Refresh the CF ranges from `https://www.cloudflare.com/ips-v4` + `ips-v6` if Cloudflare changes them. Because the origin is not directly reachable, the **real visitor IP** is restored by nginx's `real_ip` module — see `/etc/nginx/conf.d/cloudflare-realip.conf` (`set_real_ip_from` CF ranges + `real_ip_header CF-Connecting-IP`). App code must read the client IP from `x-real-ip` (see `lib/ip.ts`), never `cf-connecting-ip` (spoofable).
+
+SSL certificate is issued by Let's Encrypt via certbot, auto-renewed by the `certbot.timer` systemd unit. **Renewal uses the DNS-01 challenge** (`certbot-dns-cloudflare`) — *not* `--nginx`, which would fail since port 80 is firewalled to Cloudflare only. Cloudflare API token (scope `Zone:DNS:Edit` + `Zone:Zone:Read`) lives in `/root/.secrets/cloudflare.ini` (chmod 600); a deploy hook at `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh` reloads nginx after renewal. Test with `certbot renew --dry-run`.
+
+A full security & privacy audit (findings + remediation status) is in `worldwise/tasks/security-audit.md`; recurring operational lessons in `worldwise/tasks/lessons.md`.
 
 ## Project status (May 2026)
 
