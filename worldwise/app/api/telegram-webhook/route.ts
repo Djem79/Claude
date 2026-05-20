@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-articles'
+import { writeFileAtomic } from '@/lib/atomic-write'
 import fs from 'fs'
 import path from 'path'
 
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
           console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
         }
         data.keywords.push(query)
-        fs.writeFileSync(keywordsPath, JSON.stringify(data, null, 2), 'utf-8')
+        writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
         await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
         return NextResponse.json({ ok: true })
       }

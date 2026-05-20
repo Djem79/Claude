@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { writeFileAtomic } from '@/lib/atomic-write'
 
 export interface DynamicArticle {
   slug: string
@@ -52,7 +53,7 @@ export function publishDraft(): DynamicArticle | null {
   if (!draft) return null
   const existing = getDynamicArticles()
   existing.unshift(draft)
-  fs.writeFileSync(ARTICLES_PATH, JSON.stringify(existing, null, 2), 'utf-8')
+  writeFileAtomic(ARTICLES_PATH, JSON.stringify(existing, null, 2))
   deleteDraft()
   return draft
 }
@@ -62,9 +63,5 @@ export function getTagIndex(): number {
 }
 
 export function incrementTagIndex(current: number): void {
-  fs.writeFileSync(
-    TAG_INDEX_PATH,
-    JSON.stringify({ index: (current + 1) % TAGS.length }),
-    'utf-8'
-  )
+  writeFileAtomic(TAG_INDEX_PATH, JSON.stringify({ index: (current + 1) % TAGS.length }))
 }

@@ -282,7 +282,12 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
 
   function exportCsv() {
     const cols = ['createdAt', 'name', 'phone', 'email', 'budget', 'source', 'propertyTitle', 'status', 'notes']
-    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const escape = (v: unknown) => {
+      let s = String(v ?? '')
+      // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR)
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
+      return `"${s.replace(/"/g, '""')}"`
+    }
     const rows = [cols.join(',')]
     for (const l of filtered) {
       rows.push(cols.map(c => escape((l as any)[c])).join(','))

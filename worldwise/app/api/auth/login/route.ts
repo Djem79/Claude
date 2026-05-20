@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE, createSessionToken } from '@/lib/session'
-import { verifyPassword, createUser, getUserByUsername, updateUser } from '@/lib/users'
+import { verifyPassword, createUser, getUsers, updateUser } from '@/lib/users'
+import { getClientIp } from '@/lib/ip'
 
 // 5 attempts per IP per 15 minutes
 const loginRateMap = new Map<string, { count: number; resetAt: number }>()
-
-function getIp(req: NextRequest): string {
-  return (
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-real-ip') ??
-    req.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() ??
-    'unknown'
-  )
-}
 
 function isLoginRateLimited(ip: string): boolean {
   const now = Date.now()
@@ -27,7 +19,7 @@ function isLoginRateLimited(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  if (isLoginRateLimited(getIp(req))) {
+  if (isLoginRateLimited(getClientIp(req))) {
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
   }
 
@@ -38,9 +30,10 @@ export async function POST(req: NextRequest) {
 
   let user = await verifyPassword(username, password)
 
-  // First-run bootstrap: if no users exist and the password matches ADMIN_PASSWORD,
-  // auto-create the owner account.
-  if (!user && !getUserByUsername(username)) {
+  // First-run bootstrap: ONLY when no users exist at all and the password matches
+  // ADMIN_PASSWORD, auto-create the owner account. Gating on an empty table (not just
+  // a free username) prevents ADMIN_PASSWORD from minting owners later. See audit H2.
+  if (!user && getUsers().length === 0) {
     const envPassword = process.env.ADMIN_PASSWORD
     if (envPassword && password === envPassword) {
       const name = username.charAt(0).toUpperCase() + username.slice(1)

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { Lead, LeadStatus, ActivityEntry } from '@/types'
+import { writeFileAtomic } from '@/lib/atomic-write'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'leads.json')
 
@@ -15,7 +16,7 @@ export function getLeadById(id: string): Lead | null {
 }
 
 function saveLeads(leads: Lead[]): void {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(leads, null, 2), 'utf-8')
+  writeFileAtomic(DATA_FILE, JSON.stringify(leads, null, 2))
 }
 
 export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead {

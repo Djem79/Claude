@@ -16,8 +16,10 @@ export const SESSION_COOKIE = 'ww_admin_session'
 const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 function getSecret(): string {
-  const secret = process.env.ADMIN_PASSWORD
-  if (!secret) throw new Error('ADMIN_PASSWORD env var is required')
+  // Dedicated high-entropy signing key — must NOT be the human ADMIN_PASSWORD,
+  // otherwise a captured token can be brute-forced offline. See security-audit H1.
+  const secret = process.env.SESSION_SECRET
+  if (!secret) throw new Error('SESSION_SECRET env var is required')
   return secret
 }
 

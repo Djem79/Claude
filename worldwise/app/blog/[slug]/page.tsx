@@ -74,51 +74,6 @@ export default function ArticlePage({ params }: Props) {
     url: `https://worldwise.pro/blog/${article.slug}`,
   }
 
-  const lines = article.content.split('\n')
-  const rendered = lines.map((line, i) => {
-    if (line.startsWith('## ')) {
-      return (
-        <h2 key={i} className="font-serif text-2xl md:text-3xl text-navy mt-10 mb-4">
-          {line.slice(3)}
-        </h2>
-      )
-    }
-    if (line.startsWith('### ')) {
-      return (
-        <h3 key={i} className="font-serif text-xl text-navy mt-8 mb-3">
-          {line.slice(4)}
-        </h3>
-      )
-    }
-    if (line.startsWith('- ')) {
-      return (
-        <li key={i} className="text-gray-700 leading-relaxed ml-4 list-disc"
-          dangerouslySetInnerHTML={{ __html: formatInline(line.slice(2)) }}
-        />
-      )
-    }
-    if (line.startsWith('| ')) {
-      return null
-    }
-    if (line.trim() === '') {
-      return <div key={i} className="h-2" />
-    }
-    if (/^\d+\./.test(line)) {
-      return (
-        <li key={i} className="text-gray-700 leading-relaxed ml-4 list-decimal"
-          dangerouslySetInnerHTML={{ __html: formatInline(line.replace(/^\d+\.\s*/, '')) }}
-        />
-      )
-    }
-    return (
-      <p key={i} className="text-gray-700 leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: formatInline(line) }}
-      />
-    )
-  })
-
-  const tables = renderTables(article.content)
-
   return (
     <>
       <script
@@ -173,8 +128,19 @@ export default function ArticlePage({ params }: Props) {
   )
 }
 
-function formatInline(text: string): string {
+function escapeHtml(text: string): string {
   return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+// Escape HTML first (article content — including AI-generated — is untrusted),
+// then apply our own bold/italic markup. See tasks/security-audit.md C1.
+function formatInline(text: string): string {
+  return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
 }
@@ -331,8 +297,4 @@ function parseContent(content: string): Block[] {
   }
 
   return blocks
-}
-
-function renderTables(_content: string) {
-  return null
 }

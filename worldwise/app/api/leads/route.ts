@@ -2,18 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { saveLead, getLeads } from '@/lib/leads'
 import { isAuthenticated } from '@/lib/auth'
 import { notifyTelegram, notifyEmail } from '@/lib/notify'
+import { getClientIp } from '@/lib/ip'
 
 // In-memory rate limiter (single PM2 instance — module state persists between requests)
 const rateMap = new Map<string, { count: number; resetAt: number }>()
-
-function getIp(req: NextRequest): string {
-  return (
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-real-ip') ??
-    req.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() ??
-    'unknown'
-  )
-}
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now()
@@ -47,11 +39,25 @@ export async function POST(req: NextRequest) {
   }
 
   // Rate limit counted only after passing validation (so typos don't consume quota)
-  if (isRateLimited(getIp(req))) {
+  if (isRateLimited(getClientIp(req))) {
     return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 })
   }
 
-  const lead = saveLead({ name, phone, email, budget, message, source, propertySlug, propertyTitle })
+  // Cap field lengths — unauthenticated input is persisted to leads.json, which is
+  // fully read+rewritten on every operation. Prevents storage abuse (audit M4).
+  const cap = (v: unknown, max: number) =>
+    v == null ? undefined : String(v).slice(0, max)
+
+  const lead = saveLead({
+    name: cap(name, 120)!,
+    phone: cap(phone, 40)!,
+    email: cap(email, 160),
+    budget: cap(budget, 60),
+    message: cap(message, 2000),
+    source: cap(source, 60) ?? 'unknown',
+    propertySlug: cap(propertySlug, 160),
+    propertyTitle: cap(propertyTitle, 200),
+  })
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `${req.nextUrl.protocol}//${req.nextUrl.host}`
   notifyTelegram(lead, baseUrl)

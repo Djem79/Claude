@@ -184,11 +184,11 @@ Single PM2 instance only — concurrent writes from multiple processes would cor
 
 ### Auth — multi-user, signed session tokens
 
-`lib/session.ts` issues and verifies signed tokens using Web Crypto (`crypto.subtle` HMAC-SHA256). Token format: `base64url(JSON(payload)).hmac-sha256`. Signed with `ADMIN_PASSWORD` env var. `SessionPayload` carries `uid`, `username`, `name`, `role`.
+`lib/session.ts` issues and verifies signed tokens using Web Crypto (`crypto.subtle` HMAC-SHA256). Token format: `base64url(JSON(payload)).hmac-sha256`. Signed with the dedicated `SESSION_SECRET` env var (high-entropy, separate from `ADMIN_PASSWORD`). `SessionPayload` carries `uid`, `username`, `name`, `role`.
 
 `lib/users.ts` handles user CRUD with bcryptjs password hashing. `data/users.json` stores `AdminUser[]` (passwords as bcrypt hashes).
 
-**First-run bootstrap:** if `data/users.json` is empty and the login password matches `ADMIN_PASSWORD`, the owner account is auto-created. No manual seeding needed.
+**First-run bootstrap:** only when `data/users.json` is empty (no users exist) and the login password matches `ADMIN_PASSWORD`, the owner account is auto-created. Once any user exists, `ADMIN_PASSWORD` can no longer mint accounts. No manual seeding needed.
 
 `middleware.ts` (Edge runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`.
 
@@ -303,7 +303,8 @@ Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global butt
 
 See `.env.example`. Key vars:
 
-- `ADMIN_PASSWORD` — used to sign/verify session tokens and for first-run owner bootstrap
+- `ADMIN_PASSWORD` — first-run owner bootstrap password only (no longer signs tokens)
+- `SESSION_SECRET` — high-entropy key that signs/verifies session tokens; must differ from `ADMIN_PASSWORD`. Rotating it logs out all admins. Generate with `openssl rand -base64 48`
 - `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications and auto-blog approvals; comma-separated for multiple recipients. The first ID is the admin who can use `/add_keyword`.
 - `WEBHOOK_SECRET` — validates `X-Telegram-Bot-Api-Secret-Token` header on `POST /api/telegram-webhook`
 - `GEMINI_API_KEY` — Gemini 2.0 Flash API key used by `scripts/generate-article.mjs`

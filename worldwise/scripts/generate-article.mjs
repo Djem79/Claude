@@ -25,6 +25,13 @@ function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`)
 }
 
+// Atomic write: temp file + rename, so a crash mid-write can't corrupt data files.
+function writeFileAtomic(filePath, contents) {
+  const tmp = `${filePath}.${process.pid}.tmp`
+  fs.writeFileSync(tmp, contents, 'utf-8')
+  fs.renameSync(tmp, filePath)
+}
+
 async function fetchRss(url) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10000) })
@@ -63,7 +70,7 @@ function getTagIndex() {
 }
 
 function incrementTagIndex(current) {
-  fs.writeFileSync(TAG_INDEX_PATH, JSON.stringify({ index: (current + 1) % TAGS.length }), 'utf-8')
+  writeFileAtomic(TAG_INDEX_PATH, JSON.stringify({ index: (current + 1) % TAGS.length }))
 }
 
 function getMode() {
@@ -74,7 +81,7 @@ function getMode() {
 }
 
 function setMode(mode) {
-  fs.writeFileSync(MODE_PATH, JSON.stringify({ mode }), 'utf-8')
+  writeFileAtomic(MODE_PATH, JSON.stringify({ mode }))
 }
 
 function getKeywords() {
@@ -87,7 +94,7 @@ function getKeywords() {
 function incrementKeywordIndex(currentIndex) {
   const data = getKeywords()
   data.index = currentIndex + 1
-  fs.writeFileSync(KEYWORDS_PATH, JSON.stringify(data, null, 2), 'utf-8')
+  writeFileAtomic(KEYWORDS_PATH, JSON.stringify(data, null, 2))
 }
 
 async function generateArticle(tag, headlines, keyword) {
@@ -266,7 +273,7 @@ async function main() {
   }
 
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
-  fs.writeFileSync(DRAFT_PATH, JSON.stringify(article, null, 2), 'utf-8')
+  writeFileAtomic(DRAFT_PATH, JSON.stringify(article, null, 2))
   log('Draft saved')
 
   await sendTelegram(article, keyword)

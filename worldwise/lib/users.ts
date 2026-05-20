@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import bcrypt from 'bcryptjs'
 import { AdminUser, AdminRole } from '@/types'
+import { writeFileAtomic } from '@/lib/atomic-write'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'users.json')
 
@@ -13,7 +14,7 @@ export function getUsers(): AdminUser[] {
 function saveUsers(users: AdminUser[]): void {
   const dir = path.dirname(DATA_FILE)
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2), 'utf-8')
+  writeFileAtomic(DATA_FILE, JSON.stringify(users, null, 2))
 }
 
 export function getUserById(id: string): AdminUser | null {

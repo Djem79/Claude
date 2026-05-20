@@ -12,7 +12,9 @@ export async function getSession(): Promise<SessionPayload | null> {
   if (!payload) return null
   const user = getUserById(payload.uid)
   if (!user || !user.active) return null
-  return payload
+  // Use role/name from the DB, not the (up to 7-day-old) token, so a demoted or
+  // renamed user can't keep stale privileges until expiry. See audit M1.
+  return { ...payload, name: user.name, role: user.role }
 }
 
 export async function isAuthenticated(): Promise<boolean> {
