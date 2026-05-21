@@ -181,7 +181,7 @@ export default function PropertyForm({ property }: { property?: Property }) {
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Status</label>
           <select className={fieldClass} value={form.status} onChange={e => set('status', e.target.value)}>
-            {['off-plan', 'ready', 'secondary', 'rent'].map(s => <option key={s} value={s}>{s}</option>)}
+            {['off-plan', 'secondary', 'rent'].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>

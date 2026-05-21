@@ -7,7 +7,6 @@ import PropertyCard from '@/components/PropertyCard'
 const STATUSES = [
   { value: 'all', label: 'All Types' },
   { value: 'off-plan', label: 'Off-Plan' },
-  { value: 'ready', label: 'Ready' },
   { value: 'secondary', label: 'Secondary' },
   { value: 'rent', label: 'For Rent' },
 ]

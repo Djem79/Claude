@@ -5,7 +5,7 @@ export interface Property {
   developer: string
   area: string
   type: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
-  status: 'off-plan' | 'ready' | 'secondary' | 'rent'
+  status: 'off-plan' | 'secondary' | 'rent'
   priceAed: number
   pricePerSqft?: number
   roi?: number

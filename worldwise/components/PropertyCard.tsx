@@ -9,14 +9,12 @@ function formatPrice(aed: number) {
 
 const STATUS_COLORS: Record<string, string> = {
   'off-plan': 'bg-blue-50 text-blue-700',
-  ready: 'bg-green-50 text-green-700',
   secondary: 'bg-amber-50 text-amber-700',
   rent: 'bg-purple-50 text-purple-700',
 }
 
 const STATUS_LABELS: Record<string, string> = {
   'off-plan': 'Off-Plan',
-  ready: 'Ready',
   secondary: 'Secondary',
   rent: 'For Rent',
 }
