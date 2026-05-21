@@ -18,6 +18,7 @@ export interface Property {
   images: string[]
   featured: boolean
   badge?: string
+  rented?: boolean
   qrImage?: string
   permitNumber?: string
   projectNumber?: string

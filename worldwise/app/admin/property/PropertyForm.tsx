@@ -362,6 +362,20 @@ export default function PropertyForm({ property }: { property?: Property }) {
         </span>
       </label>
 
+      {form.status === 'rent' && (
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.rented ?? false}
+            onChange={e => set('rented', e.target.checked)}
+            className="w-4 h-4 accent-gold"
+          />
+          <span className="text-sm text-navy font-medium">
+            Mark as Rented / Unavailable
+          </span>
+        </label>
+      )}
+
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="flex gap-4 pt-4 border-t border-gray-100">
