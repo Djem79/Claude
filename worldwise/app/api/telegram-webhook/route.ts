@@ -159,7 +159,12 @@ export async function POST(req: NextRequest) {
 
     // Ignore other slash commands; everything else from the team is a lead paste
     if (text.startsWith('/')) return NextResponse.json({ ok: true })
-    await handleLeadIntake(message.chat.id, text)
+    try {
+      await handleLeadIntake(message.chat.id, text)
+    } catch (e) {
+      console.error('[telegram-webhook] handleLeadIntake error', e)
+      await sendMessage(message.chat.id, '⚠️ Ошибка при сохранении лида, попробуйте позже.')
+    }
     return NextResponse.json({ ok: true })
   }
 
