@@ -3,14 +3,18 @@ import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-article
 import { writeFileAtomic } from '@/lib/atomic-write'
 import fs from 'fs'
 import path from 'path'
+import { saveLead, findLeadByPhone } from '@/lib/leads'
+import { parseLeadText } from '@/lib/lead-parse'
 
-async function sendMessage(chatId: number, text: string) {
+async function sendMessage(chatId: number | string, text: string, inlineKeyboard?: unknown[][]) {
   const token = process.env.TELEGRAM_BOT_TOKEN!
+  const body: Record<string, unknown> = { chat_id: chatId, text }
+  if (inlineKeyboard) body.reply_markup = { inline_keyboard: inlineKeyboard }
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify(body),
     })
     if (!res.ok) console.error('[telegram-webhook] sendMessage failed', await res.text())
   } catch (e) {
@@ -24,6 +28,55 @@ const TAG_EMOJI: Record<string, string> = {
   'Area Spotlight': '📍',
   'Legal Guide': '⚖️',
   'Visa & Residency': '🛂',
+}
+
+const LEAD_SOURCE_LABEL: Record<string, string> = {
+  property_finder: 'Property Finder',
+  bayut: 'Bayut',
+  instagram_dm: 'Instagram',
+  whatsapp: 'WhatsApp',
+  other: 'Other',
+}
+
+function leadSourceKeyboard(id: string) {
+  return [
+    [
+      { text: 'Property Finder', callback_data: `leadsrc:${id}:property_finder` },
+      { text: 'Bayut', callback_data: `leadsrc:${id}:bayut` },
+    ],
+    [
+      { text: 'Instagram', callback_data: `leadsrc:${id}:instagram_dm` },
+      { text: 'WhatsApp', callback_data: `leadsrc:${id}:whatsapp` },
+      { text: 'Other', callback_data: `leadsrc:${id}:other` },
+    ],
+    [{ text: '🗑 Удалить', callback_data: `leaddel:${id}` }],
+  ]
+}
+
+async function handleLeadIntake(chatId: number | string, text: string) {
+  const parsed = parseLeadText(text)
+  if (!parsed.phone) {
+    await sendMessage(chatId, '❌ Не нашёл телефон. Вставьте текст лида с номером (7–15 цифр).')
+    return
+  }
+  const dup = findLeadByPhone(parsed.phone)
+  const lead = saveLead({
+    name: (parsed.name ?? 'Без имени').slice(0, 120),
+    phone: parsed.phone.slice(0, 40),
+    email: parsed.email?.slice(0, 160),
+    message: parsed.note.slice(0, 2000),
+    source: 'telegram',
+  })
+  const reply = [
+    dup ? `⚠️ Возможный дубль: ${dup.name} (${new Date(dup.createdAt).toLocaleDateString('ru-RU')})` : null,
+    '🆕 Лид сохранён в CRM',
+    `👤 ${lead.name}`,
+    `📞 ${lead.phone}`,
+    lead.email ? `✉️ ${lead.email}` : null,
+    '',
+    'Источник?',
+  ].filter(Boolean).join('\n')
+  await sendMessage(chatId, reply, leadSourceKeyboard(lead.id))
 }
 
 function escapeMarkdownV2(text: string): string {
@@ -75,31 +128,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  // /add_keyword text command
   const message = body.message as any
   if (message?.text) {
-    const expectedChatId = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim() // first chat ID is the admin who can use /add_keyword
-    if (String(message.chat.id) === expectedChatId) {
-      const text: string = message.text
-      if (text.toLowerCase().startsWith('/add_keyword')) {
-        const query = text.replace(/^\/add_keyword\s*/i, '').trim()
-        if (!query) {
-          await sendMessage(message.chat.id, '❌ Usage: /add_keyword <search query>')
-          return NextResponse.json({ ok: true })
-        }
-        const keywordsPath = path.join(process.cwd(), 'data', 'article-keywords.json')
-        let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
-        try {
-          data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
-        } catch (e) {
-          console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
-        }
-        data.keywords.push(query)
-        writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
-        await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
+    const chatId = String(message.chat?.id ?? '')
+    const allowed = (process.env.TELEGRAM_CHAT_ID ?? '').split(',').map(s => s.trim()).filter(Boolean)
+    if (!allowed.includes(chatId)) return NextResponse.json({ ok: true })
+
+    const text: string = message.text
+
+    // /add_keyword — first chat id only (unchanged)
+    if (text.toLowerCase().startsWith('/add_keyword')) {
+      if (chatId !== allowed[0]) return NextResponse.json({ ok: true })
+      const query = text.replace(/^\/add_keyword\s*/i, '').trim()
+      if (!query) {
+        await sendMessage(message.chat.id, '❌ Usage: /add_keyword <search query>')
         return NextResponse.json({ ok: true })
       }
+      const keywordsPath = path.join(process.cwd(), 'data', 'article-keywords.json')
+      let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
+      try {
+        data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+      } catch (e) {
+        console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
+      }
+      data.keywords.push(query)
+      writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
+      await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
+      return NextResponse.json({ ok: true })
     }
+
+    // Ignore other slash commands; everything else from the team is a lead paste
+    if (text.startsWith('/')) return NextResponse.json({ ok: true })
+    await handleLeadIntake(message.chat.id, text)
     return NextResponse.json({ ok: true })
   }
 
