@@ -372,7 +372,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Property', 'Actions'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    <th key={h} className={`text-left ${['Date', 'Status', 'Source', 'Property'].includes(h) ? 'px-2' : 'px-4'} py-3 text-xs font-medium text-gray-400 uppercase tracking-wide`}>
                       {h}
                     </th>
                   ))}
@@ -391,8 +391,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                         className={`cursor-pointer hover:bg-gray-50 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}
                         onClick={() => setOpenId(isOpen ? null : l.id)}
                       >
-                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{fmt(l.createdAt)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-3 text-gray-500 whitespace-nowrap">{fmt(l.createdAt)}</td>
+                        <td className="px-2 py-3">
                           <span className={`badge text-xs ${STATUS_META[status].color}`}>{STATUS_META[status].label}</span>
                         </td>
                         <td className="px-4 py-3 font-medium text-navy">{l.name}</td>
@@ -404,8 +404,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                             </a>
                           ) : '—'}
                         </td>
-                        <td className="px-4 py-3"><span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></td>
-                        <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{l.propertyTitle ?? '—'}</td>
+                        <td className="px-2 py-3"><span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></td>
+                        <td className="px-2 py-3 text-gray-500 max-w-[140px] truncate">{l.propertyTitle ?? '—'}</td>
                         <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                           <div className="flex gap-3">
                             <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
