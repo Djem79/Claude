@@ -51,10 +51,10 @@ export default function Hero() {
           {/* Trust stats */}
           <div className="flex flex-wrap gap-8 mt-14 pt-8 border-t border-white/20">
             {[
-              { value: '500+', label: 'Investors Served' },
-              { value: 'AED 2B+', label: 'In Transactions' },
+              { value: '50+', label: 'Investors Served' },
+              { value: '$30M+', label: 'In Transactions' },
               { value: '5.0 ★', label: 'Google Rating' },
-              { value: '30+', label: 'Countries' },
+              { value: 'Up to 8%', label: 'Rental Yield' },
             ].map(stat => (
               <div key={stat.label}>
                 <div className="font-serif text-2xl text-gold">{stat.value}</div>
