@@ -117,7 +117,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "excerpt": "2-3 sentence summary (max 200 chars)",
   "readTime": "X min read",
   "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
-  "imagePrompt": "One vivid sentence describing an on-topic, atmospheric Dubai real-estate photo for this article — cinematic, golden-hour, professional editorial. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
+  "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
     : `Write a 600–800 word SEO article about UAE real estate for international investors.
 Use these recent news headlines as context:
@@ -131,7 +131,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "excerpt": "2-3 sentence summary (max 200 chars)",
   "readTime": "X min read",
   "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
-  "imagePrompt": "One vivid sentence describing an on-topic, atmospheric Dubai real-estate photo for this article — cinematic, golden-hour, professional editorial. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
+  "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
 
   const res = await fetch(
