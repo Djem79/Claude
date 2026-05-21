@@ -3,7 +3,7 @@ import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-article
 import { writeFileAtomic } from '@/lib/atomic-write'
 import fs from 'fs'
 import path from 'path'
-import { saveLead, findLeadByPhone } from '@/lib/leads'
+import { saveLead, findLeadByPhone, updateLead, deleteLead } from '@/lib/leads'
 import { parseLeadText } from '@/lib/lead-parse'
 
 async function sendMessage(chatId: number | string, text: string, inlineKeyboard?: unknown[][]) {
@@ -179,6 +179,44 @@ export async function POST(req: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN!
 
   let answerText: string
+
+  if (typeof data === 'string' && data.startsWith('leadsrc:')) {
+    const [, id, src] = data.split(':')
+    const updated = updateLead(id, { source: src }, { uid: 'telegram', username: 'telegram-bot', name: 'Telegram' })
+    answerText = updated ? `✅ ${LEAD_SOURCE_LABEL[src] ?? src}` : '⚠️ Лид не найден'
+    const newText = updated
+      ? `✅ Добавлено в CRM — источник: ${LEAD_SOURCE_LABEL[src] ?? src}\n👤 ${updated.name} · 📞 ${updated.phone}`
+      : '⚠️ Лид не найден'
+    await Promise.all([
+      fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
+      }),
+      fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: newText, reply_markup: { inline_keyboard: [] } }),
+      }),
+    ])
+    return NextResponse.json({ ok: true })
+  }
+
+  if (typeof data === 'string' && data.startsWith('leaddel:')) {
+    const [, id] = data.split(':')
+    const removed = deleteLead(id)
+    answerText = removed ? '🗑 Удалён' : '⚠️ Не найден'
+    await Promise.all([
+      fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
+      }),
+      fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: removed ? '🗑 Лид удалён' : '⚠️ Лид не найден', reply_markup: { inline_keyboard: [] } }),
+      }),
+    ])
+    return NextResponse.json({ ok: true })
+  }
+
   if (data === 'publish_article') {
     const published = publishDraft()
     answerText = published ? '✅ Опубликовано' : '⚠️ Черновик не найден'
