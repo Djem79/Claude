@@ -11,6 +11,7 @@ export interface DynamicArticle {
   content: string
   publishedAt: string
   source: 'ai-generated'
+  image?: string
 }
 
 const DATA_DIR = path.join(process.cwd(), 'data')
