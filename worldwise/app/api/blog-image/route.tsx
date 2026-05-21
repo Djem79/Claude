@@ -75,6 +75,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { ...SIZE, fonts },
+    { ...SIZE, fonts, headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
   )
 }

@@ -209,12 +209,10 @@ async function generateRawImage(slug, imagePrompt) {
 }
 
 // Bake the branded card via the running app → public/images/blog/<slug>.png. Returns the public path.
-async function bakeCard(slug, title, tag) {
-  const url = `${LOCAL_APP}/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&tag=${encodeURIComponent(tag)}`
-  const res = await fetch(url, { signal: AbortSignal.timeout(30000) })
-  if (!res.ok) throw new Error(`bake ${res.status}: ${(await res.text()).slice(0, 160)}`)
-  fs.writeFileSync(path.join(BLOG_IMG_DIR, `${slug}.png`), Buffer.from(await res.arrayBuffer()))
-  return `/images/blog/${slug}.png`
+// The branded card is served on-demand by the /api/blog-image route (it reads the
+// raw photo from disk via fs — Next does NOT serve public/ files added after start).
+function cardUrl(slug, title, tag) {
+  return `/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&tag=${encodeURIComponent(tag)}`
 }
 
 async function sendTelegramMessage(text, inlineKeyboard) {
@@ -248,16 +246,23 @@ async function sendTelegram(article, keyword) {
     { text: '❌ Пропустить', callback_data: 'skip_article' },
   ]]
 
-  const imgPath = article.image ? path.join(ROOT, 'public', article.image.replace(/^\//, '')) : null
-  if (imgPath && fs.existsSync(imgPath)) {
-    const fd = new FormData()
-    fd.append('chat_id', TG_CHAT_ID)
-    fd.append('caption', text.slice(0, 1024))
-    fd.append('reply_markup', JSON.stringify({ inline_keyboard: keyboard }))
-    fd.append('photo', new Blob([fs.readFileSync(imgPath)]), `${article.slug}.png`)
-    const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: 'POST', body: fd, signal: AbortSignal.timeout(20000) })
-    if (res.ok) return
-    log(`sendPhoto failed (${res.status}), falling back to text`)
+  if (article.image) {
+    try {
+      const r = await fetch(LOCAL_APP + article.image, { signal: AbortSignal.timeout(20000) })
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer())
+        const fd = new FormData()
+        fd.append('chat_id', TG_CHAT_ID)
+        fd.append('caption', text.slice(0, 1024))
+        fd.append('reply_markup', JSON.stringify({ inline_keyboard: keyboard }))
+        fd.append('photo', new Blob([buf]), `${article.slug}.png`)
+        const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: 'POST', body: fd, signal: AbortSignal.timeout(20000) })
+        if (res.ok) return
+        log(`sendPhoto failed (${res.status}), falling back to text`)
+      }
+    } catch (e) {
+      log(`approval photo failed: ${e.message}`)
+    }
   }
   await sendTelegramMessage(text, keyboard)
 }
@@ -324,7 +329,10 @@ async function main() {
     const slug = sanitizeSlug(article.slug)
     article.slug = slug
     await generateRawImage(slug, article.imagePrompt)
-    article.image = await bakeCard(slug, article.title, article.tag)
+    const u = cardUrl(slug, article.title, article.tag)
+    const probe = await fetch(LOCAL_APP + u, { signal: AbortSignal.timeout(30000) })
+    if (!probe.ok) throw new Error(`card render ${probe.status}`)
+    article.image = u
     log(`Image ready: ${article.image}`)
   } catch (e) {
     log(`Image step failed (continuing without image): ${e.message}`)
