@@ -19,6 +19,8 @@ worldwise/data/leads.json
 worldwise/lead-files/
 # Legacy location (pre-P3); kept ignored for safety.
 worldwise/public/files/
+# Server-generated per-article blog images (AI photo + branded card)
+worldwise/public/images/blog/
 
 # OS
 .DS_Store
