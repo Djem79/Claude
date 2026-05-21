@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { Lead, LeadStatus, ActivityEntry } from '@/types'
+import { normalizePhone } from '@/lib/lead-parse'
 import { writeFileAtomic } from '@/lib/atomic-write'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'leads.json')
@@ -13,6 +14,12 @@ export function getLeads(): Lead[] {
 
 export function getLeadById(id: string): Lead | null {
   return getLeads().find(l => l.id === id) ?? null
+}
+
+export function findLeadByPhone(phone: string): Lead | null {
+  const norm = normalizePhone(phone)
+  if (!norm) return null
+  return getLeads().find(l => normalizePhone(l.phone) === norm) ?? null
 }
 
 function saveLeads(leads: Lead[]): void {
@@ -33,7 +40,7 @@ export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead 
 
 export function updateLead(
   id: string,
-  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments'>>,
+  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments' | 'source'>>,
   actor?: { uid: string; username: string; name: string }
 ): Lead | null {
   const leads = getLeads()
@@ -55,6 +62,9 @@ export function updateLead(
     }
     if ('notes' in data && data.notes !== prev.notes) {
       parts.push('Notes updated')
+    }
+    if (data.source && data.source !== prev.source) {
+      parts.push(`Source: ${data.source}`)
     }
     if ('attachments' in data) {
       const prevCount = prev.attachments?.length ?? 0
