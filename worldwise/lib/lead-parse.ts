@@ -6,7 +6,9 @@ export interface ParsedLead {
 }
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/
-const PHONE_RE = /[+\d][\d\s().-]{6,}/g
+const PHONE_RE = /[+\d][\d ().-]{6,}/g
+const DATE_LIKE = /^\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}$/
+const IP_LIKE = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
 
 const NAME_LABELS = ['name', 'имя', 'client', 'клиент', 'contact', 'фио']
 const PHONE_LABELS = ['phone', 'tel', 'telephone', 'mobile', 'тел', 'телефон', 'номер']
@@ -23,7 +25,9 @@ function isValidPhone(raw: string): boolean {
 
 function firstValidPhone(text: string): string | undefined {
   for (const c of text.match(PHONE_RE) ?? []) {
-    if (isValidPhone(c)) return c.trim()
+    const t = c.trim()
+    if (DATE_LIKE.test(t) || IP_LIKE.test(t)) continue
+    if (isValidPhone(t)) return t
   }
   return undefined
 }
@@ -48,7 +52,10 @@ export function parseLeadText(text: string): ParsedLead {
 
   const labelPhone = labelValue(text, PHONE_LABELS)
   let phone: string | undefined
-  if (labelPhone && isValidPhone(labelPhone)) phone = labelPhone.trim()
+  if (labelPhone) {
+    const extracted = labelPhone.match(PHONE_RE)?.[0]?.trim()
+    if (extracted && isValidPhone(extracted)) phone = extracted
+  }
   if (!phone) phone = firstValidPhone(text)
 
   let name = labelValue(text, NAME_LABELS)

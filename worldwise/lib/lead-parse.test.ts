@@ -40,3 +40,8 @@ test('Russian labels are recognised', () => {
   assert.equal(r.name, 'Пётр')
   assert.equal(normalizePhone(r.phone ?? ''), '89161234567')
 })
+
+test('ignores date token before the real phone', () => {
+  const r = parseLeadText('John\n15.01.2024\n+971501234567\njohn@x.com')
+  assert.equal(normalizePhone(r.phone ?? ''), '971501234567')
+})
