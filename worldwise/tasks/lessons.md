@@ -1,5 +1,26 @@
 # Lessons
 
+## 2026-05-22 — Homepage marketing stats are duplicated in SEO metadata
+
+**What happened:** Changed the hero/`WhyWorldwise` stats ("500+ investors" → "50+",
+"AED 2B+" → "$30M+", dropped "30+ Countries"). The plan only touched the two
+components. A final whole-branch review caught that `app/layout.tsx`'s `<meta
+description>` and `public/llms.txt` still claimed "500+ investors from 30+ countries"
+— a public contradiction with the new homepage copy that would surface in Google's
+snippet and to AI crawlers.
+
+**Root cause:** I treated the stat change as component-local. The same factual claims
+live in several SEO surfaces that don't import the component, so a grep-by-number was
+needed, not just editing where the JSX renders.
+
+**Rules to prevent repeat:**
+- When changing any visible marketing claim/number on a page, grep the *value* across
+  the repo (`grep -rn "500+\|2B\|30+ countries" app public components`) and reconcile
+  every hit: `app/layout.tsx` (description, openGraph, twitter, JSON-LD), per-page
+  `metadata`, and `public/llms.txt`.
+- Add "check SEO metadata + llms.txt for the same claim" to the plan whenever a task
+  edits homepage/landing copy.
+
 ## 2026-05-21 — `next start` does NOT serve `public/` files created after boot
 
 **What happened:** The article-image feature wrote generated images to
