@@ -102,11 +102,15 @@ async function postToChannel(article: DynamicArticle) {
     '',
     `👉 [Читать статью](${url})`,
   ].join('\n')
+  const endpoint = article.image ? 'sendPhoto' : 'sendMessage'
+  const payload: Record<string, unknown> = article.image
+    ? { chat_id: channelId, photo: `${siteUrl}${article.image}`, caption: text.slice(0, 1024), parse_mode: 'MarkdownV2' }
+    : { chat_id: channelId, text, parse_mode: 'MarkdownV2' }
   try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: channelId, text, parse_mode: 'MarkdownV2' }),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10000),
     })
     if (!res.ok) console.error('[telegram-webhook] postToChannel failed', await res.text())
