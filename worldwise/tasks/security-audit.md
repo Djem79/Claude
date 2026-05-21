@@ -165,3 +165,65 @@ Approved scope: **all Critical + High + Medium**. `npm run build` passes (✓ co
 2. Backup `data/` on the server before deploy (per CLAUDE.md).
 3. Confirm nginx sets `X-Real-IP` and the origin is firewalled to Cloudflare (H3).
 4. After restart, re-login to the admin (all sessions invalidated by H1).
+
+---
+
+# Privacy & Personal Data Audit (2026-05-21)
+
+Second pass focused on personal-data protection and areas not covered in the first audit (file permissions at rest, data retention, consent, dependencies, attachment handling). The Critical/High/Medium code findings above are already fixed and deployed.
+
+## What's good (verified)
+- **Consent-gated analytics** — GA4 loads only after explicit "Accept All"; declining never loads it (`components/Analytics.tsx`, `CookieBanner.tsx`).
+- **Privacy policy is substantive** (`/privacy`) — identity, data collected, purposes, sharing, cookies, data-subject rights (access/correction/deletion, 30-day response), 24-month retention, contact.
+- **Lead deletion is owner-only and cascades** — `DELETE /api/leads/[id]` removes the lead and `rm -rf public/files/leads/<id>` (no orphaned PII files).
+- **Path-traversal guards** on attachment routes (`path.resolve` + `startsWith(base + sep)`), server-generated file IDs, filename sanitisation.
+- Only `root` has a login shell on the VPS (limits the blast radius of the file-permission findings below).
+
+## Findings
+
+| ID | Severity | Finding | Location |
+|----|----------|---------|----------|
+| P1 | High | `.env.local` is world-readable (`644`) — every secret (`SESSION_SECRET`, `ADMIN_PASSWORD`, `TELEGRAM_BOT_TOKEN`, `GEMINI_API_KEY`, `SMTP_PASS`, `WEBHOOK_SECRET`) readable by any local user/process | server `/var/www/worldwise/.env.local` |
+| P2 | High | PII at rest world-readable (`644`) — `data/leads.json` (names, phones, emails), `data/users.json` (bcrypt hashes) | server `data/*.json` |
+| P3 | Medium | Sensitive lead documents stored under `public/` (`public/files/leads/...`), protected only by Edge middleware — a static-serving/middleware misconfig leaks KYC-grade PII (passports, contracts) | `app/api/leads/[id]/files/route.ts`, `middleware.ts` |
+| P4 | Medium | Stated 24-month retention is **not enforced** — no automated deletion/anonymisation; leads persist indefinitely. Policy-vs-implementation gap (compliance risk) | `lib/leads.ts`, `/privacy` |
+| P5 | Medium | Vulnerable dependencies — `npm audit`: `next` (high), `nodemailer <=8.0.4` (high), `postcss <8.5.10` (moderate, build-time XSS) | `package.json` |
+| P6 | Low | App process runs as **root** under PM2 — a Node compromise is immediately root | server PM2 config |
+| P7 | Low | Lead attachments validated by client MIME + extension, not magic bytes (parallels M5 for the gallery uploader); admin-only | `app/api/leads/[id]/files/route.ts` |
+
+### P1 — World-readable secrets
+**Impact:** any non-root process or local account can read every credential; offline misuse of bot/API/SMTP tokens, token forgery (`SESSION_SECRET`). Mitigated today only by the box being single-root.
+**Fix:** `chmod 600 /var/www/worldwise/.env.local` (and confirm `/root/.secrets/cloudflare.ini` stays `600` — it is). Ensure the deploy process recreates it as `600`.
+
+### P2 — World-readable PII at rest
+**Impact:** lead PII and password hashes readable outside the app context; hashes become offline-crackable if exfiltrated.
+**Fix:** `chmod 600 data/leads.json data/users.json` (other `data/*.json` are not personal data; `data/` dir → `750`). Normalise ownership to the runtime user. Consider that `leads.json` is plaintext at rest — acceptable at this scale **with** correct perms.
+
+### P3 — Sensitive docs under `public/`
+**Fix:** move lead attachments outside `public/` (e.g. `data/lead-files/` or `/var/lib/worldwise-files/`) and serve them through an authenticated streaming route that calls `getSession()`, instead of relying solely on middleware over a statically-served directory.
+
+### P4 — Retention not enforced
+**Fix:** add a scheduled task (cron) that deletes/anonymises leads with `updatedAt`/`createdAt` older than 24 months (and their attachment dirs), matching the policy. Or change the policy to match reality. Document whichever is chosen.
+
+### P5 — Dependencies
+**Fix:** upgrade `nodemailer` (breaking — test the lead-notification + file-send email paths), apply the latest Next.js 14.2.x security patch (prefer the patch release over the `next@16` major), bump `postcss`. Re-run `npm audit` after.
+
+## Recommended order
+1. **P1 + P2** — `chmod 600` on secrets and PII files. Seconds, highest value, no downtime.
+2. **P5** — dependency upgrades (nodemailer + Next patch), then `npm run build` + email smoke test.
+3. **P3** — move attachments out of `public/` behind an auth route.
+4. **P4** — retention job. **P6/P7** — hardening.
+
+## Privacy remediation status (2026-05-21)
+
+| ID | Status | Change |
+|----|--------|--------|
+| P1 | ✅ Fixed | `chmod 600 /var/www/worldwise/.env.local` on server. |
+| P2 | ✅ Fixed | `chmod 600 data/leads.json data/users.json`; `data/` → `750`. |
+| P3 | ✅ Fixed | Attachments moved out of `public/` to `lead-files/` (gitignored, excluded from rsync). New authenticated streaming route `GET /api/leads/[id]/files/[fileId]/download` (`getSession()` required); upload/send/delete + lead-delete cleanup all use `lib/lead-files.ts`. Existing file migrated, `leads.json` URLs rewritten, legacy `public/files/leads` removed. Verified: download route returns 401 without a session. |
+| P4 | ✅ Fixed | `scripts/prune-leads.mjs` deletes leads + attachment dirs past 24 months; weekly cron (`0 4 * * 0`) on server. Honors the policy's stated retention. |
+| P5 | ⚠️ Partial | `nodemailer` upgraded to 8.0.7 (high advisory closed). Remaining `next` high + its nested `postcss` moderate are only fixed in `next@16` — a **deliberate major migration**, deferred (tracked); latest 14.2.x is already installed. |
+| P7 | ✅ Fixed | Lead attachments validated by magic bytes (`sniffAttachment` in `lib/lead-files.ts`) cross-checked against the extension. |
+| P6 | ⏳ Deferred | Run the Node process as a non-root user. Involved (new system user, PM2 reconfig, deploy-pipeline + cron ownership changes); needs a maintenance window — do as a planned step, not a hotfix. |
+
+Note: `worldwise.pro` traffic is proxied through Cloudflare; analytics stay consent-gated; lead deletion remains owner-only and now also clears `lead-files/<id>`.

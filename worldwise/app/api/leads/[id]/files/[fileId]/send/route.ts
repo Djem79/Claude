@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLeadById, updateLead } from '@/lib/leads'
 import { getSession } from '@/lib/auth'
+import { resolveLeadFileDir } from '@/lib/lead-files'
 import { SentEntry } from '@/types'
 import fs from 'fs'
 import path from 'path'
@@ -23,9 +24,8 @@ export async function POST(
     return NextResponse.json({ error: 'SMTP not configured' }, { status: 503 })
   }
 
-  const base = path.join(process.cwd(), 'public', 'files', 'leads')
-  const resolvedDir = path.resolve(base, params.id, params.fileId)
-  if (!resolvedDir.startsWith(base + path.sep)) {
+  const resolvedDir = resolveLeadFileDir(params.id, params.fileId)
+  if (!resolvedDir) {
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
   const filePath = path.join(resolvedDir, attachment.name)

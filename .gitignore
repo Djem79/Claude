@@ -15,7 +15,9 @@
 worldwise/data/leads.json
 
 # Uploaded client documents — contain customer PII.
-# Served from public/ but must never be committed.
+# Stored outside public/ (served only via authenticated route) — never commit.
+worldwise/lead-files/
+# Legacy location (pre-P3); kept ignored for safety.
 worldwise/public/files/
 
 # OS

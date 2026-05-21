@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateLead, deleteLead, getLeadById } from '@/lib/leads'
 import { getSession, isAuthenticated } from '@/lib/auth'
+import { LEAD_FILES_BASE } from '@/lib/lead-files'
 import fs from 'fs'
 import path from 'path'
 
@@ -27,7 +28,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (session.role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const ok = deleteLead(params.id)
   if (ok) {
-    const dir = path.join(process.cwd(), 'public', 'files', 'leads', params.id)
+    const dir = path.join(LEAD_FILES_BASE, params.id)
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
   }
   return NextResponse.json({ success: ok })

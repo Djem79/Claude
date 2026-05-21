@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLeadById, updateLead } from '@/lib/leads'
 import { getSession } from '@/lib/auth'
+import { resolveLeadFileDir, sniffAttachment } from '@/lib/lead-files'
 import { FileAttachment } from '@/types'
 import fs from 'fs'
 import path from 'path'
@@ -15,6 +16,16 @@ const ALLOWED_MIME = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ])
 const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png', 'webp', 'doc', 'docx'])
+// A docx is a ZIP and a doc is an OLE file — both sniff to a single key; map the
+// detected magic-byte type to the extensions it legitimately backs.
+const SNIFF_OK: Record<string, Set<string>> = {
+  pdf: new Set(['pdf']),
+  jpeg: new Set(['jpg', 'jpeg']),
+  png: new Set(['png']),
+  webp: new Set(['webp']),
+  doc: new Set(['doc']),
+  docx: new Set(['docx']),
+}
 
 function sanitizeName(name: string): string {
   return name
@@ -57,18 +68,24 @@ export async function POST(
     return NextResponse.json({ error: 'Unsupported file extension' }, { status: 400 })
   }
 
+  // Validate by magic bytes, not the client-supplied MIME/extension (audit P7)
+  const buf = Buffer.from(await file.arrayBuffer())
+  const detected = sniffAttachment(buf)
+  if (!detected || !SNIFF_OK[detected]?.has(ext)) {
+    return NextResponse.json({ error: 'File content does not match its type' }, { status: 400 })
+  }
+
   const fileId = makeId()
   const safeName = sanitizeName(file.name)
 
-  const base = path.join(process.cwd(), 'public', 'files', 'leads')
-  const dir = path.resolve(base, params.id, fileId)
-  if (!dir.startsWith(base + path.sep)) {
+  const dir = resolveLeadFileDir(params.id, fileId)
+  if (!dir) {
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
 
   try {
     fs.mkdirSync(dir, { recursive: true })
-    fs.writeFileSync(path.join(dir, safeName), Buffer.from(await file.arrayBuffer()))
+    fs.writeFileSync(path.join(dir, safeName), buf)
   } catch (e) {
     console.error('[files/upload] fs error', e)
     return NextResponse.json({ error: 'Failed to save file' }, { status: 500 })
@@ -78,7 +95,7 @@ export async function POST(
     id: fileId,
     name: safeName,
     size: file.size,
-    url: `/files/leads/${params.id}/${fileId}/${safeName}`,
+    url: `/api/leads/${params.id}/files/${fileId}/download`,
     uploadedAt: new Date().toISOString(),
     uploadedBy: session.username,
     sentLog: [],

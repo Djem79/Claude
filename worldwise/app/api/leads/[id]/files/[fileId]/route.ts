@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLeadById, updateLead } from '@/lib/leads'
 import { getSession } from '@/lib/auth'
+import { resolveLeadFileDir } from '@/lib/lead-files'
 import fs from 'fs'
-import path from 'path'
 
 export async function DELETE(
   _req: NextRequest,
@@ -17,9 +17,8 @@ export async function DELETE(
   const attachment = (lead.attachments ?? []).find(a => a.id === params.fileId)
   if (!attachment) return NextResponse.json({ error: 'File not found' }, { status: 404 })
 
-  const base = path.join(process.cwd(), 'public', 'files', 'leads')
-  const dir = path.resolve(base, params.id, params.fileId)
-  if (!dir.startsWith(base + path.sep)) {
+  const dir = resolveLeadFileDir(params.id, params.fileId)
+  if (!dir) {
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
 
