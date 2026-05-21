@@ -191,10 +191,12 @@ export async function POST(req: NextRequest) {
       fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
+        signal: AbortSignal.timeout(8000),
       }),
       fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: newText, reply_markup: { inline_keyboard: [] } }),
+        signal: AbortSignal.timeout(8000),
       }),
     ])
     return NextResponse.json({ ok: true })
@@ -208,10 +210,12 @@ export async function POST(req: NextRequest) {
       fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
+        signal: AbortSignal.timeout(8000),
       }),
       fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: removed ? '🗑 Лид удалён' : '⚠️ Лид не найден', reply_markup: { inline_keyboard: [] } }),
+        signal: AbortSignal.timeout(8000),
       }),
     ])
     return NextResponse.json({ ok: true })
