@@ -63,9 +63,14 @@ export default function BlogPage() {
                   key={a.slug}
                   className="bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="h-48 bg-gradient-to-br from-navy to-navy-light flex items-center justify-center">
-                    <span className="font-serif text-4xl text-gold/30">W</span>
-                  </div>
+                  {'image' in a && a.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={a.image} alt={a.title} className="h-48 w-full object-cover" />
+                  ) : (
+                    <div className="h-48 bg-gradient-to-br from-navy to-navy-light flex items-center justify-center">
+                      <span className="font-serif text-4xl text-gold/30">W</span>
+                    </div>
+                  )}
                   <div className="p-6">
                     <span className={`badge ${TAG_COLORS[a.tag] ?? 'bg-gray-100 text-gray-600'}`}>
                       {a.tag}

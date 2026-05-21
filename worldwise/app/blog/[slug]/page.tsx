@@ -19,6 +19,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = getArticleBySlug(params.slug)
   if (!article) return {}
+  const ogImage = 'image' in article && article.image
+    ? `https://worldwise.pro${article.image}`
+    : '/opengraph-image'
   return {
     title: article.title,
     description: article.excerpt,
@@ -28,13 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: article.excerpt,
       url: `https://worldwise.pro/blog/${article.slug}`,
       type: 'article',
-      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: article.title }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: article.title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: article.excerpt,
-      images: ['/opengraph-image'],
+      images: [ogImage],
     },
   }
 }
@@ -97,6 +100,14 @@ export default function ArticlePage({ params }: Props) {
             <p className="text-white/60 text-sm">
               {dateDisplay} · {article.readTime}
             </p>
+            {'image' in article && article.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={article.image}
+                alt={article.title}
+                className="w-full rounded-sm mt-8 aspect-[1200/630] object-cover"
+              />
+            )}
           </div>
         </section>
 
