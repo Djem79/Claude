@@ -4,7 +4,7 @@ import { writeFileAtomic } from '@/lib/atomic-write'
 import fs from 'fs'
 import path from 'path'
 import { saveLead, findLeadByPhone, updateLead, deleteLead } from '@/lib/leads'
-import { parseLeadText } from '@/lib/lead-parse'
+import { parseLeadText, parseLeadCommand } from '@/lib/lead-parse'
 
 async function sendMessage(chatId: number | string, text: string, inlineKeyboard?: unknown[][]) {
   const token = process.env.TELEGRAM_BOT_TOKEN!
@@ -157,7 +157,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Ignore other slash commands; everything else from the team is a lead paste
+    // /lead command — works in group chats even with bot privacy mode ON
+    // (commands reach the bot; plain text doesn't). Also valid in DMs.
+    const leadCommand = parseLeadCommand(text)
+    if (leadCommand !== null) {
+      if (!leadCommand) {
+        await sendMessage(message.chat.id, 'Использование: /lead <имя, телефон, email> (можно с новой строки)')
+        return NextResponse.json({ ok: true })
+      }
+      try {
+        await handleLeadIntake(message.chat.id, leadCommand)
+      } catch (e) {
+        console.error('[telegram-webhook] handleLeadIntake error', e)
+        await sendMessage(message.chat.id, '⚠️ Ошибка при сохранении лида, попробуйте позже.')
+      }
+      return NextResponse.json({ ok: true })
+    }
+
+    // Ignore other slash commands; in a DM, plain text is treated as a lead paste
     if (text.startsWith('/')) return NextResponse.json({ ok: true })
     try {
       await handleLeadIntake(message.chat.id, text)

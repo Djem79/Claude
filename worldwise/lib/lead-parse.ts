@@ -18,6 +18,16 @@ export function normalizePhone(raw: string): string {
   return raw.replace(/\D/g, '')
 }
 
+// Parse a `/lead` command (e.g. `/lead`, `/lead@MyBot`, `/lead <text>`).
+// Returns the lead text after the command (trimmed; '' when the command has no
+// payload), or null if the message is not a /lead command. Used so the bot works
+// in group chats with privacy mode ON — commands reach the bot, plain text doesn't.
+export function parseLeadCommand(text: string): string | null {
+  const m = text.match(/^\/lead(@\w+)?(?:\s+([\s\S]*))?$/i)
+  if (!m) return null
+  return (m[2] ?? '').trim()
+}
+
 function isValidPhone(raw: string): boolean {
   const d = normalizePhone(raw)
   return d.length >= 7 && d.length <= 15

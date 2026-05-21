@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseLeadText, normalizePhone } from './lead-parse.ts'
+import { parseLeadText, normalizePhone, parseLeadCommand } from './lead-parse.ts'
 
 test('normalizePhone strips non-digits', () => {
   assert.equal(normalizePhone('+971 50 (123)-45-67'), '971501234567')
@@ -44,4 +44,18 @@ test('Russian labels are recognised', () => {
 test('ignores date token before the real phone', () => {
   const r = parseLeadText('John\n15.01.2024\n+971501234567\njohn@x.com')
   assert.equal(normalizePhone(r.phone ?? ''), '971501234567')
+})
+
+test('parseLeadCommand extracts the payload after /lead', () => {
+  assert.equal(parseLeadCommand('/lead\nJohn\n+971501234567'), 'John\n+971501234567')
+  assert.equal(parseLeadCommand('/lead John, +971501234567'), 'John, +971501234567')
+  assert.equal(parseLeadCommand('/lead@WorldwiseLeads_bot\nJohn'), 'John')
+  assert.equal(parseLeadCommand('/LEAD john'), 'john')
+  assert.equal(parseLeadCommand('/lead'), '')
+})
+
+test('parseLeadCommand returns null for non-/lead messages', () => {
+  assert.equal(parseLeadCommand('hello there'), null)
+  assert.equal(parseLeadCommand('/add_keyword foo'), null)
+  assert.equal(parseLeadCommand('/leadership team'), null)
 })
