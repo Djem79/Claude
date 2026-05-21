@@ -154,7 +154,8 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 - Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
-`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`
+`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`
+The last six are set by the Telegram bot lead intake (an agent pastes a lead → the bot saves it and the source is chosen via inline buttons; default `telegram` until a button is tapped).
 
 **UX rules:**
 

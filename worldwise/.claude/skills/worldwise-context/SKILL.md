@@ -48,4 +48,4 @@ description: Project context for worldwise.pro. Load automatically for all tasks
 2. `LeadModal` — modal form, tracks `source`
 3. `LeadCaptureSection` — bottom of homepage
 
-Lead source strings: `hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`
+Lead source strings: `hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other` (last six = Telegram bot lead intake)
