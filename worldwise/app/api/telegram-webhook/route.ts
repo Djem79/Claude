@@ -103,6 +103,24 @@ async function postToChannel(article: DynamicArticle) {
     `👉 [Читать статью](${url})`,
   ].join('\n')
   try {
+    // The card is served by /api/blog-image (Next doesn't serve public/ files added
+    // after start). Telegram's sendPhoto-by-URL rejects the query URL, so fetch the
+    // bytes locally and upload them as multipart instead.
+    if (article.image) {
+      const imgRes = await fetch(`http://localhost:3000${article.image}`, { signal: AbortSignal.timeout(15000) })
+      if (imgRes.ok) {
+        const buf = Buffer.from(await imgRes.arrayBuffer())
+        const fd = new FormData()
+        fd.append('chat_id', channelId)
+        fd.append('caption', text.slice(0, 1024))
+        fd.append('parse_mode', 'MarkdownV2')
+        fd.append('photo', new Blob([buf]), `${article.slug}.png`)
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: fd, signal: AbortSignal.timeout(15000) })
+        if (!res.ok) console.error('[telegram-webhook] postToChannel sendPhoto failed', await res.text())
+        return
+      }
+      console.error('[telegram-webhook] postToChannel card fetch failed', imgRes.status)
+    }
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

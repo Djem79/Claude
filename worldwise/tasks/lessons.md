@@ -1,5 +1,27 @@
 # Lessons
 
+## 2026-05-21 — `next start` does NOT serve `public/` files created after boot
+
+**What happened:** The article-image feature wrote generated images to
+`public/images/blog/<slug>.png` and referenced them as static URLs. On the server
+those URLs 404'd (build-time `public/` files like the logo served fine; runtime-added
+ones did not), which broke the blog thumbnail and made Telegram's channel `sendPhoto`
+fail with "failed to get HTTP URL content".
+
+**Root cause:** Next.js `next start` only serves `public/` assets known at start; files
+written there afterwards are not served (404) until a restart.
+
+**Rules:**
+- Serve runtime-generated images through a **route handler that reads the file via `fs`**
+  (e.g. `/api/blog-image`), not as a static `public/` path. `fs.readFileSync` sees new
+  files immediately; static serving does not.
+- Add `Cache-Control: public, max-age=31536000, immutable` to such routes so Cloudflare
+  caches the render.
+- **Telegram `sendPhoto` by URL is stricter than browsers** — it rejected a route URL
+  with query params ("Wrong port number specified in the URL"). Upload the image **bytes
+  via multipart** instead (fetch the route locally → `FormData` `photo` Blob). Browsers
+  and OG scrapers handle the query URL fine, so the site/og can keep using it.
+
 ## 2026-05-21 — Verify request path BEFORE locking an origin firewall
 
 **What happened:** During H3 hardening I assumed `worldwise.pro` was proxied

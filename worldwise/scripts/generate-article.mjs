@@ -9,8 +9,11 @@ const DRAFT_PATH = path.join(DATA_DIR, 'article-draft.json')
 const TAG_INDEX_PATH = path.join(DATA_DIR, 'article-tag-index.json')
 const KEYWORDS_PATH = path.join(DATA_DIR, 'article-keywords.json')
 const MODE_PATH = path.join(DATA_DIR, 'article-mode.json')
+const BLOG_IMG_DIR = path.join(ROOT, 'public', 'images', 'blog')
+const IMAGE_MODEL = 'gemini-2.5-flash-image'
+const LOCAL_APP = 'http://localhost:3000'
 
-const TAGS = ['Market Update', 'Investment Guide', 'Area Spotlight', 'Legal Guide', 'Visa & Residency']
+const TAGS =['Market Update', 'Investment Guide', 'Area Spotlight', 'Legal Guide', 'Visa & Residency']
 
 const RSS_FEEDS = [
   'https://news.google.com/rss/search?q=UAE+real+estate+property+Dubai&hl=en-US&gl=US&ceid=US:en',
@@ -113,7 +116,8 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "tag": "${tag}",
   "excerpt": "2-3 sentence summary (max 200 chars)",
   "readTime": "X min read",
-  "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation."
+  "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
+  "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
     : `Write a 600–800 word SEO article about UAE real estate for international investors.
 Use these recent news headlines as context:
@@ -126,7 +130,8 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "tag": "${tag}",
   "excerpt": "2-3 sentence summary (max 200 chars)",
   "readTime": "X min read",
-  "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation."
+  "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
+  "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
 
   const res = await fetch(
@@ -141,7 +146,29 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
           }],
         },
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 } },
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8192,
+          thinkingConfig: { thinkingBudget: 0 },
+          // Structured output: API guarantees valid JSON with properly escaped
+          // string values, so the long markdown `content` field can never break
+          // the parse. Replaces the previous hand-rolled control-char escaper.
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING' },
+              slug: { type: 'STRING' },
+              tag: { type: 'STRING' },
+              excerpt: { type: 'STRING' },
+              readTime: { type: 'STRING' },
+              content: { type: 'STRING' },
+              imagePrompt: { type: 'STRING' },
+            },
+            required: ['title', 'slug', 'tag', 'excerpt', 'readTime', 'content', 'imagePrompt'],
+            propertyOrdering: ['title', 'slug', 'tag', 'excerpt', 'readTime', 'content', 'imagePrompt'],
+          },
+        },
       }),
       signal: AbortSignal.timeout(30000),
     }
@@ -154,32 +181,38 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
 
   const data = await res.json()
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  return JSON.parse(raw.trim())
+}
 
-  let jsonStr = raw.trim()
-  if (jsonStr.startsWith('```')) {
-    jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
-  }
-  if (!jsonStr.startsWith('{')) {
-    const m = jsonStr.match(/\{[\s\S]*\}/)
-    if (m) jsonStr = m[0]
-  }
-  // Escape literal control chars Gemini sometimes emits inside JSON string values
-  const chars = []
-  let inStr = false, esc = false
-  for (const ch of jsonStr) {
-    if (esc) { chars.push(ch); esc = false; continue }
-    if (ch === '\\') { esc = true; chars.push(ch); continue }
-    if (ch === '"') inStr = !inStr
-    if (inStr && ch.charCodeAt(0) < 32) {
-      if (ch === '\n') chars.push('\\n')
-      else if (ch === '\r') chars.push('\\r')
-      else if (ch === '\t') chars.push('\\t')
-    } else {
-      chars.push(ch)
-    }
-  }
-  jsonStr = chars.join('')
-  return JSON.parse(jsonStr.trim())
+function sanitizeSlug(raw) {
+  return String(raw || '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 80).replace(/-+$/g, '')
+}
+
+// Generate the raw AI photo → public/images/blog/<slug>-raw.png.
+async function generateRawImage(slug, imagePrompt) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:generateContent?key=${GEMINI_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: imagePrompt }] }] }),
+      signal: AbortSignal.timeout(60000),
+    },
+  )
+  if (!res.ok) throw new Error(`image ${res.status}: ${(await res.text()).slice(0, 160)}`)
+  const j = await res.json()
+  const part = (j.candidates?.[0]?.content?.parts || []).find(p => p.inlineData)
+  if (!part) throw new Error('no inlineData in image response')
+  if (!fs.existsSync(BLOG_IMG_DIR)) fs.mkdirSync(BLOG_IMG_DIR, { recursive: true })
+  fs.writeFileSync(path.join(BLOG_IMG_DIR, `${slug}-raw.png`), Buffer.from(part.inlineData.data, 'base64'))
+}
+
+// Bake the branded card via the running app → public/images/blog/<slug>.png. Returns the public path.
+// The branded card is served on-demand by the /api/blog-image route (it reads the
+// raw photo from disk via fs — Next does NOT serve public/ files added after start).
+function cardUrl(slug, title, tag) {
+  return `/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&tag=${encodeURIComponent(tag)}`
 }
 
 async function sendTelegramMessage(text, inlineKeyboard) {
@@ -208,11 +241,30 @@ async function sendTelegram(article, keyword) {
     '',
     'Опубликовать или пропустить?',
   ].join('\n')
-
-  await sendTelegramMessage(text, [[
+  const keyboard = [[
     { text: '✅ Опубликовать', callback_data: 'publish_article' },
     { text: '❌ Пропустить', callback_data: 'skip_article' },
-  ]])
+  ]]
+
+  if (article.image) {
+    try {
+      const r = await fetch(LOCAL_APP + article.image, { signal: AbortSignal.timeout(20000) })
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer())
+        const fd = new FormData()
+        fd.append('chat_id', TG_CHAT_ID)
+        fd.append('caption', text.slice(0, 1024))
+        fd.append('reply_markup', JSON.stringify({ inline_keyboard: keyboard }))
+        fd.append('photo', new Blob([buf]), `${article.slug}.png`)
+        const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: 'POST', body: fd, signal: AbortSignal.timeout(20000) })
+        if (res.ok) return
+        log(`sendPhoto failed (${res.status}), falling back to text`)
+      }
+    } catch (e) {
+      log(`approval photo failed: ${e.message}`)
+    }
+  }
+  await sendTelegramMessage(text, keyboard)
 }
 
 async function main() {
@@ -271,6 +323,22 @@ async function main() {
       await new Promise(r => setTimeout(r, 5000))
     }
   }
+
+  // Per-article image (non-blocking): AI photo → branded card. Falls back silently.
+  try {
+    const slug = sanitizeSlug(article.slug)
+    article.slug = slug
+    await generateRawImage(slug, article.imagePrompt)
+    const u = cardUrl(slug, article.title, article.tag)
+    const probe = await fetch(LOCAL_APP + u, { signal: AbortSignal.timeout(30000) })
+    if (!probe.ok) throw new Error(`card render ${probe.status}`)
+    article.image = u
+    log(`Image ready: ${article.image}`)
+  } catch (e) {
+    log(`Image step failed (continuing without image): ${e.message}`)
+    delete article.image
+  }
+  delete article.imagePrompt
 
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
   writeFileAtomic(DRAFT_PATH, JSON.stringify(article, null, 2))
