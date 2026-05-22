@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLeadById, updateLead } from '@/lib/leads'
-import { getSession } from '@/lib/auth'
+import { requireSection } from '@/lib/auth'
 import { resolveLeadFileDir } from '@/lib/lead-files'
 import { SentEntry } from '@/types'
 import fs from 'fs'
@@ -10,8 +10,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string; fileId: string } }
 ) {
-  const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireSection('leads')
+  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const lead = getLeadById(params.id)
   if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
