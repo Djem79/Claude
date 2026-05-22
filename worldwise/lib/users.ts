@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import bcrypt from 'bcryptjs'
-import { AdminUser, AdminRole } from '@/types'
+import { AdminUser, AdminRole, AdminSection } from '@/types'
 import { writeFileAtomic } from '@/lib/atomic-write'
+import { DEFAULT_SECTIONS } from '@/lib/permissions'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'users.json')
 
@@ -30,6 +31,7 @@ export async function createUser(data: {
   username: string
   password: string
   role: AdminRole
+  sections?: AdminSection[]
 }): Promise<AdminUser> {
   const users = getUsers()
   if (users.some(u => u.username === data.username)) {
@@ -43,6 +45,7 @@ export async function createUser(data: {
     passwordHash,
     role: data.role,
     active: true,
+    sections: data.sections ?? DEFAULT_SECTIONS,
     createdAt: new Date().toISOString(),
   }
   saveUsers([...users, user])
@@ -51,7 +54,7 @@ export async function createUser(data: {
 
 export async function updateUser(
   id: string,
-  patch: Partial<{ name: string; role: AdminRole; active: boolean; password: string; lastLoginAt: string }>
+  patch: Partial<{ name: string; role: AdminRole; active: boolean; password: string; lastLoginAt: string; sections: AdminSection[] }>
 ): Promise<AdminUser | null> {
   const users = getUsers()
   const idx = users.findIndex(u => u.id === id)
