@@ -139,6 +139,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
               <div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="badge bg-navy text-gold">{property.status}</span>
+                  {property.rented && <span className="badge bg-gray-800/80 text-white">Rented</span>}
                   {property.badge && <span className="badge bg-gold/10 text-gold">{property.badge}</span>}
                 </div>
                 <h1 className="font-serif text-4xl md:text-5xl text-navy">{property.title}</h1>

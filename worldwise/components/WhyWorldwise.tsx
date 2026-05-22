@@ -27,7 +27,7 @@ const points = [
         <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
       </svg>
     ),
-    title: '30+ Countries Served',
+    title: 'Investors from 30+ Countries',
     text: 'Our team speaks multiple languages and has guided investors from India, UK, Europe, the US and beyond.',
   },
   {
@@ -62,10 +62,10 @@ export default function WhyWorldwise() {
 
             <div className="grid grid-cols-2 gap-6 mt-8">
               {[
-                { v: '500+', l: 'Investors Helped' },
-                { v: 'AED 2B+', l: 'In Transactions' },
+                { v: '50+', l: 'Investors Helped' },
+                { v: '$30M+', l: 'In Transactions' },
                 { v: '8+', l: 'Developer Partners' },
-                { v: '30+', l: 'Countries Represented' },
+                { v: 'Up to 8%', l: 'Rental Yield' },
               ].map(s => (
                 <div key={s.l} className="border-l-2 border-gold pl-4">
                   <div className="font-serif text-3xl text-navy">{s.v}</div>

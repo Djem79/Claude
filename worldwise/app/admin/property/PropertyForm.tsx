@@ -180,8 +180,8 @@ export default function PropertyForm({ property }: { property?: Property }) {
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Status</label>
-          <select className={fieldClass} value={form.status} onChange={e => set('status', e.target.value)}>
-            {['off-plan', 'ready', 'secondary', 'rent'].map(s => <option key={s} value={s}>{s}</option>)}
+          <select className={fieldClass} value={form.status} onChange={e => { set('status', e.target.value); if (e.target.value !== 'rent') set('rented', false) }}>
+            {['off-plan', 'secondary', 'rent'].map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
@@ -361,6 +361,20 @@ export default function PropertyForm({ property }: { property?: Property }) {
           Show this property in the Featured section on the homepage
         </span>
       </label>
+
+      {form.status === 'rent' && (
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.rented ?? false}
+            onChange={e => set('rented', e.target.checked)}
+            className="w-4 h-4 accent-gold"
+          />
+          <span className="text-sm text-navy font-medium">
+            Mark as Rented / Unavailable
+          </span>
+        </label>
+      )}
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

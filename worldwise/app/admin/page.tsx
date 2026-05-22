@@ -59,7 +59,7 @@ export default function AdminPage() {
                     <td className="px-4 py-3 text-gray-500">{p.area}</td>
                     <td className="px-4 py-3 font-medium text-navy">{formatPrice(p.priceAed)}</td>
                     <td className="px-4 py-3">
-                      <span className={`badge text-xs ${p.status === 'off-plan' ? 'bg-blue-50 text-blue-700' : p.status === 'ready' ? 'bg-green-50 text-green-700' : p.status === 'rent' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`badge text-xs ${p.status === 'off-plan' ? 'bg-blue-50 text-blue-700' : p.status === 'rent' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'}`}>
                         {p.status}
                       </span>
                     </td>

@@ -5,7 +5,7 @@ export interface Property {
   developer: string
   area: string
   type: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
-  status: 'off-plan' | 'ready' | 'secondary' | 'rent'
+  status: 'off-plan' | 'secondary' | 'rent'
   priceAed: number
   pricePerSqft?: number
   roi?: number
@@ -18,6 +18,7 @@ export interface Property {
   images: string[]
   featured: boolean
   badge?: string
+  rented?: boolean
   qrImage?: string
   permitNumber?: string
   projectNumber?: string

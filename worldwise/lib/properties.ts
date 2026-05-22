@@ -6,7 +6,12 @@ const DATA_FILE = path.join(process.cwd(), 'data', 'properties.json')
 
 export function getProperties(): Property[] {
   const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-  return JSON.parse(raw) as Property[]
+  const parsed = JSON.parse(raw) as (Omit<Property, 'status'> & { status: string })[]
+  // Legacy 'ready' status was removed — render those entries as 'secondary'.
+  return parsed.map(p => ({
+    ...p,
+    status: (p.status === 'ready' ? 'secondary' : p.status) as Property['status'],
+  }))
 }
 
 export function getPropertyBySlug(slug: string): Property | null {

@@ -35,7 +35,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-white/75 text-lg md:text-xl mt-6 leading-relaxed">
-            We help investors from 30+ countries buy, grow capital and build
+            We&apos;ve helped investors from 30+ countries buy, grow capital and build
             passive income through UAE real estate. Expert guidance, end-to-end support.
           </p>
 
@@ -51,10 +51,10 @@ export default function Hero() {
           {/* Trust stats */}
           <div className="flex flex-wrap gap-8 mt-14 pt-8 border-t border-white/20">
             {[
-              { value: '500+', label: 'Investors Served' },
-              { value: 'AED 2B+', label: 'In Transactions' },
+              { value: '50+', label: 'Investors Served' },
+              { value: '$30M+', label: 'In Transactions' },
               { value: '5.0 ★', label: 'Google Rating' },
-              { value: '30+', label: 'Countries' },
+              { value: 'Up to 8%', label: 'Rental Yield' },
             ].map(stat => (
               <div key={stat.label}>
                 <div className="font-serif text-2xl text-gold">{stat.value}</div>

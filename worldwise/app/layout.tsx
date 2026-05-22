@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | Worldwise Real Estate Dubai',
   },
   description:
-    'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. 500+ investors from 30+ countries. Free consultation.',
+    'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. 50+ investors from 30+ countries. Free consultation.',
   openGraph: {
     title: 'Dubai Real Estate Investment | Worldwise',
     description: 'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. Free consultation.',

@@ -9,14 +9,12 @@ function formatPrice(aed: number) {
 
 const STATUS_COLORS: Record<string, string> = {
   'off-plan': 'bg-blue-50 text-blue-700',
-  ready: 'bg-green-50 text-green-700',
   secondary: 'bg-amber-50 text-amber-700',
   rent: 'bg-purple-50 text-purple-700',
 }
 
 const STATUS_LABELS: Record<string, string> = {
   'off-plan': 'Off-Plan',
-  ready: 'Ready',
   secondary: 'Secondary',
   rent: 'For Rent',
 }
@@ -29,13 +27,16 @@ export default function PropertyCard({ property }: { property: Property }) {
           src={property.images[0]}
           alt={property.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className={`object-cover group-hover:scale-105 transition-transform duration-500${property.rented ? ' opacity-60' : ''}`}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-3 left-3 flex gap-2">
           <span className={`badge ${STATUS_COLORS[property.status]}`}>
             {STATUS_LABELS[property.status]}
           </span>
+          {property.rented && (
+            <span className="badge bg-gray-800/80 text-white">Rented</span>
+          )}
           {property.badge && (
             <span className="badge bg-navy/80 text-gold">{property.badge}</span>
           )}
