@@ -257,7 +257,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
     })
   }, [leads, statusFilter, sourceFilter, query])
 
-  async function patchLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'propertyTitle' | 'propertySlug'>>) {
+  async function patchLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'propertyTitle'>>) {
     setSavingId(id)
     const res = await fetch(`/api/leads/${id}`, {
       method: 'PUT',
