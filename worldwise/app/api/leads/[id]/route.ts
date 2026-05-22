@@ -47,7 +47,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   if (!(await requireSection('leads'))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
   const lead = getLeadById(params.id)
   if (!lead) return NextResponse.json({ error: 'Not found' }, { status: 404 })

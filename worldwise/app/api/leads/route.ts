@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   if (!(await requireSection('leads'))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
   return NextResponse.json(getLeads())
 }
