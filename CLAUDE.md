@@ -125,7 +125,7 @@ A full security & privacy audit (findings + remediation status) is in `worldwise
 - Analytics: GA4 (consent-aware) with conversion event tracking on all lead forms and CTAs
 - Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
 - Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
-- Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`)
+- Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`) + per-section manager permissions (`properties` / `leads` / `dashboard`)
 - Activity log on leads, anti-spam on lead capture, CSV export
 - SEO layer: sitemap (ISR 1h revalidation), robots, JSON-LD, per-property og:image
 - Infrastructure: Cloudflare DNS, Hetzner VPS, PM2 + Nginx, Let's Encrypt SSL, git-based data backup
@@ -195,39 +195,60 @@ Single PM2 instance only — concurrent writes from multiple processes would cor
 
 **First-run bootstrap:** only when `data/users.json` is empty (no users exist) and the login password matches `ADMIN_PASSWORD`, the owner account is auto-created. Once any user exists, `ADMIN_PASSWORD` can no longer mint accounts. No manual seeding needed.
 
-`middleware.ts` (Edge runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`.
+`middleware.ts` (Edge runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`. Middleware does **not** enforce per-section access (the Edge token deliberately carries no `sections` — see below); that happens in the page/API handlers.
 
-Every mutating API handler also calls `isAuthenticated()` / `getSession()` from `lib/auth.ts` — defence-in-depth since middleware does not run on API routes.
+Every mutating API handler also calls `isAuthenticated()` / `getSession()` / `requireSection()` from `lib/auth.ts` — defence-in-depth since middleware does not run on API routes.
 
-`lib/auth.ts` exports:
+`lib/auth.ts` exports (all `async`, HMAC verification):
 
-- `getSession()` → `SessionPayload | null` — use when you need the user identity (e.g. activity log)
-- `isAuthenticated()` → `boolean` — use for simple auth checks
-- Both are `async` (HMAC verification).
+- `getSession()` → `Session | null` — `SessionPayload` enriched with `sections: AdminSection[]` read **fresh from the DB** (not the token), so demotion/section-revocation applies instantly. Use when you need the user identity (e.g. activity log).
+- `isAuthenticated()` → `boolean` — simple "is there a valid session" check.
+- `requireSection(section)` → `Session | null` — returns the session if it can access `section` (owner always passes), else `null`. API handlers return **403** on `null`.
+
+### Per-section access control (managers)
+
+Owners have full access. A `manager` is restricted to the sections listed in `AdminUser.sections` (`AdminSection = 'properties' | 'leads' | 'dashboard'`). **Absent `sections` = legacy user = full access** (backward-compat); new managers default to `['properties']`. The owner-only Users section is never part of `sections`.
+
+`lib/permissions.ts` is the single source of truth (a **pure** module — no `fs`/`next` imports, so it's importable from client components and Edge alike): `ALL_SECTIONS`, `DEFAULT_SECTIONS`, `SECTION_PATH`, `effectiveSections(user)` (the `undefined → all` rule lives here only), `canAccess(user, section)`, `landingPath(user)` (first accessible section's path, or `null`).
+
+Enforced in three layers — **all three must stay in sync when you add an admin surface**:
+
+1. **Nav** (`app/admin/AdminNav.tsx`) — hides tabs via `canAccess`. UX only.
+2. **Server pages** — each guarded page redirects with `redirect(landingPath(session) ?? '/admin')`; `/admin` is the single no-access terminal (shows a message when the user has zero sections). Real enforcement.
+3. **API routes** — `requireSection(...)` → 403. Real enforcement.
+
+The token shape (`SessionPayload`) is intentionally unchanged — do not add `sections` to it. Login redirects each user to `landingPath(user) ?? '/admin'`.
+
+**When restricting a resource, guard EVERY route under it, not just the index.** `find app/api/<resource> -name route.ts` and guard each handler — a section is only as protected as its least-guarded sibling route (the lead-attachment sub-routes under `app/api/leads/[id]/files/**` were missed once; see `tasks/lessons.md`). The static `/files/leads/` path stays auth-only at the middleware layer (Edge can't read sections); the app reaches those files only through the section-guarded download API.
 
 ### Admin routes
 
-- `/admin` — property table + stats (properties count, lead counts)
-- `/admin/leads` — full CRM: filter by status/source/search, inline status change, notes, activity log, CSV export
-- `/admin/users` — owner-only: add/edit/deactivate/delete admin accounts, reset passwords
-- `/admin/property/new` and `/admin/property/[id]` — both use `PropertyForm` (drag-and-drop gallery, DLD QR + permit/project numbers)
+- `/admin` — property table + stats (properties count, lead counts) — section `properties`; also the no-access terminal
+- `/admin/leads` — full CRM: filter by status/source/search, inline status change, notes, activity log, CSV export — section `leads`
+- `/admin/dashboard` — lead stats/funnel — section `dashboard`
+- `/admin/users` — owner-only: add/edit/deactivate/delete admin accounts, reset passwords, **set manager section access** (checkboxes shown only for role `manager`)
+- `/admin/property/new` and `/admin/property/[id]` — both use `PropertyForm` (drag-and-drop gallery, DLD QR + permit/project numbers) — section `properties`
 
 ### API routes
 
 | Route | Auth | Purpose |
 | ----- | ---- | ------- |
-| `POST /api/leads` | none | Save lead → Telegram + email notify |
-| `GET /api/leads` | any admin | List all leads |
-| `PUT /api/leads/[id]` | any admin | Update status/notes; appends `ActivityEntry` with actor from session |
-| `DELETE /api/leads/[id]` | any admin | Remove lead |
+| `POST /api/leads` | none (public) | Save lead → Telegram + email notify |
+| `GET /api/leads` | section `leads` | List all leads |
+| `PUT /api/leads/[id]` | section `leads` | Update status/notes; appends `ActivityEntry` with actor from session |
+| `DELETE /api/leads/[id]` | section `leads` | Remove lead |
+| `…/api/leads/[id]/files/**` (list/upload/delete/download/log/send) | section `leads` | Lead attachments — **every sub-route guarded** |
 | `GET /api/admin/users` | owner only | List users (passwordHash stripped) |
-| `POST /api/admin/users` | owner only | Create user |
-| `PUT /api/admin/users/[id]` | owner only | Update name/role/active/password |
+| `POST /api/admin/users` | owner only | Create user (validates `sections`; owner forced to all) |
+| `PUT /api/admin/users/[id]` | owner only | Update name/role/active/password/`sections` |
 | `DELETE /api/admin/users/[id]` | owner only | Delete user (cannot delete self) |
-| `POST /api/upload?kind=gallery\|qr` | any admin | Save images to `public/images/` |
-| `GET/POST /api/properties` | GET public | List / create properties |
-| `PUT/DELETE /api/properties/[id]` | any admin | Update / delete property |
+| `POST /api/upload?kind=gallery\|qr` | section `properties` | Save images to `public/images/` |
+| `GET /api/properties` | none (public) | List properties (used by the site) |
+| `POST /api/properties` | section `properties` | Create property |
+| `PUT/DELETE /api/properties/[id]` | section `properties` | Update / delete property |
 | `POST /api/telegram-webhook` | `WEBHOOK_SECRET` header | Receives Telegram callbacks: publish/skip article buttons, `/add_keyword` command |
+
+(Section guards return **403** when the authenticated user lacks the section; owners always pass. `GET /api/properties` and `POST /api/leads` are deliberately public.)
 
 ### Activity log
 
