@@ -257,7 +257,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
     })
   }, [leads, statusFilter, sourceFilter, query])
 
-  async function patchLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt'>>) {
+  async function patchLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'propertyTitle'>>) {
     setSavingId(id)
     const res = await fetch(`/api/leads/${id}`, {
       method: 'PUT',
@@ -371,8 +371,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Property', 'Actions'].map(h => (
-                    <th key={h} className={`text-left ${['Date', 'Status', 'Source', 'Property'].includes(h) ? 'px-2' : 'px-4'} py-3 text-xs font-medium text-gray-400 uppercase tracking-wide`}>
+                  {['Date', 'Status', 'Name', 'Phone', 'Email', 'Source', 'Interested In', 'Actions'].map(h => (
+                    <th key={h} className={`text-left ${['Date', 'Status', 'Source', 'Interested In'].includes(h) ? 'px-2' : 'px-4'} py-3 text-xs font-medium text-gray-400 uppercase tracking-wide`}>
                       {h}
                     </th>
                   ))}
@@ -451,6 +451,19 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                                       </button>
                                     ))}
                                   </div>
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-500 font-medium block mb-1">Interested In</label>
+                                  <input
+                                    defaultValue={l.propertyTitle ?? ''}
+                                    onBlur={e => {
+                                      const next = e.target.value
+                                      if (next !== (l.propertyTitle ?? '')) patchLead(l.id, { propertyTitle: next })
+                                    }}
+                                    placeholder="e.g. 2BR in Dubai Marina, off-plan under AED 2M"
+                                    className="w-full border border-gray-200 px-3 py-2 rounded-sm text-sm focus:outline-none focus:border-gold"
+                                  />
+                                  <p className="text-xs text-gray-400 mt-1">What the lead is looking for. Saved on blur.</p>
                                 </div>
                                 <div>
                                   <label className="text-xs text-gray-500 font-medium block mb-1">Internal notes</label>

@@ -40,7 +40,7 @@ export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead 
 
 export function updateLead(
   id: string,
-  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments' | 'source'>>,
+  data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments' | 'source' | 'propertyTitle' | 'propertySlug'>>,
   actor?: { uid: string; username: string; name: string }
 ): Lead | null {
   const leads = getLeads()
@@ -65,6 +65,9 @@ export function updateLead(
     }
     if (data.source && data.source !== prev.source) {
       parts.push(`Source: ${data.source}`)
+    }
+    if ('propertyTitle' in data && data.propertyTitle !== prev.propertyTitle) {
+      parts.push(`Interested in: ${data.propertyTitle ?? '(cleared)'}`)
     }
     if ('attachments' in data) {
       const prevCount = prev.attachments?.length ?? 0
