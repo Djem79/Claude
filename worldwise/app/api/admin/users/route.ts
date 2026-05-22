@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getUsers, createUser } from '@/lib/users'
-import { AdminUser } from '@/types'
+import { AdminUser, AdminSection } from '@/types'
+import { ALL_SECTIONS, DEFAULT_SECTIONS } from '@/lib/permissions'
+
+function sanitizeSections(input: unknown): AdminSection[] {
+  if (!Array.isArray(input)) return DEFAULT_SECTIONS
+  return ALL_SECTIONS.filter(s => input.includes(s))
+}
 
 function safeUser(u: AdminUser) {
   const { passwordHash, ...rest } = u
@@ -21,15 +27,17 @@ export async function POST(req: NextRequest) {
   if (session?.role !== 'owner') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
-  const { name, username, password, role } = await req.json()
+  const { name, username, password, role, sections } = await req.json()
   if (!name || !username || !password || !role) {
     return NextResponse.json({ error: 'All fields required' }, { status: 400 })
   }
   if (role !== 'owner' && role !== 'manager') {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }
+  // Owner always has every section; managers get the validated subset.
+  const userSections = role === 'owner' ? ALL_SECTIONS : sanitizeSections(sections)
   try {
-    const user = await createUser({ name, username, password, role })
+    const user = await createUser({ name, username, password, role, sections: userSections })
     return NextResponse.json(safeUser(user), { status: 201 })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Error'
