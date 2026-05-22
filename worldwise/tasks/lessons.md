@@ -1,5 +1,29 @@
 # Lessons
 
+## 2026-05-22 — JSON-LD: `aggregateRating`/`review` only on Google-supported host types
+
+**What happened:** Google Search Console flagged "Invalid object type for field
+`<parent_node>`" on property pages. Cause: the `RealEstateListing` JSON-LD carried an
+`aggregateRating`. Google's **review-snippet** validator only accepts a rating/review when
+the parent entity is one of its supported types (Product, Organization, LocalBusiness,
+Movie, Recipe, Course, Event, Book, SoftwareApplication, …). `RealEstateListing` is not on
+that list, so Google rejected the parent node. (`RealEstateAgent` extends LocalBusiness, so
+the agency block's rating is fine — that's why only the listing errored.)
+
+**Also a policy issue:** the rating was the agency's hard-coded 5★/4-reviews copied onto
+every listing — review guidelines require ratings to be about the specific item, not the
+business as a whole on every page.
+
+**Rules to prevent repeat:**
+- Only attach `aggregateRating`/`review` to a Google-supported review-snippet host type.
+  Don't put ratings on `RealEstateListing`, `WebPage`, `BreadcrumbList`, etc.
+- Never fabricate or borrow a site-wide rating onto per-item pages.
+- After changing any JSON-LD, validate with the Rich Results Test, and treat
+  "`<parent_node>`" in a Search Console error as "the item's own @type is an invalid host
+  for this feature," not a named-field problem.
+- `<parent_node>` errors are about host @type, not value format (e.g. `numberOfRooms: "7 Bed"`
+  being a string is a separate, value-level imperfection).
+
 ## 2026-05-22 — Homepage marketing stats are duplicated in SEO metadata
 
 **What happened:** Changed the hero/`WhyWorldwise` stats ("500+ investors" → "50+",
