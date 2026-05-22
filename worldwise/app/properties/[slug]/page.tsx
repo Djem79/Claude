@@ -66,6 +66,10 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
     ],
   }
 
+  // bedrooms is free text ("7 Bed", "1–3 Bed", "Studio"); schema.org numberOfRooms
+  // expects a number — emit the first integer found, or omit the field.
+  const bedroomsNum = property.bedrooms?.match(/\d+/)?.[0]
+
   const listingLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
@@ -102,7 +106,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       addressRegion: 'Dubai',
       addressCountry: 'AE',
     },
-    numberOfRooms: property.bedrooms,
+    ...(bedroomsNum ? { numberOfRooms: Number(bedroomsNum) } : {}),
     // No aggregateRating here: Google's review-snippet validator rejects a rating
     // on RealEstateListing (an unsupported host type → "invalid object type for
     // <parent_node>"), and a borrowed agency-wide rating on every listing also
