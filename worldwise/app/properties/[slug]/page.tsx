@@ -103,13 +103,10 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       addressCountry: 'AE',
     },
     numberOfRooms: property.bedrooms,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '5',
-      reviewCount: '4',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // No aggregateRating here: Google's review-snippet validator rejects a rating
+    // on RealEstateListing (an unsupported host type → "invalid object type for
+    // <parent_node>"), and a borrowed agency-wide rating on every listing also
+    // violates review guidelines. The agency rating lives on RealEstateAgent only.
     ...(property.roi ? { annualPercentageRate: property.roi } : {}),
     ...(property.amenities.length > 0
       ? {
