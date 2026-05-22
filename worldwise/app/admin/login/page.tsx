@@ -20,7 +20,8 @@ export default function AdminLoginPage() {
       body: JSON.stringify({ username, password }),
     })
     if (res.ok) {
-      router.push('/admin')
+      const data = await res.json()
+      router.push(data.redirect ?? '/admin')
     } else {
       setError('Invalid username or password.')
     }

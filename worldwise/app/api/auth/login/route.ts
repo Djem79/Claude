@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE, createSessionToken } from '@/lib/session'
 import { verifyPassword, createUser, getUsers, updateUser } from '@/lib/users'
 import { getClientIp } from '@/lib/ip'
+import { landingPath } from '@/lib/permissions'
 
 // 5 attempts per IP per 15 minutes
 const loginRateMap = new Map<string, { count: number; resetAt: number }>()
@@ -54,7 +55,8 @@ export async function POST(req: NextRequest) {
     role: user.role,
   })
 
-  const res = NextResponse.json({ success: true, name: user.name, role: user.role })
+  const redirectTo = landingPath(user) ?? '/admin'
+  const res = NextResponse.json({ success: true, name: user.name, role: user.role, redirect: redirectTo })
   res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
