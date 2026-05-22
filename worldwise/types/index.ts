@@ -72,6 +72,8 @@ export interface Lead {
 
 export type AdminRole = 'owner' | 'manager'
 
+export type AdminSection = 'properties' | 'leads' | 'dashboard'
+
 export interface AdminUser {
   id: string
   name: string
@@ -79,6 +81,8 @@ export interface AdminUser {
   passwordHash: string
   role: AdminRole
   active: boolean
+  /** Sections a manager may access. Absent on legacy users → treated as all sections. Ignored for owner. */
+  sections?: AdminSection[]
   createdAt: string
   lastLoginAt?: string
 }
