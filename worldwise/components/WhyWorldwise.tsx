@@ -27,7 +27,7 @@ const points = [
         <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
       </svg>
     ),
-    title: 'Investors Worldwide',
+    title: 'Investors from 30+ Countries',
     text: 'Our team speaks multiple languages and has guided investors from India, UK, Europe, the US and beyond.',
   },
   {

@@ -35,7 +35,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-white/75 text-lg md:text-xl mt-6 leading-relaxed">
-            We help investors from 30+ countries buy, grow capital and build
+            We&apos;ve helped investors from 30+ countries buy, grow capital and build
             passive income through UAE real estate. Expert guidance, end-to-end support.
           </p>
 
