@@ -92,3 +92,34 @@ actual public DNS resolution or request path.
 - A redundant rule below a specific allowlist (`ALLOW Anywhere`) silently negates
   the allowlist — but removing it is only safe once you've confirmed the proxy is
   actually in front.
+
+## Access-control: guard every sub-route of a protected section, not just the index
+
+**Context:** Adding per-section manager permissions (properties/leads/dashboard).
+I guarded `/api/leads` and `/api/leads/[id]` with `requireSection('leads')` but the
+plan never enumerated the lead-attachment sub-tree — `/api/leads/[id]/files`,
+`.../files/[fileId]`, `.../download`, `.../log`, `.../send`. Those five kept their
+old `getSession()`/401 checks, so a manager WITHOUT the leads section could still
+upload, list, delete, download, and email a lead's files via API. The per-task
+reviews missed it (each only saw its own diff); the final whole-feature review
+caught it.
+
+**Why it happened:** I scoped the plan from the data model down, not from the
+route tree up. "Guard the leads API" silently meant "the two routes I happened to
+list," not "every route under `app/api/leads/**`."
+
+**Rules to prevent repeat:**
+- When restricting access to a resource, first `find app/api/<resource> -name route.ts`
+  (and the matching `app/admin/<resource>` pages) and make the guard list exhaustive
+  against that output — every handler, every nested route.
+- A section/role guard is only as strong as its least-guarded sibling route. UI
+  hiding (nav, page redirect) is not enforcement; the API layer must independently
+  guard every endpoint that touches the protected data.
+- Always run a FINAL whole-feature review (not just per-task) for security-relevant
+  changes — per-task reviewers can't see cross-cutting coverage gaps.
+- Edge middleware can't enforce section-level rules here: the session token
+  intentionally carries no `sections` (read fresh from DB in `getSession`), and
+  middleware can't read the JSON store. Section enforcement must live in the route
+  handlers / server pages, not middleware. The static `/files/leads/` path therefore
+  stays auth-only at the middleware layer — acceptable because the app only reaches
+  files through the now-section-guarded download API.
