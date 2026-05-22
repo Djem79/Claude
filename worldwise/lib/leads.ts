@@ -67,7 +67,7 @@ export function updateLead(
       parts.push(`Source: ${data.source}`)
     }
     if ('propertyTitle' in data && data.propertyTitle !== prev.propertyTitle) {
-      parts.push('Interested in updated')
+      parts.push(`Interested in: ${data.propertyTitle ?? '(cleared)'}`)
     }
     if ('attachments' in data) {
       const prevCount = prev.attachments?.length ?? 0

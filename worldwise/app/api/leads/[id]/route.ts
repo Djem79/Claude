@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if ('notes' in body) patch.notes = body.notes
   if ('contactedAt' in body) patch.contactedAt = body.contactedAt
   if ('propertyTitle' in body) {
-    patch.propertyTitle = String(body.propertyTitle ?? '').slice(0, 200).trim() || undefined
+    patch.propertyTitle = String(body.propertyTitle ?? '').trim().slice(0, 200) || undefined
     patch.propertySlug = undefined // editing the free text clears any stale deep-link
   }
   const updated = updateLead(
