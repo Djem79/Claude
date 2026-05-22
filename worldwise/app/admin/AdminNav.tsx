@@ -3,25 +3,34 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { AdminRole } from '@/types'
+import { AdminRole, AdminSection } from '@/types'
+import { canAccess } from '@/lib/permissions'
 import LogoutButton from './LogoutButton'
 
-type NavSession = { name: string; role: AdminRole } | null
+type NavSession = { name: string; role: AdminRole; sections?: AdminSection[] } | null
 
-const NAV_LINKS = [
+const NAV_LINKS: {
+  href: string
+  label: string
+  section: AdminSection
+  active: (p: string) => boolean
+}[] = [
   {
     href: '/admin/dashboard',
     label: 'Dashboard',
+    section: 'dashboard',
     active: (p: string) => p === '/admin/dashboard',
   },
   {
     href: '/admin/leads',
     label: 'Leads',
+    section: 'leads',
     active: (p: string) => p.startsWith('/admin/leads'),
   },
   {
     href: '/admin',
     label: 'Properties',
+    section: 'properties',
     active: (p: string) => p === '/admin' || p.startsWith('/admin/property'),
   },
 ]
@@ -29,6 +38,10 @@ const NAV_LINKS = [
 export default function AdminNav({ session }: { session: NavSession }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+
+  const visibleLinks = session
+    ? NAV_LINKS.filter(link => canAccess(session, link.section))
+    : []
 
   useEffect(() => {
     setOpen(false)
@@ -44,7 +57,7 @@ export default function AdminNav({ session }: { session: NavSession }) {
           <span className="text-white/40 text-sm hidden sm:inline">Admin Panel</span>
           {/* Desktop nav */}
           <nav className="hidden md:flex gap-5 text-sm">
-            {NAV_LINKS.map(link => (
+            {visibleLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -107,7 +120,7 @@ export default function AdminNav({ session }: { session: NavSession }) {
       {/* Mobile dropdown */}
       {open && (
         <nav className="md:hidden border-t border-white/10 mt-3 pt-2 flex flex-col">
-          {NAV_LINKS.map(link => (
+          {visibleLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
