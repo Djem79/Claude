@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProperties, createProperty } from '@/lib/properties'
-import { isAuthenticated } from '@/lib/auth'
+import { requireSection } from '@/lib/auth'
 
 export async function GET() {
   return NextResponse.json(getProperties())
 }
 
 export async function POST(req: NextRequest) {
-  if (!(await isAuthenticated())) {
+  if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const body = await req.json()

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAuthenticated } from '@/lib/auth'
+import { requireSection } from '@/lib/auth'
 import fs from 'fs'
 import path from 'path'
 
@@ -27,7 +27,7 @@ function sniffMime(buf: Buffer): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  if (!(await isAuthenticated())) {
+  if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

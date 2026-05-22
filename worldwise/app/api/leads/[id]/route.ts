@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateLead, deleteLead, getLeadById } from '@/lib/leads'
-import { getSession, isAuthenticated } from '@/lib/auth'
+import { requireSection } from '@/lib/auth'
 import { Lead } from '@/types'
 import { LEAD_FILES_BASE } from '@/lib/lead-files'
 import fs from 'fs'
 import path from 'path'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession()
+  const session = await requireSection('leads')
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
   const body = await req.json()
   // Build the patch from only the keys actually present, so a partial update
@@ -34,8 +34,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireSection('leads')
+  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   if (session.role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const ok = deleteLead(params.id)
   if (ok) {
@@ -46,7 +46,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  if (!(await isAuthenticated())) {
+  if (!(await requireSection('leads'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const lead = getLeadById(params.id)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { saveLead, getLeads } from '@/lib/leads'
-import { isAuthenticated } from '@/lib/auth'
+import { requireSection } from '@/lib/auth'
 import { notifyTelegram, notifyEmail } from '@/lib/notify'
 import { getClientIp } from '@/lib/ip'
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  if (!(await isAuthenticated())) {
+  if (!(await requireSection('leads'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   return NextResponse.json(getLeads())
