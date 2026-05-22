@@ -1,9 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { AdminUser, AdminRole } from '@/types'
+import { AdminUser, AdminRole, AdminSection } from '@/types'
+import { ALL_SECTIONS, DEFAULT_SECTIONS, effectiveSections } from '@/lib/permissions'
 
 type SafeUser = Omit<AdminUser, 'passwordHash'>
+
+const SECTION_LABEL: Record<AdminSection, string> = {
+  properties: 'Properties',
+  leads: 'Leads',
+  dashboard: 'Dashboard',
+}
+
+function toggle(list: AdminSection[], s: AdminSection): AdminSection[] {
+  return list.includes(s) ? list.filter(x => x !== s) : [...list, s]
+}
 
 function fmt(iso?: string) {
   if (!iso) return '—'
@@ -27,12 +38,14 @@ export default function UsersClient({ initialUsers, currentUsername }: {
   const [addUsername, setAddUsername] = useState('')
   const [addPassword, setAddPassword] = useState('')
   const [addRole, setAddRole] = useState<AdminRole>('manager')
+  const [addSections, setAddSections] = useState<AdminSection[]>(DEFAULT_SECTIONS)
 
   // Edit form state
   const [editName, setEditName] = useState('')
   const [editRole, setEditRole] = useState<AdminRole>('manager')
   const [editActive, setEditActive] = useState(true)
   const [editPassword, setEditPassword] = useState('')
+  const [editSections, setEditSections] = useState<AdminSection[]>(DEFAULT_SECTIONS)
 
   function startEdit(u: SafeUser) {
     setEditingId(u.id)
@@ -40,6 +53,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
     setEditRole(u.role)
     setEditActive(u.active)
     setEditPassword('')
+    setEditSections(effectiveSections(u))
     setError('')
   }
 
@@ -50,13 +64,13 @@ export default function UsersClient({ initialUsers, currentUsername }: {
     const res = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: addName, username: addUsername, password: addPassword, role: addRole }),
+      body: JSON.stringify({ name: addName, username: addUsername, password: addPassword, role: addRole, sections: addSections }),
     })
     if (res.ok) {
       const user: SafeUser = await res.json()
       setUsers(prev => [...prev, user])
       setShowAdd(false)
-      setAddName(''); setAddUsername(''); setAddPassword(''); setAddRole('manager')
+      setAddName(''); setAddUsername(''); setAddPassword(''); setAddRole('manager'); setAddSections(DEFAULT_SECTIONS)
     } else {
       const data = await res.json()
       setError(data.error ?? 'Error creating user')
@@ -67,7 +81,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
   async function handleSaveEdit(id: string) {
     setSaving(true)
     setError('')
-    const body: Record<string, unknown> = { name: editName, role: editRole, active: editActive }
+    const body: Record<string, unknown> = { name: editName, role: editRole, active: editActive, sections: editSections }
     if (editPassword.trim()) body.password = editPassword
     const res = await fetch(`/api/admin/users/${id}`, {
       method: 'PUT',
@@ -162,6 +176,23 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                 <option value="owner">Owner</option>
               </select>
             </div>
+            {addRole === 'manager' && (
+              <div className="md:col-span-2">
+                <label className="text-xs text-gray-500 font-medium block mb-2">Section access</label>
+                <div className="flex flex-wrap gap-4">
+                  {ALL_SECTIONS.map(s => (
+                    <label key={s} className="flex items-center gap-2 text-sm text-navy">
+                      <input
+                        type="checkbox"
+                        checked={addSections.includes(s)}
+                        onChange={() => setAddSections(prev => toggle(prev, s))}
+                      />
+                      {SECTION_LABEL[s]}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="md:col-span-2 flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary disabled:opacity-60">
                 {saving ? 'Creating...' : 'Create User'}
@@ -270,6 +301,23 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                             <option value="inactive">Inactive</option>
                           </select>
                         </div>
+                        {editRole === 'manager' && (
+                          <div className="md:col-span-4">
+                            <label className="text-xs text-gray-500 font-medium block mb-2">Section access</label>
+                            <div className="flex flex-wrap gap-4">
+                              {ALL_SECTIONS.map(s => (
+                                <label key={s} className="flex items-center gap-2 text-sm text-navy">
+                                  <input
+                                    type="checkbox"
+                                    checked={editSections.includes(s)}
+                                    onChange={() => setEditSections(prev => toggle(prev, s))}
+                                  />
+                                  {SECTION_LABEL[s]}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="md:col-span-4 flex gap-3">
                           <button
                             onClick={() => handleSaveEdit(u.id)}
