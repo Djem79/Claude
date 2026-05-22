@@ -28,7 +28,7 @@ function sniffMime(buf: Buffer): string | null {
 
 export async function POST(req: NextRequest) {
   if (!(await requireSection('properties'))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const form = await req.formData()
