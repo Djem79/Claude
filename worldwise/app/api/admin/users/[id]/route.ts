@@ -23,6 +23,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (Array.isArray(sections)) {
     patch.sections = ALL_SECTIONS.filter(s => sections.includes(s))
   }
+  // Owners always have every section; keep stored data consistent on role change.
+  if (patch.role === 'owner') patch.sections = ALL_SECTIONS
   const updated = await updateUser(params.id, patch)
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(safeUser(updated))
