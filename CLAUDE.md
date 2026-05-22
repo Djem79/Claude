@@ -51,6 +51,8 @@ Got a bug report — just fix it. Don't ask to be led by the hand. Point to logs
 
 The git root is `/Users/dzhambulat/Documents/Claude/`. The actual Next.js app lives in the `worldwise/` subdirectory — all commands below must be run from there.
 
+**Git remotes (non-obvious):** two remotes exist. `claude` → `Djem79/Claude.git` is the **primary** repo — all feature branches and the canonical `main` live here; push branches and open PRs against `claude`. `origin` → `Djem79/worldwise.git` is a **deploy mirror** holding only `main` + `data-backup`. Deployment is done by **rsync of the working tree** (see *Production deployment*), **not** by `git pull` on the server — so `main` can lag well behind what's actually live, and that's expected. (If a tool needs `origin/HEAD` and errors with "unknown revision", run `git remote set-head origin -a` once.)
+
 ## Common commands
 
 Node is managed via NVM. If `npm` is not found, run one of these:
