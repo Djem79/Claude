@@ -1,6 +1,9 @@
 import { getLeads, leadStats } from '@/lib/leads'
 import { Lead, LeadStatus } from '@/types'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth'
+import { canAccess, landingPath } from '@/lib/permissions'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +55,10 @@ function buildChartData(leads: Lead[]): { date: string; count: number }[] {
   return Object.entries(buckets).map(([date, count]) => ({ date, count }))
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getSession()
+  if (!session) redirect('/admin/login')
+  if (!canAccess(session, 'dashboard')) redirect(landingPath(session) ?? '/admin')
   const leads = getLeads()
   const stats = leadStats(leads)
   const chartData = buildChartData(leads)

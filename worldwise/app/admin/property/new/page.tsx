@@ -1,8 +1,15 @@
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth'
+import { canAccess, landingPath } from '@/lib/permissions'
 import PropertyForm from '../PropertyForm'
 
 export const dynamic = 'force-dynamic'
 
-export default function NewPropertyPage() {
+export default async function NewPropertyPage() {
+  const session = await getSession()
+  if (!session) redirect('/admin/login')
+  if (!canAccess(session, 'properties')) redirect(landingPath(session) ?? '/admin')
+
   return (
     <div className="max-w-3xl mx-auto px-8 py-10">
       <PropertyForm />

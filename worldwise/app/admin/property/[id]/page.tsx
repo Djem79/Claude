@@ -1,10 +1,16 @@
 import { getPropertyById } from '@/lib/properties'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth'
+import { canAccess, landingPath } from '@/lib/permissions'
 import PropertyForm from '../PropertyForm'
 
 export const dynamic = 'force-dynamic'
 
-export default function EditPropertyPage({ params }: { params: { id: string } }) {
+export default async function EditPropertyPage({ params }: { params: { id: string } }) {
+  const session = await getSession()
+  if (!session) redirect('/admin/login')
+  if (!canAccess(session, 'properties')) redirect(landingPath(session) ?? '/admin')
+
   const property = getPropertyById(params.id)
   if (!property) notFound()
 

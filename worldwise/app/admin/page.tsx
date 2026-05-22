@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getProperties } from '@/lib/properties'
 import { getLeads } from '@/lib/leads'
+import { getSession } from '@/lib/auth'
+import { canAccess, landingPath } from '@/lib/permissions'
 import AdminPropertyActions from './AdminPropertyActions'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +12,22 @@ function formatPrice(aed: number) {
   return aed >= 1_000_000 ? `AED ${(aed / 1_000_000).toFixed(2)}M` : `AED ${(aed / 1000).toFixed(0)}K`
 }
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const session = await getSession()
+  if (!session) redirect('/admin/login')
+  if (!canAccess(session, 'properties')) {
+    const dest = landingPath(session)
+    if (dest) redirect(dest)
+    return (
+      <div className="max-w-7xl mx-auto px-8 py-20 text-center">
+        <h1 className="font-serif text-2xl text-navy mb-2">No section access</h1>
+        <p className="text-gray-500 text-sm">
+          Your account has no sections enabled. Please contact the owner.
+        </p>
+      </div>
+    )
+  }
+
   const properties = getProperties()
   const leads = getLeads()
 
