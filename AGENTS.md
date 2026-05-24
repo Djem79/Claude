@@ -120,15 +120,23 @@ discipline catches the surprises.
 
 ---
 
-## Current open work (as of this commit)
+## Current open work (as of 2026-05-24)
 
 If you're a session picking up work here, the lead session has these threads
 in flight; coordinate before stepping on them:
 
-- **Telegram channel growth** — CTA-on-success flow + bot CTA-keyword handler
-  shipped (commit `93ef997`). Open follow-ups: clickable Telegram contact in
-  CRM for `tg_*` leads, server-side autoposter from `data/content-plan-june-2026.json`,
-  ROI infographic PNG for the channel.
+- **Telegram channel growth** — fully shipped across two commits:
+  - `93ef997` — CTA-on-success in all three lead forms; bot CTA-keyword handler
+    (СПИСОК / ГАЙД / ВИЗА / РАССРОЧКА / MARINA / HILLS / DOWNTOWN / JLT);
+    `publish_plan` / `skip_plan` webhook callbacks.
+  - `38b6a72` — CRM Telegram link for `tg_*` leads; `/api/roi-table-image`
+    route (1080×1350 branded PNG, 8 districts); `scripts/post-from-plan.mjs`
+    autoposter; cron installed on server `0 6 * * *` (10:00 Dubai).
+  - `data/content-plan-june-2026.json` is on the server at
+    `/var/www/worldwise/data/` (38 KB, scp'd 2026-05-24). Do NOT put it in
+    the local repo — it is a live data file (AGENTS.md Rule #1).
+  - No open follow-ups on this thread.
+
 - Spec/plan history for prior features in `worldwise/docs/superpowers/`.
 
 When you finish a thread, update this section so the next session has fresh
