@@ -98,8 +98,8 @@ Hetzner VPS `62.238.35.20` (Ubuntu 24.04). SSH key: `~/.ssh/id_ed25519`. Project
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
 
-# 1. Sync (exclude git, node_modules, build artifacts, server-only data, and env secrets)
-rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' \
+# 1. Sync (exclude git, node_modules, build artifacts, server-only data, env secrets, and the AI-docs symlinks)
+rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' --exclude='AGENTS.md' --exclude='CLAUDE.md' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
 
 # 2. Build and restart on server
