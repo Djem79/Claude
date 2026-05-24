@@ -24,6 +24,18 @@ function digitsOnly(s: string) {
   return s.replace(/\D/g, '')
 }
 
+// Leads created by the Telegram CTA-keyword handler have phone="tg_{chatId}"
+// (not a real number) and email="@username" — give them a Telegram link instead
+// of WhatsApp/Call/mailto buttons that would all be broken.
+function isTgLead(phone: string) {
+  return phone.startsWith('tg_')
+}
+function tgHandle(email: string | undefined | null): string | null {
+  if (!email) return null
+  const m = email.match(/^@([A-Za-z0-9_]{4,32})$/)
+  return m ? m[1] : null
+}
+
 function fmtSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
@@ -400,9 +412,19 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                         <td className="px-2 py-3 text-gray-500 whitespace-nowrap">{fmt(l.createdAt)}</td>
                         <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                           <div className="flex gap-3">
-                            <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
-                            <a href={`tel:${l.phone}`} className="text-xs text-gold hover:underline">Call</a>
-                            {l.email && <a href={`mailto:${l.email}`} className="text-xs text-blue-600 hover:underline">Email</a>}
+                            {isTgLead(l.phone) ? (
+                              tgHandle(l.email) ? (
+                                <a href={`https://t.me/${tgHandle(l.email)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#229ED9] hover:underline">Telegram</a>
+                              ) : (
+                                <span className="text-xs text-gray-300">No contact</span>
+                              )
+                            ) : (
+                              <>
+                                <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
+                                <a href={`tel:${l.phone}`} className="text-xs text-gold hover:underline">Call</a>
+                                {l.email && <a href={`mailto:${l.email}`} className="text-xs text-blue-600 hover:underline">Email</a>}
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -554,23 +576,39 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                         </div>
                       )}
                       <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
-                        <a
-                          href={`https://wa.me/${digitsOnly(l.phone)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="WhatsApp"
-                          className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
-                        >
-                          W
-                        </a>
-                        {l.email && (
-                          <a
-                            href={`mailto:${l.email}`}
-                            aria-label="Send email"
-                            className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
-                          >
-                            ✉
-                          </a>
+                        {isTgLead(l.phone) ? (
+                          tgHandle(l.email) && (
+                            <a
+                              href={`https://t.me/${tgHandle(l.email)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="Open in Telegram"
+                              className="w-6 h-6 bg-[#229ED9] rounded flex items-center justify-center text-white text-xs"
+                            >
+                              T
+                            </a>
+                          )
+                        ) : (
+                          <>
+                            <a
+                              href={`https://wa.me/${digitsOnly(l.phone)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="WhatsApp"
+                              className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
+                            >
+                              W
+                            </a>
+                            {l.email && (
+                              <a
+                                href={`mailto:${l.email}`}
+                                aria-label="Send email"
+                                className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
+                              >
+                                ✉
+                              </a>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -630,23 +668,39 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                         </div>
                       )}
                       <div className="flex gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
-                        <a
-                          href={`https://wa.me/${digitsOnly(l.phone)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="WhatsApp"
-                          className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
-                        >
-                          W
-                        </a>
-                        {l.email && (
-                          <a
-                            href={`mailto:${l.email}`}
-                            aria-label="Send email"
-                            className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
-                          >
-                            ✉
-                          </a>
+                        {isTgLead(l.phone) ? (
+                          tgHandle(l.email) && (
+                            <a
+                              href={`https://t.me/${tgHandle(l.email)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="Open in Telegram"
+                              className="w-6 h-6 bg-[#229ED9] rounded flex items-center justify-center text-white text-xs"
+                            >
+                              T
+                            </a>
+                          )
+                        ) : (
+                          <>
+                            <a
+                              href={`https://wa.me/${digitsOnly(l.phone)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="WhatsApp"
+                              className="w-6 h-6 bg-[#25D366] rounded flex items-center justify-center text-white text-xs"
+                            >
+                              W
+                            </a>
+                            {l.email && (
+                              <a
+                                href={`mailto:${l.email}`}
+                                aria-label="Send email"
+                                className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs"
+                              >
+                                ✉
+                              </a>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

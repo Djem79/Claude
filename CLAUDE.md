@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Working in parallel with another Claude session?** Read [`AGENTS.md`](AGENTS.md) first — it covers the coordination contract (who's lead, before-you-touch checks, push/deploy discipline, and the hard rules from past multi-session regressions).
+
 ## Before starting any task
 
 Before writing a single line of code, state in one sentence how you will verify the work is correct — for example: "I'll run `npm run build`, open `/mortgage-calculator` in the browser and confirm the monthly payment updates when sliders change." Only then proceed. This applies to every task, including small edits.
