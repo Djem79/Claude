@@ -53,6 +53,15 @@ export default function PropertyEnquiryForm({
           <div className="text-3xl mb-3">✓</div>
           <h3 className="font-serif text-xl text-navy mb-2">Request Sent!</h3>
           <p className="text-gray-500 text-sm">We&apos;ll contact you within 2 hours.</p>
+          <a
+            href="https://t.me/WorldwisePro"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mt-5 w-full text-center rounded-sm py-2.5 px-4 text-sm font-medium bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors"
+          >
+            Telegram channel «Смотрим Дубай» →
+          </a>
+          <p className="text-xs text-gray-400 mt-1">New off-plan listings and market analytics every week</p>
         </div>
       ) : (
         <>

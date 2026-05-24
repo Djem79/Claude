@@ -92,7 +92,16 @@ export default function LeadModal({
             <p className="text-gray-500">
               We&apos;ve received your request and will contact you within 2 hours.
             </p>
-            <button onClick={onClose} className="btn-primary mt-6 w-full">
+            <a
+              href="https://t.me/WorldwisePro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mt-5 w-full text-center rounded-sm py-3 px-4 text-sm font-medium bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors"
+            >
+              Bonus: subscribe to Telegram «Смотрим Дубай» →
+            </a>
+            <p className="text-xs text-gray-400 mt-1">New off-plan and weekly market analytics</p>
+            <button onClick={onClose} className="btn-primary mt-4 w-full">
               Close
             </button>
           </div>

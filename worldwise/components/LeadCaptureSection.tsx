@@ -64,6 +64,15 @@ export default function LeadCaptureSection() {
             <p className="text-white/70">
               We&apos;ll be in touch within 2 hours via WhatsApp or email.
             </p>
+            <a
+              href="https://t.me/WorldwisePro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mt-6 w-full text-center rounded-sm py-3 px-4 text-sm font-medium bg-[#229ED9]/15 border border-[#229ED9]/40 text-[#229ED9] hover:bg-[#229ED9]/25 transition-colors"
+            >
+              Bonus: Telegram channel «Смотрим Дубай» →
+            </a>
+            <p className="text-white/40 text-xs mt-2">Off-plan before public sales, market analytics, weekly case studies</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-sm p-8 space-y-4 text-left">
