@@ -1,14 +1,25 @@
 import Link from 'next/link'
+import { areas as areaData } from '@/lib/areas'
 
-const areas = [
-  { name: 'Dubai Marina', avgPrice: 'AED 1,850/sqft', roi: '7–8%', img: '/images/areas/dubai-marina.jpg' },
-  { name: 'Downtown Dubai', avgPrice: 'AED 2,200/sqft', roi: '6–7%', img: '/images/areas/downtown-dubai.jpg' },
-  { name: 'Palm Jumeirah', avgPrice: 'AED 2,800/sqft', roi: '6–8%', img: '/images/areas/palm-jumeirah.jpg' },
-  { name: 'Business Bay', avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: '/images/areas/business-bay.jpg' },
-  { name: 'Dubai Hills', avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: '/images/areas/dubai-hills.jpg' },
-  { name: 'JLT', avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: '/images/areas/jlt.jpg' },
-  { name: 'Creek Harbour', avgPrice: 'AED 1,700/sqft', roi: '7–8%', img: '/images/areas/creek-harbour.jpg' },
-  { name: 'Emaar Beachfront', avgPrice: 'AED 2,500/sqft', roi: '7–8%', img: '/images/areas/emaar-beachfront.jpg' },
+type AreaCard = {
+  name: string
+  avgPrice: string
+  roi: string
+  img: string
+  slug: string
+}
+
+const slugByName = new Map(areaData.map(a => [a.name, a.slug]))
+
+const homepageAreas: AreaCard[] = [
+  { name: 'Dubai Marina',     avgPrice: 'AED 1,850/sqft', roi: '7–8%', img: '/images/areas/dubai-marina.jpg',     slug: slugByName.get('Dubai Marina')! },
+  { name: 'Downtown Dubai',   avgPrice: 'AED 2,200/sqft', roi: '6–7%', img: '/images/areas/downtown-dubai.jpg',   slug: slugByName.get('Downtown Dubai')! },
+  { name: 'Palm Jumeirah',    avgPrice: 'AED 2,800/sqft', roi: '6–8%', img: '/images/areas/palm-jumeirah.jpg',    slug: slugByName.get('Palm Jumeirah')! },
+  { name: 'Business Bay',     avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: '/images/areas/business-bay.jpg',     slug: slugByName.get('Business Bay')! },
+  { name: 'Dubai Hills',      avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: '/images/areas/dubai-hills.jpg',      slug: slugByName.get('Dubai Hills')! },
+  { name: 'JLT',              avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: '/images/areas/jlt.jpg',              slug: slugByName.get('JLT')! },
+  { name: 'Creek Harbour',    avgPrice: 'AED 1,700/sqft', roi: '7–8%', img: '/images/areas/creek-harbour.jpg',    slug: slugByName.get('Creek Harbour')! },
+  { name: 'Emaar Beachfront', avgPrice: 'AED 2,500/sqft', roi: '7–8%', img: '/images/areas/emaar-beachfront.jpg', slug: slugByName.get('Emaar Beachfront')! },
 ]
 
 export default function AreasSection() {
@@ -24,10 +35,10 @@ export default function AreasSection() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {areas.map(area => (
+          {homepageAreas.map(area => (
             <Link
               key={area.name}
-              href={`/properties?area=${encodeURIComponent(area.name)}`}
+              href={`/${area.slug}`}
               className="group relative overflow-hidden rounded-sm aspect-[4/3] cursor-pointer"
             >
               <div
