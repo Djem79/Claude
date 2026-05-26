@@ -1,5 +1,31 @@
 # Lessons
 
+## 2026-05-26 — `/properties?area=` deep-link is silently broken (filter is local state, not URL-driven)
+
+**Context:** During the area-landing-pages rollout (Task 3), code review flagged that
+`<Link href="/properties?area=<name>">` opens the listing without applying the filter.
+`app/properties/PropertiesClient.tsx` initialises the area filter from local `useState`
+(default `'All Areas'`) and ignores `window.location.search` / `useSearchParams`. The
+existing homepage `AreasSection` has been generating these links for months, so the
+issue is pre-existing — but the new area landing pages amplify it (every page has a
+"View all in {area}" CTA).
+
+**Why it happened:** the URL pattern looked like a real filtered route, no one tested
+the deep-link in isolation. UI tests of the filter went through the dropdown, not the URL.
+
+**Rules to prevent repeat:**
+
+- Whenever a `Link` carries query params, verify the target reads them. Quick
+  smoke-test: open the URL directly in an incognito window — does the UI reflect
+  the param?
+- For listing pages with filter state, prefer `useSearchParams()` over `useState` so
+  the URL is the source of truth. This also makes filters shareable and back-button
+  friendly.
+
+**To fix in a follow-up:** make `PropertiesClient` initialise `area` from
+`useSearchParams().get('area') ?? 'All Areas'` and push state changes to the URL via
+`router.replace(...)`. Out of scope for the area-pages PR.
+
 ## 2026-05-22 — JSON-LD: `aggregateRating`/`review` only on Google-supported host types
 
 **What happened:** Google Search Console flagged "Invalid object type for field
