@@ -158,7 +158,7 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 - Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
-`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`
+`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`
 The last six are set by the Telegram bot lead intake (an agent pastes a lead → the bot saves it and the source is chosen via inline buttons; default `telegram` until a button is tapped).
 
 **UX rules:**
@@ -311,6 +311,16 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log
 `lib/analytics.ts` — thin `track(event, params?)` helper that calls `window.gtag()` when available. Import this in any client component that needs to fire a GA4 event. Do not call `window.gtag` directly.
 
 **Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title).
+
+### Area landing pages
+
+8 flat-URL SSG pages target Dubai districts: `/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/creek-harbour`, `/emaar-beachfront`. All content (metrics, copy, FAQ) lives in `lib/areas.ts` — the single source of truth, edited via PR like `lib/articles.ts`.
+
+Route `app/[area]/page.tsx` is a server component (handles `generateStaticParams` + `generateMetadata` + JSON-LD). It composes a client wrapper `app/[area]/AreaPageClient.tsx` that owns the `LeadModal` state. Adding a new district = adding one entry to `areas` in `lib/areas.ts` (no new route file needed) plus ensuring `public/images/areas/<slug>.jpg` exists. `generateStaticParams` whitelists `areaSlugs`; any other slug on this route returns 404.
+
+Leads from these pages carry `source: area_<slug_underscored>` (e.g. `area_dubai_marina`). Each page emits three JSON-LD blocks: `Place`, `BreadcrumbList`, and `FAQPage`. The homepage `AreasSection` links to these flat URLs as the main internal-link hub.
+
+When you change `Property.area` values in the admin, the featured-properties grid on the area page filters by exact-string match — keep the spelling identical to `Area.name` in `lib/areas.ts`.
 
 ### SEO / crawler layer
 
