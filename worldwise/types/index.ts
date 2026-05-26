@@ -86,12 +86,3 @@ export interface AdminUser {
   createdAt: string
   lastLoginAt?: string
 }
-
-export interface Area {
-  name: string
-  slug: string
-  image: string
-  avgPricePerSqft: string
-  avgRoi: string
-  description: string
-}
