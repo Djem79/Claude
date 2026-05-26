@@ -12,6 +12,7 @@ export default function AreaHero({ area, listingCount, onCtaClick }: Props) {
   return (
     <section
       className="relative h-[70vh] min-h-[520px] w-full flex items-end overflow-hidden"
+      aria-label={area.name}
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
