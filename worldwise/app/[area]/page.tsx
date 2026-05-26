@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import LeadCaptureSection from '@/components/LeadCaptureSection'
@@ -94,6 +95,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
 
   return (
     <>
+      <Navigation transparent />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(placeJsonLd) }}
