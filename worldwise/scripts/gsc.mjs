@@ -54,7 +54,11 @@ function makeOAuthClient(redirectUri) {
 
 function getAuthedClient() {
   const client = makeOAuthClient()
-  client.setCredentials({ refresh_token: getEnv('GSC_REFRESH_TOKEN') })
+  const refreshToken = process.env.GSC_REFRESH_TOKEN
+  if (!refreshToken) {
+    fail('No refresh token found. Run first: node --env-file=.env.local scripts/gsc.mjs auth')
+  }
+  client.setCredentials({ refresh_token: refreshToken })
   return client
 }
 
@@ -112,6 +116,7 @@ async function cmdAuth() {
       server.close()
       resolve(code)
     })
+    server.on('error', reject)
     server.listen(port, '127.0.0.1')
   })
 
