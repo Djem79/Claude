@@ -44,6 +44,10 @@ const nextConfig = {
       { source: '/page:path*.html', destination: '/',           permanent: true },
       { source: '/rss-feed-:path*.xml', destination: '/sitemap.xml', permanent: true },
 
+      // Duplicate-draft property slugs that leaked into Google's index
+      // (admin "duplicate" workflow produces "copy-<original>" — never a real listing)
+      { source: '/properties/copy-:path*', destination: '/properties', permanent: true },
+
       // Bare social media URLs (missing https://)
       { source: '/www.youtube.com/:path*',  destination: 'https://www.youtube.com/:path*',  permanent: true },
       { source: '/www.instagram.com/:path*', destination: 'https://www.instagram.com/:path*', permanent: true },
