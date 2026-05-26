@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getProperties } from '@/lib/properties'
 import { getAllArticles } from '@/lib/articles'
+import { areaSlugs } from '@/lib/areas'
 
 export const revalidate = 3600
 
@@ -32,5 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...propertyPages, ...blogPages]
+  const areaPages: MetadataRoute.Sitemap = areaSlugs.map(slug => ({
+    url: `${BASE}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
+  return [...staticPages, ...areaPages, ...propertyPages, ...blogPages]
 }
