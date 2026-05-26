@@ -312,6 +312,31 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log
 
 **Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title).
 
+### GSC CLI (local diagnostics)
+
+`scripts/gsc.mjs` is a local Node ESM CLI for ad-hoc Google Search Console queries — URL inspection, top queries, top pages, sitemap status. Not deployed to the server; used only from the local machine.
+
+**Auth:** OAuth 2.0 Desktop client (refresh token in `.env.local`). The Service Account path is blocked because GSC refuses to add service-account emails as users on personal Gmail properties — OAuth runs against the property owner's own account.
+
+**Env vars in `.env.local`:**
+
+- `GSC_OAUTH_CLIENT_ID` — from the GCP OAuth client (Desktop type) in project `worldwise-497520`
+- `GSC_OAUTH_CLIENT_SECRET` — same source
+- `GSC_REFRESH_TOKEN` — written automatically by `gsc.mjs auth`
+- `GSC_SITE_URL` (optional) — defaults to `https://worldwise.pro/`
+
+**Commands (run from `worldwise/`):**
+
+```bash
+node --env-file=.env.local scripts/gsc.mjs auth                               # one-time OAuth
+node --env-file=.env.local scripts/gsc.mjs inspect https://worldwise.pro/<x>  # URL inspection
+node --env-file=.env.local scripts/gsc.mjs queries [--days=N] [--limit=N]     # top queries
+node --env-file=.env.local scripts/gsc.mjs pages   [--days=N] [--limit=N]     # top pages
+node --env-file=.env.local scripts/gsc.mjs sitemaps                           # sitemap status
+```
+
+If the refresh token expires (`invalid_grant`), re-run `auth`. Tokens can be revoked at any time via `myaccount.google.com/permissions` (the consent screen is named `Worldwise GSC CLI`).
+
 ### Area landing pages
 
 8 flat-URL SSG pages target Dubai districts: `/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/creek-harbour`, `/emaar-beachfront`. All content (metrics, copy, FAQ) lives in `lib/areas.ts` — the single source of truth, edited via PR like `lib/articles.ts`.
