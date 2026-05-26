@@ -11,7 +11,11 @@ const BUDGETS = [
   'Above AED 15M',
 ]
 
-export default function LeadCaptureSection() {
+interface LeadCaptureSectionProps {
+  source?: string
+}
+
+export default function LeadCaptureSection({ source = 'lead_capture_section' }: LeadCaptureSectionProps) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [budget, setBudget] = useState('')
@@ -32,11 +36,11 @@ export default function LeadCaptureSection() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, budget, source: 'main_cta_section', _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, budget, source, _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)
-      track('lead_form_submit', { source: 'lead_capture_section' })
+      track('lead_form_submit', { source })
     } catch {
       setError('Something went wrong. Please contact us via WhatsApp.')
     } finally {
