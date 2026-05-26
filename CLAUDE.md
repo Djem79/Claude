@@ -314,7 +314,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log
 
 ### GSC CLI (local diagnostics)
 
-`scripts/gsc.mjs` is a local Node ESM CLI for ad-hoc Google Search Console queries — URL inspection, top queries, top pages, sitemap status. Not deployed to the server; used only from the local machine.
+`scripts/gsc.mjs` is a Node ESM CLI for Google Search Console — used both as a local diagnostic tool (URL inspection, top queries, top pages, sitemap status) and as a weekly cron on the server that posts a Telegram digest.
 
 **Auth:** OAuth 2.0 Desktop client (refresh token in `.env.local`). The Service Account path is blocked because GSC refuses to add service-account emails as users on personal Gmail properties — OAuth runs against the property owner's own account.
 
@@ -333,9 +333,18 @@ node --env-file=.env.local scripts/gsc.mjs inspect https://worldwise.pro/<x>  # 
 node --env-file=.env.local scripts/gsc.mjs queries [--days=N] [--limit=N]     # top queries
 node --env-file=.env.local scripts/gsc.mjs pages   [--days=N] [--limit=N]     # top pages
 node --env-file=.env.local scripts/gsc.mjs sitemaps                           # sitemap status
+node --env-file=.env.local scripts/gsc.mjs digest [--dry-run]                 # send weekly snapshot to Telegram
 ```
 
-If the refresh token expires (`invalid_grant`), re-run `auth`. Tokens can be revoked at any time via `myaccount.google.com/permissions` (the consent screen is named `Worldwise GSC CLI`).
+**Weekly cron on the server** (Hetzner VPS) runs the `digest` command every Monday at 06:00 UTC and appends to `/var/log/worldwise-gsc.log`:
+
+```text
+0 6 * * 1 cd /var/www/worldwise && node --env-file=.env.local scripts/gsc.mjs digest >> /var/log/worldwise-gsc.log 2>&1
+```
+
+The digest needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` on the server (already present, used by lead notifications) plus the three `GSC_*` vars — these were copied to server `.env.local` during initial setup (the file is excluded from rsync, so it persists across deploys).
+
+If the refresh token expires (`invalid_grant`), re-run `auth` locally and re-copy `GSC_REFRESH_TOKEN` to server `.env.local`. Tokens can be revoked at any time via `myaccount.google.com/permissions` (the consent screen is named `Worldwise GSC CLI`).
 
 ### Area landing pages
 
