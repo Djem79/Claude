@@ -14,6 +14,21 @@ const ENV_FILE = path.join(REPO_DIR, '.env.local')
 const DEFAULT_SITE = 'https://worldwise.pro/'
 const OAUTH_SCOPE = 'https://www.googleapis.com/auth/webmasters'
 
+// Priority URLs for the weekly digest health check.
+// Keep in sync with lib/areas.ts areaSlugs — adding a new district means
+// updating this list too. (Scripts cannot import the TS file directly.)
+const PRIORITY_PATHS = [
+  '/',
+  '/dubai-marina',
+  '/downtown-dubai',
+  '/palm-jumeirah',
+  '/business-bay',
+  '/dubai-hills',
+  '/jlt',
+  '/creek-harbour',
+  '/emaar-beachfront',
+]
+
 // ─── env helpers ────────────────────────────────────────────────────────────
 
 function getEnv(name, required = true) {
@@ -154,6 +169,56 @@ function iso(d) {
   return d.toISOString().slice(0, 10)
 }
 
+/** Single URL inspection — returns the raw inspectionResult object. */
+async function inspectOne(url) {
+  const auth = getAuthedClient()
+  const searchconsole = google.searchconsole({ version: 'v1', auth })
+  const { data } = await searchconsole.urlInspection.index.inspect({
+    requestBody: { inspectionUrl: url, siteUrl: siteUrl() },
+  })
+  return data.inspectionResult || {}
+}
+
+/** First sitemap's summary stats — we have only `/sitemap.xml`. */
+async function fetchSitemapsSummary() {
+  const auth = getAuthedClient()
+  const wm = google.webmasters({ version: 'v3', auth })
+  const { data } = await wm.sitemaps.list({ siteUrl: siteUrl() })
+  const sitemaps = data.sitemap || []
+  if (sitemaps.length === 0) {
+    return { submitted: 0, errors: 0, warnings: 0, lastDownloaded: 'never' }
+  }
+  const sm = sitemaps[0]
+  return {
+    submitted: Number(sm.contents?.[0]?.submitted || 0),
+    errors: Number(sm.errors || 0),
+    warnings: Number(sm.warnings || 0),
+    lastDownloaded: sm.lastDownloaded || 'never',
+  }
+}
+
+async function sendTelegram(text) {
+  const token = getEnv('TELEGRAM_BOT_TOKEN')
+  const chatIds = getEnv('TELEGRAM_CHAT_ID').split(',').map(s => s.trim()).filter(Boolean)
+  const chatId = chatIds[0]  // digest goes to first ID only (admin)
+
+  const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+    }),
+  })
+
+  if (!resp.ok) {
+    const body = await resp.text()
+    throw new Error(`Telegram API ${resp.status}: ${body}`)
+  }
+}
+
 // ─── commands ───────────────────────────────────────────────────────────────
 
 async function cmdInspect(url) {
@@ -220,6 +285,136 @@ async function cmdSitemaps() {
     }
     console.log('─'.repeat(80))
   }
+}
+
+async function cmdDigest(opts) {
+  const dryRun = !!opts['dry-run']
+  let message
+  try {
+    const data = await collectDigestData()
+    message = formatDigest(data)
+  } catch (err) {
+    if (err.message?.includes('invalid_grant')) {
+      message = '⚠️ <b>GSC token expired</b>\nRe-auth needed on local Mac:\n<code>node --env-file=.env.local scripts/gsc.mjs auth</code>'
+    } else {
+      message = `⚠️ <b>GSC digest failed</b>\n<code>${escapeHtml(err.message)}</code>`
+    }
+  }
+
+  if (dryRun) {
+    console.log(message)
+    return
+  }
+
+  try {
+    await sendTelegram(message)
+    console.log('✓ Digest sent to Telegram')
+  } catch (err) {
+    console.error(`Telegram send failed: ${err.message}`)
+    // exit 0 so cron doesn't escalate
+  }
+}
+
+async function collectDigestData() {
+  const base = siteUrl().replace(/\/$/, '')
+
+  const indexResults = []
+  for (const p of PRIORITY_PATHS) {
+    const url = base + p
+    try {
+      indexResults.push({ path: p, ok: true, data: await inspectOne(url) })
+    } catch (err) {
+      if (err.message?.includes('invalid_grant')) throw err
+      indexResults.push({ path: p, ok: false, error: err.message })
+    }
+  }
+
+  const sitemap = await safe(() => fetchSitemapsSummary())
+  const queries = await safe(() => searchAnalytics('query', { days: 7, limit: 10 }))
+  const pages = await safe(() => searchAnalytics('page', { days: 7, limit: 10 }))
+
+  return { indexResults, sitemap, queries, pages }
+}
+
+function formatDigest({ indexResults, sitemap, queries, pages }) {
+  const today = iso(new Date())
+  const lines = []
+  lines.push(`🔍 <b>GSC Weekly Digest — ${today}</b>`)
+  lines.push(`<i>${escapeHtml(siteUrl())}</i>`)
+  lines.push('')
+
+  // Indexing health
+  lines.push('<b>📊 Indexing health</b>')
+  for (const r of indexResults) {
+    if (!r.ok) {
+      lines.push(`⚠️ <code>${escapeHtml(r.path)}</code>  ${escapeHtml(r.error)}`)
+      continue
+    }
+    const idx = r.data.indexStatusResult || {}
+    const verdict = idx.verdict || 'UNKNOWN'
+    const emoji = verdict === 'PASS' ? '✅' : verdict === 'FAIL' || verdict === 'PARTIAL' ? '❌' : '⏳'
+    const lastCrawl = idx.lastCrawlTime
+      ? idx.lastCrawlTime.slice(0, 10)
+      : 'never'
+    lines.push(`${emoji} <code>${escapeHtml(r.path)}</code>  ${verdict}  <i>(crawl: ${lastCrawl})</i>`)
+  }
+  lines.push('')
+
+  // Sitemap
+  lines.push('<b>📁 Sitemap</b>')
+  if (!sitemap.ok) {
+    lines.push(`⚠️ ${escapeHtml(sitemap.error)}`)
+  } else {
+    const s = sitemap.data
+    const fetched = String(s.lastDownloaded).slice(0, 10)
+    lines.push(`${s.submitted} URLs · ${s.errors} errors · ${s.warnings} warnings · last fetch ${fetched}`)
+  }
+  lines.push('')
+
+  // Top queries (7d)
+  lines.push('<b>🔎 Top queries (7d)</b>')
+  if (!queries.ok) {
+    lines.push(`⚠️ ${escapeHtml(queries.error)}`)
+  } else if (queries.data.length === 0) {
+    lines.push('(no data this week)')
+  } else {
+    lines.push('<pre>')
+    lines.push('query                             clicks  impr   pos')
+    for (const row of queries.data) {
+      const q = pad(escapeHtml(String(row.key)), 33)
+      const c = String(row.clicks).padStart(6)
+      const i = String(row.impressions).padStart(5)
+      const p = String(row.position).padStart(5)
+      lines.push(`${q}  ${c}  ${i}  ${p}`)
+    }
+    lines.push('</pre>')
+  }
+  lines.push('')
+
+  // Top pages (7d)
+  lines.push('<b>📄 Top pages (7d)</b>')
+  if (!pages.ok) {
+    lines.push(`⚠️ ${escapeHtml(pages.error)}`)
+  } else if (pages.data.length === 0) {
+    lines.push('(no data this week)')
+  } else {
+    lines.push('<pre>')
+    lines.push('page                              clicks  impr   pos')
+    for (const row of pages.data) {
+      const short = String(row.key).replace('https://worldwise.pro', '') || '/'
+      const k = pad(escapeHtml(short), 33)
+      const c = String(row.clicks).padStart(6)
+      const i = String(row.impressions).padStart(5)
+      const p = String(row.position).padStart(5)
+      lines.push(`${k}  ${c}  ${i}  ${p}`)
+    }
+    lines.push('</pre>')
+  }
+  lines.push('')
+
+  lines.push('<i>Local: <code>node --env-file=.env.local scripts/gsc.mjs &lt;cmd&gt;</code></i>')
+
+  return lines.join('\n')
 }
 
 async function cmdQueries(opts) {
@@ -292,15 +487,39 @@ function pad(s, w, align = 'left') {
   return align === 'right' ? s.padStart(w) : s.padEnd(w)
 }
 
+/** Escape user-supplied strings for Telegram HTML parse_mode. */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+/** Wrap an async call so per-section failures don't kill the whole digest.
+ *  invalid_grant is re-thrown — token expiry is fatal at the digest level. */
+async function safe(fn) {
+  try {
+    return { ok: true, data: await fn() }
+  } catch (err) {
+    if (err.message?.includes('invalid_grant')) throw err
+    return { ok: false, error: err.message }
+  }
+}
+
 // ─── dispatcher ─────────────────────────────────────────────────────────────
 
 function parseOpts(args, defaults = { days: 28, limit: 20 }) {
   const opts = { ...defaults }
   for (const arg of args) {
-    const m = arg.match(/^--(\w+)=(.+)$/)
-    if (m) {
-      const num = Number(m[2])
-      opts[m[1]] = Number.isFinite(num) ? num : m[2]
+    const eq = arg.match(/^--([\w-]+)=(.+)$/)
+    if (eq) {
+      const num = Number(eq[2])
+      opts[eq[1]] = Number.isFinite(num) ? num : eq[2]
+      continue
+    }
+    const flag = arg.match(/^--([\w-]+)$/)
+    if (flag) {
+      opts[flag[1]] = true
     }
   }
   return opts
@@ -315,6 +534,7 @@ Commands:
   queries [--days=N] [--limit=N]    Top search queries (default: --days=28 --limit=20)
   pages   [--days=N] [--limit=N]    Top pages by clicks
   sitemaps                          List submitted sitemaps and their status
+  digest [--dry-run]                Send a weekly snapshot to Telegram (--dry-run prints to stdout)
 
 Run with --env-file=.env.local so OAuth secrets are loaded:
   node --env-file=.env.local scripts/gsc.mjs <command>
@@ -324,6 +544,8 @@ Env vars (loaded from worldwise/.env.local):
   GSC_OAUTH_CLIENT_SECRET   (required)
   GSC_REFRESH_TOKEN         (set by \`auth\` command)
   GSC_SITE_URL              (optional, default https://worldwise.pro/)
+  TELEGRAM_BOT_TOKEN        (required for \`digest\`)
+  TELEGRAM_CHAT_ID          (required for \`digest\`; comma-separated, first ID used)
 `)
 }
 
@@ -342,6 +564,7 @@ async function main() {
       case 'queries':  return await cmdQueries(parseOpts(rest))
       case 'pages':    return await cmdPages(parseOpts(rest))
       case 'sitemaps': return await cmdSitemaps()
+      case 'digest':   return await cmdDigest(parseOpts(rest))
       default:
         console.error(`Unknown command: ${cmd}\n`)
         printHelp()
