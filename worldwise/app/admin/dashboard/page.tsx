@@ -74,7 +74,7 @@ export default async function DashboardPage() {
     { label: 'Total Leads', value: stats.total, valCls: 'text-navy', cardCls: 'bg-white border-gray-100', labelCls: 'text-gray-400' },
     { label: 'New (24h)', value: stats.new24h, valCls: 'text-navy', cardCls: 'bg-white border-gray-100', labelCls: 'text-gray-400' },
     { label: 'In Progress', value: stats.byStatus['in-progress'], valCls: 'text-navy', cardCls: 'bg-white border-gray-100', labelCls: 'text-gray-400' },
-    { label: 'Won', value: stats.byStatus.won, valCls: 'text-gold', cardCls: 'bg-white border-gray-100', labelCls: 'text-gray-400' },
+    { label: 'Won', value: stats.byStatus.won, valCls: 'text-gold-accessible', cardCls: 'bg-white border-gray-100', labelCls: 'text-gray-400' },
     { label: 'Conversion', value: `${convPct}%`, valCls: 'text-gold', cardCls: 'bg-navy border-navy', labelCls: 'text-white/60' },
   ]
 
@@ -153,7 +153,7 @@ export default async function DashboardPage() {
       <div className="bg-white border border-gray-100 rounded-sm p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="font-serif text-navy text-sm font-semibold">Recent Leads</p>
-          <Link href="/admin/leads" className="text-gold text-xs hover:underline">
+          <Link href="/admin/leads" className="text-gold-accessible text-xs hover:underline">
             View all →
           </Link>
         </div>

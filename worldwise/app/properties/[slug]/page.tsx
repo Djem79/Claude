@@ -261,7 +261,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                     <div className="p-4">
                       <p className="text-xs text-gray-400 mb-1">{p.developer} · {p.area}</p>
                       <p className="font-serif text-lg text-navy">{p.title}</p>
-                      <p className="text-gold text-sm font-medium mt-1">From AED {(p.priceAed / 1_000_000).toFixed(2)}M</p>
+                      <p className="text-gold-accessible text-sm font-medium mt-1">From AED {(p.priceAed / 1_000_000).toFixed(2)}M</p>
                     </div>
                   </Link>
                 ))}

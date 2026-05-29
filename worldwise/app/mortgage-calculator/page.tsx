@@ -207,7 +207,7 @@ export default function MortgageCalculatorPage() {
                   ].map(([item, amount, note]) => (
                     <tr key={item} className="hover:bg-gray-50">
                       <td className="px-5 py-3 text-navy font-medium">{item}</td>
-                      <td className="px-5 py-3 text-right text-gold font-semibold">{amount}</td>
+                      <td className="px-5 py-3 text-right text-gold-accessible font-semibold">{amount}</td>
                       <td className="px-5 py-3 text-right text-gray-400">{note}</td>
                     </tr>
                   ))}

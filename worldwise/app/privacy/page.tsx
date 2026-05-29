@@ -21,7 +21,7 @@ export default function PrivacyPage() {
             <p className="text-gray-700 leading-relaxed mb-4">
               Worldwise Real Estate L.L.C. (&ldquo;Worldwise&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is a Dubai-based real estate
               brokerage. Our office is at Rasis Business Center, Al Barsha, 5th floor EBC03, Dubai, UAE.
-              For data privacy questions contact <a href="mailto:info@worldwise.pro" className="text-gold">info@worldwise.pro</a>.
+              For data privacy questions contact <a href="mailto:info@worldwise.pro" className="text-gold-accessible underline">info@worldwise.pro</a>.
             </p>
 
             <h2 className="font-serif text-2xl text-navy mt-8 mb-3">2. What data we collect</h2>
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
             <h2 className="font-serif text-2xl text-navy mt-8 mb-3">6. Your rights</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               You may request access, correction or deletion of your personal data at any time by
-              emailing <a href="mailto:info@worldwise.pro" className="text-gold">info@worldwise.pro</a>.
+              emailing <a href="mailto:info@worldwise.pro" className="text-gold-accessible underline">info@worldwise.pro</a>.
               We respond within 30 days.
             </p>
 

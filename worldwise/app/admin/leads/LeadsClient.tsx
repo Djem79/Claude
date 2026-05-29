@@ -70,7 +70,7 @@ const COLUMN_BADGE: Record<LeadStatus, string> = {
   new: 'bg-blue-50 text-blue-700',
   contacted: 'bg-amber-50 text-amber-800',
   'in-progress': 'bg-purple-50 text-purple-700',
-  won: 'bg-amber-50 text-gold border border-gold/30',
+  won: 'bg-amber-50 text-gold-accessible border border-gold/30',
   lost: 'bg-gray-100 text-gray-500',
 }
 
@@ -78,7 +78,7 @@ const COLUMN_HEADER_COLOR: Record<LeadStatus, string> = {
   new: 'text-navy',
   contacted: 'text-navy',
   'in-progress': 'text-navy',
-  won: 'text-gold',
+  won: 'text-gold-accessible',
   lost: 'text-gray-400',
 }
 
@@ -421,7 +421,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                             ) : (
                               <>
                                 <a href={`https://wa.me/${digitsOnly(l.phone)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline">WhatsApp</a>
-                                <a href={`tel:${l.phone}`} className="text-xs text-gold hover:underline">Call</a>
+                                <a href={`tel:${l.phone}`} className="text-xs text-gold-accessible hover:underline">Call</a>
                                 {l.email && <a href={`mailto:${l.email}`} className="text-xs text-blue-600 hover:underline">Email</a>}
                               </>
                             )}

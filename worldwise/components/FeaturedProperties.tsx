@@ -8,7 +8,7 @@ export default function FeaturedProperties({ properties }: { properties: Propert
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               Current Listings
             </p>
             <h2 className="section-title">Handpicked Investment<br />Properties</h2>

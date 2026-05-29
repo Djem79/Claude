@@ -40,7 +40,7 @@ export default function Testimonials() {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-6 text-center">
-        <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+        <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
           Client Stories
         </p>
         <h2 className="section-title mb-12">What Our Investors Say</h2>
@@ -48,7 +48,7 @@ export default function Testimonials() {
         <div className="bg-[#F8F8F6] rounded-sm p-10 md:p-14 transition-all duration-300">
           <div className="flex justify-center gap-1 mb-6">
             {Array.from({ length: t.stars }).map((_, i) => (
-              <span key={i} className="text-gold text-xl">★</span>
+              <span key={i} className="text-gold-accessible text-xl">★</span>
             ))}
           </div>
 
@@ -59,7 +59,7 @@ export default function Testimonials() {
           <div className="flex flex-col items-center gap-1">
             <p className="font-semibold text-navy">{t.name}</p>
             <p className="text-gray-500 text-sm">{t.country}</p>
-            <p className="text-gold text-xs font-medium uppercase tracking-wide mt-1">{t.deal}</p>
+            <p className="text-gold-accessible text-xs font-medium uppercase tracking-wide mt-1">{t.deal}</p>
           </div>
         </div>
 

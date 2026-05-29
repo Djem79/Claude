@@ -192,7 +192,7 @@ function ArticleContent({ content }: { content: string }) {
                   key={j}
                   className="text-gray-700 leading-relaxed flex gap-2"
                 >
-                  <span className="text-gold mt-1 flex-shrink-0">•</span>
+                  <span className="text-gold-accessible mt-1 flex-shrink-0">•</span>
                   <span dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
                 </li>
               ))}

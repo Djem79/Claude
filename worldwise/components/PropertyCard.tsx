@@ -53,7 +53,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.developer} · {property.area}
         </p>
         <h3 className="font-serif text-xl text-navy mt-1 mb-3">
-          <Link href={`/properties/${property.slug}`} className="hover:text-gold transition-colors">
+          <Link href={`/properties/${property.slug}`} className="hover:text-gold-accessible transition-colors">
             {property.title}
           </Link>
         </h3>
