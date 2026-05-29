@@ -30,6 +30,9 @@ const nextConfig = {
     ]
   },
   images: {
+    // Serve AVIF (then WebP) — smaller than the WebP-only default, improving LCP
+    // on image-heavy pages (hero, galleries, area/property cards).
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '**.tildacdn.com' },
