@@ -49,9 +49,19 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
   const property = getPropertyBySlug(params.slug)
   if (!property) notFound()
 
-  const similar = getProperties()
-    .filter(p => p.id !== property.id && (p.area === property.area || p.developer === property.developer))
-    .slice(0, 3)
+  // "Similar" = same area/developer first, then ranked by closest price so the
+  // suggestions sit in the same budget. Backfill with the nearest-priced of the
+  // remaining listings if there aren't 3 contextual matches.
+  const others = getProperties().filter(p => p.id !== property.id)
+  const byPriceCloseness = (a: typeof others[number], b: typeof others[number]) =>
+    Math.abs(a.priceAed - property.priceAed) - Math.abs(b.priceAed - property.priceAed)
+  const contextual = others
+    .filter(p => p.area === property.area || p.developer === property.developer)
+    .sort(byPriceCloseness)
+  const fallback = others
+    .filter(p => p.area !== property.area && p.developer !== property.developer)
+    .sort(byPriceCloseness)
+  const similar = [...contextual, ...fallback].slice(0, 3)
 
   const base = 'https://worldwise.pro'
   const url = `${base}/properties/${property.slug}`

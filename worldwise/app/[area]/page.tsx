@@ -13,6 +13,10 @@ import { getProperties } from '@/lib/properties'
 const BASE = 'https://worldwise.pro'
 const FEATURED_LIMIT = 6
 
+// ISR: re-read data/properties.json so newly added listings appear in the area
+// grid without a full redeploy (matches /properties and the homepage).
+export const revalidate = 60
+
 export function generateStaticParams() {
   return areaSlugs.map(slug => ({ area: slug }))
 }

@@ -22,7 +22,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function PropertyCard({ property }: { property: Property }) {
   return (
     <div className="bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-      <div className="relative h-52 overflow-hidden">
+      <Link href={`/properties/${property.slug}`} className="relative block h-52 overflow-hidden">
         <Image
           src={property.images[0]}
           alt={property.title}
@@ -46,13 +46,17 @@ export default function PropertyCard({ property }: { property: Property }) {
             {property.roi}% ROI
           </div>
         )}
-      </div>
+      </Link>
 
       <div className="p-5">
         <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">
           {property.developer} · {property.area}
         </p>
-        <h3 className="font-serif text-xl text-navy mt-1 mb-3">{property.title}</h3>
+        <h3 className="font-serif text-xl text-navy mt-1 mb-3">
+          <Link href={`/properties/${property.slug}`} className="hover:text-gold transition-colors">
+            {property.title}
+          </Link>
+        </h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">{property.shortDescription}</p>
 
         <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
