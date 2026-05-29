@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Property } from '@/types'
 import PropertyCard from '@/components/PropertyCard'
+import CurrencySelect from '@/components/CurrencySelect'
 
 const STATUSES = [
   { value: 'all', label: 'All Types' },
@@ -81,6 +82,10 @@ export default function PropertiesClient({ properties }: { properties: Property[
         <div>
           <label className="text-xs text-gray-500 font-medium block mb-1">Type</label>
           <FilterSelect value={type} onChange={setType} options={TYPES} />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 font-medium block mb-1">Currency</label>
+          <CurrencySelect />
         </div>
         <div className="flex-1 min-w-48">
           <label className="text-xs text-gray-500 font-medium block mb-1">

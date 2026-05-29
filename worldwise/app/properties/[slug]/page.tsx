@@ -6,10 +6,12 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import PropertyEnquiryForm from './PropertyEnquiryForm'
 import PropertyGallery from './PropertyGallery'
+import CurrencySelect from '@/components/CurrencySelect'
 import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
+import PriceTag from '@/components/PriceTag'
 
 export const revalidate = 60
 
@@ -158,7 +160,10 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   {property.badge && <span className="badge bg-gold/10 text-gold">{property.badge}</span>}
                   {qualifiesForGoldenVisa(property.priceAed) && <span className="badge bg-gold text-navy">Golden Visa</span>}
                 </div>
-                <h1 className="font-serif text-4xl md:text-5xl text-navy">{property.title}</h1>
+                <div className="flex items-start justify-between gap-4">
+                  <h1 className="font-serif text-4xl md:text-5xl text-navy">{property.title}</h1>
+                  <CurrencySelect className="border border-gray-200 bg-white px-3 py-1.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold shrink-0" />
+                </div>
                 <p className="text-gray-500 text-lg mt-2">
                   {property.developer} · {property.area}, Dubai
                 </p>
@@ -167,7 +172,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
               {/* Key stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { label: 'Starting Price', value: formatPrice(property.priceAed) },
+                  { label: 'Starting Price', value: <PriceTag aed={property.priceAed} /> },
                   { label: 'Bedrooms', value: property.bedrooms },
                   ...(property.roi ? [{ label: 'Est. ROI', value: `${property.roi}%` }] : []),
                   ...(property.grossYield ? [{ label: 'Gross Yield', value: `${property.grossYield}%` }] : []),

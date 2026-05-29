@@ -179,7 +179,7 @@ function ArticleContent({ content }: { content: string }) {
           return (
             <p
               key={i}
-              className="text-gray-700 leading-relaxed mb-4"
+              className="text-gray-700 leading-relaxed mb-4 max-w-[68ch]"
               dangerouslySetInnerHTML={{ __html: formatInline(block.text!) }}
             />
           )
