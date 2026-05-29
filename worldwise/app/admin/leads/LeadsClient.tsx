@@ -293,7 +293,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   }
 
   function exportCsv() {
-    const cols = ['createdAt', 'name', 'phone', 'email', 'budget', 'source', 'propertyTitle', 'status', 'notes']
+    const cols = ['createdAt', 'name', 'phone', 'email', 'budget', 'propertyType', 'area', 'source', 'propertyTitle', 'status', 'notes']
     const escape = (v: unknown) => {
       let s = String(v ?? '')
       // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR)
@@ -435,7 +435,9 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                               <div className="md:col-span-1 space-y-2 text-sm">
                                 <div><span className="text-gray-400 text-xs">Email:</span> {l.email ?? '—'}</div>
                                 <div><span className="text-gray-400 text-xs">Source:</span> <span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></div>
-                                <div><span className="text-gray-400 text-xs">Budget:</span> {l.budget ?? '—'}</div>
+                                {l.budget && <div><span className="text-gray-400 text-xs">Budget:</span> {l.budget}</div>}
+                                {l.propertyType && <div><span className="text-gray-400 text-xs">Property type:</span> {l.propertyType}</div>}
+                                {l.area && <div><span className="text-gray-400 text-xs">Preferred area:</span> {l.area}</div>}
                                 <div><span className="text-gray-400 text-xs">Contacted at:</span> {fmt(l.contactedAt)}</div>
                                 <div><span className="text-gray-400 text-xs">Updated at:</span> {fmt(l.updatedAt)}</div>
                                 {l.message && (
