@@ -244,12 +244,33 @@ For investors purchasing at AED 2M+, we recommend applying directly for the 10-y
   },
 ]
 
+/**
+ * Collapse articles sharing a slug, keeping the richest version (longest
+ * content) per slug while preserving first-seen order. Guards against AI-
+ * generated articles that collided on a slug — without this, the listing
+ * shows duplicate cards and getArticleBySlug serves whichever happens to be
+ * first (often a thin/empty draft that shadows the real article).
+ */
+function bestBySlug(list: (Article | DynamicArticle)[]): (Article | DynamicArticle)[] {
+  const bySlug = new Map<string, Article | DynamicArticle>()
+  const order: string[] = []
+  for (const a of list) {
+    const current = bySlug.get(a.slug)
+    if (!current) {
+      bySlug.set(a.slug, a)
+      order.push(a.slug)
+    } else if (a.content.length > current.content.length) {
+      bySlug.set(a.slug, a)
+    }
+  }
+  return order.map(slug => bySlug.get(slug)!)
+}
+
 export function getAllArticles(): (Article | DynamicArticle)[] {
   const dynamic = getDynamicArticles()
-  return [...dynamic, ...articles]
+  return bestBySlug([...dynamic, ...articles])
 }
 
 export function getArticleBySlug(slug: string): Article | DynamicArticle | null {
-  const dynamic = getDynamicArticles()
-  return dynamic.find(a => a.slug === slug) ?? articles.find(a => a.slug === slug) ?? null
+  return getAllArticles().find(a => a.slug === slug) ?? null
 }
