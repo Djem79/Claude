@@ -6,6 +6,7 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import PropertyEnquiryForm from './PropertyEnquiryForm'
 import PropertyGallery from './PropertyGallery'
+import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
 import { waPropertyMessage } from '@/lib/whatsapp'
 
@@ -240,6 +241,9 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   propertySlug={property.slug}
                   propertyTitle={property.title}
                 />
+                <div className="mt-6">
+                  <SocialProofStrip />
+                </div>
               </div>
             </div>
           </div>
