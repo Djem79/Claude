@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
-import { waLink } from '@/lib/whatsapp'
+import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 
 interface Props {
   isOpen: boolean
@@ -168,11 +168,11 @@ export default function LeadModal({
               </p>
 
               <a
-                href={waLink(propertyTitle ? `Hi Worldwise, I'm interested in "${propertyTitle}".` : "Hi Worldwise, I'd like a consultation about Dubai property.")}
+                href={waLink(propertyTitle ? waPropertyMessage(propertyTitle) : "Hi Worldwise, I'd like a consultation about Dubai property.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track('whatsapp_click', { source, ...(propertyTitle ? { property: propertyTitle } : {}) })}
-                className="flex items-center justify-center gap-2 w-full rounded-sm py-3 text-sm font-medium border border-[#25D366] text-[#1c9e4d] hover:bg-[#25D366]/10 transition-colors"
+                className="flex items-center justify-center gap-2 w-full rounded-sm py-3 text-sm font-medium border border-[#25D366] text-[#177d3c] hover:bg-[#25D366]/10 transition-colors"
               >
                 Or message us on WhatsApp
               </a>
