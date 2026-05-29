@@ -82,6 +82,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
       <div className="relative bg-white rounded-sm shadow-2xl w-full max-w-md p-8">
         <button
           onClick={onClose}
+          aria-label="Close"
           className="absolute top-4 right-4 text-gray-400 hover:text-navy text-xl leading-none"
         >
           ✕
