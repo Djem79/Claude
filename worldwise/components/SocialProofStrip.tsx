@@ -1,9 +1,10 @@
 // Developer logos (trimmed to uniform height, transparent bg, local-only).
 // Rendered in white chips so the dark wordmarks read on both light and dark
-// section backgrounds. Nakheel/Danube omitted pending clean source files.
+// section backgrounds. Danube omitted pending a clean source file.
 const DEVELOPERS = [
   { name: 'Emaar', src: '/images/developers/emaar.png' },
   { name: 'DAMAC', src: '/images/developers/damac.png' },
+  { name: 'Nakheel', src: '/images/developers/nakheel.svg' },
   { name: 'Sobha', src: '/images/developers/sobha.svg' },
   { name: 'Meraas', src: '/images/developers/meraas.png' },
   { name: 'Ellington', src: '/images/developers/ellington.png' },
