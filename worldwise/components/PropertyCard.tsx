@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Property } from '@/types'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 import { track } from '@/lib/analytics'
+import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 
 function formatPrice(aed: number) {
   if (aed >= 1_000_000) return `AED ${(aed / 1_000_000).toFixed(2)}M`
@@ -44,6 +45,9 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.badge && (
             <span className="badge bg-navy/80 text-gold">{property.badge}</span>
           )}
+          {qualifiesForGoldenVisa(property.priceAed) && (
+            <span className="badge bg-gold text-navy">Golden Visa</span>
+          )}
         </div>
         {property.roi && (
           <div className="absolute top-3 right-3 bg-gold text-navy text-xs font-bold px-2.5 py-1 rounded-sm">
@@ -67,6 +71,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.bedrooms && <span>🛏 {property.bedrooms}</span>}
           {property.paymentPlan && <span>📋 {property.paymentPlan}</span>}
           {property.completionDate && <span>🗓 {property.completionDate}</span>}
+          {property.grossYield && <span>📈 {property.grossYield}% yield</span>}
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">

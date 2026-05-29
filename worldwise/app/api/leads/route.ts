@@ -23,7 +23,7 @@ const FAKE_OK = NextResponse.json({ ok: true }, { status: 201 })
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, phone, email, budget, message, source, propertySlug, propertyTitle, _hp } = body
+  const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, _hp } = body
 
   // Honeypot — filled by bots, empty for real users
   if (_hp) return FAKE_OK
@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
     phone: cap(phone, 40)!,
     email: cap(email, 160),
     budget: cap(budget, 60),
+    propertyType: cap(propertyType, 60),
+    area: cap(area, 80),
     message: cap(message, 2000),
     source: cap(source, 60) ?? 'unknown',
     propertySlug: cap(propertySlug, 160),
