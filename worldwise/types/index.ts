@@ -58,6 +58,8 @@ export interface Lead {
   phone: string
   email?: string
   budget?: string
+  propertyType?: string
+  area?: string
   message?: string
   source: string
   propertySlug?: string
