@@ -13,6 +13,7 @@ import BlogPreview from '@/components/BlogPreview'
 import LeadCaptureSection from '@/components/LeadCaptureSection'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
+import QualifyCta from '@/components/QualifyCta'
 
 export const revalidate = 60
 
@@ -26,6 +27,7 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <FeaturedProperties properties={featured} />
+        <QualifyCta />
         <MortgageCalculator />
         <AreasSection />
         <WhyWorldwise />
