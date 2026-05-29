@@ -124,7 +124,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
             </h2>
             <div className="space-y-5 text-gray-700 leading-relaxed text-lg">
               {area.whyInvest.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
+                <p key={i} className="max-w-[68ch]">{paragraph}</p>
               ))}
             </div>
           </div>
