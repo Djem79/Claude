@@ -59,9 +59,10 @@ export default function BlogPage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid md:grid-cols-3 gap-6">
               {articles.map(a => (
-                <article
+                <Link
                   key={a.slug}
-                  className="bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  href={`/blog/${a.slug}`}
+                  className="group block bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   {'image' in a && a.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -75,21 +76,18 @@ export default function BlogPage() {
                     <span className={`badge ${TAG_COLORS[a.tag] ?? 'bg-gray-100 text-gray-600'}`}>
                       {a.tag}
                     </span>
-                    <h2 className="font-serif text-xl text-navy mt-3 mb-3 leading-snug">
+                    <h2 className="font-serif text-xl text-navy mt-3 mb-3 leading-snug group-hover:text-gold transition-colors">
                       {a.title}
                     </h2>
                     <p className="text-gray-500 text-sm line-clamp-3 mb-5">{a.excerpt}</p>
                     <div className="flex items-center justify-between text-xs text-gray-400">
                       <span>{a.readTime}</span>
-                      <Link
-                        href={`/blog/${a.slug}`}
-                        className="text-gold hover:underline font-medium"
-                      >
+                      <span className="text-gold group-hover:underline font-medium">
                         Read More →
-                      </Link>
+                      </span>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           </div>

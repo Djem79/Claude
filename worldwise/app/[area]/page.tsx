@@ -7,11 +7,15 @@ import LeadCaptureSection from '@/components/LeadCaptureSection'
 import AreaFeaturedProperties from '@/components/AreaFeaturedProperties'
 import AreaFAQ from '@/components/AreaFAQ'
 import AreaPageClient from './AreaPageClient'
-import { getArea, areaSlugs } from '@/lib/areas'
+import { getArea, areaSlugs, propertyMatchesArea } from '@/lib/areas'
 import { getProperties } from '@/lib/properties'
 
 const BASE = 'https://worldwise.pro'
 const FEATURED_LIMIT = 6
+
+// ISR: re-read data/properties.json so newly added listings appear in the area
+// grid without a full redeploy (matches /properties and the homepage).
+export const revalidate = 60
 
 export function generateStaticParams() {
   return areaSlugs.map(slug => ({ area: slug }))
@@ -54,7 +58,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
   if (!area) notFound()
 
   const allProperties = getProperties()
-  const inArea = allProperties.filter(p => p.area === area.name)
+  const inArea = allProperties.filter(p => propertyMatchesArea(p.area, area))
   const featured = inArea.slice(0, FEATURED_LIMIT)
   const listingCount = inArea.length
 
