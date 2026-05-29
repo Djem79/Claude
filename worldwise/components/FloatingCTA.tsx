@@ -18,7 +18,7 @@ export default function FloatingCTA() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex flex-col gap-3 items-end">
         {/* WhatsApp */}
         <a
           href={`https://wa.me/${wa}?text=Hi%20Worldwise%2C%20I%27m%20interested%20in%20Dubai%20property.`}

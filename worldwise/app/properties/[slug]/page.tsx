@@ -6,6 +6,8 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import PropertyEnquiryForm from './PropertyEnquiryForm'
 import PropertyGallery from './PropertyGallery'
+import MobileCtaBar from '@/components/MobileCtaBar'
+import { waPropertyMessage } from '@/lib/whatsapp'
 
 export const revalidate = 60
 
@@ -291,6 +293,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         </div>
       </main>
       <Footer />
+      <MobileCtaBar
+        enquireSource="property_enquiry"
+        enquireLabel="Enquire Now"
+        waMessage={waPropertyMessage(property.title)}
+        propertySlug={property.slug}
+        propertyTitle={property.title}
+      />
     </>
   )
 }
