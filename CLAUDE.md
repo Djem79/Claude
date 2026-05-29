@@ -108,6 +108,8 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
 
 The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
 
+> **⚠️ Deploy reflects your working tree, not git.** Because deployment rsyncs the working tree (excluding `data/`), the server holds the **union of all unmerged branches' code**. Deploying from a feature branch will silently **revert files that only exist on a sibling branch** to whatever your branch has. Before any deploy, your working tree must contain the full intended live state: prefer **merging open PRs into `main` and deploying from `main`**, or pull missing files from sibling branches first (`git checkout <branch> -- <files>`). After rsync and **before `npm run build` on the server**, `grep` for markers of every recent feature to confirm nothing was clobbered — the old build keeps serving until you rebuild, so a caught mistake is recoverable.
+
 ## Scheduled jobs on server
 
 Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own log under `/var/log/`. `--env-file=.env.local` loads server-side secrets where needed; the file persists across deploys because it's excluded from rsync.
@@ -289,7 +291,7 @@ Two article sources, merged by `lib/articles.ts`:
 
 2. **AI-generated** — `data/articles.json` on the server (server-only, never committed). Managed by `lib/dynamic-articles.ts`. Shape adds `publishedAt` and `source: 'ai-generated'`.
 
-`getAllArticles()` in `lib/articles.ts` returns `[...dynamic, ...static]` — dynamic articles sort first (newest at top). `getArticleBySlug()` checks dynamic first, then static. Both functions are used by the blog listing page, article page, and sitemap.
+`getAllArticles()` in `lib/articles.ts` merges `[...dynamic, ...static]` (dynamic first, newest at top) and then **collapses slug collisions via `bestBySlug()`**, which keeps one entry per slug: a **hand-written static article always wins over an AI-generated one** of the same slug; between two of the same kind the longer `content` wins. `getArticleBySlug()` is derived from `getAllArticles()`, so it resolves the same winner. This is load-bearing: it (a) stops an empty/thin AI draft from shadowing a real article and rendering duplicate cards, and (b) lets you **override a thin AI article by promoting it to a static one with the same slug — no `data/` edit needed**. `publishDraft()` in `lib/dynamic-articles.ts` also suffixes a colliding slug (`-2`, `-3`…) so newly published AI drafts can't shadow existing content. All three functions feed the blog listing, article page, and sitemap.
 
 `app/blog/[slug]/page.tsx` uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table). `generateStaticParams()` pre-renders static article slugs at build time; dynamic article routes are rendered on demand.
 
@@ -371,7 +373,7 @@ Route `app/[area]/page.tsx` is a server component (handles `generateStaticParams
 
 Leads from these pages carry `source: area_<slug_underscored>` (e.g. `area_dubai_marina`). Each page emits three JSON-LD blocks: `Place`, `BreadcrumbList`, and `FAQPage`. The homepage `AreasSection` links to these flat URLs as the main internal-link hub.
 
-When you change `Property.area` values in the admin, the featured-properties grid on the area page filters by exact-string match — keep the spelling identical to `Area.name` in `lib/areas.ts`.
+The featured-properties grid on the area page matches `Property.area` **tolerantly** via `propertyMatchesArea()` in `lib/areas.ts` — case-insensitive, normalized-substring (so `"Dubai Hills Estate"` matches the `"Dubai Hills"` area), plus an optional `aliases: string[]` per area for spellings that don't share a substring (e.g. JLT ↔ `"Jumeirah Lake Towers"`). `Property.area` is free text from CRM/imports, so do **not** rely on exact spelling — if a known-good listing doesn't appear on its area page, add its spelling to that area's `aliases` rather than editing the data. Verify against the live distinct-area set (read `data/properties.json` on the server) so short alias tokens don't cause false positives.
 
 ### SEO / crawler layer
 
