@@ -17,6 +17,7 @@ const BLANK: Partial<Property> = {
   status: 'off-plan',
   priceAed: 0,
   roi: undefined,
+  grossYield: undefined,
   completionDate: '',
   paymentPlan: '',
   bedrooms: '',
@@ -190,7 +191,7 @@ export default function PropertyForm({ property }: { property?: Property }) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-4 gap-4">
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Price (AED) *</label>
           <input type="number" className={fieldClass} value={form.priceAed} onChange={e => set('priceAed', Number(e.target.value))} required />
@@ -198,6 +199,10 @@ export default function PropertyForm({ property }: { property?: Property }) {
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Est. ROI (%)</label>
           <input type="number" step="0.1" className={fieldClass} value={form.roi ?? ''} onChange={e => set('roi', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 7.5" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Gross Rental Yield (%)</label>
+          <input type="number" step="0.1" className={fieldClass} value={form.grossYield ?? ''} onChange={e => set('grossYield', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 7.5" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Payment Plan</label>

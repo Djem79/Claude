@@ -9,6 +9,7 @@ export interface Property {
   priceAed: number
   pricePerSqft?: number
   roi?: number
+  grossYield?: number   // annual gross rental yield %, e.g. 7.5
   completionDate?: string
   paymentPlan?: string
   bedrooms: string
