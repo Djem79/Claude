@@ -7,7 +7,7 @@ import LeadCaptureSection from '@/components/LeadCaptureSection'
 import AreaFeaturedProperties from '@/components/AreaFeaturedProperties'
 import AreaFAQ from '@/components/AreaFAQ'
 import AreaPageClient from './AreaPageClient'
-import { getArea, areaSlugs } from '@/lib/areas'
+import { getArea, areaSlugs, propertyMatchesArea } from '@/lib/areas'
 import { getProperties } from '@/lib/properties'
 
 const BASE = 'https://worldwise.pro'
@@ -58,7 +58,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
   if (!area) notFound()
 
   const allProperties = getProperties()
-  const inArea = allProperties.filter(p => p.area === area.name)
+  const inArea = allProperties.filter(p => propertyMatchesArea(p.area, area))
   const featured = inArea.slice(0, FEATURED_LIMIT)
   const listingCount = inArea.length
 

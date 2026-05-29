@@ -12,8 +12,13 @@ export type AreaFaqItem = {
 
 export type Area = {
   slug: string
-  /** Must match Property.area exactly (used to filter the featured grid). */
+  /** Used to filter the featured grid. Matching is tolerant (case-insensitive,
+   *  normalized substring — see `propertyMatchesArea`), so "Dubai Hills" also
+   *  catches "Dubai Hills Estate". Add `aliases` for spellings that don't share
+   *  a substring (e.g. JLT ↔ "Jumeirah Lake Towers"). */
   name: string
+  /** Extra free-text area spellings (from CRM/imports) that belong to this area. */
+  aliases?: string[]
   heroImage: string
   tagline: string
   metrics: AreaMetrics
@@ -242,6 +247,7 @@ export const areas: Area[] = [
   {
     slug: 'jlt',
     name: 'JLT',
+    aliases: ['Jumeirah Lake Towers', 'Jumeirah Lakes Towers'],
     heroImage: '/images/areas/jlt.jpg',
     tagline: 'Marina-adjacent and metro-served — the highest-yielding established district in Dubai.',
     metrics: {
@@ -374,4 +380,23 @@ export const areaSlugs = areas.map(a => a.slug)
 
 export function getArea(slug: string): Area | undefined {
   return areas.find(a => a.slug === slug)
+}
+
+function normalizeArea(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+/**
+ * Whether a property's free-text `area` belongs to a given area page.
+ * Property.area comes from CRM/imports as free text ("Dubai Hills Estate",
+ * "DUBAI HILLS ESTATE", "Jumeirah Lake Towers"), so an exact match drops
+ * obvious variants. Match case-insensitively when the normalized property area
+ * contains the area name — or one of its aliases — as a substring.
+ */
+export function propertyMatchesArea(propertyArea: string | undefined, area: Area): boolean {
+  if (!propertyArea) return false
+  const normalized = normalizeArea(propertyArea)
+  return [area.name, ...(area.aliases ?? [])]
+    .map(normalizeArea)
+    .some(candidate => candidate.length > 0 && normalized.includes(candidate))
 }
