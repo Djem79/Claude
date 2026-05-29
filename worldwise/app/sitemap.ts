@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/blog`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/mortgage-calculator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/golden-visa`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/guide`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/privacy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.2 },
     { url: `${BASE}/terms`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.2 },
   ]

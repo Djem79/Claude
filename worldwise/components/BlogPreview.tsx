@@ -25,9 +25,17 @@ export default function BlogPreview() {
               Practical knowledge for international property investors
             </p>
           </div>
-          <Link href="/blog" className="btn-outline-gold whitespace-nowrap self-start md:self-end">
-            All Articles →
-          </Link>
+          <div className="flex flex-col gap-2 self-start md:self-end md:items-end">
+            <Link href="/blog" className="btn-outline-gold whitespace-nowrap">
+              All Articles →
+            </Link>
+            <Link
+              href="/guide"
+              className="text-sm font-medium text-gold-accessible hover:underline whitespace-nowrap"
+            >
+              Download the free Investment Guide →
+            </Link>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
