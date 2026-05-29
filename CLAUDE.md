@@ -42,12 +42,11 @@ Got a bug report — just fix it. Don't ask to be led by the hand. Point to logs
 
 ## Task management
 
-1. **Plan first** — write plan in `tasks/todo.md` with checkboxes
-2. **Review plan** — check before starting implementation
-3. **Track progress** — mark items as you go
-4. **Explain changes** — brief summary at each step
-5. **Document** — add a review section to `tasks/todo.md` when done
-6. **Fix lessons** — update `tasks/lessons.md` after any user correction
+1. **Plan first** — non-trivial work goes through `superpowers:brainstorming` → `writing-plans` → `executing-plans` (or `subagent-driven-development`). Specs land in `docs/superpowers/specs/`, plans in `docs/superpowers/plans/`. For one-shot fixes, the TodoWrite tool is enough.
+2. **Get approval** — pause for user sign-off before starting implementation.
+3. **Track progress** — use TodoWrite to mark items as you go; one task `in_progress` at a time.
+4. **Explain changes** — brief summary at each step; communicate what changed and why.
+5. **Fix lessons** — after any user correction, append a rule to `worldwise/tasks/lessons.md` so the mistake doesn't repeat.
 
 ## Repository layout
 
@@ -99,7 +98,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
 
 # 1. Sync (exclude git, node_modules, build artifacts, server-only data, env secrets, and the AI-docs symlinks)
-rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' --exclude='AGENTS.md' --exclude='CLAUDE.md' \
+rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' --exclude='AGENTS.md' --exclude='CLAUDE.md' --exclude='ruvector.db' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
 
 # 2. Build and restart on server
@@ -108,6 +107,21 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
 ```
 
 The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
+
+## Scheduled jobs on server
+
+Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own log under `/var/log/`. `--env-file=.env.local` loads server-side secrets where needed; the file persists across deploys because it's excluded from rsync.
+
+| When (UTC) | Script | Log | Purpose |
+| ---------- | ------ | --- | ------- |
+| `0 */6 * * *` | `/root/backup-data.sh` | `/root/backup.log` | Commit `data/` to the `data-backup` git branch + push to GitHub |
+| `0 6 * * *` | `scripts/post-from-plan.mjs` | `/var/log/worldwise-plan-post.log` | Daily Telegram channel post from the autopost plan |
+| `0 9 * * *` | `scripts/generate-article.mjs` | `/var/log/worldwise-blog.log` | Gemini auto-blog draft → Telegram approval (see *Auto-blog pipeline* under Architecture) |
+| `0 4 * * 0` (Sun) | `scripts/prune-leads.mjs` | `/var/log/worldwise-prune.log` | Weekly maintenance pass over `data/leads.json` |
+| `0 6 * * 1` (Mon) | `scripts/gsc.mjs digest` | `/var/log/worldwise-gsc.log` | Weekly Search Console digest → Telegram (see *GSC CLI* under Architecture) |
+| `0 8 * * 1` (Mon) | `scripts/seo-audit.mjs` | `/var/log/worldwise-seo-audit.log` | Weekly site self-check (URL reachability, SSL, robots.txt, sitemap freshness) → Telegram |
+
+All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
 ## DNS & infrastructure
 
@@ -124,6 +138,7 @@ A full security & privacy audit (findings + remediation status) is in `worldwise
 **Live and complete:**
 
 - Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
+- Area landing pages: 8 flat-URL SSG pages (`/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/creek-harbour`, `/emaar-beachfront`) — content in `lib/areas.ts`
 - Blog: `/blog` listing + `/blog/[slug]` — static editorial articles in `lib/articles.ts` + AI-generated articles from `data/articles.json`
 - Auto-blog pipeline: Gemini-powered article generator runs daily at 09:00 UTC, alternates keyword/news mode, Telegram approval flow
 - Analytics: GA4 (consent-aware) with conversion event tracking on all lead forms and CTAs
@@ -132,11 +147,12 @@ A full security & privacy audit (findings + remediation status) is in `worldwise
 - Multi-user auth: bcryptjs + HMAC-signed session tokens, role-based access (`owner` / `manager`) + per-section manager permissions (`properties` / `leads` / `dashboard`)
 - Activity log on leads, anti-spam on lead capture, CSV export
 - SEO layer: sitemap (ISR 1h revalidation), robots, JSON-LD, per-property og:image
+- GSC tooling: `scripts/gsc.mjs` for local diagnostics + weekly Telegram digest cron on the server (Monday 06:00 UTC)
+- Telegram channel growth: CRM TG-link, ROI image autoposter, `/add_keyword` bot command
 - Infrastructure: Cloudflare DNS, Hetzner VPS, PM2 + Nginx, Let's Encrypt SSL, git-based data backup
 
 **Not built yet (possible next steps):**
 
-- Area-specific landing pages (e.g. `/dubai-marina`, `/downtown-dubai`)
 - WhatsApp chat widget
 - Property comparison feature
 - Meta Pixel integration
@@ -159,7 +175,8 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
 `hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`
-The last six are set by the Telegram bot lead intake (an agent pastes a lead → the bot saves it and the source is chosen via inline buttons; default `telegram` until a button is tapped).
+
+Three groups: (1) on-site CTAs — the first six (`hero_cta` … `blog_cta`) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
 
 **UX rules:**
 
@@ -359,7 +376,7 @@ When you change `Property.area` values in the admin, the featured-properties gri
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
-- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + all property and article slugs)
+- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + 8 area landing pages + all property and article slugs)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
 - `app/mortgage-calculator/page.tsx` — JSON-LD `WebApplication` + `FAQPage` (5 questions)

@@ -40,6 +40,10 @@ const nextConfig = {
     return [
       // Old Tilda site URLs → new Next.js pages
       { source: '/tproduct/:path*', destination: '/properties', permanent: true },
+      // High-traffic Tilda posts → topically-matched articles (must precede the
+      // /tpost/:path* catch-all; first match wins). Slugs are Tilda-truncated.
+      { source: '/tpost/ti51yhg191-new-rule-for-overseas-sellers-bank-accou', destination: '/blog/dubai-property-title-deed-transfer-guide-international-investors', permanent: true },
+      { source: '/tpost/z9jizlp8u1-does-buying-property-in-the-uae-grant-a',   destination: '/blog/uae-property-residence-visa', permanent: true },
       { source: '/tpost/:path*',    destination: '/blog',       permanent: true },
       { source: '/page:path*.html', destination: '/',           permanent: true },
       { source: '/rss-feed-:path*.xml', destination: '/sitemap.xml', permanent: true },

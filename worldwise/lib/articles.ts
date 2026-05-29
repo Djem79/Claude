@@ -242,14 +242,281 @@ Your existing visa remains valid until its expiry date. At renewal, the property
 For investors purchasing at AED 2M+, we recommend applying directly for the 10-year Golden Visa — the additional cost over the 2-year visa is modest, and the stability of a decade-long residency has significant practical and lifestyle value. For investors below AED 2M, the 2-year visa is a straightforward and affordable entry point that can be upgraded later as your portfolio grows.
     `.trim(),
   },
+  {
+    slug: 'dubai-property-market-q2-2026',
+    tag: 'Market Update',
+    title: 'Dubai Property Market Shows Resilience in Q2 2026',
+    excerpt:
+      'Dubai property prices, sales volumes and rental yields in 2026 — the latest sourced figures, what is driving demand, and what it means for international investors.',
+    readTime: '7 min read',
+    content: `
+## The State of Dubai's Property Market in 2026
+
+Dubai's real estate market entered the second quarter of 2026 from a position of strength. According to data from fäm Properties reported by Gulf News (May 2026), total property sales reached AED 176.7 billion in the first quarter of 2026 — with transaction values up 23.4% year on year and transaction volumes up 5.5%. The gap between those two figures tells the real story: values are rising faster than volumes, which points to a market where prices are firming rather than one inflated purely by speculative churn.
+
+Early Q2 figures continued the trend. Khaleej Times reported roughly AED 48 billion in property sales in April 2026, with Dubai's population having crossed the four-million mark — a structural demand driver that underpins both the sales and rental sides of the market.
+
+## Prices and Rental Yields
+
+Through March and April 2026, Dubai recorded annual price growth of around 9% and average gross rental yields near 7.1% (Dubai Chronicle, May 2026). For international investors, that combination — mid-single-digit to high-single-digit capital appreciation alongside yields that comfortably outpace most mature Western markets — is the core of Dubai's appeal.
+
+It is worth being clear-eyed: a market cannot compound double-digit gains forever, and some analysts have flagged a cooling in the pace of price growth and a quarter-on-quarter dip in volumes after the exceptional run of recent years. That is healthy. A market that moderates from a breakneck pace to a sustainable one is more durable than one that overheats.
+
+## What Is Driving Demand
+
+Several structural factors — not short-term hype — sit behind Dubai's resilience:
+
+- **No annual property tax, no income tax, no capital gains tax.** Net returns to a Dubai landlord are materially higher than in markets that tax rental income and sale profits. This is the single biggest reason yields look the way they do.
+- **The Golden Visa.** Long-term residency tied to property ownership (from AED 2 million) has turned real estate from a pure investment into a residency and lifestyle decision, broadening the buyer base. See our guide to UAE residence visas for the thresholds.
+- **Population growth.** Crossing four million residents in 2026 creates genuine, recurring demand for housing — both to buy and to rent.
+- **Currency stability.** The AED is pegged to the US dollar at 3.67, removing local currency risk for dollar-denominated investors and providing a predictable base for everyone else.
+- **A regulated, escrow-protected off-plan market.** RERA requires developer funds to be held in escrow, which has kept investor confidence high even through periods of regional uncertainty.
+
+## Off-Plan vs Ready Property in 2026
+
+Off-plan continued to lead the market in early 2026, supported by flexible developer payment plans and lower entry prices. For investors who can tie up capital for one to three years, off-plan still offers the most attractive entry point and the strongest appreciation potential by handover.
+
+Ready (secondary-market) property, by contrast, generates rental income from day one and lets you inspect exactly what you are buying. With yields near 7%, ready stock is increasingly attractive to income-focused investors who do not want construction-timeline risk.
+
+| Factor | Off-Plan | Ready / Secondary |
+|--------|----------|-------------------|
+| Entry price | Lower | Higher |
+| Payment flexibility | High (milestone + post-handover plans) | Full payment or mortgage at transfer |
+| Rental income | Starts at handover | Starts immediately |
+| Capital appreciation | Strongest by handover | Steady, market-rate |
+| Main risk | Construction / handover timeline | Less upside, higher upfront cost |
+
+## Where the Demand Is Concentrated
+
+Established, well-connected communities continue to absorb the bulk of investor demand. Waterfront and lifestyle districts such as Dubai Marina, Palm Jumeirah and the Downtown corridor remain the anchors, while Business Bay and the Dubai Hills area attract buyers looking for newer stock at a relative discount to the prime waterfront. Each of our area guides breaks down the price and yield profile district by district.
+
+The pattern is consistent: proximity to the Metro, the beach, schools and the major business hubs drives rental demand, and rental demand is what protects both your yield and your resale value.
+
+## What This Means for International Investors
+
+For an investor weighing Dubai in 2026, the picture is favourable but no longer a one-way bet. The sensible approach:
+
+- **Buy for income and the long term, not for a quick flip.** With price growth moderating, the easy speculative gains of past years are less reliable. A 7% yield held over several years is the more dependable return.
+- **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our mortgage calculator lets you model financed purchases before you commit.
+- **Choose a reputable developer in a high-demand location.** Location fundamentals and developer track record matter more than headline price-per-square-foot.
+
+## The Bottom Line
+
+The data through early Q2 2026 describes a market that is resilient rather than frothy: strong sales values, healthy yields, a growing population and a tax regime that few markets can match. Growth is moderating to a more sustainable pace — which, for a long-term investor, is exactly what you want to see. The investors who do best from here will be those who treat Dubai property as a multi-year income and residency play rather than a short-term trade, and who do their homework on net yield, location and developer quality before signing.
+    `.trim(),
+  },
+  {
+    slug: 'dld-fees-dubai-international-investors-guide',
+    tag: 'Legal Guide',
+    title: 'DLD Fees in Dubai: A Complete Guide for International Property Investors',
+    excerpt:
+      'A clear breakdown of DLD fees in Dubai — the 4% transfer fee, admin and trustee charges, mortgage registration costs — and who pays what when you buy property.',
+    readTime: '6 min read',
+    content: `
+## What Are DLD Fees?
+
+DLD fees are the charges levied by the Dubai Land Department — the government authority that registers all property ownership in Dubai — whenever a property changes hands. Paying these fees is what makes your ownership official and legally protected. Until the transaction is registered with the DLD and a title deed is issued in your name, you do not have enforceable ownership, regardless of any contract you have signed.
+
+For international investors, DLD fees are the single largest transaction cost on top of the purchase price, so budgeting for them accurately matters.
+
+## The Headline Number: The 4% Transfer Fee
+
+The core DLD charge is the **property transfer (registration) fee of 4% of the purchase price**. This is the figure most people mean when they say "DLD fee."
+
+By long-standing market convention the 4% is often described as split 2% buyer / 2% seller — but in practice, in the vast majority of Dubai transactions **the buyer pays the full 4%**. Who ultimately bears it is a point of negotiation set out in the sale agreement (Form F / MOU), so confirm it in writing before you commit. Plan your budget on the assumption you will pay the full 4% unless you have specifically agreed otherwise.
+
+The transfer fee is calculated on the higher of the purchase price or the DLD's assessed value of the property.
+
+## Full DLD Fee Breakdown
+
+The table below covers the typical government and trustee charges for a standard residential purchase. Amounts in AED are fixed administrative fees set by the authorities and are subject to change.
+
+| Item | Amount | Paid by |
+|------|--------|---------|
+| DLD transfer / registration fee | 4% of purchase price | Buyer (by convention; negotiable) |
+| Property registration trustee fee | AED 2,000 (price below AED 500K) or AED 4,000 (above AED 500K) + 5% VAT | Buyer |
+| Title deed issuance fee | AED 250 | Buyer |
+| DLD admin fee (apartments / offices) | AED 580 | Buyer |
+| Oqood registration (off-plan) | 4% of price, via the developer | Buyer |
+
+For off-plan purchases the 4% is still due, but it is registered through the developer as an interim "Oqood" registration until the project completes and the final title deed is issued at handover.
+
+## Additional Costs for Mortgage Buyers
+
+If you finance the purchase, the DLD charges a separate fee to register the mortgage against the property:
+
+| Item | Amount |
+|------|--------|
+| Mortgage registration fee | 0.25% of the loan amount + AED 290 |
+| Bank arrangement fee | 0.5–1% of the loan (charged by the bank, not the DLD) |
+| Property valuation | AED 2,500–3,500 (bank-appointed valuer) |
+
+The 0.25% mortgage registration fee is a DLD charge; the arrangement and valuation fees are bank charges. Together they are easy to overlook when you budget, so include them from the start.
+
+## A Worked Example
+
+For an apartment purchased at AED 1,500,000 in cash, the DLD-related costs would look roughly like this:
+
+- DLD transfer fee (4%): AED 60,000
+- Trustee fee + 5% VAT: AED 4,200
+- Title deed issuance: AED 250
+- DLD admin fee: AED 580
+
+That is approximately **AED 65,030** in DLD and trustee charges — close to 4.3% of the purchase price — before any agent commission (typically around 2% + VAT). A useful rule of thumb for cash buyers is to budget around 6–7% of the purchase price for all transaction costs combined.
+
+## Why DLD Registration Protects You
+
+The DLD operates a centralised, government-backed title registry. Once your purchase is registered:
+
+- The title deed in your name is the definitive proof of ownership.
+- The property's status, service-charge history and any mortgages are recorded and verifiable.
+- Disputes are resolved against an authoritative record, not competing private contracts.
+
+This is why the 4% fee is best thought of not as a tax but as the cost of legally secured ownership in one of the most transparent property registries in the region. You can verify a property's details and service-charge balance on the DLD's official app before you transfer funds.
+
+## Frequently Asked Questions
+
+**Are DLD fees the same for foreign and UAE buyers?**
+Yes. DLD fees do not change based on nationality. Foreign investors pay exactly the same 4% transfer fee and administrative charges as UAE nationals and residents.
+
+**Do I pay DLD fees on off-plan property?**
+Yes. The 4% is due on off-plan purchases too, registered through the developer as an Oqood registration and converted to a full title deed at handover.
+
+**Is the 4% really split 50/50 between buyer and seller?**
+That is the historical convention, but in practice the buyer almost always pays the full 4% in Dubai. The split is negotiable and should be stated explicitly in the sale agreement. Budget for the full amount.
+
+**Are there annual property taxes after I buy?**
+No. The UAE has no annual property tax, no income tax on rental earnings and no capital gains tax on resale. The DLD transfer fee is a one-time cost at purchase.
+
+**Can DLD fees be added to my mortgage?**
+Generally no — DLD fees must be paid in cash at the time of transfer. Banks lend against the property value, not the transaction costs, so you need the fees available as liquid funds.
+
+## In Summary
+
+DLD fees are predictable and transparent: a 4% transfer fee, modest fixed administrative and trustee charges, and — for financed purchases — a 0.25% mortgage registration fee. Budget roughly 6–7% of the purchase price for total transaction costs and you will not be caught out. Because the rules around who pays what are negotiable and amounts can change, it is always worth confirming the exact figures with a RERA-registered agent before you sign. If you are financing the purchase, our mortgage calculator will help you see the full cost picture, including registration fees, before you commit.
+    `.trim(),
+  },
+  {
+    slug: 'freehold-vs-leasehold-property-dubai-guide-international-investors',
+    tag: 'Investment Guide',
+    title: 'Freehold vs Leasehold Property in Dubai: A Guide for International Investors',
+    excerpt:
+      'Dubai leasehold vs freehold explained — what each type of ownership means, who can buy where, visa eligibility, resale rights and which is better for investors.',
+    readTime: '6 min read',
+    content: `
+## Freehold vs Leasehold: The Core Difference
+
+When buying property in Dubai, the most important distinction to understand is freehold versus leasehold ownership. It determines what you actually own, for how long, and what you can do with it.
+
+- **Freehold** means you own the property and the land it sits on outright, in perpetuity. Your name goes on the title deed at the Dubai Land Department, and the asset passes to your heirs. You can sell, lease, renovate or pass on the property as you wish.
+- **Leasehold** means you hold the right to use the property for a fixed term — typically up to 99 years in Dubai — after which ownership reverts to the freeholder (the landowner). You own the property for the duration of the lease, but not the underlying land.
+
+For most international investors, freehold is the goal, and the good news is that Dubai's most sought-after communities are freehold.
+
+## Where Foreigners Can Buy Freehold
+
+Since 2002, Dubai has allowed foreign nationals to buy freehold property in designated **freehold zones** — with no restriction on nationality and no requirement to hold a UAE residency visa. These zones include most of the districts international investors recognise: Dubai Marina, Downtown Dubai, Palm Jumeirah, Business Bay, Dubai Hills, JLT, Jumeirah Village Circle and many more. Our individual area guides cover the freehold communities district by district.
+
+Leasehold property, by contrast, tends to sit in older or non-designated parts of the city. As a foreign investor you can hold leasehold, but in practice the overwhelming majority of investor-grade stock that you will be shown is freehold.
+
+## Side-by-Side Comparison
+
+| Feature | Freehold | Leasehold |
+|---------|----------|-----------|
+| What you own | Property + land, in perpetuity | Right to use, for a fixed term (up to 99 years) |
+| Title | Registered title deed in your name | Lease registered against the freeholder's title |
+| Inheritance | Passes to your heirs | Passes only for the remaining lease term |
+| Freedom to modify | Full (within community rules) | Restricted; landlord consent often needed |
+| Resale | Sell freely on the open market | Can assign the lease; value falls as term shortens |
+| Golden Visa eligibility | Yes (from AED 2M, subject to conditions) | Generally not — visa rules favour freehold |
+| Typical investor relevance | High — most prime stock | Lower — limited availability |
+
+## Why This Matters for Returns
+
+The freehold vs leasehold choice has direct financial consequences:
+
+- **Resale value.** A freehold property holds its value based on the market. A leasehold property loses value as the remaining term shrinks — a 99-year lease with 90 years left behaves almost like freehold, but one with 25 years left is a very different, harder-to-finance asset.
+- **Financing.** Banks lend more readily, at better terms, against freehold property. Mortgages on short-remaining leaseholds can be difficult or impossible. You can model financed freehold purchases with our mortgage calculator.
+- **Residency.** Property-linked UAE residence visas — including the Golden Visa — are designed around freehold ownership. If residency is part of your plan, freehold is effectively the only route. See our guide to UAE residence visas for the value thresholds.
+- **Inheritance.** Freehold passes cleanly to your heirs; a leasehold interest only continues for whatever term remains.
+
+## The Tax Picture Is the Same for Both
+
+Whichever you choose, Dubai's tax advantages apply: no annual property tax, no income tax on rental earnings and no capital gains tax on resale. The difference between freehold and leasehold is about ownership rights and long-term value, not taxation.
+
+## Frequently Asked Questions
+
+**Can foreigners buy freehold property in Dubai?**
+Yes. Since 2002, foreign nationals can buy freehold property in designated freehold zones with no nationality restriction and no need for a residency visa. These zones cover most of Dubai's prime investor communities.
+
+**Is leasehold a bad investment in Dubai?**
+Not inherently — but it requires more care. A long-remaining lease (say 80–99 years) can perform much like freehold, while a short-remaining lease loses value over time and is harder to finance or pass on. For most international investors, freehold is the simpler and stronger choice.
+
+**Does leasehold property qualify for the Golden Visa?**
+Generally no. Property-linked residence visas, including the 10-year Golden Visa, are structured around freehold ownership meeting the AED 2 million threshold. If residency is a goal, buy freehold.
+
+**What happens at the end of a leasehold term?**
+Ownership of the property reverts to the freeholder (the landowner) unless the lease is renewed or extended by agreement. This is why the number of years remaining on a lease is a critical part of valuing a leasehold property.
+
+**Can I get a mortgage on a leasehold property?**
+Sometimes, but it is more restrictive. Lenders look closely at the remaining lease term, and financing a short-remaining leasehold can be difficult. Freehold property is far more straightforward to mortgage.
+
+## Which Should You Choose?
+
+For the large majority of international investors, **freehold is the better choice** — it offers outright ownership, the strongest resale value, the easiest financing, clean inheritance and eligibility for property-linked residence visas. The fact that Dubai's most desirable communities are freehold means you rarely have to compromise on location to get it.
+
+Leasehold has a place — typically where a specific building or location is only available on that basis — but it demands a close look at the remaining term and a clear understanding that the asset depreciates as the lease runs down. Before committing either way, confirm the ownership type on the title deed and have a RERA-registered agent walk you through what it means for your specific investment goals.
+    `.trim(),
+  },
 ]
+
+/** A hand-written editorial article (from `articles`) has no `source` field;
+ *  AI-generated ones carry `source: 'ai-generated'`. */
+function isEditorial(a: Article | DynamicArticle): boolean {
+  return !('source' in a)
+}
+
+/** Pick the version that should win a slug collision: an editorial article
+ *  always overrides an AI-generated one; between two of the same kind, the
+ *  richer (longer) content wins. */
+function preferred(
+  candidate: Article | DynamicArticle,
+  incumbent: Article | DynamicArticle,
+): Article | DynamicArticle {
+  if (isEditorial(candidate) !== isEditorial(incumbent)) {
+    return isEditorial(candidate) ? candidate : incumbent
+  }
+  return candidate.content.length > incumbent.content.length ? candidate : incumbent
+}
+
+/**
+ * Collapse articles sharing a slug, keeping the authoritative version per slug
+ * while preserving first-seen order. Without this, the listing shows duplicate
+ * cards and getArticleBySlug serves whichever happens to be first — which has
+ * meant an empty AI draft shadowing the real article. Editorial articles take
+ * precedence over AI drafts of the same slug (see `preferred`), so promoting a
+ * thin AI article to a static one is enough to override it — no server edit.
+ */
+function bestBySlug(list: (Article | DynamicArticle)[]): (Article | DynamicArticle)[] {
+  const bySlug = new Map<string, Article | DynamicArticle>()
+  const order: string[] = []
+  for (const a of list) {
+    const current = bySlug.get(a.slug)
+    if (!current) {
+      bySlug.set(a.slug, a)
+      order.push(a.slug)
+    } else {
+      bySlug.set(a.slug, preferred(a, current))
+    }
+  }
+  return order.map(slug => bySlug.get(slug)!)
+}
 
 export function getAllArticles(): (Article | DynamicArticle)[] {
   const dynamic = getDynamicArticles()
-  return [...dynamic, ...articles]
+  return bestBySlug([...dynamic, ...articles])
 }
 
 export function getArticleBySlug(slug: string): Article | DynamicArticle | null {
-  const dynamic = getDynamicArticles()
-  return dynamic.find(a => a.slug === slug) ?? articles.find(a => a.slug === slug) ?? null
+  return getAllArticles().find(a => a.slug === slug) ?? null
 }
