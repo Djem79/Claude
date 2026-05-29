@@ -170,6 +170,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   { label: 'Starting Price', value: formatPrice(property.priceAed) },
                   { label: 'Bedrooms', value: property.bedrooms },
                   ...(property.roi ? [{ label: 'Est. ROI', value: `${property.roi}%` }] : []),
+                  ...(property.grossYield ? [{ label: 'Gross Yield', value: `${property.grossYield}%` }] : []),
                   ...(property.completionDate ? [{ label: 'Handover', value: property.completionDate }] : []),
                   ...(property.paymentPlan ? [{ label: 'Payment Plan', value: property.paymentPlan }] : []),
                 ].map(s => (

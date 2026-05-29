@@ -71,6 +71,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.bedrooms && <span>🛏 {property.bedrooms}</span>}
           {property.paymentPlan && <span>📋 {property.paymentPlan}</span>}
           {property.completionDate && <span>🗓 {property.completionDate}</span>}
+          {property.grossYield && <span>📈 {property.grossYield}% yield</span>}
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
