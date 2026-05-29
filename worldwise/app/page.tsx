@@ -14,6 +14,7 @@ import LeadCaptureSection from '@/components/LeadCaptureSection'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import QualifyCta from '@/components/QualifyCta'
+import Reveal from '@/components/Reveal'
 
 export const revalidate = 60
 
@@ -26,16 +27,36 @@ export default function Home() {
       <main>
         <Hero />
         <TrustBar />
-        <FeaturedProperties properties={featured} />
-        <QualifyCta />
-        <MortgageCalculator />
-        <AreasSection />
-        <WhyWorldwise />
-        <HowItWorks />
-        <Testimonials />
-        <TeamSection />
-        <BlogPreview />
-        <LeadCaptureSection />
+        <Reveal>
+          <FeaturedProperties properties={featured} />
+        </Reveal>
+        <Reveal>
+          <QualifyCta />
+        </Reveal>
+        <Reveal>
+          <MortgageCalculator />
+        </Reveal>
+        <Reveal>
+          <AreasSection />
+        </Reveal>
+        <Reveal>
+          <WhyWorldwise />
+        </Reveal>
+        <Reveal>
+          <HowItWorks />
+        </Reveal>
+        <Reveal>
+          <Testimonials />
+        </Reveal>
+        <Reveal>
+          <TeamSection />
+        </Reveal>
+        <Reveal>
+          <BlogPreview />
+        </Reveal>
+        <Reveal>
+          <LeadCaptureSection />
+        </Reveal>
       </main>
       <Footer />
       <FloatingCTA />
