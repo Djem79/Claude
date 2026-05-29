@@ -6,11 +6,7 @@ import { Property } from '@/types'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 import { track } from '@/lib/analytics'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
-
-function formatPrice(aed: number) {
-  if (aed >= 1_000_000) return `AED ${(aed / 1_000_000).toFixed(2)}M`
-  return `AED ${(aed / 1000).toFixed(0)}K`
-}
+import PriceTag from '@/components/PriceTag'
 
 const STATUS_COLORS: Record<string, string> = {
   'off-plan': 'bg-blue-50 text-blue-700',
@@ -78,7 +74,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           <div>
             <p className="text-xs text-gray-400">{property.status === 'rent' ? 'Annual rent' : 'From'}</p>
             <p className="font-serif text-xl text-navy font-medium">
-              {formatPrice(property.priceAed)}{property.status === 'rent' && <span className="text-xs text-gray-400 font-sans">/yr</span>}
+              <PriceTag aed={property.priceAed} />{property.status === 'rent' && <span className="text-xs text-gray-400 font-sans">/yr</span>}
             </p>
           </div>
           <div className="flex items-center gap-2">
