@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 import LeadModal from './LeadModal'
 import { track } from '@/lib/analytics'
+import { waLink } from '@/lib/whatsapp'
 
 export default function FloatingCTA() {
   const [show, setShow] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
-  const wa = process.env.NEXT_PUBLIC_WHATSAPP ?? '971506960435'
 
   useEffect(() => {
     const timer = setTimeout(() => setShow(true), 2000)
@@ -18,10 +18,10 @@ export default function FloatingCTA() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex flex-col gap-3 items-end">
         {/* WhatsApp */}
         <a
-          href={`https://wa.me/${wa}?text=Hi%20Worldwise%2C%20I%27m%20interested%20in%20Dubai%20property.`}
+          href={waLink("Hi Worldwise, I'm interested in Dubai property.")}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-[#25D366] text-white text-sm font-medium px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-transform"

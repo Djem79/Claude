@@ -6,6 +6,7 @@
   --navy: #0D1B2A;
   --gold: #C9A84C;
   --gold-light: #D4B96A;
+  --gold-dark: #8A6D1F; /* gold for text on light bg — WCAG AA */
   --bg: #F8F8F6;
 }
 
@@ -45,6 +46,12 @@ body {
 
   .badge {
     @apply text-xs font-semibold px-3 py-1 rounded-sm uppercase tracking-wide;
+  }
+
+  /* Gold-colored TEXT on LIGHT backgrounds (labels, links, stats).
+     Plain text-gold only on dark/navy backgrounds where contrast passes. */
+  .text-gold-accessible {
+    color: var(--gold-dark);
   }
 }
 

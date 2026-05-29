@@ -108,7 +108,7 @@ export default function PropertiesClient({ properties }: { properties: Property[
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <p className="text-xl mb-2">No properties match your filters.</p>
-          <button onClick={() => { setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(25_000_000) }} className="text-gold underline">
+          <button onClick={() => { setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(25_000_000) }} className="text-gold-accessible underline">
             Reset filters
           </button>
         </div>

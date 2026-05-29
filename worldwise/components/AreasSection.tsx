@@ -27,7 +27,7 @@ export default function AreasSection() {
     <section id="areas" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+          <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Dubai Locations
           </p>
           <h2 className="section-title">Explore Dubai&apos;s Best<br />Investment Areas</h2>

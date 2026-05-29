@@ -242,7 +242,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                     <div className="flex gap-3">
                       <button
                         onClick={() => editingId === u.id ? setEditingId(null) : startEdit(u)}
-                        className="text-xs text-gold hover:underline"
+                        className="text-xs text-gold-accessible hover:underline"
                       >
                         {editingId === u.id ? 'Close' : 'Edit'}
                       </button>

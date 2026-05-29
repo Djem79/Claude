@@ -176,9 +176,9 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 - Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
-`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`
+`hero_cta`, `mortgage_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `property_card`, `mobile_bar`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`
 
-Three groups: (1) on-site CTAs — the first six (`hero_cta` … `blog_cta`) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
+Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card` (per-listing WhatsApp button) and `mobile_bar` (mobile sticky bottom CTA on property/area pages) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
 
 **UX rules:**
 

@@ -33,7 +33,7 @@ export default function PropertiesPage() {
       <main className="pt-24 min-h-screen bg-[#F8F8F6]">
         <div className="max-w-7xl mx-auto px-6 pb-20">
           <div className="py-10">
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               All Listings
             </p>
             <h1 className="font-serif text-4xl md:text-5xl text-navy">

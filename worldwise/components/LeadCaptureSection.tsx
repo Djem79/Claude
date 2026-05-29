@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import SocialProofStrip from './SocialProofStrip'
 
 const BUDGETS = [
   'Under AED 1M',
@@ -51,6 +52,9 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
   return (
     <section id="contact" className="py-20 bg-navy">
       <div className="max-w-2xl mx-auto px-6 text-center">
+        <div className="mb-10">
+          <SocialProofStrip dark />
+        </div>
         <p className="text-gold text-sm font-medium uppercase tracking-widest mb-3">
           Get Started Today
         </p>

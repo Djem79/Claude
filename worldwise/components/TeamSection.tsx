@@ -65,7 +65,7 @@ export default function TeamSection() {
     <section id="team" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-12">
-          <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+          <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Meet The Team · Worldwise Real Estate L.L.C.
           </p>
           <h2 className="section-title">
@@ -94,7 +94,7 @@ export default function TeamSection() {
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="text-gold text-[11px] font-medium uppercase tracking-wider mb-0.5">{m.role}</p>
+                <p className="text-gold-accessible text-[11px] font-medium uppercase tracking-wider mb-0.5">{m.role}</p>
                 <h3 className="font-serif text-navy text-lg leading-snug mb-1.5">{m.name}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{m.bio}</p>
               </div>

@@ -17,7 +17,7 @@ export default function BlogPreview() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               Worldwise Insights
             </p>
             <h2 className="section-title">UAE Real Estate<br />Expert Guides</h2>
@@ -49,13 +49,13 @@ export default function BlogPreview() {
                 <span className={`badge ${TAG_COLORS[a.tag] ?? 'bg-gray-100 text-gray-600'}`}>
                   {a.tag}
                 </span>
-                <h3 className="font-serif text-xl text-navy mt-3 mb-3 leading-snug group-hover:text-gold transition-colors">
+                <h3 className="font-serif text-xl text-navy mt-3 mb-3 leading-snug group-hover:text-gold-accessible transition-colors">
                   {a.title}
                 </h3>
                 <p className="text-gray-500 text-sm line-clamp-3 mb-5">{a.excerpt}</p>
                 <div className="flex items-center justify-between text-xs text-gray-400">
                   <span>{a.readTime}</span>
-                  <span className="text-gold group-hover:underline font-medium">
+                  <span className="text-gold-accessible group-hover:underline font-medium">
                     Read More →
                   </span>
                 </div>

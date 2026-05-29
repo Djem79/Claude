@@ -82,13 +82,13 @@ export default async function AdminPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs font-medium ${p.featured ? 'text-gold' : 'text-gray-300'}`}>
+                      <span className={`text-xs font-medium ${p.featured ? 'text-gold-accessible' : 'text-gray-300'}`}>
                         {p.featured ? '★ Yes' : '—'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-3">
-                        <Link href={`/admin/property/${p.id}`} className="text-gold hover:underline text-xs">
+                        <Link href={`/admin/property/${p.id}`} className="text-gold-accessible hover:underline text-xs">
                           Edit
                         </Link>
                         <Link href={`/properties/${p.slug}`} target="_blank" className="text-gray-400 hover:text-navy text-xs">

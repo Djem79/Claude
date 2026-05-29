@@ -48,11 +48,11 @@ export default function WhyWorldwise() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               Why Worldwise
             </p>
             <h2 className="section-title">
-              Brokers sell.<br /><em className="not-italic text-gold">We advise.</em>
+              Brokers sell.<br /><em className="not-italic text-gold-accessible">We advise.</em>
             </h2>
             <p className="text-gray-500 text-lg mt-4 leading-relaxed">
               We&apos;re RERA-licensed brokers — but our model is built so we win when
@@ -78,7 +78,7 @@ export default function WhyWorldwise() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {points.map(p => (
               <div key={p.title} className="bg-white rounded-sm p-6 shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 text-gold">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 text-gold-accessible">
                   {p.icon}
                 </div>
                 <h3 className="font-serif text-lg text-navy mb-2">{p.title}</h3>

@@ -12,7 +12,7 @@ export default function AreaFeaturedProperties({ areaName, properties }: Props) 
     return (
       <section id="featured" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+          <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Listings
           </p>
           <h2 className="section-title">Currently Sourcing {areaName} Inventory</h2>
@@ -32,7 +32,7 @@ export default function AreaFeaturedProperties({ areaName, properties }: Props) 
     <section id="featured" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+          <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Available Now
           </p>
           <h2 className="section-title">Featured Properties in {areaName}</h2>

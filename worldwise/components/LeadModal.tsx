@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 
 interface Props {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface Props {
   subtitle?: string
   propertySlug?: string
   propertyTitle?: string
+  ctaLabel?: string
 }
 
 const BUDGETS = [
@@ -29,6 +31,7 @@ export default function LeadModal({
   subtitle = 'Our experts will contact you within 2 hours.',
   propertySlug,
   propertyTitle,
+  ctaLabel = 'Request Consultation',
 }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -157,12 +160,22 @@ export default function LeadModal({
                 disabled={loading}
                 className="btn-primary w-full disabled:opacity-60"
               >
-                {loading ? 'Sending...' : 'Request Consultation'}
+                {loading ? 'Sending...' : ctaLabel}
               </button>
 
               <p className="text-xs text-gray-400 text-center">
                 🔒 No spam. No obligation. We reply within 2 hours.
               </p>
+
+              <a
+                href={waLink(propertyTitle ? waPropertyMessage(propertyTitle) : "Hi Worldwise, I'd like a consultation about Dubai property.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track('whatsapp_click', { source, ...(propertyTitle ? { property: propertyTitle } : {}) })}
+                className="flex items-center justify-center gap-2 w-full rounded-sm py-3 text-sm font-medium border border-[#25D366] text-[#177d3c] hover:bg-[#25D366]/10 transition-colors"
+              >
+                Or message us on WhatsApp
+              </a>
             </form>
           </>
         )}

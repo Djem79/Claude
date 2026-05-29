@@ -10,7 +10,7 @@ export default function AreaFAQ({ areaName, items }: Props) {
     <section className="py-20 bg-white">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+          <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             FAQ
           </p>
           <h2 className="section-title">Investing in {areaName}</h2>
@@ -27,7 +27,7 @@ export default function AreaFAQ({ areaName, items }: Props) {
             >
               <summary className="cursor-pointer list-none px-5 py-4 flex justify-between items-center gap-4 hover:bg-gray-50 transition-colors">
                 <span className="font-serif text-navy text-lg leading-snug">{item.q}</span>
-                <span className="text-gold text-2xl leading-none group-open:rotate-45 transition-transform">
+                <span className="text-gold-accessible text-2xl leading-none group-open:rotate-45 transition-transform">
                   +
                 </span>
               </summary>

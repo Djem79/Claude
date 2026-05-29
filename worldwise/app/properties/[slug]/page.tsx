@@ -6,6 +6,9 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import PropertyEnquiryForm from './PropertyEnquiryForm'
 import PropertyGallery from './PropertyGallery'
+import SocialProofStrip from '@/components/SocialProofStrip'
+import MobileCtaBar from '@/components/MobileCtaBar'
+import { waPropertyMessage } from '@/lib/whatsapp'
 
 export const revalidate = 60
 
@@ -238,6 +241,9 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   propertySlug={property.slug}
                   propertyTitle={property.title}
                 />
+                <div className="mt-6">
+                  <SocialProofStrip />
+                </div>
               </div>
             </div>
           </div>
@@ -261,7 +267,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                     <div className="p-4">
                       <p className="text-xs text-gray-400 mb-1">{p.developer} · {p.area}</p>
                       <p className="font-serif text-lg text-navy">{p.title}</p>
-                      <p className="text-gold text-sm font-medium mt-1">From AED {(p.priceAed / 1_000_000).toFixed(2)}M</p>
+                      <p className="text-gold-accessible text-sm font-medium mt-1">From AED {(p.priceAed / 1_000_000).toFixed(2)}M</p>
                     </div>
                   </Link>
                 ))}
@@ -291,6 +297,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         </div>
       </main>
       <Footer />
+      <MobileCtaBar
+        enquireSource="property_enquiry"
+        enquireLabel="Enquire Now"
+        waMessage={waPropertyMessage(property.title)}
+        propertySlug={property.slug}
+        propertyTitle={property.title}
+      />
     </>
   )
 }

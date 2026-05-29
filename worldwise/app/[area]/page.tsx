@@ -116,7 +116,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
       <AreaPageClient area={area} listingCount={listingCount}>
         <section className="py-20 bg-white">
           <div className="max-w-3xl mx-auto px-6">
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               Why Invest
             </p>
             <h2 className="font-serif text-3xl md:text-4xl text-navy mb-8 leading-tight">
@@ -133,7 +133,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
         <section className="py-16 bg-gray-50">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-10">
-              <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+              <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
                 Key Stats
               </p>
               <h2 className="section-title">{area.name} at a glance</h2>
@@ -151,7 +151,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
 
         <section className="py-20 bg-white">
           <div className="max-w-3xl mx-auto px-6">
-            <p className="text-gold text-sm font-medium uppercase tracking-widest mb-2">
+            <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
               The Neighbourhood
             </p>
             <h2 className="font-serif text-3xl md:text-4xl text-navy mb-8 leading-tight">
@@ -160,7 +160,7 @@ export default function AreaPage({ params }: { params: { area: string } }) {
             <ul className="space-y-3 text-gray-700 leading-relaxed text-lg list-none">
               {area.whatsNearby.map((item, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="text-gold mt-2 shrink-0">●</span>
+                  <span className="text-gold-accessible mt-2 shrink-0">●</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -194,7 +194,7 @@ function StatCard({
     <div className="bg-white border border-gray-200 rounded-sm p-5 text-center">
       <p className="text-gray-500 text-xs uppercase tracking-widest">{label}</p>
       <p
-        className={`font-serif mt-2 ${accent ? 'text-gold' : 'text-navy'} ${
+        className={`font-serif mt-2 ${accent ? 'text-gold-accessible' : 'text-navy'} ${
           small ? 'text-base leading-snug' : 'text-2xl'
         }`}
       >
