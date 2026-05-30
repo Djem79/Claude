@@ -36,13 +36,13 @@ export const areas: Area[] = [
     tagline: "Dubai's iconic waterfront skyline — and one of the city's deepest rental markets.",
     metrics: {
       avgPrice: 'AED 1,850/sqft',
-      roi: '7–8%',
+      roi: '6–7%',
       typicalSize: '650–1,400 sqft',
       handover: 'Mostly secondary; select off-plan 2026–2028',
     },
     whyInvest: [
       "Dubai Marina has been one of the city's most established investor districts for over a decade. The combination of waterfront views, walkable promenades, and direct access to Jumeirah Beach Residence keeps short-term rental occupancy among the highest in Dubai — typically 85–95% year-round.",
-      "Yields are competitive without sacrificing capital growth. Studios and one-bedrooms regularly clear 8% gross on long-term leases and substantially more on holiday-let platforms. Larger three-bedroom units perform strongly as family residences for relocating executives, particularly those working in JLT and Media City next door.",
+      "Yields remain healthy even after years of price appreciation. Studios and one-bedrooms typically return around 6–7% gross on long-term leases, with substantially more on holiday-let platforms. Larger three-bedroom units perform strongly as family residences for relocating executives, particularly those working in JLT and Media City next door.",
       "The supply pipeline is mature, which means new launches sit alongside resale stock with established service charges and rental track records — making due diligence faster than in less-tested districts. Marina towers from developers like Emaar, Damac and Select Group continue to trade actively in the secondary market.",
     ],
     whatsNearby: [
@@ -67,10 +67,10 @@ export const areas: Area[] = [
       },
       {
         q: 'What is the rental yield outlook for the next few years?',
-        a: 'With population growth continuing and limited new Marina supply, rental yields are expected to remain in the 7–8% range through 2027, with stronger performance on furnished and serviced units.',
+        a: 'With population growth continuing and limited new Marina supply, rental yields are expected to hold around the 6–7% range through 2027, with stronger performance on furnished and serviced units.',
       },
     ],
-    metaDescription: 'Buy investment property in Dubai Marina — average AED 1,850/sqft, 7–8% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Dubai Marina — average AED 1,850/sqft, 6–7% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
   },
   {
     slug: 'downtown-dubai',
@@ -79,14 +79,14 @@ export const areas: Area[] = [
     tagline: 'Live next to Burj Khalifa — the most prestigious address in the city.',
     metrics: {
       avgPrice: 'AED 2,200/sqft',
-      roi: '6–7%',
+      roi: '5–6%',
       typicalSize: '700–1,800 sqft',
       handover: 'Mature secondary + select Emaar off-plan 2026–2027',
     },
     whyInvest: [
       "Downtown Dubai is the city's flagship district — home to Burj Khalifa, Dubai Mall, Dubai Opera and the Dubai Fountain. Capital values here have historically led the rest of the city in upcycles and held more value in correction phases, making it a foundational asset for long-term investors.",
       "The tenant pool skews towards senior executives, family offices and brand-conscious tenants who pay a premium for the address itself. That premium translates to consistently strong rental rates — one-bedroom units in The Address Residences or Burj Vista regularly secure AED 130,000–160,000 per year on long-term leases.",
-      "Yields are slightly lower than Marina (6–7% vs 7–8%) because purchase prices are higher, but the combination of brand strength, scarce supply, and proximity to the city's main attractions means resale liquidity is among the best in Dubai. Properties typically transact within 60–90 days of going to market.",
+      "Yields are lower than Marina (5–6% vs 6–7%) because purchase prices are higher — Downtown is more a capital-growth and liquidity play than a yield play. The combination of brand strength, scarce supply, and proximity to the city's main attractions means resale liquidity is among the best in Dubai, with properties typically transacting within 60–90 days of going to market.",
     ],
     whatsNearby: [
       'Burj Khalifa and Dubai Mall — direct walking access from most towers',
@@ -113,7 +113,7 @@ export const areas: Area[] = [
         a: 'Downtown service charges typically run AED 18–28/sqft per year. Address Residences and Burj Khalifa itself sit at the higher end; older Old Town low-rise buildings are at the lower end.',
       },
     ],
-    metaDescription: 'Buy property in Downtown Dubai — AED 2,200/sqft average, 6–7% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property in Downtown Dubai — AED 2,200/sqft average, 5–6% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
   },
   {
     slug: 'palm-jumeirah',
@@ -122,14 +122,14 @@ export const areas: Area[] = [
     tagline: "Dubai's signature waterfront island — beachfront living with global brand recognition.",
     metrics: {
       avgPrice: 'AED 2,800/sqft',
-      roi: '6–8%',
+      roi: '5–6%',
       typicalSize: '800–4,500 sqft',
       handover: 'Mature secondary + premium off-plan towers 2026–2028',
     },
     whyInvest: [
       "Palm Jumeirah is one of the most recognisable real estate addresses in the world. The combination of private beach access, restricted island supply and brand association with luxury hospitality (Atlantis, One&Only, Waldorf Astoria) gives properties here a global tenant and buyer pool that very few Dubai districts can match.",
       "The market splits into three distinct segments: trunk apartments (typically AED 2.0–4.0M for one and two-bedrooms with marina or skyline views), frond villas (AED 15–50M for beachfront family homes) and ultra-luxury penthouses at branded residences (AED 40M and above). Each segment has its own demand profile but all benefit from the Palm address premium.",
-      "Yields on apartments in the trunk run 6–8% on long-term leases, with substantially higher returns on short-term lets — a furnished Palm trunk apartment can generate AED 350,000+ in gross holiday-let revenue per year. Frond villas trade more on capital appreciation than yield.",
+      "Yields vary widely by tower and unit. Trunk apartments typically run around 5–6% on long-term leases, with substantially higher returns on short-term lets — a furnished Palm trunk apartment can generate AED 350,000+ in gross holiday-let revenue per year. Frond villas trade on capital appreciation rather than yield.",
     ],
     whatsNearby: [
       'Private residents-only and public beaches on the island',
@@ -165,13 +165,13 @@ export const areas: Area[] = [
     tagline: "Dubai's CBD next to Downtown — and the city's highest-yielding investment district.",
     metrics: {
       avgPrice: 'AED 1,600/sqft',
-      roi: '7–9%',
+      roi: '7–8%',
       typicalSize: '500–1,200 sqft',
       handover: 'Heavy off-plan pipeline 2026–2029',
     },
     whyInvest: [
       "Business Bay is Dubai's central business district, sitting on the Dubai Water Canal directly adjacent to Downtown. It combines the proximity premium of the city centre with substantially lower entry prices — typically 25–30% cheaper per square foot than Downtown itself.",
-      "The combination of price point and location drives the highest gross yields in the city core: studios and one-bedrooms regularly clear 8–9% on long-term leases. Tenant demand is dominated by young professionals working in DIFC, Downtown and the canal-side hotels, who value short commutes over space.",
+      "The combination of price point and location drives the highest gross yields in the city core: studios and one-bedrooms regularly clear 7–8% on long-term leases — ahead of Marina now that Marina prices have appreciated. Tenant demand is dominated by young professionals working in DIFC, Downtown and the canal-side hotels, who value short commutes over space.",
       "The off-plan pipeline is the largest among Dubai's core districts — Damac, Omniyat, Binghatti and Sobha all have active launches. This creates a layered entry strategy: investors can buy during construction at favourable payment plans, hold through handover and ride the yield curve as the district matures.",
     ],
     whatsNearby: [
@@ -199,7 +199,7 @@ export const areas: Area[] = [
         a: 'Less so than Dubai Hills or Arabian Ranches. Business Bay is designed around professional tenants — limited schools and parks within the district itself, though families do live here for proximity to Downtown amenities.',
       },
     ],
-    metaDescription: 'Buy investment property in Business Bay — AED 1,600/sqft, 7–9% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Business Bay — AED 1,600/sqft, 7–8% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
   },
   {
     slug: 'dubai-hills',
@@ -215,7 +215,7 @@ export const areas: Area[] = [
     whyInvest: [
       "Dubai Hills Estate is Emaar's flagship family-oriented masterplan — 11 million square metres anchored by an 18-hole championship golf course, parks, schools and the Dubai Hills Mall. Unlike older districts that grew organically, Dubai Hills was master-planned from day one with family residents in mind.",
       "The tenant and buyer profile is distinctive: long-stay families, often with school-age children, who place a premium on green space, walkability and access to international schools. This produces lower turnover than transient districts like Marina, and rental contracts of 2–3 years are common rather than annual.",
-      "Yields are slightly lower (6–7%) than waterfront districts, but capital growth has been among the strongest in Dubai — villa prices in Sidra, Maple and Golf Place have appreciated 40–60% since 2021. Apartments in Park Heights, Mulberry and Collective offer a more accessible entry point at AED 1.5–3.5M.",
+      "Yields sit in a solid 6–7% range, in line with established waterfront districts, but capital growth has been among the strongest in Dubai — villa prices in Sidra, Maple and Golf Place have appreciated 40–60% since 2021. Apartments in Park Heights, Mulberry and Collective offer a more accessible entry point at AED 1.5–3.5M.",
     ],
     whatsNearby: [
       'Dubai Hills Mall — 750+ shops, cinemas, F&B',
@@ -252,12 +252,12 @@ export const areas: Area[] = [
     tagline: 'Marina-adjacent and metro-served — the highest-yielding established district in Dubai.',
     metrics: {
       avgPrice: 'AED 1,200/sqft',
-      roi: '7–9%',
+      roi: '7–8%',
       typicalSize: '500–1,400 sqft',
       handover: 'Primarily secondary; select off-plan 2026–2027',
     },
     whyInvest: [
-      "Jumeirah Lake Towers (JLT) sits directly across Sheikh Zayed Road from Dubai Marina, offering many of the same advantages — metro access, lakeside promenades, dense F&B — at substantially lower entry prices. The price-per-square-foot gap to Marina has historically been 30–40%, while yields run a full 1–2 percentage points higher.",
+      "Jumeirah Lake Towers (JLT) sits directly across Sheikh Zayed Road from Dubai Marina, offering many of the same advantages — metro access, lakeside promenades, dense F&B — at substantially lower entry prices. The price-per-square-foot gap to Marina has historically been 30–40%, while yields run around a point higher.",
       "JLT is also home to DMCC, the free zone that hosts over 25,000 companies in the precious metals, commodities and tech sectors. This creates a built-in professional tenant base who work in JLT and want to live within walking distance, supporting consistent demand for studios and one-bedrooms.",
       "Most of the supply is mature — the district was largely completed by 2015 — which means investors can buy with full visibility on service charges, rental history and building reputations. New off-plan launches are rare but high-quality (e.g. Sobha and Damac tower additions).",
     ],
@@ -286,7 +286,7 @@ export const areas: Area[] = [
         a: "Generally lower than Marina — AED 12–18/sqft per year for most towers, which combined with lower purchase prices is the main driver of JLT’s yield premium.",
       },
     ],
-    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 1,200/sqft, 7–9% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
+    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 1,200/sqft, 7–8% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
   },
   {
     slug: 'creek-harbour',
@@ -295,14 +295,14 @@ export const areas: Area[] = [
     tagline: "Emaar's next Downtown — a master-planned waterfront city around the future Dubai Creek Tower.",
     metrics: {
       avgPrice: 'AED 1,700/sqft',
-      roi: '7–8%',
+      roi: '6–7%',
       typicalSize: '600–2,200 sqft',
       handover: 'Active off-plan pipeline 2026–2030',
     },
     whyInvest: [
       "Dubai Creek Harbour is Emaar's most ambitious current masterplan: a 6 sq km waterfront city built around the planned Dubai Creek Tower, set to be the world's tallest. It's positioned as the next Downtown — same developer pedigree, similar walkable urbanism, but at earlier-cycle prices around AED 1,700/sqft against Downtown's AED 2,200+.",
       "Entry is dominated by off-plan, which suits investors who want the longest payment plans, lowest entry capital and longest runway to handover-to-rental conversion. Most launches sit on 50/50 or 60/40 plans with 1% monthly post-handover terms available on select towers.",
-      "The catch is timing — much of the masterplan still has 3–5 years of construction ahead. Yields are projected at 7–8% based on Emaar's modelling for completed towers (Creek Beach, Creek Edge, Address Harbour Point are now handed over and renting), but each new tower carries delivery and infrastructure-pace risk that mature districts don't have.",
+      "The catch is timing — much of the masterplan still has 3–5 years of construction ahead. Yields are projected at around 6–7% for completed towers (Creek Beach, Creek Edge, Address Harbour Point are now handed over and renting), but each new tower carries delivery and infrastructure-pace risk that mature districts don't have.",
     ],
     whatsNearby: [
       "Direct access to Dubai-Al Ain Road and Ras Al Khor",
@@ -329,7 +329,7 @@ export const areas: Area[] = [
         a: 'Construction-delay risk (mitigated by Emaar’s delivery record), masterplan-pace risk (some amenity launches depend on adjacent phases completing) and exit-liquidity risk (resale activity is thinner for off-plan units than handed-over stock).',
       },
     ],
-    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 1,700/sqft, 7–8% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
+    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 1,700/sqft, 6–7% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
   },
   {
     slug: 'emaar-beachfront',
@@ -338,14 +338,14 @@ export const areas: Area[] = [
     tagline: 'Private island living next to Dubai Marina — beachfront residences with global resale appeal.',
     metrics: {
       avgPrice: 'AED 2,500/sqft',
-      roi: '7–8%',
+      roi: '6–7%',
       typicalSize: '700–3,500 sqft',
       handover: 'Multiple towers handing over 2026–2028',
     },
     whyInvest: [
       "Emaar Beachfront is a gated island development in Dubai Harbour, sitting between Dubai Marina and Palm Jumeirah. Every tower has direct beach access, marina views or both — the entire masterplan is designed around 1.5 km of private beach and a 1,400-berth super-yacht harbour next door.",
       "The combination of Emaar developer pedigree, private beach access and waterfront positioning gives properties here a strong global resale story. The buyer mix includes a high proportion of overseas investors from the UK, Russia, India and China who pay premium prices for the brand association — particularly on penthouses and beachfront-line apartments.",
-      "Yields run 7–8% on long-term leases for mid-tower one and two-bedroom units, with short-term let returns substantially higher given the beach access — premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory.",
+      "Long-let yields are estimated at around 6–7% for mid-tower one and two-bedroom units, with short-term let returns substantially higher given the beach access — premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory.",
     ],
     whatsNearby: [
       'Private 1.5 km beach exclusive to residents',
@@ -372,7 +372,7 @@ export const areas: Area[] = [
         a: 'Emaar Beachfront service charges run AED 18–28/sqft per year, with beach maintenance and pool/gym facilities included. Premium towers like Address Beach Resort are at the higher end.',
       },
     ],
-    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 2,500/sqft, 7–8% yields. Premium investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 2,500/sqft, 6–7% yields. Premium investment guidance from Worldwise Real Estate.',
   },
 ]
 
