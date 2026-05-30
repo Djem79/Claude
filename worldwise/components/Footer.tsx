@@ -14,7 +14,7 @@ export default function Footer() {
               Dubai-based real estate investment agency. Expert guidance for international
               investors buying, renting and growing capital in the UAE.
             </p>
-            <div className="flex gap-4 mt-5">
+            <div className="flex flex-wrap gap-4 mt-5">
               {[
                 { href: 'https://www.instagram.com/worldwiseofficial?igsh=bzlvNXZya2Vjbm9x', label: 'Instagram' },
                 { href: 'https://www.linkedin.com/company/worldwise-real-estate-llc/', label: 'LinkedIn' },
