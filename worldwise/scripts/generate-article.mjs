@@ -24,6 +24,13 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TG_CHAT_ID = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim()
 
+// Current date is injected into the prompt so the model anchors the article to
+// the real present, not its training-cutoff year (which defaulted articles to
+// "2024" even when running in 2026). Computed at run time, never hard-coded.
+const NOW = new Date()
+const CURRENT_YEAR = NOW.getFullYear()
+const CURRENT_DATE = NOW.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+
 function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`)
 }
@@ -102,7 +109,9 @@ function incrementKeywordIndex(currentIndex) {
 
 async function generateArticle(tag, headlines, keyword) {
   const prompt = keyword
-    ? `A potential investor just searched Google for: "${keyword}"
+    ? `Today's date is ${CURRENT_DATE}. The current year is ${CURRENT_YEAR}. Write the article for ${CURRENT_YEAR}. When you mention "this year", "current", or recent market activity, it MUST refer to ${CURRENT_YEAR}. Never present an earlier year as the present — only cite past years for explicit historical comparison grounded in the headlines below.
+
+A potential investor just searched Google for: "${keyword}"
 
 Write a 600–800 word SEO article that directly and thoroughly answers this question for international property investors.
 
@@ -119,7 +128,9 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
   "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
-    : `Write a 600–800 word SEO article about UAE real estate for international investors.
+    : `Today's date is ${CURRENT_DATE}. The current year is ${CURRENT_YEAR}. Write the article for ${CURRENT_YEAR}. When you mention "this year", "current", or recent market activity, it MUST refer to ${CURRENT_YEAR}. Never present an earlier year as the present — only cite past years for explicit historical comparison grounded in the headlines below.
+
+Write a 600–800 word SEO article about UAE real estate for international investors.
 Use these recent news headlines as context:
 ${headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')}
 
@@ -142,7 +153,7 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
       body: JSON.stringify({
         system_instruction: {
           parts: [{
-            text: 'You are a UAE real estate expert writing SEO blog articles for Worldwise Real Estate, a Dubai-based agency serving international investors. Write in English. Be informative and factual. Do not invent statistics — use only what is grounded in the news context provided.',
+            text: `You are a UAE real estate expert writing SEO blog articles for Worldwise Real Estate, a Dubai-based agency serving international investors. The current year is ${CURRENT_YEAR}; write everything as of ${CURRENT_YEAR} and never refer to an earlier year as the present. Write in English. Be informative and factual. Do not invent statistics — use only what is grounded in the news context provided.`,
           }],
         },
         contents: [{ parts: [{ text: prompt }] }],
