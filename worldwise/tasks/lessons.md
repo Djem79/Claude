@@ -1,5 +1,17 @@
 # Lessons
 
+## 2026-05-30 — Mobile horizontal-overflow ("can scroll right into an empty strip, won't snap back")
+
+A page-wide right-side empty strip = something makes `document.documentElement.scrollWidth > clientWidth`. Took three fixes because it had three independent causes and I kept testing at the wrong width.
+
+- **Test at NARROW widths, not iPhone-14.** The decisive bug only reproduced at ≤375px (iPhone SE/mini/360, narrow Chrome window). At 390px (iPhone 14) everything measured clean, so two earlier "fixed + verified" claims were false. Always sweep **320 / 360 / 375 / 390** and compare `scrollWidth` vs `clientWidth`; scrolling right and reading `scrollingElement.scrollLeft` confirms real overflow.
+- **It's cross-browser, not just iOS.** Don't assume "looks fine in headless Chrome" means fixed — set the exact viewport.
+- **Root-cause classes seen (all real, all shipped):**
+  1. **Honeypot `position:absolute; left:-9999px`** → iOS Safari makes the page scrollable into a huge empty band (Chrome clamps it, won't reproduce). Use the clipped visually-hidden pattern (`width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden`) instead.
+  2. **A `<select>` with no width** sizes to its *widest option* (Chrome). The `/properties` Area filter had a 50-char area name → ~422px select. Cap filter selects (`w-40 max-w-full truncate`).
+  3. **A non-wrapping flex row** wider than the viewport — the footer's 5 social links (`flex gap-4`, no `flex-wrap`) forced the footer ~381px wide; in a 1-col grid that stretches *every* footer column, so an unrelated `<li>` is what the scanner flags. Add `flex-wrap`.
+- **Diagnose by enumerating elements** where `getBoundingClientRect().right > clientWidth || left < -1`, then walk the parent chain (the flagged element is often a symptom of a wider ancestor/sibling). Fix the root width driver, not the symptom.
+
 ## 2026-05-26 — `/properties?area=` deep-link is silently broken (filter is local state, not URL-driven)
 
 **Context:** During the area-landing-pages rollout (Task 3), code review flagged that
