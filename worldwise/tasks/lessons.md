@@ -161,3 +161,16 @@ list," not "every route under `app/api/leads/**`."
   handlers / server pages, not middleware. The static `/files/leads/` path therefore
   stays auth-only at the middleware layer — acceptable because the app only reaches
   files through the now-section-guarded download API.
+
+## Always pass the current date to AI content generators (2026-05-30)
+
+`scripts/generate-article.mjs` produced articles saying "In 2024…" while running in
+2026 — the Gemini prompt never stated the date, so the model fell back to its
+training-cutoff year as "the present". Fix: compute `CURRENT_DATE`/`CURRENT_YEAR`
+from `new Date()` at run time and inject them into both prompts **and** the system
+instruction ("write for ${CURRENT_YEAR}, never present an earlier year as the
+present"). **Rule:** any LLM that writes time-sensitive copy must be told today's
+date explicitly — never assume the model knows the current year. Also: an already-
+published AI article lives in server-only `data/articles.json`; fixing it requires
+editing on the server **and** a server `npm run build` (SSG is prerendered, a
+`pm2 restart` alone serves the stale build).
