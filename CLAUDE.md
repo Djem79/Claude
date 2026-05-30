@@ -267,6 +267,7 @@ The token shape (`SessionPayload`) is intentionally unchanged — do not add `se
 | `DELETE /api/admin/users/[id]` | owner only | Delete user (cannot delete self) |
 | `POST /api/upload?kind=gallery\|qr` | section `properties` | Save images to `public/images/` |
 | `GET /api/properties` | none (public) | List properties (used by the site) |
+| `GET /api/fx` | none (public) | AED→USD/EUR/GBP rates, cached daily (`revalidate 86400`) + fallback; used by `PriceTag` |
 | `POST /api/properties` | section `properties` | Create property |
 | `PUT/DELETE /api/properties/[id]` | section `properties` | Update / delete property |
 | `POST /api/telegram-webhook` | `WEBHOOK_SECRET` header | Receives Telegram callbacks: publish/skip article buttons, `/add_keyword` command |
@@ -281,7 +282,30 @@ The token shape (`SessionPayload`) is intentionally unchanged — do not add `se
 
 `POST /api/leads` enforces: honeypot field (`_hp`) check → phone digit validation (7–15 digits) → in-memory rate limit (10 submissions/IP/hour). Rate limit is counted after validation so typos don't consume quota. The `rateMap` resets per 1-hour window and lives in module state (single PM2 instance).
 
-All lead capture components (`LeadModal`, `MortgageCalculator`, `LeadCaptureSection`, `PropertyEnquiryForm`, `FloatingCTA`) include a hidden honeypot `<input>` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
+All lead capture components (`LeadModal`, `LeadCaptureSection`, `PropertyEnquiryForm`, `QualifyingModal`, `GuideClient`; `FloatingCTA` opens `LeadModal`) include a hidden honeypot `<input name="website">` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
+
+**Honeypot must be clip-hidden, not off-screen-left.** Use `style={{ position:'absolute', width:'1px', height:'1px', margin:'-1px', padding:0, overflow:'hidden', clip:'rect(0,0,0,0)', border:0 }}`. The old `left:-9999px` pattern makes the page horizontally scrollable into a huge empty band on **iOS Safari** (Chrome clamps it, so it won't reproduce in headless testing) — that was a real shipped bug. Any new honeypot must use the clip pattern.
+
+### Conversion & investor UI (Tier 1–3, added 2026-05)
+
+A set of conversion/polish components layered on the public site. Most are shared and mounted across pages:
+
+- **`MobileCtaBar`** — mobile-only (`md:hidden`) fixed bottom bar (Enquire opens `LeadModal` + prefilled WhatsApp), on `/properties/[slug]` and area pages. `FloatingCTA` FABs are `hidden md:flex` so the two never overlap. Sources: `property_enquiry` / `area_*` / `golden_visa` (Enquire) and `mobile_bar` (WhatsApp).
+- **`lib/whatsapp.ts`** — `waLink(msg)` / `waPropertyMessage(title)` build prefilled `wa.me` links. Use it everywhere instead of hand-built URLs. Per-card WhatsApp button lives in `PropertyCard` (source `property_card`).
+- **`Reveal`** — scroll-reveal wrapper (opacity+transform only → zero CLS, `prefers-reduced-motion` aware, `<noscript>` fallback). Wraps homepage sections **below the hero** (never the hero — LCP). Triggers early (`threshold:0`, `rootMargin:'0px 0px 300px 0px'`) so sections finish fading before they enter view.
+- **`SocialProofStrip`** — rating/volume/RERA + a developer-logo row (logos in `public/images/developers/`, white chips so they read on dark/light). Shown in `LeadCaptureSection` (dark) and beside `PropertyEnquiryForm` (light).
+- **Multi-currency** — `lib/fx.ts` (`getRates()` from open.er-api.com, `next: { revalidate: 86400 }` + `FALLBACK_RATES`) → `GET /api/fx` (cached JSON). Client: `CurrencySelect` (sets `localStorage 'ww_currency'` + `ww_currency` event) and `PriceTag` (AED primary + secondary `≈` converted; one shared `/api/fx` fetch per page). AED stays the displayed default everywhere.
+- **`QualifyingModal` + `QualifyCta`** — 3-step qualifying form (budget → ready/off-plan + area → name+phone), `source: qualify`. Posts optional `propertyType`/`area` (length-capped like `budget` in `/api/leads`; surfaced in the CRM lead view + CSV). The homepage band is a navy card on a light section (don't make it full-bleed navy — it merges with the navy `MortgageCalculator` below).
+- **Golden Visa** — `lib/golden-visa.ts` (`qualifiesForGoldenVisa(priceAed)`, AED 2M, derived — no data entry); a "Golden Visa" badge on qualifying cards/detail; SSG landing `app/golden-visa/` (mirrors the area-page client-wrapper pattern), `source: golden_visa`. **Intentionally not linked in the nav** — SEO/ads landing only; surface it in nav only if GSC shows demand.
+- **Lead magnet** — gated `app/guide/` (minimal-nav landing) reveals `public/dubai-investment-guide.pdf` after name+phone, `source: lead_magnet_guide`. The PDF lives at `public/` root (NOT `public/files/`, which rsync excludes) so it deploys normally.
+
+### Investor metrics: `grossYield` + monthly yield review
+
+`Property` carries optional `roi`, `paymentPlan`, and **`grossYield?: number`** (gross rental yield %, shown as `📈 X% yield` on cards and a "Gross Yield" detail stat). Area-level yields live in `lib/areas.ts` `metrics.roi` and must stay consistent with the prose/FAQ/`metaDescription` (all four mention yields).
+
+`worldwise/scripts/seed-gross-yield.cjs` (server-only) seeds `grossYield` per property from researched per-district yields (tolerant area matching; **specific tokens before general**, e.g. "Damac Hills 2" before "Damac Hills"; never fabricate for unrecognised/generic areas). Run on the server: `node scripts/seed-gross-yield.cjs` (dry-run) → `--apply` → `npm run build && pm2 restart worldwise`. The script header documents the **monthly yield-review process** (re-verify yields vs E&V / DLD / Bayut, update `lib/areas.ts` + re-seed). A recurring monthly calendar reminder drives it.
+
+> Editing `data/properties.json` directly (vs an rsync deploy) requires a **server `npm run build`** afterwards — SSG pages are prerendered, so a `pm2 restart` alone serves the stale build.
 
 ### Blog / articles
 
@@ -378,7 +402,8 @@ The featured-properties grid on the area page matches `Property.area` **tolerant
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
-- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + 8 area landing pages + all property and article slugs)
+- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + /golden-visa + /guide + 8 area landing pages + all property and article slugs)
+- `next.config.mjs` — `images.formats: ['image/avif','image/webp']` (AVIF for smaller LCP); old Tilda `/tpost/*` and `/tproduct/*` URLs 301-redirect to `/blog` / `/properties` (two high-traffic posts to topically-matched articles)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
 - `app/mortgage-calculator/page.tsx` — JSON-LD `WebApplication` + `FAQPage` (5 questions)
@@ -391,6 +416,8 @@ Local area images: `public/images/areas/` — never use external URLs. Property 
 ### Styling
 
 Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global button utilities `btn-primary`, `btn-outline`, `btn-outline-gold` in `app/globals.css` — use for all CTAs.
+
+**Gold-as-text accessibility:** `--gold` (#C9A84C) on a light background is ~2:1 — fails WCAG AA. For gold *text* on light surfaces (eyebrow labels, "Read More", stat values) use the `.text-gold-accessible` utility (`--gold-dark` #8A6D1F, ~4.6:1). Plain `text-gold` only on dark/navy backgrounds, and `btn-primary` (navy text on gold) is fine.
 
 ## Environment variables
 
