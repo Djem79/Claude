@@ -69,7 +69,7 @@ export default function PropertyEnquiryForm({
           <p className="text-gray-400 text-sm mb-5">Free consultation · No obligation</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
+            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
             <input className="input-field" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required />
             <input className="input-field" placeholder="WhatsApp / Phone *" value={phone} onChange={e => setPhone(e.target.value)} required />
             <input className="input-field" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />

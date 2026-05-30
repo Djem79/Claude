@@ -124,7 +124,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
 
             {/* Honeypot — present on every step's form via the contact form below;
                 kept mounted here so it always submits. */}
-            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
+            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
 
             {step === 1 && (
               <>

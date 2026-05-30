@@ -103,7 +103,7 @@ export default function GuideClient() {
                 Enter your name and phone — your download unlocks instantly.
               </p>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0 }} />
+                <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
                 <input
                   className="input-field"
                   placeholder="Full Name *"
