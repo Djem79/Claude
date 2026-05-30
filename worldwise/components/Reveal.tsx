@@ -46,7 +46,11 @@ export default function Reveal({ children, className, delay }: RevealProps) {
           }
         }
       },
-      { threshold: 0.15 }
+      // Reveal early: trigger on the first pixel (threshold 0) and pre-empt by
+      // 300px below the viewport (positive bottom rootMargin), so each section
+      // has finished fading in by the time the user actually scrolls to it —
+      // no blank/empty-looking blocks.
+      { threshold: 0, rootMargin: '0px 0px 300px 0px' }
     )
 
     observer.observe(el)
@@ -57,7 +61,7 @@ export default function Reveal({ children, className, delay }: RevealProps) {
     <div
       ref={ref}
       className={`ww-reveal transition-all duration-500 ease-out ${
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       } ${className ?? ''}`}
       style={{ transitionDelay: delay ? `${delay}ms` : undefined }}
     >
