@@ -3,6 +3,7 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import MortgageCalculator from '@/components/MortgageCalculator'
 import type { Metadata } from 'next'
+import { jsonLd as ldJson } from '@/lib/jsonld'
 
 export const metadata: Metadata = {
   title: 'UAE Mortgage Calculator 2026 | Dubai Property Financing',
@@ -117,11 +118,11 @@ export default function MortgageCalculatorPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: ldJson(faqJsonLd) }}
       />
       <Navigation />
       <main>

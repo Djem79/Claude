@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLeadById, updateLead } from '@/lib/leads'
+import { getLeadById, mutateLeadAttachments } from '@/lib/leads'
 import { requireSection } from '@/lib/auth'
 import { resolveLeadFileDir } from '@/lib/lead-files'
 import fs from 'fs'
@@ -30,9 +30,11 @@ export async function DELETE(
   }
 
   const actor = { uid: session.uid, username: session.username, name: session.name }
-  const updated = updateLead(params.id, {
-    attachments: (lead.attachments ?? []).filter(a => a.id !== params.fileId),
-  }, actor)
+  const updated = mutateLeadAttachments(
+    params.id,
+    cur => cur.filter(a => a.id !== params.fileId),
+    actor
+  )
 
   if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   return NextResponse.json(updated)

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Lead, LeadStatus, ActivityEntry } from '@/types'
+import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
 import { normalizePhone } from '@/lib/lead-parse'
 import { writeFileAtomic } from '@/lib/atomic-write'
 
@@ -87,6 +87,27 @@ export function updateLead(
   leads[idx] = updated
   saveLeads(leads)
   return updated
+}
+
+/**
+ * Atomically read-modify-write a lead's attachments. The `mutate` callback
+ * receives the CURRENT (freshly-read) attachments and returns the new array.
+ *
+ * Callers (file upload/delete/send/log handlers) read the lead before awaiting
+ * formData/disk I/O; building the new array from that pre-await snapshot loses
+ * concurrent changes (two uploads → one attachment dropped). Routing the array
+ * computation through here re-reads fresh state and the whole read-modify-write
+ * runs synchronously (no await between getLeadById and updateLead), so it cannot
+ * interleave with another request on the event loop.
+ */
+export function mutateLeadAttachments(
+  id: string,
+  mutate: (current: FileAttachment[]) => FileAttachment[],
+  actor?: { uid: string; username: string; name: string }
+): Lead | null {
+  const lead = getLeadById(id)
+  if (!lead) return null
+  return updateLead(id, { attachments: mutate(lead.attachments ?? []) }, actor)
 }
 
 export function deleteLead(id: string): boolean {

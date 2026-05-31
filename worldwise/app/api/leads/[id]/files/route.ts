@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLeadById, updateLead } from '@/lib/leads'
+import { getLeadById, mutateLeadAttachments } from '@/lib/leads'
 import { requireSection } from '@/lib/auth'
 import { resolveLeadFileDir, sniffAttachment } from '@/lib/lead-files'
 import { FileAttachment } from '@/types'
@@ -102,9 +102,7 @@ export async function POST(
   }
 
   const actor = { uid: session.uid, username: session.username, name: session.name }
-  const updated = updateLead(params.id, {
-    attachments: [...(lead.attachments ?? []), attachment],
-  }, actor)
+  const updated = mutateLeadAttachments(params.id, cur => [...cur, attachment], actor)
   if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
   return NextResponse.json(updated, { status: 201 })

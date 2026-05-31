@@ -3,8 +3,23 @@ import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-article
 import { writeFileAtomic } from '@/lib/atomic-write'
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import { saveLead, findLeadByPhone, updateLead, deleteLead } from '@/lib/leads'
 import { parseLeadText, parseLeadCommand } from '@/lib/lead-parse'
+
+/** Constant-time string comparison; false (not throw) on length mismatch or missing value. */
+function safeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return crypto.timingSafeEqual(ab, bb)
+}
+
+/** Chat IDs allowed to drive admin actions (text commands and callback buttons). */
+function allowedChatIds(): string[] {
+  return (process.env.TELEGRAM_CHAT_ID ?? '').split(',').map(s => s.trim()).filter(Boolean)
+}
 
 async function sendMessage(chatId: number | string, text: string, inlineKeyboard?: unknown[][]) {
   const token = process.env.TELEGRAM_BOT_TOKEN!
@@ -237,7 +252,7 @@ async function postPlanToChannel(post: Record<string, unknown>) {
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-telegram-bot-api-secret-token')
-  if (!secret || secret !== process.env.WEBHOOK_SECRET) {
+  if (!safeEqual(secret, process.env.WEBHOOK_SECRET)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -251,7 +266,7 @@ export async function POST(req: NextRequest) {
   const message = body.message as any
   if (message?.text) {
     const chatId = String(message.chat?.id ?? '')
-    const allowed = (process.env.TELEGRAM_CHAT_ID ?? '').split(',').map(s => s.trim()).filter(Boolean)
+    const allowed = allowedChatIds()
     const text: string = message.text
 
     // CTA keyword handler — open to any subscriber, not just admin
@@ -326,6 +341,15 @@ export async function POST(req: NextRequest) {
   const chatId = cbMessage.chat.id
   const messageId = cbMessage.message_id
   const token = process.env.TELEGRAM_BOT_TOKEN!
+
+  // Defence-in-depth: callback buttons (delete lead, publish article/plan) are
+  // admin-only. The WEBHOOK_SECRET header alone is not enough — require the chat
+  // to be in the allowlist, mirroring the text-command branch above. Without this,
+  // anyone who can press an inline button in a non-admin chat (or anyone who learns
+  // the secret) could delete leads or publish drafts.
+  if (!allowedChatIds().includes(String(chatId))) {
+    return NextResponse.json({ ok: true })
+  }
 
   let answerText: string
 

@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import SocialProofStrip from '@/components/SocialProofStrip'
 import GuideClient from './GuideClient'
+import { jsonLd as ldJson } from '@/lib/jsonld'
 
 export const metadata: Metadata = {
   title: 'Free Dubai Real Estate Investment Guide 2026 | Worldwise',
@@ -40,7 +41,7 @@ export default function GuidePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }}
       />
 
       {/* Minimal top bar — no full navigation (ads landing) */}
