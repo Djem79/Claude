@@ -249,6 +249,20 @@ type Block =
   | { type: 'ul' | 'ol'; items: string[] }
   | { type: 'table'; headers: string[]; rows: string[][] }
 
+const isTableRow = (l: string) => l.trimStart().startsWith('|')
+// A markdown separator row: only pipes, dashes, colons, spaces, and at least one dash.
+const isTableSeparator = (l: string) => /^[\s|:-]*-[\s|:-]*$/.test(l.trim()) && l.includes('|')
+
+// Split "| a | | c |" → ['a','',  'c'] — drop only the empty segments produced by the
+// outer pipes, keep interior empty cells so columns don't shift. (Old code used
+// .filter(Boolean), which silently dropped intentional blank cells.)
+function splitTableRow(line: string): string[] {
+  const cells = line.split('|').map(c => c.trim())
+  if (cells.length && cells[0] === '') cells.shift()
+  if (cells.length && cells[cells.length - 1] === '') cells.pop()
+  return cells
+}
+
 function parseContent(content: string): Block[] {
   const lines = content.split('\n')
   const blocks: Block[] = []
@@ -269,13 +283,17 @@ function parseContent(content: string): Block[] {
       continue
     }
 
-    if (line.startsWith('| ')) {
-      const headers = line.split('|').map(c => c.trim()).filter(Boolean)
-      i++ // skip separator
+    if (isTableRow(line)) {
+      const headers = splitTableRow(line)
       i++
+      // Skip the separator row only if it actually is one (don't eat a content row).
+      if (i < lines.length && isTableSeparator(lines[i])) i++
       const rows: string[][] = []
-      while (i < lines.length && lines[i].startsWith('| ')) {
-        rows.push(lines[i].split('|').map(c => c.trim()).filter(Boolean))
+      while (i < lines.length && isTableRow(lines[i]) && !isTableSeparator(lines[i])) {
+        const cells = splitTableRow(lines[i])
+        // Pad/truncate to the header width so <td> count always matches <th>.
+        while (cells.length < headers.length) cells.push('')
+        rows.push(cells.slice(0, headers.length))
         i++
       }
       blocks.push({ type: 'table', headers, rows })

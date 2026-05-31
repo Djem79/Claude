@@ -5,8 +5,12 @@ import MortgageCalculator from '@/components/MortgageCalculator'
 import type { Metadata } from 'next'
 import { jsonLd as ldJson } from '@/lib/jsonld'
 
+// Computed at build time so the year in SEO copy/FAQ refreshes on each deploy
+// instead of being frozen to a hardcoded value (audit M6).
+const YEAR = new Date().getFullYear()
+
 export const metadata: Metadata = {
-  title: 'UAE Mortgage Calculator 2026 | Dubai Property Financing',
+  title: `UAE Mortgage Calculator ${YEAR} | Dubai Property Financing`,
   description:
     'Free UAE mortgage calculator for residents and non-residents. Instantly calculate monthly payments, loan amount and total interest for Dubai property. Get a personalised mortgage quote from 15+ banks.',
   alternates: { canonical: 'https://worldwise.pro/mortgage-calculator' },
@@ -68,7 +72,7 @@ const faqJsonLd = {
       name: 'What interest rates do UAE banks offer foreigners?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Mortgage rates for non-residents in the UAE typically range from 3.5% to 5.5% per annum in 2026, depending on the bank, loan term, and your financial profile. Rates can be fixed (usually for the first 1–5 years) or variable (linked to EIBOR). Working with a mortgage broker helps you compare rates across 15+ banks.',
+        text: `Mortgage rates for non-residents in the UAE typically range from 3.5% to 5.5% per annum in ${YEAR}, depending on the bank, loan term, and your financial profile. Rates can be fixed (usually for the first 1–5 years) or variable (linked to EIBOR). Working with a mortgage broker helps you compare rates across 15+ banks.`,
       },
     },
     {
@@ -101,7 +105,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What interest rates do UAE banks offer foreigners?',
-    a: 'In 2026, mortgage rates for non-residents range from approximately 3.5% to 5.5% per annum, depending on the bank, term, and your financial profile. Rates can be fixed (for 1–5 years) or variable (linked to EIBOR). A mortgage broker can compare rates across 15+ banks simultaneously.',
+    a: `In ${YEAR}, mortgage rates for non-residents range from approximately 3.5% to 5.5% per annum, depending on the bank, term, and your financial profile. Rates can be fixed (for 1–5 years) or variable (linked to EIBOR). A mortgage broker can compare rates across 15+ banks simultaneously.`,
   },
   {
     q: 'What is the maximum mortgage term in the UAE?',

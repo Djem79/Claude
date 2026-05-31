@@ -5,13 +5,26 @@ import { notifyTelegram, notifyEmail } from '@/lib/notify'
 import { getClientIp } from '@/lib/ip'
 
 // In-memory rate limiter (single PM2 instance — module state persists between requests)
+const WINDOW_MS = 3_600_000 // 1-hour window
 const rateMap = new Map<string, { count: number; resetAt: number }>()
+let lastSweep = 0
+
+// Drop expired entries at most once per window so the map can't grow unbounded
+// (one entry per distinct IP that ever submits, never reclaimed). O(n) once/hour.
+function sweepExpired(now: number): void {
+  if (now - lastSweep < WINDOW_MS) return
+  lastSweep = now
+  rateMap.forEach((rec, ip) => {
+    if (rec.resetAt < now) rateMap.delete(ip)
+  })
+}
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now()
+  sweepExpired(now)
   const rec = rateMap.get(ip)
   if (!rec || rec.resetAt < now) {
-    rateMap.set(ip, { count: 1, resetAt: now + 3_600_000 }) // 1-hour window
+    rateMap.set(ip, { count: 1, resetAt: now + WINDOW_MS })
     return false
   }
   if (rec.count >= 10) return true

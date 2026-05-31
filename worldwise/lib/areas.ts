@@ -390,13 +390,19 @@ function normalizeArea(value: string): string {
  * Whether a property's free-text `area` belongs to a given area page.
  * Property.area comes from CRM/imports as free text ("Dubai Hills Estate",
  * "DUBAI HILLS ESTATE", "Jumeirah Lake Towers"), so an exact match drops
- * obvious variants. Match case-insensitively when the normalized property area
- * contains the area name — or one of its aliases — as a substring.
+ * obvious variants. Match case-insensitively on WORD BOUNDARIES — so multi-word
+ * names like "Dubai Hills" still match "Dubai Hills Estate", but a short name like
+ * "JLT" matches "JLT Cluster D" without false-positiving on "jltower" / substrings
+ * inside an unrelated word (audit M5).
  */
 export function propertyMatchesArea(propertyArea: string | undefined, area: Area): boolean {
   if (!propertyArea) return false
   const normalized = normalizeArea(propertyArea)
   return [area.name, ...(area.aliases ?? [])]
     .map(normalizeArea)
-    .some(candidate => candidate.length > 0 && normalized.includes(candidate))
+    .some(candidate => {
+      if (!candidate) return false
+      const re = new RegExp(`\\b${candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+      return re.test(normalized)
+    })
 }
