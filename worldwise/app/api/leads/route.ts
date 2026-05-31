@@ -34,8 +34,15 @@ function isRateLimited(ip: string): boolean {
 
 const FAKE_OK = NextResponse.json({ ok: true }, { status: 201 })
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
   const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, _hp } = body
 
   // Honeypot — filled by bots, empty for real users
@@ -61,10 +68,15 @@ export async function POST(req: NextRequest) {
   const cap = (v: unknown, max: number) =>
     v == null ? undefined : String(v).slice(0, max)
 
+  // Keep the lead even if the email is malformed — just drop the bad value so it
+  // never becomes a "send file to lead" target downstream (audit Low).
+  const cleanEmail = cap(email, 160)
+  const validEmail = cleanEmail && EMAIL_RE.test(cleanEmail) ? cleanEmail : undefined
+
   const lead = saveLead({
     name: cap(name, 120)!,
     phone: cap(phone, 40)!,
-    email: cap(email, 160),
+    email: validEmail,
     budget: cap(budget, 60),
     propertyType: cap(propertyType, 60),
     area: cap(area, 80),

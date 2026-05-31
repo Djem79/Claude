@@ -9,8 +9,12 @@ export default function Analytics() {
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
-    if (localStorage.getItem('ww_cookie_consent') === 'accepted') {
-      setConsented(true)
+    try {
+      if (localStorage.getItem('ww_cookie_consent') === 'accepted') {
+        setConsented(true)
+      }
+    } catch {
+      // localStorage blocked (Safari Private Mode) — stay off until explicit consent event
     }
     const handler = () => setConsented(true)
     window.addEventListener('ww_consent_accepted', handler)

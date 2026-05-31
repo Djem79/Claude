@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateLead, deleteLead, getLeadById } from '@/lib/leads'
 import { requireSection } from '@/lib/auth'
-import { Lead } from '@/types'
+import { Lead, LeadStatus } from '@/types'
+
+const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'in-progress', 'won', 'lost']
 import { LEAD_FILES_BASE } from '@/lib/lead-files'
 import fs from 'fs'
 import path from 'path'
@@ -11,13 +13,24 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
   // Build the patch from only the keys actually present, so a partial update
   // (e.g. notes only) never spreads `undefined` over an existing value.
   const patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'propertyTitle' | 'propertySlug'>> = {}
-  if ('status' in body) patch.status = body.status
-  if ('notes' in body) patch.notes = body.notes
-  if ('contactedAt' in body) patch.contactedAt = body.contactedAt
+  if ('status' in body) {
+    // Reject unknown statuses — an arbitrary value breaks leadStats() (NaN counts).
+    if (!LEAD_STATUSES.includes(body.status as LeadStatus)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+    patch.status = body.status as LeadStatus
+  }
+  if ('notes' in body) patch.notes = body.notes == null ? undefined : String(body.notes).slice(0, 5000)
+  if ('contactedAt' in body) patch.contactedAt = body.contactedAt == null ? undefined : String(body.contactedAt)
   if ('propertyTitle' in body) {
     patch.propertyTitle = String(body.propertyTitle ?? '').trim().slice(0, 200) || undefined
     patch.propertySlug = undefined // editing the free text clears any stale deep-link

@@ -62,6 +62,13 @@ function main() {
     return
   }
 
+  // Snapshot the full leads file before any irreversible deletion, so a logic
+  // bug or bad clock can be recovered without waiting on the 6-hourly git backup.
+  const ts = new Date().toISOString().replace(/[:.]/g, '-')
+  const backupPath = path.join(ROOT, 'data', `leads.backup-${ts}.json`)
+  fs.copyFileSync(LEADS_PATH, backupPath)
+  log(`Backup written: ${backupPath}`)
+
   for (const l of expired) {
     const dir = path.join(LEAD_FILES_BASE, String(l.id))
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })

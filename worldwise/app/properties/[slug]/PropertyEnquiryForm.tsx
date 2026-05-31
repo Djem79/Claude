@@ -34,7 +34,7 @@ export default function PropertyEnquiryForm({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_page', propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_enquiry', propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)

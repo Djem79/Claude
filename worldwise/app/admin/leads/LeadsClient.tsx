@@ -52,6 +52,7 @@ function fileIcon(name: string): string {
 const KNOWN_SOURCES = [
   'hero_cta',
   'mortgage_calculator',
+  'roi_calculator',
   'property_enquiry',
   'lead_capture_section',
   'floating_cta',

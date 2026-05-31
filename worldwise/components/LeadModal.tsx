@@ -41,12 +41,39 @@ export default function LeadModal({
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const hpRef = useRef<HTMLInputElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
+
+  // Accessibility: trap focus inside the dialog, close on Escape, focus the first
+  // field on open (audit Low — modal a11y).
+  useEffect(() => {
+    if (!isOpen) return
+    const panel = panelRef.current
+    if (!panel) return
+    const focusable = () =>
+      Array.from(
+        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea')
+      ).filter(el => el.tabIndex !== -1 && el.offsetParent !== null)
+    const firstField = panel.querySelector<HTMLElement>('input:not([tabindex="-1"]), select, textarea, button')
+    firstField?.focus()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      const items = focusable()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose, success])
 
   if (!isOpen) return null
 
@@ -80,9 +107,16 @@ export default function LeadModal({
       onClick={e => e.target === e.currentTarget && onClose()}
     >
       <div className="absolute inset-0 bg-navy/80 backdrop-blur-sm" />
-      <div className="relative bg-white rounded-sm shadow-2xl w-full max-w-md p-8">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="relative bg-white rounded-sm shadow-2xl w-full max-w-md p-8"
+      >
         <button
           onClick={onClose}
+          aria-label="Close"
           className="absolute top-4 right-4 text-gray-400 hover:text-navy text-xl leading-none"
         >
           ✕

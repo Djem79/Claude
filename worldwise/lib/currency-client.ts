@@ -6,12 +6,21 @@ const VALID: Currency[] = ['AED', 'USD', 'EUR', 'GBP']
 
 export function getStoredCurrency(): Currency {
   if (typeof window === 'undefined') return 'AED'
-  const v = window.localStorage.getItem(KEY)
-  return VALID.includes(v as Currency) ? (v as Currency) : 'AED'
+  try {
+    const v = window.localStorage.getItem(KEY)
+    return VALID.includes(v as Currency) ? (v as Currency) : 'AED'
+  } catch {
+    // localStorage can throw in Safari Private Mode / when storage is disabled.
+    return 'AED'
+  }
 }
 
 export function setStoredCurrency(c: Currency): void {
   if (typeof window === 'undefined') return
-  window.localStorage.setItem(KEY, c)
+  try {
+    window.localStorage.setItem(KEY, c)
+  } catch {
+    // ignore storage failures — still broadcast so the in-memory UI updates
+  }
   window.dispatchEvent(new CustomEvent(EVENT, { detail: c }))
 }

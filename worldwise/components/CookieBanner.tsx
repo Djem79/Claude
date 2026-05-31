@@ -9,19 +9,25 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem(COOKIE_KEY)) {
+    // localStorage can throw in Safari Private Mode / when storage is disabled —
+    // fall back to showing the banner rather than crashing the render path.
+    try {
+      if (typeof window !== 'undefined' && !localStorage.getItem(COOKIE_KEY)) {
+        setVisible(true)
+      }
+    } catch {
       setVisible(true)
     }
   }, [])
 
   function accept() {
-    localStorage.setItem(COOKIE_KEY, 'accepted')
+    try { localStorage.setItem(COOKIE_KEY, 'accepted') } catch { /* storage disabled */ }
     setVisible(false)
     window.dispatchEvent(new Event('ww_consent_accepted'))
   }
 
   function decline() {
-    localStorage.setItem(COOKIE_KEY, 'declined')
+    try { localStorage.setItem(COOKIE_KEY, 'declined') } catch { /* storage disabled */ }
     setVisible(false)
   }
 
