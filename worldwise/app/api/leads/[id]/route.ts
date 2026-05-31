@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { updateLead, deleteLead, getLeadById } from '@/lib/leads'
 import { requireSection } from '@/lib/auth'
 import { Lead, LeadStatus } from '@/types'
-
-const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'in-progress', 'won', 'lost']
+import { LEAD_STATUSES } from '@/lib/lead-status'
 import { LEAD_FILES_BASE } from '@/lib/lead-files'
 import fs from 'fs'
 import path from 'path'

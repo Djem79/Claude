@@ -9,7 +9,7 @@ import AreaFAQ from '@/components/AreaFAQ'
 import AreaPageClient from './AreaPageClient'
 import { getArea, areaSlugs, propertyMatchesArea } from '@/lib/areas'
 import { getProperties } from '@/lib/properties'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 
 const BASE = 'https://worldwise.pro'
 const FEATURED_LIMIT = 6
@@ -101,18 +101,9 @@ export default function AreaPage({ params }: { params: { area: string } }) {
   return (
     <>
       <Navigation transparent />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(placeJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(breadcrumbJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(faqJsonLd) }}
-      />
+      <JsonLd data={placeJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+      <JsonLd data={faqJsonLd} />
 
       <AreaPageClient area={area} listingCount={listingCount}>
         <section className="py-20 bg-white">

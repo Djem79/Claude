@@ -4,7 +4,7 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import { getArticleBySlug, getAllArticles } from '@/lib/articles'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -80,10 +80,7 @@ export default function ArticlePage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <Navigation />
       <main>
         {/* Header */}

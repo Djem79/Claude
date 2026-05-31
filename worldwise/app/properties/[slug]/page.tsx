@@ -12,7 +12,7 @@ import MobileCtaBar from '@/components/MobileCtaBar'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 
 export const revalidate = 60
 
@@ -142,8 +142,8 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(breadcrumbLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(listingLd) }} />
+      <JsonLd data={breadcrumbLd} />
+      <JsonLd data={listingLd} />
       <Navigation />
       <main className="pt-16">
         {/* Gallery */}

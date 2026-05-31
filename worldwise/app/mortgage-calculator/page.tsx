@@ -3,7 +3,7 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import MortgageCalculator from '@/components/MortgageCalculator'
 import type { Metadata } from 'next'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 
 // Computed at build time so the year in SEO copy/FAQ refreshes on each deploy
 // instead of being frozen to a hardcoded value (audit M6).
@@ -120,14 +120,8 @@ const FAQ_ITEMS = [
 export default function MortgageCalculatorPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(faqJsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
+      <JsonLd data={faqJsonLd} />
       <Navigation />
       <main>
         {/* Hero */}

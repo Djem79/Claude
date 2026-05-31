@@ -8,7 +8,7 @@ import PropertyCard from '@/components/PropertyCard'
 import GoldenVisaClient from './GoldenVisaClient'
 import { getProperties } from '@/lib/properties'
 import { qualifiesForGoldenVisa, GOLDEN_VISA_AED } from '@/lib/golden-visa'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 
 const BASE = 'https://worldwise.pro'
 const SOURCE = 'golden_visa'
@@ -132,14 +132,8 @@ export default function GoldenVisaPage() {
   return (
     <>
       <Navigation transparent />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(breadcrumbJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: ldJson(faqJsonLd) }}
-      />
+      <JsonLd data={breadcrumbJsonLd} />
+      <JsonLd data={faqJsonLd} />
 
       <GoldenVisaClient>
         {/* How it works */}

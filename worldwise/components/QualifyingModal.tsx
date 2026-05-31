@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { waLink } from '@/lib/whatsapp'
 import { areas } from '@/lib/areas'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface Props {
   isOpen: boolean
@@ -48,34 +49,9 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  // Accessibility: trap focus, close on Escape, focus first field on open/step change
-  // (audit Low — modal a11y). Re-runs per step since the focusable set changes.
-  useEffect(() => {
-    if (!isOpen) return
-    const panel = panelRef.current
-    if (!panel) return
-    const focusable = () =>
-      Array.from(
-        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea')
-      ).filter(el => el.tabIndex !== -1 && el.offsetParent !== null)
-    // Focus the first real form field (not the ✕ Close button, which is first in DOM).
-    const firstField =
-      panel.querySelector<HTMLElement>('input:not([tabindex="-1"]), select, textarea')
-      ?? panel.querySelector<HTMLElement>('button:not([disabled])')
-    firstField?.focus()
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') { onClose(); return }
-      if (e.key !== 'Tab') return
-      const items = focusable()
-      if (items.length === 0) return
-      const first = items[0]
-      const last = items[items.length - 1]
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose, step, success])
+  // Accessibility: trap focus, Escape-to-close, focus first field. Re-runs per step
+  // since the focusable set changes (audit Low — modal a11y).
+  useFocusTrap(panelRef, isOpen, onClose, [step, success])
 
   if (!isOpen) return null
 

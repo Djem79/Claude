@@ -3,7 +3,7 @@ import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
 import Analytics from '@/components/Analytics'
-import { jsonLd as ldJson } from '@/lib/jsonld'
+import JsonLd from '@/components/JsonLd'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -123,10 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: ldJson(orgJsonLd) }}
-        />
+        <JsonLd data={orgJsonLd} />
         {children}
         <CookieBanner />
         <Analytics />

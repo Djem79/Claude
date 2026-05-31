@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
+import { LEAD_STATUSES } from '@/lib/lead-status'
 
 const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
   new: { label: 'New', color: 'bg-blue-50 text-blue-700' },
@@ -11,7 +12,7 @@ const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
   lost: { label: 'Lost', color: 'bg-red-100 text-red-700' },
 }
 
-const STATUS_ORDER: LeadStatus[] = ['new', 'contacted', 'in-progress', 'won', 'lost']
+const STATUS_ORDER = LEAD_STATUSES
 
 function fmt(iso?: string) {
   if (!iso) return '—'
