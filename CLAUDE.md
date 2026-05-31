@@ -73,7 +73,14 @@ From `worldwise/`:
 - `npm run lint` — ESLint check
 - `npm run start` — run production build (PM2 uses this on server)
 
-There is no test suite. Always run `npm run build` locally before deploying.
+There is no `npm test` script and no test runner dependency, but a few **pure helpers have `node:test` unit tests** (`lib/slug.test.ts`, `lib/lead-parse.test.ts`). Run them directly with Node's type stripping:
+
+```bash
+node --test --experimental-strip-types lib/*.test.ts   # all
+node --test --experimental-strip-types lib/slug.test.ts # one file
+```
+
+`npm run build` is still the primary gate — always run it locally before deploying. For ad-hoc verification of a single `lib/` function, `npx tsx -e "import {...} from './lib/x.ts'; ..."` is the established pattern (type stripping handles the `.ts` imports).
 
 ## What NOT to do
 
@@ -190,6 +197,18 @@ Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card
 ## Architecture
 
 Next.js 14 App Router, TypeScript, Tailwind CSS.
+
+### Load-bearing invariants (read before editing data, SEO, or forms)
+
+These cross-cutting rules are easy to violate by following the "obvious" local pattern, and several were real shipped bugs. They span multiple files — keep them intact.
+
+- **All JSON-LD goes through `<JsonLd data={...} />`** (`components/JsonLd.tsx`, backed by `lib/jsonld.ts`). Never hand-write `<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(x) }}>` — raw `JSON.stringify` does **not** escape `<`, so untrusted content (AI article titles, CRM property text) containing `</script>` is a stored-XSS breakout. The component makes the escaping the only path.
+- **All JSON file writes go through `writeFileAtomic` (`lib/atomic-write.ts`)** — temp-file + rename, so a crash/full-disk can't leave a truncated data file. Don't reintroduce raw `fs.writeFileSync` on a `data/*.json` file.
+- **Read-modify-write on the JSON stores is NOT serialized across concurrent async handlers** — building a new array from a snapshot read *before* an `await` and writing it *after* loses concurrent changes (lost-update). For lead attachments, use `mutateLeadAttachments()` (`lib/leads.ts`), which re-reads fresh inside a synchronous critical section. A general per-file mutex for *all* mutations (`updateLead`/`saveLead`/properties/users) is a known pending task — see the `project_json_mutation_race` auto-memory.
+- **`getProperties()` returns `[]` only on a genuinely missing file (`ENOENT`)** and **throws** on a present-but-corrupt/unparseable one — masking a bad read as "no properties" would let the next `create/update/delete` overwrite the whole catalog with near-empty data.
+- **Property API bodies are validated/coerced via `coercePropertyInput()`** (`lib/properties.ts`) — whitelists fields, coerces types (no `NaN` price), normalizes the slug (only regenerates from title on create, never silently on a partial PUT), and never trusts `id`/`createdAt` from the body. Don't spread a raw request body into a stored property.
+- **`LeadStatus` values live once in `lib/lead-status.ts` (`LEAD_STATUSES`)** — imported by both the `PUT /api/leads/[id]` enum validation and the CRM board. Add a status there, not in parallel literal arrays.
+- **Modal a11y is shared via `useFocusTrap` (`lib/useFocusTrap.ts`)** — `LeadModal`/`QualifyingModal` get `role="dialog"`, `aria-modal`, Escape-to-close, first-field focus, and a Tab trap from it. New modals should use the hook, not re-implement it.
 
 ### Data layer — file-based JSON, no database
 

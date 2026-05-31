@@ -38,3 +38,6 @@ npm-debug.log*
 
 # RuVector tooling local DB (binary; not source)
 ruvector.db
+
+# Personal Claude Code hooks (machine-local workflow)
+.claude/hooks/
