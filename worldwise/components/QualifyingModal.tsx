@@ -58,7 +58,10 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
       Array.from(
         panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea')
       ).filter(el => el.tabIndex !== -1 && el.offsetParent !== null)
-    const firstField = panel.querySelector<HTMLElement>('input:not([tabindex="-1"]), select, textarea, button')
+    // Focus the first real form field (not the ✕ Close button, which is first in DOM).
+    const firstField =
+      panel.querySelector<HTMLElement>('input:not([tabindex="-1"]), select, textarea')
+      ?? panel.querySelector<HTMLElement>('button:not([disabled])')
     firstField?.focus()
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') { onClose(); return }
