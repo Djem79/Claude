@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProperties, createProperty, coercePropertyInput } from '@/lib/properties'
+import { revalidatePropertyPages } from '@/lib/revalidate'
 import { requireSection } from '@/lib/auth'
 import { Property } from '@/types'
 
@@ -24,5 +25,6 @@ export async function POST(req: NextRequest) {
   const id = (body as Record<string, unknown>).id
   if (typeof id === 'string') parsed.value.id = id
   const property = createProperty(parsed.value as Omit<Property, 'createdAt'> & { id?: string })
+  revalidatePropertyPages()
   return NextResponse.json(property, { status: 201 })
 }
