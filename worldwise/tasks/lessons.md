@@ -174,3 +174,11 @@ date explicitly — never assume the model knows the current year. Also: an alre
 published AI article lives in server-only `data/articles.json`; fixing it requires
 editing on the server **and** a server `npm run build` (SSG is prerendered, a
 `pm2 restart` alone serves the stale build).
+
+## Always reply in Russian (2026-06-01)
+
+The user works in Russian and has asked more than once to **always respond in
+Russian** regardless of the language of code/logs/quotes. **Rule:** all
+conversational replies, summaries, plans, and questions to this user must be in
+Russian. Code, identifiers, commit messages, and file contents stay in their
+natural language; only the prose addressed to the user is Russian.
