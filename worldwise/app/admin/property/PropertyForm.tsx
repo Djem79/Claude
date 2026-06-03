@@ -29,8 +29,10 @@ const BLANK: Partial<Property> = {
   badge: '',
 }
 
-export default function PropertyForm({ property }: { property?: Property }) {
-  const isEdit = !!property
+export default function PropertyForm({ property, draftId }: { property?: Property; draftId?: string }) {
+  // Draft prefill is NOT an edit: there is no saved property yet, so we publish
+  // (POST) rather than PUT against a non-existent id.
+  const isEdit = !!property && !draftId
   const router = useRouter()
   // Use existing id when editing; generate one upfront so uploads have a stable folder.
   const [propertyId] = useState(() => property?.id ?? String(Date.now()))
@@ -128,8 +130,10 @@ export default function PropertyForm({ property }: { property?: Property }) {
       permitNumber,
     }
 
-    const url = isEdit ? `/api/properties/${property!.id}` : '/api/properties'
-    const method = isEdit ? 'PUT' : 'POST'
+    const url = draftId
+      ? `/api/admin/import/${draftId}/publish`
+      : isEdit ? `/api/properties/${property!.id}` : '/api/properties'
+    const method = draftId ? 'POST' : isEdit ? 'PUT' : 'POST'
 
     const res = await fetch(url, {
       method,
