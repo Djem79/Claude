@@ -9,6 +9,7 @@ import PropertyGallery from './PropertyGallery'
 import CurrencySelect from '@/components/CurrencySelect'
 import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
+import MortgageAnchorBar from '@/components/MortgageAnchorBar'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
@@ -317,6 +318,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         </div>
       </main>
       <Footer />
+      {property.status !== 'rent' && (
+        <MortgageAnchorBar
+          monthlyLabel={`AED ${Math.round(estimateMonthly(property.priceAed)).toLocaleString('en-US')}`}
+          propertySlug={property.slug}
+          propertyTitle={property.title}
+        />
+      )}
       <MobileCtaBar
         enquireSource="property_enquiry"
         enquireLabel="Enquire Now"
