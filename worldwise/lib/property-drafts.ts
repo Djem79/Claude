@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { writeFileAtomic } from '@/lib/atomic-write'
-import { coercePropertyInput, createProperty } from '@/lib/properties'
+import { coercePropertyInput, createProperty, getProperties } from '@/lib/properties'
 import { revalidatePropertyPages } from '@/lib/revalidate'
 import type { Property, PropertyDraft } from '@/types'
 
@@ -66,6 +66,9 @@ export function publishDraft(
   const merged = { ...draft.fields, ...edited }
   const parsed = coercePropertyInput(merged, { partial: false })
   if (!parsed.ok) return { ok: false, error: parsed.error }
+  // Guard double-publish: createProperty would silently mint a NEW id on collision,
+  // orphaning the images already stored under properties/<draftId>/.
+  if (getProperties().some(p => p.id === id)) return { ok: false, error: 'Draft already published' }
   parsed.value.id = id
   const property = createProperty(parsed.value as Omit<Property, 'createdAt'> & { id?: string })
   removeRecord(id)
