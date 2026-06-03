@@ -14,6 +14,9 @@
 # Back up via server snapshot, NOT git.
 worldwise/data/leads.json
 
+# Transient import staging — server-only, like other data/ stores.
+worldwise/data/property-drafts.json
+
 # Uploaded client documents — contain customer PII.
 # Stored outside public/ (served only via authenticated route) — never commit.
 worldwise/lead-files/
