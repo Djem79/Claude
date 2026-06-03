@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sanitizeSlug, isValidSlug } from './slug.ts'
+import { sanitizeSlug, isValidSlug, uniqueSlug } from './slug.ts'
 
 test('sanitizeSlug keeps kebab-case, strips the rest, lowercases, caps length', () => {
   assert.equal(sanitizeSlug('Dubai Marina 2BR!'), 'dubai-marina-2br')
@@ -14,4 +14,11 @@ test('isValidSlug accepts only kebab-case within length', () => {
   assert.equal(isValidSlug('Bad Slug'), false)
   assert.equal(isValidSlug(''), false)
   assert.equal(isValidSlug('a'.repeat(81)), false)
+})
+
+test('uniqueSlug returns base when free, else suffixes -2/-3', () => {
+  assert.equal(uniqueSlug('marina-vista', []), 'marina-vista')
+  assert.equal(uniqueSlug('marina-vista', ['other']), 'marina-vista')
+  assert.equal(uniqueSlug('marina-vista', ['marina-vista']), 'marina-vista-2')
+  assert.equal(uniqueSlug('marina-vista', ['marina-vista', 'marina-vista-2']), 'marina-vista-3')
 })

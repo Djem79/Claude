@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { Property } from '@/types'
 import { writeFileAtomic } from '@/lib/atomic-write'
-import { sanitizeSlug } from '@/lib/slug'
+import { sanitizeSlug, uniqueSlug } from '@/lib/slug'
 
 const PROPERTY_TYPES: Property['type'][] = ['apartment', 'villa', 'townhouse', 'penthouse']
 const PROPERTY_STATUSES: Property['status'][] = ['off-plan', 'secondary', 'rent']
@@ -149,9 +149,13 @@ export function createProperty(data: Omit<Property, 'createdAt'> & { id?: string
   const id = data.id && /^\d{6,20}$/.test(data.id) && !properties.some(p => p.id === data.id)
     ? data.id
     : String(Date.now())
+  // Guarantee slug uniqueness — two listings sharing a slug would leave the second
+  // unreachable (getPropertyBySlug resolves the first). Suffix -2/-3 on collision.
+  const slug = data.slug ? uniqueSlug(data.slug, properties.map(p => p.slug)) : data.slug
   const newProperty: Property = {
     ...data,
     id,
+    slug,
     createdAt: new Date().toISOString(),
   }
   saveProperties([...properties, newProperty])
