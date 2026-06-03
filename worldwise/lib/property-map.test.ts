@@ -9,8 +9,12 @@ test('keeps known string fields and trims them', () => {
   assert.equal(out.area, 'Dubai Marina')
 })
 
-test('coerces numeric priceAed and drops non-numbers', () => {
-  assert.equal(mapGeminiToProperty({ priceAed: '2500000' }).priceAed, 2500000)
+test('coerces numeric fields (priceAed, pricePerSqft, roi, grossYield) and drops non-numbers', () => {
+  const out = mapGeminiToProperty({ priceAed: '2500000', pricePerSqft: 1800, roi: '7.5', grossYield: 6 })
+  assert.equal(out.priceAed, 2500000)
+  assert.equal(out.pricePerSqft, 1800)
+  assert.equal(out.roi, 7.5)
+  assert.equal(out.grossYield, 6)
   assert.equal(mapGeminiToProperty({ priceAed: 'N/A' }).priceAed, undefined)
 })
 
@@ -29,6 +33,11 @@ test('drops null/empty values entirely (no empty keys)', () => {
 
 test('cleans amenities array', () => {
   assert.deepEqual(mapGeminiToProperty({ amenities: [' Pool ', '', 'Gym', 3] }).amenities, ['Pool', 'Gym'])
+})
+
+test('omits amenities key when nothing usable', () => {
+  const out = mapGeminiToProperty({ title: 'X', amenities: [3, null, ''] })
+  assert.ok(!('amenities' in out))
 })
 
 test('returns empty object for junk input', () => {
