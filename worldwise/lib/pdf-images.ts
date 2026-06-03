@@ -22,39 +22,44 @@ export function isLikelyPhoto(bytes: number, filename: string): boolean {
  * are poppler-utils binaries invoked via child_process — no npm native addon.
  */
 export function extractImagesFromPdf(pdfBuf: Buffer, id: string): string[] {
+  if (!/^\d{6,20}$/.test(id)) throw new Error(`[pdf-images] invalid id: ${id}`)
   const publicDir = path.join(process.cwd(), 'public', 'images', 'properties', id)
   fs.mkdirSync(publicDir, { recursive: true })
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pdfimg-'))
-  const pdfPath = path.join(tmpDir, 'in.pdf')
-  fs.writeFileSync(pdfPath, pdfBuf)
 
-  const collect = (prefix: string) =>
-    fs.readdirSync(tmpDir)
-      .filter(f => f.startsWith(prefix) && /\.(png|jpe?g)$/i.test(f))
-      .filter(f => isLikelyPhoto(fs.statSync(path.join(tmpDir, f)).size, f))
-      .sort()
+  try {
+    const pdfPath = path.join(tmpDir, 'in.pdf')
+    fs.writeFileSync(pdfPath, pdfBuf)
 
-  try { execFileSync('pdfimages', ['-png', pdfPath, path.join(tmpDir, 'img')], { stdio: 'ignore' }) }
-  catch (e) { console.error('[pdf-images] pdfimages failed', e) }
-  let usable = collect('img')
+    const collect = (prefix: string) =>
+      fs.readdirSync(tmpDir)
+        .filter(f => f.startsWith(prefix) && /\.(png|jpe?g)$/i.test(f))
+        .filter(f => isLikelyPhoto(fs.statSync(path.join(tmpDir, f)).size, f))
+        .sort()
 
-  if (usable.length === 0) {
-    try { execFileSync('pdftoppm', ['-png', '-r', '150', pdfPath, path.join(tmpDir, 'page')], { stdio: 'ignore' }) }
-    catch (e) { console.error('[pdf-images] pdftoppm failed', e) }
-    usable = collect('page')
+    try { execFileSync('pdfimages', ['-png', pdfPath, path.join(tmpDir, 'img')], { stdio: 'ignore', timeout: 30_000 }) }
+    catch (e) { console.error('[pdf-images] pdfimages failed', e) }
+    let usable = collect('img')
+
+    if (usable.length === 0) {
+      try { execFileSync('pdftoppm', ['-png', '-r', '150', pdfPath, path.join(tmpDir, 'page')], { stdio: 'ignore', timeout: 30_000 }) }
+      catch (e) { console.error('[pdf-images] pdftoppm failed', e) }
+      usable = collect('page')
+    }
+
+    // Continue the gallery's numeric naming after anything already present.
+    const existing = fs.readdirSync(publicDir).filter(f => /^\d+\./.test(f))
+    let idx = existing.length === 0 ? 0 : Math.max(...existing.map(f => parseInt(f.split('.')[0], 10))) + 1
+
+    const urls: string[] = []
+    for (const f of usable) {
+      const name = `${idx}.png`
+      fs.copyFileSync(path.join(tmpDir, f), path.join(publicDir, name))
+      urls.push(`/images/properties/${id}/${name}`)
+      idx++
+    }
+    return urls
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
   }
-
-  // Continue the gallery's numeric naming after anything already present.
-  const existing = fs.readdirSync(publicDir).filter(f => /^\d+\./.test(f))
-  let idx = existing.length === 0 ? 0 : Math.max(...existing.map(f => parseInt(f, 10))) + 1
-
-  const urls: string[] = []
-  for (const f of usable) {
-    const name = `${idx}.png`
-    fs.copyFileSync(path.join(tmpDir, f), path.join(publicDir, name))
-    urls.push(`/images/properties/${id}/${name}`)
-    idx++
-  }
-  fs.rmSync(tmpDir, { recursive: true, force: true })
-  return urls
 }

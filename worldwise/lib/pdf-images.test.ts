@@ -11,6 +11,7 @@ test('rejects tiny images (logos/icons)', () => {
 })
 
 test('accepts large web-safe images', () => {
+  assert.equal(isLikelyPhoto(MIN_PHOTO_BYTES, 'x.png'), true)
   assert.equal(isLikelyPhoto(MIN_PHOTO_BYTES + 1, 'img-000.png'), true)
   assert.equal(isLikelyPhoto(200_000, 'page-1.jpg'), true)
 })
