@@ -21,5 +21,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { draftId:
   if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
-  return NextResponse.json({ ok: rejectDraft(params.draftId) })
+  const ok = rejectDraft(params.draftId)
+  if (!ok) return NextResponse.json({ error: 'Draft not found' }, { status: 404 })
+  return NextResponse.json({ ok: true })
 }
