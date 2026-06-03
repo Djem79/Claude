@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { estimateMonthly } from '@/lib/mortgage'
 import LeadModal from './LeadModal'
 
 function formatAed(n: number) {
@@ -30,13 +31,8 @@ export default function MortgageCalculator() {
   const calc = useMemo(() => {
     const downAmount = price * (effectiveDown / 100)
     const loan = price - downAmount
-    const monthlyRate = rate / 100 / 12
     const n = termYears * 12
-    const monthly =
-      monthlyRate === 0
-        ? loan / n
-        : (loan * monthlyRate * Math.pow(1 + monthlyRate, n)) /
-          (Math.pow(1 + monthlyRate, n) - 1)
+    const monthly = estimateMonthly(price, { downPct: effectiveDown / 100, ratePct: rate, years: termYears })
     const totalPaid = monthly * n
     const totalInterest = totalPaid - loan
     const dldFee = price * 0.04
