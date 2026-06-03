@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   let imageCandidates: string[] = []
   try {
-    imageCandidates = extractImagesFromPdf(buf, draftId)
+    imageCandidates = await extractImagesFromPdf(buf, draftId)
   } catch (e) {
     console.error('[import] image extraction failed:', e) // non-fatal — fields still usable
   }

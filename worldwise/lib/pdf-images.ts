@@ -1,11 +1,21 @@
-import { execFileSync } from 'node:child_process'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+const execFileP = promisify(execFile)
+
 // Below this, an extracted image is almost certainly a logo/icon/divider, not a
 // render worth showing. Tuned for developer brochures (real renders are >100KB).
 export const MIN_PHOTO_BYTES = 50 * 1024
+
+// Don't flood the gallery — keep at most this many candidates from one PDF.
+const MAX_CANDIDATES = 24
+
+// poppler can take a while on big brochures; cap so a pathological PDF can't hang
+// the worker. async execFile (below) keeps the event loop free while it runs.
+const POPPLER_TIMEOUT_MS = 60_000
 
 export function isLikelyPhoto(bytes: number, filename: string): boolean {
   if (!/\.(jpe?g|png)$/i.test(filename)) return false
@@ -14,14 +24,16 @@ export function isLikelyPhoto(bytes: number, filename: string): boolean {
 
 /**
  * Extract candidate photos from a PDF straight into public/images/properties/<id>/,
- * named with the gallery's numeric convention (0.png, 1.png …) so PropertyForm's
+ * named with the gallery's numeric convention (0.jpg, 1.png …) so PropertyForm's
  * existing uploader appends cleanly afterwards. Returns the public URL paths.
  *
- * Primary: `pdfimages -png` (embedded rasters, forced to web-safe PNG). Fallback
- * when none survive the size filter: `pdftoppm -png` (rasterize each page). Both
- * are poppler-utils binaries invoked via child_process — no npm native addon.
+ * Primary: `pdfimages -all` — extracts embedded rasters in their NATIVE format
+ * (JPEG stays JPEG, no re-encode), so it's fast; non-web formats (ppm/tiff) are
+ * dropped by the extension filter. Fallback when none survive the size filter:
+ * `pdftoppm -jpeg` (rasterize each page). Both are poppler-utils binaries run via
+ * async execFile (no npm native addon, no event-loop block) with a hard timeout.
  */
-export function extractImagesFromPdf(pdfBuf: Buffer, id: string): string[] {
+export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<string[]> {
   if (!/^\d{6,20}$/.test(id)) throw new Error(`[pdf-images] invalid id: ${id}`)
   const publicDir = path.join(process.cwd(), 'public', 'images', 'properties', id)
   fs.mkdirSync(publicDir, { recursive: true })
@@ -37,15 +49,16 @@ export function extractImagesFromPdf(pdfBuf: Buffer, id: string): string[] {
         .filter(f => isLikelyPhoto(fs.statSync(path.join(tmpDir, f)).size, f))
         .sort()
 
-    try { execFileSync('pdfimages', ['-png', pdfPath, path.join(tmpDir, 'img')], { stdio: 'ignore', timeout: 30_000 }) }
+    try { await execFileP('pdfimages', ['-all', pdfPath, path.join(tmpDir, 'img')], { timeout: POPPLER_TIMEOUT_MS }) }
     catch (e) { console.error('[pdf-images] pdfimages failed', e) }
     let usable = collect('img')
 
     if (usable.length === 0) {
-      try { execFileSync('pdftoppm', ['-png', '-r', '150', pdfPath, path.join(tmpDir, 'page')], { stdio: 'ignore', timeout: 30_000 }) }
+      try { await execFileP('pdftoppm', ['-jpeg', '-r', '120', pdfPath, path.join(tmpDir, 'page')], { timeout: POPPLER_TIMEOUT_MS }) }
       catch (e) { console.error('[pdf-images] pdftoppm failed', e) }
       usable = collect('page')
     }
+    usable = usable.slice(0, MAX_CANDIDATES)
 
     // Continue the gallery's numeric naming after anything already present.
     const existing = fs.readdirSync(publicDir).filter(f => /^\d+\./.test(f))
@@ -53,7 +66,8 @@ export function extractImagesFromPdf(pdfBuf: Buffer, id: string): string[] {
 
     const urls: string[] = []
     for (const f of usable) {
-      const name = `${idx}.png`
+      const ext = path.extname(f).toLowerCase() // preserve native ext (.jpg/.png)
+      const name = `${idx}${ext}`
       fs.copyFileSync(path.join(tmpDir, f), path.join(publicDir, name))
       urls.push(`/images/properties/${id}/${name}`)
       idx++
