@@ -195,6 +195,7 @@ Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card
 - New feature pages that are meant for ads (high-intent traffic) should have minimal navigation — calculator or tool at the top, CTA at the bottom.
 - Blog articles end with a CTA to consultation — do not make them dead ends.
 - All copy in English. No Russian on any public-facing page.
+- **No emojis on any public-facing page.** The brand is luxury/premium — use words, typographic glyphs (`→ ← ✕ ★ ✓`) or SVG/line icons, never pictographic emoji (🏙💬📞🔒, flag emojis, etc.). Admin CRM + Telegram-bot messages are back-office, not the site, and may keep their glyphs.
 
 ## Architecture
 

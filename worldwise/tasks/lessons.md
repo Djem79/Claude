@@ -182,3 +182,11 @@ Russian** regardless of the language of code/logs/quotes. **Rule:** all
 conversational replies, summaries, plans, and questions to this user must be in
 Russian. Code, identifiers, commit messages, and file contents stay in their
 natural language; only the prose addressed to the user is Russian.
+
+## No emojis on public-facing pages (2026-06-04)
+
+**Mistake:** Added emoji icons (🏙🎯📊🛂 in IntentRouter, 📐 on the property card) while building Conversion Wave 1.
+
+**Rule:** NO emojis anywhere on public-facing pages. The luxury/premium brand uses words, typographic glyphs (→ ← ✕ ★ ✓) or SVG/line icons instead. This applies to new components AND copy.
+
+**How to apply:** Before shipping any public UI, scan for pictographic emoji (U+1F000–1FAFF, regional-indicator flags, ✉/💬/📞/🔒, etc.). Admin CRM and Telegram-bot messages are NOT the public site and may keep their glyphs. Typographic arrows/stars/checks are fine.
