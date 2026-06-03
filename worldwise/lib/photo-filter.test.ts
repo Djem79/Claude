@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isLikelyPhoto, MIN_PHOTO_BYTES } from './pdf-images.ts'
+import { isLikelyPhoto, MIN_PHOTO_BYTES } from './photo-filter.ts'
 
 test('rejects non-image extensions regardless of size', () => {
   assert.equal(isLikelyPhoto(MIN_PHOTO_BYTES + 1, 'img-000.txt'), false)
