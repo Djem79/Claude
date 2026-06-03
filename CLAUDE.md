@@ -113,7 +113,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cd /var/www/worldwise && npm install && npm run build && pm2 restart worldwise"
 ```
 
-> **One-time server prerequisite for PDF import:** `apt-get install -y poppler-utils` (provides `pdfimages`/`pdftoppm`). Without it, developer-PDF photo extraction silently degrades to fields-only.
+> **One-time server prerequisite for PDF import:** `apt-get install -y poppler-utils imagemagick` (`pdfimages`/`pdftoppm` for extraction; `convert`/`magick` to downscale print-resolution rasters to ~1600px web images). Without poppler, photo extraction silently degrades to fields-only; without ImageMagick, extracted images are copied at native size (large/slow).
 
 The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
 
@@ -336,7 +336,7 @@ A set of conversion/polish components layered on the public site. Most are share
 
 Admins import developer brochure PDFs into the catalog from `/admin` (the `ImportPanel` above the Properties table). Flow: upload a PDF → `extractPropertyFromPdf` (`lib/property-extract.ts`, Gemini `gemini-2.5-flash` multimodal, strict JSON `responseSchema`) fills property fields via the pure `mapGeminiToProperty` (`lib/property-map.ts`); `extractImagesFromPdf` (`lib/pdf-images.ts`) pulls candidate photos with **poppler-utils** (`pdfimages -png`, fallback `pdftoppm`) straight into `public/images/properties/<draftId>/`. The result is staged as a `PropertyDraft` in `data/property-drafts.json` (`lib/property-drafts.ts`, server-only, gitignored). The admin reviews/edits via the existing `PropertyForm` at `/admin/property/new?draft=<id>` (or quick-publishes), and publishing goes through `coercePropertyInput()` + `createProperty()` **reusing `draftId` as the property `id`** — so the extracted images need no move. AI only pre-fills; nothing reaches the public site without the manual publish step.
 
-**Dependency:** the server needs the `poppler-utils` package (`pdfimages`/`pdftoppm`). It is a system binary invoked via `child_process` (not an npm native addon), so it does not violate the Edge-runtime no-native-modules rule. If missing, image extraction degrades gracefully to fields-only (logged, non-fatal).
+**Dependencies:** the server needs `poppler-utils` (`pdfimages`/`pdftoppm`, extraction) and `imagemagick` (`convert`/`magick`, downscaling extracted rasters to ~1600px). Both are system binaries invoked via `child_process` (not npm native addons), so they don't violate the Edge-runtime no-native-modules rule. If poppler is missing, extraction degrades to fields-only; if ImageMagick is missing, images are copied at native size — both logged, non-fatal.
 
 ### Blog / articles
 
