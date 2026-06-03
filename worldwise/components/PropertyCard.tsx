@@ -65,6 +65,7 @@ export default function PropertyCard({ property }: { property: Property }) {
 
         <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
           {property.bedrooms && <span>🛏 {property.bedrooms}</span>}
+          {property.pricePerSqft && <span>📐 AED {property.pricePerSqft.toLocaleString('en-US')}/ft²</span>}
           {property.paymentPlan && <span>📋 {property.paymentPlan}</span>}
           {property.completionDate && <span>🗓 {property.completionDate}</span>}
           {property.grossYield && <span>📈 {property.grossYield}% yield</span>}
