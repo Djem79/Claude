@@ -54,9 +54,13 @@ export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<Partial<Pr
           responseSchema: SCHEMA,
         },
       }),
+      signal: AbortSignal.timeout(30000),
     }
   )
-  if (!res.ok) throw new Error(`Gemini error ${res.status}: ${await res.text()}`)
+  if (!res.ok) {
+    const errText = await res.text()
+    throw new Error(`Gemini error ${res.status}: ${errText.slice(0, 200)}`)
+  }
   const j = await res.json()
   const text = j.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Empty Gemini response')
