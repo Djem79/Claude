@@ -63,6 +63,14 @@ const nextConfig = {
       { source: '/www.tiktok.com/:path*',    destination: 'https://www.tiktok.com/:path*',    permanent: true },
     ]
   },
+  async rewrites() {
+    // afterFiles: only fires when no static public file matched. `next start` won't
+    // serve public/ files created after `next build` (PDF-import images, fresh
+    // uploads), so those fall through here to the runtime file server.
+    return [
+      { source: '/images/properties/:id/:file', destination: '/api/media/properties/:id/:file' },
+    ]
+  },
 }
 
 export default nextConfig
