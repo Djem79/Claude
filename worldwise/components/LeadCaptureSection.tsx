@@ -122,7 +122,7 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
             </button>
 
             <p className="text-white/30 text-xs text-center">
-              🔒 Your data is safe. No spam. No obligation. We reply within 2 hours.
+              Your data is safe. No spam. No obligation. We reply within 2 hours.
             </p>
           </form>
         )}
@@ -134,13 +134,13 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
             rel="noopener noreferrer"
             className="hover:text-white transition-colors"
           >
-            💬 WhatsApp
+            WhatsApp
           </a>
           <a href="tel:+971506960435" className="hover:text-white transition-colors">
-            📞 +971 50 696 0435
+            +971 50 696 0435
           </a>
           <a href="mailto:info@worldwise.pro" className="hover:text-white transition-colors">
-            ✉ info@worldwise.pro
+            info@worldwise.pro
           </a>
         </div>
       </div>

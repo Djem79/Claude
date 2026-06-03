@@ -130,7 +130,7 @@ export default function GuideClient() {
                 </button>
 
                 <p className="text-xs text-gray-400 text-center">
-                  🔒 No spam. We&apos;ll only use this to send your guide and follow up.
+                  No spam. We&apos;ll only use this to send your guide and follow up.
                 </p>
               </form>
             </>

@@ -257,7 +257,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
                   </div>
 
                   <p className="text-xs text-gray-400 text-center">
-                    🔒 No spam. No obligation. We reply within 2 hours.
+                    No spam. No obligation. We reply within 2 hours.
                   </p>
 
                   <a

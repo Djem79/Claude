@@ -98,13 +98,13 @@ export default function PropertyEnquiryForm({
               className="flex-1 bg-[#25D366] text-white text-sm font-medium py-2.5 rounded-sm text-center hover:opacity-90 transition-opacity"
               onClick={() => track('whatsapp_click', { source: 'property_enquiry', property: propertyTitle })}
             >
-              💬 WhatsApp
+              WhatsApp
             </a>
             <a
               href="tel:+971506960435"
               className="flex-1 border border-gray-200 text-navy text-sm font-medium py-2.5 rounded-sm text-center hover:border-gold transition-colors"
             >
-              📞 Call
+              Call
             </a>
           </div>
         </>

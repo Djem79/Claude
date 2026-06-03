@@ -309,10 +309,10 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
               rel="noopener noreferrer"
               className="btn-primary"
             >
-              💬 WhatsApp Now
+              WhatsApp Now
             </a>
             <a href="tel:+971506960435" className="btn-outline">
-              📞 Call Us
+              Call Us
             </a>
           </div>
         </div>

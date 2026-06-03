@@ -5,28 +5,28 @@ import { useState } from 'react'
 const testimonials = [
   {
     name: 'James H.',
-    country: 'London, UK 🇬🇧',
+    country: 'London, UK',
     deal: 'Business Bay apartment — AED 1.4M',
     text: 'I was looking to diversify outside the UK property market. Worldwise found me an off-plan apartment in Business Bay with 8.5% projected ROI. The whole process — from first call to signing — took less than 3 weeks. Exceptional team.',
     stars: 5,
   },
   {
     name: 'Priya S.',
-    country: 'Mumbai, India 🇮🇳',
+    country: 'Mumbai, India',
     deal: 'JLT apartment — AED 2.1M',
     text: 'As an NRI investor, I was worried about the legal process and trust. Worldwise guided me through every step, handled the DLD registration remotely and even helped me set up the rental management. Highly recommend.',
     stars: 5,
   },
   {
     name: 'Markus W.',
-    country: 'Frankfurt, Germany 🇩🇪',
+    country: 'Frankfurt, Germany',
     deal: 'Dubai Marina penthouse — AED 5.8M',
     text: 'What impressed me most was their market knowledge. They didn\'t just sell me a listing — they explained the yield potential, resale dynamics and neighbourhood growth projections. A genuinely data-driven team.',
     stars: 5,
   },
   {
     name: 'Ahmed Al F.',
-    country: 'Riyadh, KSA 🇸🇦',
+    country: 'Riyadh, KSA',
     deal: 'Creek Harbour — 2 units — AED 4.1M total',
     text: 'I\'ve worked with several agencies in Dubai. Worldwise stands out for their follow-through. Even after the sale closed they assisted with furnishing, DEWA setup and finding tenants. Truly full-service.',
     stars: 5,
