@@ -1,0 +1,64 @@
+import type { Property } from '@/types'
+import { mapGeminiToProperty } from '@/lib/property-map'
+
+const SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    title: { type: 'STRING' },
+    developer: { type: 'STRING' },
+    area: { type: 'STRING' },
+    type: { type: 'STRING', enum: ['apartment', 'villa', 'townhouse', 'penthouse'] },
+    status: { type: 'STRING', enum: ['off-plan', 'secondary', 'rent'] },
+    priceAed: { type: 'NUMBER' },
+    pricePerSqft: { type: 'NUMBER' },
+    roi: { type: 'NUMBER' },
+    grossYield: { type: 'NUMBER' },
+    bedrooms: { type: 'STRING' },
+    completionDate: { type: 'STRING' },
+    paymentPlan: { type: 'STRING' },
+    shortDescription: { type: 'STRING' },
+    description: { type: 'STRING' },
+    amenities: { type: 'ARRAY', items: { type: 'STRING' } },
+  },
+} as const
+
+const SYSTEM = `You extract structured real-estate listing data from a Dubai developer project brochure (PDF). Return ONLY information actually present in the document. If a field is not in the PDF, omit it — never invent prices, sizes, names, amenities, ROI, or yield. priceAed = the starting/from price in AED as a plain number (no currency symbol, no commas, no "from"). roi and grossYield are percentages as plain numbers (e.g. 7.5), only if the brochure explicitly states them. bedrooms = a human label like "Studio", "1-3 BR". status: "off-plan" for under-construction/launch projects, "secondary" for ready resale, "rent" only for rentals. type = the dominant unit type. description = 2-4 factual sentences. shortDescription = one sentence.`
+
+/**
+ * Send the whole PDF to Gemini multimodal and return cleaned, partial property
+ * fields. Throws on missing key / API error / unparseable response — the caller
+ * surfaces that to the admin.
+ */
+export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<Partial<Property>> {
+  const key = process.env.GEMINI_API_KEY
+  if (!key) throw new Error('GEMINI_API_KEY not set')
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM }] },
+        contents: [{
+          parts: [
+            { inlineData: { mimeType: 'application/pdf', data: pdfBuf.toString('base64') } },
+            { text: 'Extract this project\'s details into the schema.' },
+          ],
+        }],
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: 2048,
+          thinkingConfig: { thinkingBudget: 0 },
+          responseMimeType: 'application/json',
+          responseSchema: SCHEMA,
+        },
+      }),
+    }
+  )
+  if (!res.ok) throw new Error(`Gemini error ${res.status}: ${await res.text()}`)
+  const j = await res.json()
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!text) throw new Error('Empty Gemini response')
+  return mapGeminiToProperty(JSON.parse(text))
+}
