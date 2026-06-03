@@ -331,6 +331,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         waMessage={waPropertyMessage(property.title)}
         propertySlug={property.slug}
         propertyTitle={property.title}
+        monthlyNote={property.status !== 'rent' ? `Own from AED ${Math.round(estimateMonthly(property.priceAed)).toLocaleString('en-US')}/mo (mortgage)` : undefined}
       />
     </>
   )
