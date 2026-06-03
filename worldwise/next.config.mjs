@@ -69,6 +69,7 @@ const nextConfig = {
     // uploads), so those fall through here to the runtime file server.
     return [
       { source: '/images/properties/:id/:file', destination: '/api/media/properties/:id/:file' },
+      { source: '/images/qr/:file', destination: '/api/media/qr/:file' },
     ]
   },
 }
