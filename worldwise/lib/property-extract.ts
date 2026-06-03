@@ -22,7 +22,22 @@ const SCHEMA = {
   },
 } as const
 
-const SYSTEM = `You extract structured real-estate listing data from a Dubai developer project brochure (PDF). Return ONLY information actually present in the document. If a field is not in the PDF, omit it — never invent prices, sizes, names, amenities, ROI, or yield. priceAed = the starting/from price in AED as a plain number (no currency symbol, no commas, no "from"). roi and grossYield are percentages as plain numbers (e.g. 7.5), only if the brochure explicitly states them. bedrooms = a human label like "Studio", "1-3 BR". status: "off-plan" for under-construction/launch projects, "secondary" for ready resale, "rent" only for rentals. type = the dominant unit type. description = 2-4 factual sentences. shortDescription = one sentence.`
+const SYSTEM = `You extract structured real-estate listing data from a Dubai developer project brochure (PDF).
+
+HARD FACTS — copy ONLY what the brochure states, never invent or guess. Omit the field if absent:
+- priceAed: starting/"from" price in AED as a plain number (no currency symbol, no commas, no "from").
+- pricePerSqft: plain number, only if stated.
+- roi, grossYield: percentages as plain numbers (e.g. 7.5), only if the brochure explicitly states them.
+- bedrooms: a human label like "Studio", "1-3 BR".
+- developer: the developer/brand name. title: the project name. completionDate: handover date if stated.
+
+INFERRED / SUMMARISED FIELDS — always fill these from the brochure content; summarising is expected and is NOT considered invention:
+- area: the Dubai district / community the project is located in (e.g. "Dubai Marina", "Business Bay", "Palm Jumeirah", "Dubai Hills", "JVC", "Dubai Creek Harbour"). Infer it from the location / address / map section. Use the community name, NOT the full street address. This field is important — do your best to determine it.
+- description: a 2-4 sentence prose summary of the project (its location, concept, and standout features). Write it even when the brochure has no single description paragraph — synthesise from the available content.
+- shortDescription: a single-sentence hook.
+- amenities: the listed facilities / features as short individual items.
+
+status: "off-plan" for under-construction/launch projects, "secondary" for ready resale, "rent" only for rentals. type = the dominant unit type (apartment, villa, townhouse, or penthouse).`
 
 /**
  * Send the whole PDF to Gemini multimodal and return cleaned, partial property
