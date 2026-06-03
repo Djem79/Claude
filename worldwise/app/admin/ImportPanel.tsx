@@ -50,7 +50,7 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
     <div>
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-serif text-2xl text-navy">Import from PDF</h2>
-        <label className={`btn-outline text-sm px-5 py-2.5 cursor-pointer ${busy ? 'opacity-50 pointer-events-none' : ''}`}>
+        <label className={`inline-block text-sm font-medium text-navy border border-gray-200 px-5 py-2.5 rounded-sm hover:border-gold cursor-pointer transition-colors ${busy ? 'opacity-50 pointer-events-none' : ''}`}>
           {busy ? 'Working\u2026' : '+ Upload developer PDF'}
           <input type="file" accept="application/pdf" className="hidden" onChange={onFile} disabled={busy} />
         </label>
