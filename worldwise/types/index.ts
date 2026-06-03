@@ -26,6 +26,15 @@ export interface Property {
   createdAt: string
 }
 
+export interface PropertyDraft {
+  draftId: string            // numeric string; reused as the property id on publish
+  fields: Partial<Property>  // AI-extracted, cleaned property fields
+  imageCandidates: string[]  // /images/properties/<draftId>/<n>.png paths from the PDF
+  sourcePdf: string          // original uploaded filename (for display)
+  extractedAt: string        // ISO timestamp
+  status: 'pending'
+}
+
 export type LeadStatus = 'new' | 'contacted' | 'in-progress' | 'won' | 'lost'
 
 export interface ActivityEntry {
