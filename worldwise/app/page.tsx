@@ -1,6 +1,7 @@
 import { getFeaturedProperties } from '@/lib/properties'
 import Navigation from '@/components/Navigation'
 import Hero from '@/components/Hero'
+import IntentRouter from '@/components/IntentRouter'
 import TrustBar from '@/components/TrustBar'
 import FeaturedProperties from '@/components/FeaturedProperties'
 import MortgageCalculator from '@/components/MortgageCalculator'
@@ -26,6 +27,7 @@ export default function Home() {
       <Navigation transparent />
       <main>
         <Hero />
+        <IntentRouter />
         <TrustBar />
         <Reveal>
           <FeaturedProperties properties={featured} />
