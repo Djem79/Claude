@@ -5,6 +5,8 @@ import { getLeads } from '@/lib/leads'
 import { getSession } from '@/lib/auth'
 import { canAccess, landingPath } from '@/lib/permissions'
 import AdminPropertyActions from './AdminPropertyActions'
+import ImportPanel from './ImportPanel'
+import { listDrafts } from '@/lib/property-drafts'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +32,7 @@ export default async function AdminPage() {
 
   const properties = getProperties()
   const leads = getLeads()
+  const drafts = listDrafts()
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10 space-y-12">
@@ -47,6 +50,9 @@ export default async function AdminPage() {
           </div>
         ))}
       </div>
+
+      {/* Import from PDF */}
+      <ImportPanel initialDrafts={drafts} />
 
       {/* Properties table */}
       <div>
