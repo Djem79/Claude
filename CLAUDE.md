@@ -113,6 +113,8 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cd /var/www/worldwise && npm install && npm run build && pm2 restart worldwise"
 ```
 
+> **One-time server prerequisite for PDF import:** `apt-get install -y poppler-utils` (provides `pdfimages`/`pdftoppm`). Without it, developer-PDF photo extraction silently degrades to fields-only.
+
 The server has a separate git repo at `/var/www/worldwise/` tracking only `data/` on the `data-backup` branch (auto-commits every 6 hours via cron, pushes to GitHub).
 
 > **⚠️ Deploy reflects your working tree, not git.** Because deployment rsyncs the working tree (excluding `data/`), the server holds the **union of all unmerged branches' code**. Deploying from a feature branch will silently **revert files that only exist on a sibling branch** to whatever your branch has. Before any deploy, your working tree must contain the full intended live state: prefer **merging open PRs into `main` and deploying from `main`**, or pull missing files from sibling branches first (`git checkout <branch> -- <files>`). After rsync and **before `npm run build` on the server**, `grep` for markers of every recent feature to confirm nothing was clobbered — the old build keeps serving until you rebuild, so a caught mistake is recoverable.
@@ -290,6 +292,10 @@ The token shape (`SessionPayload`) is intentionally unchanged — do not add `se
 | `POST /api/properties` | section `properties` | Create property |
 | `PUT/DELETE /api/properties/[id]` | section `properties` | Update / delete property |
 | `POST /api/telegram-webhook` | `WEBHOOK_SECRET` header | Receives Telegram callbacks: publish/skip article buttons, `/add_keyword` command |
+| `POST /api/admin/import` | section `properties` | Upload developer PDF → Gemini field extraction + poppler photo extraction → staged draft |
+| `GET /api/admin/import` | section `properties` | List pending import drafts |
+| `PUT/DELETE /api/admin/import/[draftId]` | section `properties` | Update draft fields / reject draft (+ delete its image folder) |
+| `POST /api/admin/import/[draftId]/publish` | section `properties` | Publish draft → property (reuses draftId as id) |
 
 (Section guards return **403** when the authenticated user lacks the section; owners always pass. `GET /api/properties` and `POST /api/leads` are deliberately public.)
 
@@ -325,6 +331,12 @@ A set of conversion/polish components layered on the public site. Most are share
 `worldwise/scripts/seed-gross-yield.cjs` (server-only) seeds `grossYield` per property from researched per-district yields (tolerant area matching; **specific tokens before general**, e.g. "Damac Hills 2" before "Damac Hills"; never fabricate for unrecognised/generic areas). Run on the server: `node scripts/seed-gross-yield.cjs` (dry-run) → `--apply` → `npm run build && pm2 restart worldwise`. The script header documents the **monthly yield-review process** (re-verify yields vs E&V / DLD / Bayut, update `lib/areas.ts` + re-seed). A recurring monthly calendar reminder drives it.
 
 > Editing `data/properties.json` directly (vs an rsync deploy) requires a **server `npm run build`** afterwards — SSG pages are prerendered, so a `pm2 restart` alone serves the stale build.
+
+### Developer PDF import
+
+Admins import developer brochure PDFs into the catalog from `/admin` (the `ImportPanel` above the Properties table). Flow: upload a PDF → `extractPropertyFromPdf` (`lib/property-extract.ts`, Gemini `gemini-2.5-flash` multimodal, strict JSON `responseSchema`) fills property fields via the pure `mapGeminiToProperty` (`lib/property-map.ts`); `extractImagesFromPdf` (`lib/pdf-images.ts`) pulls candidate photos with **poppler-utils** (`pdfimages -png`, fallback `pdftoppm`) straight into `public/images/properties/<draftId>/`. The result is staged as a `PropertyDraft` in `data/property-drafts.json` (`lib/property-drafts.ts`, server-only, gitignored). The admin reviews/edits via the existing `PropertyForm` at `/admin/property/new?draft=<id>` (or quick-publishes), and publishing goes through `coercePropertyInput()` + `createProperty()` **reusing `draftId` as the property `id`** — so the extracted images need no move. AI only pre-fills; nothing reaches the public site without the manual publish step.
+
+**Dependency:** the server needs the `poppler-utils` package (`pdfimages`/`pdftoppm`). It is a system binary invoked via `child_process` (not an npm native addon), so it does not violate the Edge-runtime no-native-modules rule. If missing, image extraction degrades gracefully to fields-only (logged, non-fatal).
 
 ### Blog / articles
 
