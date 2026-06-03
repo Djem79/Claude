@@ -31,15 +31,18 @@ export async function POST(req: NextRequest) {
 
   const draftId = String(Date.now())
   let fields
+  let renderPages: number[] = []
   try {
-    fields = await extractPropertyFromPdf(buf)
+    const extracted = await extractPropertyFromPdf(buf)
+    fields = extracted.fields
+    renderPages = extracted.renderPages
   } catch (e) {
     return NextResponse.json({ error: `Extraction failed: ${(e as Error).message}` }, { status: 502 })
   }
 
   let imageCandidates: string[] = []
   try {
-    imageCandidates = await extractImagesFromPdf(buf, draftId)
+    imageCandidates = await extractImagesFromPdf(buf, draftId, renderPages)
   } catch (e) {
     console.error('[import] image extraction failed:', e) // non-fatal — fields still usable
   }

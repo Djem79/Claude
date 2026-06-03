@@ -19,6 +19,7 @@ const SCHEMA = {
     shortDescription: { type: 'STRING' },
     description: { type: 'STRING' },
     amenities: { type: 'ARRAY', items: { type: 'STRING' } },
+    renderPages: { type: 'ARRAY', items: { type: 'INTEGER' } },
   },
 } as const
 
@@ -37,14 +38,19 @@ INFERRED / SUMMARISED FIELDS — always fill these from the brochure content; su
 - shortDescription: a single-sentence hook.
 - amenities: the listed facilities / features as short individual items.
 
-status: "off-plan" for under-construction/launch projects, "secondary" for ready resale, "rent" only for rentals. type = the dominant unit type (apartment, villa, townhouse, or penthouse).`
+status: "off-plan" for under-construction/launch projects, "secondary" for ready resale, "rent" only for rentals. type = the dominant unit type (apartment, villa, townhouse, or penthouse).\n\nrenderPages: a list of 1-based PDF page numbers whose MAIN image is an actual photograph or 3D render of THIS property — building exterior, interiors, living rooms, bedrooms, bathrooms, kitchens, pools, terraces, lobby, views, amenity spaces, or floor plans. EXCLUDE pages whose imagery is only abstract/mood art (smoke, ink, flowing fabric, water droplets, sand or stone textures), brand or section dividers, logos, the cover, the contents page, and contact/disclaimer pages. Be selective — prefer real renders over decorative pages.`
 
 /**
  * Send the whole PDF to Gemini multimodal and return cleaned, partial property
  * fields. Throws on missing key / API error / unparseable response — the caller
  * surfaces that to the admin.
  */
-export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<Partial<Property>> {
+export interface ExtractResult {
+  fields: Partial<Property>
+  renderPages: number[]
+}
+
+export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<ExtractResult> {
   const key = process.env.GEMINI_API_KEY
   if (!key) throw new Error('GEMINI_API_KEY not set')
 
@@ -79,5 +85,9 @@ export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<Partial<Pr
   const j = await res.json()
   const text = j.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Empty Gemini response')
-  return mapGeminiToProperty(JSON.parse(text))
+  const parsed = JSON.parse(text)
+  const renderPages: number[] = Array.isArray(parsed.renderPages)
+    ? parsed.renderPages.filter((n: unknown): n is number => Number.isInteger(n) && (n as number) > 0)
+    : []
+  return { fields: mapGeminiToProperty(parsed), renderPages }
 }
