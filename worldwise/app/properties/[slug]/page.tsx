@@ -12,6 +12,7 @@ import MobileCtaBar from '@/components/MobileCtaBar'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
+import { estimateMonthly } from '@/lib/mortgage'
 import JsonLd from '@/components/JsonLd'
 
 export const revalidate = 60
@@ -175,6 +176,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                 {[
                   { label: 'Starting Price', value: <PriceTag aed={property.priceAed} /> },
                   { label: 'Bedrooms', value: property.bedrooms },
+                  ...(property.pricePerSqft ? [{ label: 'Price / sq.ft', value: `AED ${property.pricePerSqft.toLocaleString('en-US')}` }] : []),
                   ...(property.roi ? [{ label: 'Est. ROI', value: `${property.roi}%` }] : []),
                   ...(property.grossYield ? [{ label: 'Gross Yield', value: `${property.grossYield}%` }] : []),
                   ...(property.completionDate ? [{ label: 'Handover', value: property.completionDate }] : []),
@@ -186,6 +188,14 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   </div>
                 ))}
               </div>
+
+              {property.status !== 'rent' && (
+                <p className="-mt-6 text-sm text-gray-500">
+                  ≈ <span className="text-navy font-medium">AED {Math.round(estimateMonthly(property.priceAed)).toLocaleString('en-US')}/mo</span> with a mortgage
+                  <span className="text-gray-400"> · 25% down · 4.5% · 25 yrs</span>
+                  {' '}<Link href="/mortgage-calculator" className="text-gold-accessible hover:underline">Estimate yours →</Link>
+                </p>
+              )}
 
               {/* Description */}
               <div>
@@ -235,7 +245,8 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                         </div>
                       )}
                       <p className="text-xs text-gray-400 pt-2">
-                        Issued by Dubai Land Department (DLD) · Real Estate Regulatory Agency (RERA)
+                        Issued by Dubai Land Department (DLD) · Real Estate Regulatory Agency (RERA) ·{' '}
+                        <a href="https://dubailand.gov.ae/en/" target="_blank" rel="noopener noreferrer" className="text-gold-accessible hover:underline">Verify on dubailand.gov.ae →</a>
                       </p>
                     </div>
                   </div>
