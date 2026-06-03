@@ -32,15 +32,18 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
   async function publish(id: string) {
     setBusy(true); setError('')
     const res = await fetch(`/api/admin/import/${id}/publish`, { method: 'POST' })
-    setBusy(false)
     if (res.ok) { await refresh(); router.refresh() }
     else setError((await res.json().catch(() => ({}))).error || 'Publish failed')
+    setBusy(false)
   }
 
   async function reject(id: string) {
     if (!confirm('Reject and delete this draft?')) return
-    await fetch(`/api/admin/import/${id}`, { method: 'DELETE' })
-    await refresh()
+    setBusy(true); setError('')
+    const res = await fetch(`/api/admin/import/${id}`, { method: 'DELETE' })
+    if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Reject failed')
+    else await refresh()
+    setBusy(false)
   }
 
   return (
@@ -74,7 +77,7 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
               <div className="flex gap-3 mt-3 text-xs">
                 <Link href={`/admin/property/new?draft=${d.draftId}`} className="text-gold-accessible hover:underline">Review &amp; edit</Link>
                 <button onClick={() => publish(d.draftId)} disabled={busy} className="text-green-600 hover:underline">Publish</button>
-                <button onClick={() => reject(d.draftId)} className="text-red-400 hover:text-red-600">Reject</button>
+                <button onClick={() => reject(d.draftId)} disabled={busy} className="text-red-400 hover:text-red-600">Reject</button>
               </div>
             </div>
           ))}
