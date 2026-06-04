@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { DUBAI_AREAS, canonicalizeArea } from './dubai-areas.ts'
+import { DUBAI_AREAS, canonicalizeArea, _ALIAS_TARGETS } from './dubai-areas.ts'
 
 test('canonical name returns itself (case/space-insensitive)', () => {
   assert.equal(canonicalizeArea('Dubai Marina'), 'Dubai Marina')
@@ -28,6 +28,12 @@ test('empty/whitespace returns empty string', () => {
 
 test('every alias target exists in DUBAI_AREAS', () => {
   const set = new Set(DUBAI_AREAS)
-  for (const v of ['JLT', 'Dubai Sports City', 'Mohammed Bin Rashid City', 'Expo City', 'JBR', 'Dubai Investment Park', 'Sobha Hartland', 'Arjan', 'Dubailand', 'Meydan', 'Dubai Maritime City'])
-    assert.ok(set.has(v), v)
+  for (const v of _ALIAS_TARGETS) assert.ok(set.has(v), v)
+})
+
+test('new real communities the operator added are recognised', () => {
+  assert.equal(canonicalizeArea('Damac Lagoon Views'), 'Damac Lagoons')
+  assert.equal(canonicalizeArea('Jumeirah Golf'), 'Jumeirah Golf Estates')
+  assert.equal(canonicalizeArea('Dubai Investments Park (DIP)'), 'Dubai Investment Park')
+  assert.equal(canonicalizeArea('Damac Hills 2'), 'Damac Hills 2')
 })
