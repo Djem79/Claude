@@ -24,6 +24,8 @@ export type Area = {
   excludeAliases?: string[]
   heroImage: string
   tagline: string
+  /** District centre, used as the map fallback when a property has no lat/lng. */
+  coords: { lat: number; lng: number }
   metrics: AreaMetrics
   whyInvest: string[]
   whatsNearby: string[]
@@ -37,6 +39,7 @@ export const areas: Area[] = [
     name: 'Dubai Marina',
     heroImage: '/images/areas/dubai-marina.jpg',
     tagline: "Dubai's iconic waterfront skyline — and one of the city's deepest rental markets.",
+    coords: { lat: 25.0805, lng: 55.1403 },
     metrics: {
       avgPrice: 'AED 1,850/sqft',
       roi: '6–7%',
@@ -80,6 +83,7 @@ export const areas: Area[] = [
     name: 'Downtown Dubai',
     heroImage: '/images/areas/downtown-dubai.jpg',
     tagline: 'Live next to Burj Khalifa — the most prestigious address in the city.',
+    coords: { lat: 25.1950, lng: 55.2744 },
     metrics: {
       avgPrice: 'AED 2,200/sqft',
       roi: '5–6%',
@@ -123,6 +127,7 @@ export const areas: Area[] = [
     name: 'Palm Jumeirah',
     heroImage: '/images/areas/palm-jumeirah.jpg',
     tagline: "Dubai's signature waterfront island — beachfront living with global brand recognition.",
+    coords: { lat: 25.1124, lng: 55.1390 },
     metrics: {
       avgPrice: 'AED 2,800/sqft',
       roi: '5–6%',
@@ -166,6 +171,7 @@ export const areas: Area[] = [
     name: 'Business Bay',
     heroImage: '/images/areas/business-bay.jpg',
     tagline: "Dubai's CBD next to Downtown — and the city's highest-yielding investment district.",
+    coords: { lat: 25.1850, lng: 55.2650 },
     metrics: {
       avgPrice: 'AED 1,600/sqft',
       roi: '7–8%',
@@ -209,6 +215,7 @@ export const areas: Area[] = [
     name: 'Dubai Hills',
     heroImage: '/images/areas/dubai-hills.jpg',
     tagline: "Dubai's green-belt family district — schools, golf, and one of Emaar's flagship masterplans.",
+    coords: { lat: 25.1050, lng: 55.2480 },
     metrics: {
       avgPrice: 'AED 1,400/sqft',
       roi: '6–7%',
@@ -253,6 +260,7 @@ export const areas: Area[] = [
     aliases: ['Jumeirah Lake Towers', 'Jumeirah Lakes Towers'],
     heroImage: '/images/areas/jlt.jpg',
     tagline: 'Marina-adjacent and metro-served — the highest-yielding established district in Dubai.',
+    coords: { lat: 25.0693, lng: 55.1440 },
     metrics: {
       avgPrice: 'AED 1,200/sqft',
       roi: '7–8%',
@@ -297,6 +305,7 @@ export const areas: Area[] = [
     aliases: ['Mohammed Bin Rashid City', 'Sobha Hartland'],
     heroImage: '/images/areas/mbr-city.jpg',
     tagline: "Canal-side central Dubai between Downtown and Meydan — the city's strongest capital-appreciation play.",
+    coords: { lat: 25.1700, lng: 55.3000 },
     metrics: {
       avgPrice: 'AED 2,000/sqft',
       roi: '6–7%',
@@ -340,6 +349,7 @@ export const areas: Area[] = [
     name: 'Creek Harbour',
     heroImage: '/images/areas/creek-harbour.jpg',
     tagline: "Emaar's next Downtown — a master-planned waterfront city around the future Dubai Creek Tower.",
+    coords: { lat: 25.1980, lng: 55.3530 },
     metrics: {
       avgPrice: 'AED 1,700/sqft',
       roi: '6–7%',
@@ -383,6 +393,7 @@ export const areas: Area[] = [
     name: 'Emaar Beachfront',
     heroImage: '/images/areas/emaar-beachfront.jpg',
     tagline: 'Private island living next to Dubai Marina — beachfront residences with global resale appeal.',
+    coords: { lat: 25.0950, lng: 55.1430 },
     metrics: {
       avgPrice: 'AED 2,500/sqft',
       roi: '6–7%',
@@ -427,6 +438,7 @@ export const areas: Area[] = [
     excludeAliases: ['Damac Hills 2'],
     heroImage: '/images/areas/damac-hills.jpg',
     tagline: "An established golf community of villas and apartments wrapped in parks and lagoons.",
+    coords: { lat: 25.0250, lng: 55.2480 },
     metrics: {
       avgPrice: 'AED 1,300/sqft',
       roi: '6–7%',
@@ -458,6 +470,7 @@ export const areas: Area[] = [
     name: 'Damac Hills 2',
     heroImage: '/images/areas/damac-hills-2.jpg',
     tagline: "A value-led master community built around water features, sports and green amenities.",
+    coords: { lat: 24.9100, lng: 55.2700 },
     metrics: {
       avgPrice: 'AED 900/sqft',
       roi: '7–9%',
@@ -489,6 +502,7 @@ export const areas: Area[] = [
     name: 'The Valley',
     heroImage: '/images/areas/the-valley.jpg',
     tagline: "Emaar's master-planned town of townhouses and villas on the Dubai–Al Ain corridor.",
+    coords: { lat: 25.0100, lng: 55.4200 },
     metrics: {
       avgPrice: 'AED 1,150/sqft',
       roi: '6–7%',
