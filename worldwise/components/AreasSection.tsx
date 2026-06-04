@@ -21,6 +21,9 @@ const homepageAreas: AreaCard[] = [
   { name: 'Business Bay',     avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: '/images/areas/business-bay.jpg',     slug: slugByName.get('Business Bay')!,     theme: 'City & Business' },
   { name: 'JLT',              avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: '/images/areas/jlt.jpg',              slug: slugByName.get('JLT')!,              theme: 'City & Business' },
   { name: 'Dubai Hills',      avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: '/images/areas/dubai-hills.jpg',      slug: slugByName.get('Dubai Hills')!,      theme: 'Family & Lifestyle' },
+  { name: 'Damac Hills',      avgPrice: 'AED 1,300/sqft', roi: '6–7%', img: '/images/areas/damac-hills.jpg',      slug: slugByName.get('Damac Hills')!,      theme: 'Family & Lifestyle' },
+  { name: 'Damac Hills 2',    avgPrice: 'AED 900/sqft',   roi: '7–9%', img: '/images/areas/damac-hills-2.jpg',    slug: slugByName.get('Damac Hills 2')!,    theme: 'Family & Lifestyle' },
+  { name: 'The Valley',       avgPrice: 'AED 1,150/sqft', roi: '6–7%', img: '/images/areas/the-valley.jpg',       slug: slugByName.get('The Valley')!,       theme: 'Family & Lifestyle' },
 ]
 
 const THEMES: AreaCard['theme'][] = ['Waterfront & Beachfront', 'City & Business', 'Family & Lifestyle']

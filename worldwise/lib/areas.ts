@@ -19,6 +19,9 @@ export type Area = {
   name: string
   /** Extra free-text area spellings (from CRM/imports) that belong to this area. */
   aliases?: string[]
+  /** Spellings that must NOT match this area, e.g. "Damac Hills 2" must not fall
+   *  under "Damac Hills". Checked before name/aliases. */
+  excludeAliases?: string[]
   heroImage: string
   tagline: string
   metrics: AreaMetrics
@@ -374,6 +377,100 @@ export const areas: Area[] = [
     ],
     metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 2,500/sqft, 6–7% yields. Premium investment guidance from Worldwise Real Estate.',
   },
+  {
+    slug: 'damac-hills',
+    name: 'Damac Hills',
+    excludeAliases: ['Damac Hills 2'],
+    heroImage: '/images/areas/damac-hills.jpg',
+    tagline: "An established golf community of villas and apartments wrapped in parks and lagoons.",
+    metrics: {
+      avgPrice: 'AED 1,300/sqft',
+      roi: '6–7%',
+      typicalSize: '1–6 BR / 700–6,000 sqft',
+      handover: 'Ready, plus select off-plan 2026–2027',
+    },
+    whyInvest: [
+      "Damac Hills is one of Dubai's most established master communities — a green, gated district built around the Trump International Golf Club Dubai. Its mix of branded villas, townhouses and mid-rise apartments has a proven resale and rental track record, which makes it a lower-risk entry point for first-time Dubai investors.",
+      "Families drive demand here. Sweeping parks, a skate park, stables, lakes and community retail keep occupancy high and tenant turnover low, supporting steady 6–7% gross yields on apartments and reliable long-term leases on villas. Green, low-density communities have consistently outperformed on tenant retention since 2021.",
+      "Because the community is largely handed over, buyers can inspect real service charges, finished units and live rental data before committing — and still access off-plan inventory in newer clusters at attractive entry prices and payment plans.",
+    ],
+    whatsNearby: [
+      'Trump International Golf Club Dubai — 18-hole championship course',
+      'Carrefour and community retail inside the development',
+      'Jebel Ali School and nurseries within the community',
+      '~20 minutes to Mall of the Emirates via Hessa Street / Al Khail Road',
+      'Dubai Hills Mall and Global Village within a 15–20 minute drive',
+    ],
+    faq: [
+      { q: 'Is Damac Hills a freehold area?', a: 'Yes — Damac Hills is a designated freehold community, so non-UAE nationals can buy apartments, townhouses and villas with full ownership.' },
+      { q: 'What returns can I expect in Damac Hills?', a: 'Apartments typically return around 6–7% gross on long-term leases; villas yield slightly less but offer stronger capital appreciation as a family-home segment.' },
+      { q: 'Is Damac Hills the same as Damac Hills 2?', a: 'No. Damac Hills is the original golf-course community closer to the city; Damac Hills 2 (formerly Akoya) is a separate, more affordable community further out. We track them as distinct areas.' },
+      { q: 'Is it a good area for families?', a: "Yes — low-density layout, schools, nurseries, parks and sports facilities make it one of Dubai's most family-oriented gated communities." },
+    ],
+    metaDescription: 'Invest in Damac Hills, Dubai — an established golf community of villas and apartments. ~AED 1,300/sqft, 6–7% yields. Browse listings with Worldwise Real Estate.',
+  },
+  {
+    slug: 'damac-hills-2',
+    name: 'Damac Hills 2',
+    heroImage: '/images/areas/damac-hills-2.jpg',
+    tagline: "A value-led master community built around water features, sports and green amenities.",
+    metrics: {
+      avgPrice: 'AED 900/sqft',
+      roi: '7–9%',
+      typicalSize: '1–5 BR / 600–3,500 sqft',
+      handover: 'Ready, plus off-plan 2026–2027',
+    },
+    whyInvest: [
+      "Damac Hills 2 (formerly Akoya) is one of Dubai's most affordable freehold master communities, which is exactly what makes it a strong income play. Lower entry prices push gross rental yields into the 7–9% range — among the highest for townhouse and apartment stock in Dubai.",
+      "The community is themed around amenities: a wave pool and lazy river, sports fields, a paintball arena, fishing lake and extensive green spaces. That experiential, family-first positioning keeps long-term tenant demand resilient even as the wider area matures and new infrastructure arrives.",
+      "It suits investors who prioritise cash flow over prestige addresses. Affordable villas and townhouses rent quickly to families priced out of central Dubai, and the developer's staged payment plans let buyers enter off-plan with modest upfront capital.",
+    ],
+    whatsNearby: [
+      'Community sports complex, wave pool and lazy river on-site',
+      'Carrefour and Spinneys community retail',
+      'Jebel Ali School and several nurseries in the wider community',
+      '~35 minutes to Downtown Dubai via Emirates Road',
+      'Close to the Emaar South / Al Maktoum Airport growth corridor',
+    ],
+    faq: [
+      { q: 'Why are yields higher in Damac Hills 2?', a: 'Lower purchase prices relative to rents push gross yields to roughly 7–9% — higher than most central Dubai districts, which is the main reason investors choose it.' },
+      { q: 'Is Damac Hills 2 freehold?', a: 'Yes — it is a designated freehold community open to foreign buyers with full ownership.' },
+      { q: 'How far is it from the city?', a: 'Around 30–40 minutes to Downtown and Dubai Marina via Emirates Road; it trades distance for affordability and amenities.' },
+      { q: 'What property types are available?', a: 'Mainly townhouses and villas, plus a growing number of apartments in newer clusters — typically 1 to 5 bedrooms.' },
+    ],
+    metaDescription: 'Invest in Damac Hills 2 (Akoya), Dubai — affordable freehold homes with 7–9% rental yields. Browse current listings with Worldwise Real Estate.',
+  },
+  {
+    slug: 'the-valley',
+    name: 'The Valley',
+    heroImage: '/images/areas/the-valley.jpg',
+    tagline: "Emaar's master-planned town of townhouses and villas on the Dubai–Al Ain corridor.",
+    metrics: {
+      avgPrice: 'AED 1,150/sqft',
+      roi: '6–7%',
+      typicalSize: '3–4 BR townhouses / 2,000–3,500 sqft',
+      handover: 'Off-plan, 2026–2028',
+    },
+    whyInvest: [
+      "The Valley is one of Emaar's fastest-selling new towns — a family-focused community of townhouses and villas along the Dubai–Al Ain road. Backing from Emaar gives it the delivery credibility and resale liquidity that newer developers can't always match, which lowers off-plan risk.",
+      "Its appeal is lifestyle and price. Town Centre retail, a Golden Beach, a sports village, schools and sprawling parkland target end-user families rather than speculators — the buyer base that underpins durable rental demand. Entry prices remain below comparable Emaar communities closer to the city, leaving room for capital growth as the master plan completes.",
+      "For investors, the combination of Emaar payment plans, a townhouse-heavy mix and a maturing location on a key growth corridor makes The Valley a balanced off-plan hold: moderate 6–7% yields with meaningful appreciation potential through handover.",
+    ],
+    whatsNearby: [
+      'Town Centre retail, dining and community market',
+      'Golden Beach and Kids Dale play areas within the community',
+      'Sports Village with cycling and running tracks',
+      'Direct access to Sheikh Mohammed Bin Zayed Road (Dubai–Al Ain)',
+      '~25 minutes to Downtown Dubai and Dubai International Airport',
+    ],
+    faq: [
+      { q: 'Who develops The Valley?', a: 'The Valley is an Emaar master community, which gives buyers strong delivery and resale confidence compared with less-established developers.' },
+      { q: 'Is The Valley mainly off-plan?', a: 'Yes — most inventory is off-plan with handovers through 2026–2028 on Emaar staged payment plans. Early phases are already completing.' },
+      { q: 'What yields does The Valley offer?', a: 'As a townhouse-led family community it offers moderate gross yields around 6–7%, with the main upside in capital appreciation as the master plan matures.' },
+      { q: 'Is The Valley freehold?', a: 'Yes — it is a freehold community open to international buyers with full ownership.' },
+    ],
+    metaDescription: 'Invest in The Valley by Emaar, Dubai — family townhouses and villas with 6–7% yields and strong growth potential. Browse listings with Worldwise Real Estate.',
+  },
 ]
 
 export const areaSlugs = areas.map(a => a.slug)
@@ -398,11 +495,12 @@ function normalizeArea(value: string): string {
 export function propertyMatchesArea(propertyArea: string | undefined, area: Area): boolean {
   if (!propertyArea) return false
   const normalized = normalizeArea(propertyArea)
-  return [area.name, ...(area.aliases ?? [])]
-    .map(normalizeArea)
-    .some(candidate => {
-      if (!candidate) return false
-      const re = new RegExp(`\\b${candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
-      return re.test(normalized)
-    })
+  const hit = (name: string): boolean => {
+    const candidate = normalizeArea(name)
+    if (!candidate) return false
+    const re = new RegExp(`\\b${candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+    return re.test(normalized)
+  }
+  if ((area.excludeAliases ?? []).some(hit)) return false
+  return [area.name, ...(area.aliases ?? [])].some(hit)
 }
