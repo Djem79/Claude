@@ -27,6 +27,13 @@ const inDubai = (lat, lng) => lat >= 24.7 && lat <= 25.4 && lng >= 54.8 && lng <
 const GOOD_TYPES = new Set(['ROOFTOP', 'GEOMETRIC_CENTER'])
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
+// Generic resale listings ("3-Bedroom Apartment in <area>", "Retail units: …")
+// carry no building name, so geocoding the title lands inconsistently (often the
+// WRONG district). We skip them entirely → they fall back to the area centroid,
+// which is the only honest location for a building we can't identify. A branded
+// project title (proper noun) never starts with these tokens, so it is unaffected.
+const GENERIC_TITLE = /^\s*(\d+\s*-?\s*bed\w*|studio|apartment|retail|duplex|plot)\b/i
+
 async function geocode(q) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(q)}&region=ae&key=${KEY}`
   const res = await fetch(url)
@@ -44,9 +51,14 @@ async function geocode(q) {
 
 ;(async () => {
   const arr = JSON.parse(fs.readFileSync(PROPERTIES, 'utf8'))
-  let accepted = 0, rejected = 0, skipped = 0
+  let accepted = 0, rejected = 0, skipped = 0, generic = 0
   for (const p of arr) {
     if (!FORCE && typeof p.lat === 'number' && typeof p.lng === 'number') { skipped++; continue }
+    if (GENERIC_TITLE.test(p.title || '')) {
+      generic++
+      console.log(`GENERIC ${p.title} [${p.area}] → district fallback (no building name)`)
+      continue
+    }
     const q = `${p.title}, ${p.area}, Dubai, United Arab Emirates`
     let r
     try { r = await geocode(q) } catch (e) { console.error('ABORT:', e.message); break }
@@ -60,7 +72,7 @@ async function geocode(q) {
       console.log(`SKIP ${p.title} [${p.area}] → ${r ? `${r.type} ${r.lat.toFixed(4)},${r.lng.toFixed(4)} (out of box/approx)` : 'no result'}`)
     }
   }
-  console.log(`\ntotal ${arr.length} | accepted ${accepted} | rejected ${rejected} | already-set ${skipped} | ${APPLY ? 'APPLIED' : 'DRY-RUN'}`)
+  console.log(`\ntotal ${arr.length} | accepted ${accepted} | rejected ${rejected} | generic-skipped ${generic} | already-set ${skipped} | ${APPLY ? 'APPLIED' : 'DRY-RUN'}`)
   if (APPLY) {
     fs.writeFileSync(PROPERTIES + '.tmp', JSON.stringify(arr, null, 2))
     fs.renameSync(PROPERTIES + '.tmp', PROPERTIES)
