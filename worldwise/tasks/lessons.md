@@ -212,3 +212,26 @@ other's manifests (ENOENT on `pages-manifest.json`, `_ssgManifest.js`,
 `next build` process is running (`ps aux | grep 'next build'`), then `rm -rf .next`
 and build once. The server's `.next` is isolated from local, so a local collision
 never blocks the prod build — the server build is the real gate.
+
+## Don't widen a global pre-filter to catch a minority case — it buries the primary one (2026-06-04)
+
+**Mistake:** To auto-extract small unit floor plans (line art, 19–45 KB) from developer
+brochures, I lowered the global `MIN_PHOTO_BYTES` image gate from 50 KB to 12 KB. On the
+DAMAC Islands 2 brochure that exploded the candidate set **35 → 232**; `CLASSIFY_MAX=120`
+then truncated to the front-section junk (people/section covers) in document order and
+**dropped the real exterior/interior renders AND the late floor-plan pages**. The gallery
+(the user's PRIMARY need) broke; the secondary feature still didn't work. The user's words:
+"теперь окончательно сломалось всё… нет экстерьеров и интерьеров, а это самое главное."
+
+**Rule:** A coarse pre-filter that protects the PRIMARY output (here: the 50 KB gate that
+keeps the gallery to real renders and the classify set under its cap) must NOT be widened
+to serve a SECONDARY output. Widening floods the shared budget (the classify cap) and the
+loudest/earliest junk wins. When a secondary need wants the items the primary filter
+rejects, give it a **separate, narrowly-scoped pass** over exactly those rejects (here:
+small images + a floor-plan **geometry** gate → its own classify call), leaving the primary
+pipeline byte-for-byte unchanged.
+
+**How to apply:** Before touching a shared filter/threshold/cap, ask "what PRIMARY thing
+relies on this staying as it is?" If the change serves a minority case, build a parallel
+path instead. And always re-verify the PRIMARY output (not just the new feature) on real
+data after the change — I only checked floor plans, not the gallery, and shipped a regression.
