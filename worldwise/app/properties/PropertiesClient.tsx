@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { Property } from '@/types'
 import PropertyCard from '@/components/PropertyCard'
 import CurrencySelect from '@/components/CurrencySelect'
+import { canonicalizeArea } from '@/lib/dubai-areas'
 
 const STATUSES = [
   { value: 'all', label: 'All Types' },
@@ -33,7 +34,7 @@ export default function PropertiesClient({
   initialStatus?: string
 }) {
   const areas = useMemo(
-    () => ['All Areas', ...Array.from(new Set(properties.map(p => p.area).filter(Boolean))).sort()],
+    () => ['All Areas', ...Array.from(new Set(properties.map(p => canonicalizeArea(p.area)).filter(Boolean))).sort()],
     [properties]
   )
   const validTypes = ['all', 'apartment', 'villa', 'townhouse', 'penthouse']
@@ -47,7 +48,7 @@ export default function PropertiesClient({
     () =>
       properties.filter(
         p =>
-          (area === 'All Areas' || p.area === area) &&
+          (area === 'All Areas' || canonicalizeArea(p.area) === area) &&
           (status === 'all' || p.status === status) &&
           (type === 'all' || p.type === type) &&
           p.priceAed <= maxPrice

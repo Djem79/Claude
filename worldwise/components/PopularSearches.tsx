@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Property } from '@/types'
+import { canonicalizeArea } from '@/lib/dubai-areas'
 
 const TYPE_LABEL: Record<string, string> = {
   apartment: 'Apartments',
@@ -13,14 +14,15 @@ const TYPE_LABEL: Record<string, string> = {
 export default function PopularSearches({ properties }: { properties: Property[] }) {
   const groups = new Map<string, { area: string; type: string; count: number; min: number }>()
   for (const p of properties) {
-    if (!p.area || !TYPE_LABEL[p.type]) continue
-    const key = `${p.area}|${p.type}`
+    const area = canonicalizeArea(p.area)
+    if (!area || !TYPE_LABEL[p.type]) continue
+    const key = `${area}|${p.type}`
     const g = groups.get(key)
     if (g) {
       g.count++
       g.min = Math.min(g.min, p.priceAed)
     } else {
-      groups.set(key, { area: p.area, type: p.type, count: 1, min: p.priceAed })
+      groups.set(key, { area, type: p.type, count: 1, min: p.priceAed })
     }
   }
   const combos = Array.from(groups.values()).sort((a, b) => b.count - a.count).slice(0, 12)
