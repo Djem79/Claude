@@ -4,7 +4,7 @@
 // "ask the model for render page numbers" approach.
 
 export type ImgCategory =
-  | 'exterior' | 'interior' | 'floorplan' | 'amenity' | 'lifestyle' | 'mood' | 'other'
+  | 'exterior' | 'interior' | 'floorplan' | 'masterplan' | 'amenity' | 'lifestyle' | 'mood' | 'other'
 
 // Categories we keep, in priority order. Exterior + interior are what the user
 // wants most; community/master-plan ("amenity") and floor plans are secondary.
@@ -13,7 +13,7 @@ export type ImgCategory =
 const KEEP: ImgCategory[] = ['exterior', 'interior', 'amenity', 'floorplan']
 
 const VALID = new Set<ImgCategory>([
-  'exterior', 'interior', 'floorplan', 'amenity', 'lifestyle', 'mood', 'other',
+  'exterior', 'interior', 'floorplan', 'masterplan', 'amenity', 'lifestyle', 'mood', 'other',
 ])
 
 export function normalizeCategory(s: unknown): ImgCategory {
@@ -46,7 +46,7 @@ export function partitionByCategory(
   galleryCap: number,
   floorPlanCap: number,
 ): { gallery: number[]; floorPlans: number[] } {
-  const GALLERY_ORDER: ImgCategory[] = ['exterior', 'interior', 'amenity']
+  const GALLERY_ORDER: ImgCategory[] = ['exterior', 'interior', 'amenity', 'masterplan']
   const gallery: number[] = []
   for (const cat of GALLERY_ORDER) {
     for (let i = 0; i < cats.length; i++) if (cats[i] === cat) gallery.push(i)
@@ -61,8 +61,9 @@ const MODEL = 'gemini-2.5-flash'
 const CLASSIFY_SYSTEM = `You are shown images extracted from a Dubai real-estate developer brochure, in order. Classify EACH image into exactly one category:
 - "exterior": a photo or 3D render of the property building's OUTSIDE — a villa/townhouse/apartment facade, the building seen from outside, street/front/rear view, the home with its own garden, pool or driveway.
 - "interior": INSIDE a unit — living room, bedroom, bathroom, kitchen, dining room, walk-in closet, staircase; a furnished room of the home.
-- "floorplan": a 2D architectural floor plan, unit layout, cluster map, master-plan map or site layout diagram.
-- "amenity": the community's shared FACILITIES, rendered as part of the project — aerial views of the whole community, lagoons, swimming pools, parks, clubhouses, gyms, gardens, promenades, sports or leisure areas.
+- "floorplan": a 2D architectural floor plan of an INDIVIDUAL unit — the interior layout of ONE apartment, villa or townhouse showing its rooms, walls and (often) dimensions or a "Ground Floor / First Floor / Roof" label. NOT the whole community.
+- "masterplan": a top-down master-plan, site-layout or cluster MAP of the WHOLE project — a schematic/diagram or aerial map showing many plots/buildings/roads/lagoons across the development (e.g. coloured cluster maps, "community map", site plan). It covers the project, not a single home.
+- "amenity": the community's shared FACILITIES, rendered photo-realistically as part of the project — lagoons, swimming pools, parks, clubhouses, gyms, gardens, promenades, sports or leisure areas (a render of the place, not a schematic map).
 - "lifestyle": stock-style photos of PEOPLE (models, couples, families) posing — beach, portrait or lifestyle shots used for mood, that do NOT show the actual property.
 - "mood": abstract or decorative imagery — water ripples, ink, smoke, flowing fabric, sand or stone textures, plain sky, close-up plants, logos, brand stamps, or section-title backgrounds.
 - "other": anything that fits none of the above.
@@ -101,7 +102,7 @@ export async function classifyImages(thumbs: { b64: string; mime: string }[]): P
             type: 'ARRAY',
             items: {
               type: 'STRING',
-              enum: ['exterior', 'interior', 'floorplan', 'amenity', 'lifestyle', 'mood', 'other'],
+              enum: ['exterior', 'interior', 'floorplan', 'masterplan', 'amenity', 'lifestyle', 'mood', 'other'],
             },
           },
         },

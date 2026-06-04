@@ -43,3 +43,12 @@ test('partitionByCategory respects both caps', () => {
   assert.deepEqual(r.gallery, [0, 1])
   assert.deepEqual(r.floorPlans, [3])
 })
+
+test('partitionByCategory routes masterplan to the gallery (after amenity), only unit floorplans to floorPlans', () => {
+  // Regression: community master-plan / cluster maps must NOT land in the gated
+  // floor-plan section — only individual-unit layouts belong there.
+  const cats: ImgCategory[] = ['floorplan', 'masterplan', 'exterior', 'amenity', 'masterplan']
+  const { gallery, floorPlans } = partitionByCategory(cats, 24, 12)
+  assert.deepEqual(gallery, [2, 3, 1, 4]) // exterior(2) → amenity(3) → masterplan(1,4)
+  assert.deepEqual(floorPlans, [0])
+})
