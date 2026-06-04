@@ -48,8 +48,11 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
   const [uploadingQr, setUploadingQr] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [brochure, setBrochure] = useState(property?.brochure ?? '')
+  const [uploadingBrochure, setUploadingBrochure] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const qrInputRef = useRef<HTMLInputElement>(null)
+  const brochureInputRef = useRef<HTMLInputElement>(null)
 
   function set(key: keyof Property, value: unknown) {
     setForm(f => ({ ...f, [key]: value }))
@@ -101,6 +104,29 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
     if (qrInputRef.current) qrInputRef.current.value = ''
   }
 
+  async function handleBrochureFile(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return
+    setUploadingBrochure(true)
+    setError('')
+    const fd = new FormData()
+    fd.append('propertyId', propertyId)
+    fd.append('kind', 'brochure')
+    fd.append('files', fileList[0])
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok && data.brochure) {
+        setBrochure(data.brochure)
+      } else {
+        setError(data.error || 'Brochure upload failed.')
+      }
+    } catch (err) {
+      setError('Brochure upload failed.')
+    }
+    setUploadingBrochure(false)
+    if (brochureInputRef.current) brochureInputRef.current.value = ''
+  }
+
   function removeImage(idx: number) {
     setImages(prev => prev.filter((_, i) => i !== idx))
   }
@@ -130,6 +156,7 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
       qrImage: qrImage.split('?')[0], // strip cache-bust before saving
       projectNumber,
       permitNumber,
+      brochure: brochure || undefined,
     }
 
     const url = draftId
@@ -380,6 +407,31 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
             </div>
           )}
         </div>
+
+        <label className="block text-xs font-medium text-gray-500 mb-1.5 mt-5">Brochure (PDF)</label>
+        <div
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); handleBrochureFile(e.dataTransfer.files) }}
+          onClick={() => brochureInputRef.current?.click()}
+          className="border-2 border-dashed border-gray-200 rounded-sm p-5 text-center hover:border-gold transition-colors cursor-pointer"
+        >
+          <input
+            ref={brochureInputRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={e => handleBrochureFile(e.target.files)}
+          />
+          <p className="text-sm text-gray-500">
+            {uploadingBrochure ? 'Uploading...' : brochure ? `Replace brochure (${brochure})` : 'Drop brochure PDF here or click to choose'}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">PDF · max 25 MB · gated behind a lead form on the property page</p>
+        </div>
+        {brochure && (
+          <button type="button" onClick={() => setBrochure('')} className="text-xs text-red-500 mt-1">
+            Remove brochure
+          </button>
+        )}
       </div>
 
       <label className="flex items-center gap-3 cursor-pointer">
