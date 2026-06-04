@@ -53,7 +53,7 @@ export default function FloorPlanGate({
 
   return (
     <div className="border border-gray-200 rounded-sm p-5 bg-white">
-      <p className="font-serif text-lg text-navy">Floor plans</p>
+      <p className="font-serif text-lg text-navy">Floor plans &amp; site plans</p>
       <p className="text-gray-500 text-sm mt-1 mb-4">
         {floorPlans.length} layout{floorPlans.length > 1 ? 's' : ''} available — enter your details to view.
       </p>
