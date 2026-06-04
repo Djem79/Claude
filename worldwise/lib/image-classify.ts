@@ -37,6 +37,25 @@ export function selectByCategory(cats: ImgCategory[], cap: number): number[] {
   return keep.slice(0, cap)
 }
 
+// Split classified candidates into the photo gallery (exterior → interior → amenity,
+// ranked, capped at galleryCap) and floor plans (document order, capped at floorPlanCap).
+// Floor plans are surfaced separately (gated section) instead of polluting the gallery.
+// Pure (no I/O) — unit-tested.
+export function partitionByCategory(
+  cats: ImgCategory[],
+  galleryCap: number,
+  floorPlanCap: number,
+): { gallery: number[]; floorPlans: number[] } {
+  const GALLERY_ORDER: ImgCategory[] = ['exterior', 'interior', 'amenity']
+  const gallery: number[] = []
+  for (const cat of GALLERY_ORDER) {
+    for (let i = 0; i < cats.length; i++) if (cats[i] === cat) gallery.push(i)
+  }
+  const floorPlans: number[] = []
+  for (let i = 0; i < cats.length; i++) if (cats[i] === 'floorplan') floorPlans.push(i)
+  return { gallery: gallery.slice(0, galleryCap), floorPlans: floorPlans.slice(0, floorPlanCap) }
+}
+
 const MODEL = 'gemini-2.5-flash'
 
 const CLASSIFY_SYSTEM = `You are shown images extracted from a Dubai real-estate developer brochure, in order. Classify EACH image into exactly one category:
