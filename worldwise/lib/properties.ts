@@ -12,7 +12,7 @@ const STRING_FIELDS: [keyof Property, number][] = [
   ['title', 200], ['developer', 120], ['area', 120], ['bedrooms', 60],
   ['shortDescription', 400], ['description', 8000], ['completionDate', 60],
   ['paymentPlan', 400], ['badge', 60], ['qrImage', 300],
-  ['permitNumber', 120], ['projectNumber', 120],
+  ['permitNumber', 120], ['projectNumber', 120], ['brochure', 80],
 ]
 const NUMBER_FIELDS: (keyof Property)[] = ['priceAed', 'pricePerSqft', 'roi', 'grossYield']
 const BOOLEAN_FIELDS: (keyof Property)[] = ['featured', 'rented']

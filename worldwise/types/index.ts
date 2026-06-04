@@ -23,6 +23,7 @@ export interface Property {
   qrImage?: string
   permitNumber?: string
   projectNumber?: string
+  brochure?: string   // filename under public/files/brochures/<id>.pdf; presence => show the gate
   createdAt: string
 }
 
