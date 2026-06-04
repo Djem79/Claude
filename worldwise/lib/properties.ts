@@ -16,7 +16,7 @@ const STRING_FIELDS: [keyof Property, number][] = [
 ]
 const NUMBER_FIELDS: (keyof Property)[] = ['priceAed', 'pricePerSqft', 'roi', 'grossYield']
 const BOOLEAN_FIELDS: (keyof Property)[] = ['featured', 'rented']
-const ARRAY_FIELDS: (keyof Property)[] = ['amenities', 'images']
+const ARRAY_FIELDS: (keyof Property)[] = ['amenities', 'images', 'floorPlans']
 
 function cleanString(v: unknown, max: number): string | undefined {
   if (typeof v !== 'string') return undefined

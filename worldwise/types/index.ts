@@ -24,6 +24,7 @@ export interface Property {
   permitNumber?: string
   projectNumber?: string
   brochure?: string   // filename under public/files/brochures/<id>.pdf; presence => show the gate
+  floorPlans?: string[]   // floor-plan image URLs under /images/properties/<id>/; shown gated, separate from `images`
   createdAt: string
 }
 
