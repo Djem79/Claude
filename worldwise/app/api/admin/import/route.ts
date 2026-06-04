@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSection } from '@/lib/auth'
 import { extractPropertyFromPdf } from '@/lib/property-extract'
+import { canonicalizeArea } from '@/lib/dubai-areas'
 import { extractImagesFromPdf } from '@/lib/pdf-images'
 import { addDraft, listDrafts } from '@/lib/property-drafts'
 
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     return NextResponse.json({ error: `Extraction failed: ${(e as Error).message}` }, { status: 502 })
   }
+  if (fields.area) fields.area = canonicalizeArea(fields.area)
 
   let imageCandidates: string[] = []
   try {
