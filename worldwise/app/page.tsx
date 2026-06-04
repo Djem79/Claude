@@ -1,4 +1,4 @@
-import { getFeaturedProperties } from '@/lib/properties'
+import { getFeaturedProperties, getProperties } from '@/lib/properties'
 import Navigation from '@/components/Navigation'
 import Hero from '@/components/Hero'
 import IntentRouter from '@/components/IntentRouter'
@@ -6,6 +6,7 @@ import TrustBar from '@/components/TrustBar'
 import FeaturedProperties from '@/components/FeaturedProperties'
 import MortgageCalculator from '@/components/MortgageCalculator'
 import AreasSection from '@/components/AreasSection'
+import PopularSearches from '@/components/PopularSearches'
 import WhyWorldwise from '@/components/WhyWorldwise'
 import HowItWorks from '@/components/HowItWorks'
 import Testimonials from '@/components/Testimonials'
@@ -21,6 +22,7 @@ export const revalidate = 60
 
 export default function Home() {
   const featured = getFeaturedProperties()
+  const allProperties = getProperties()
 
   return (
     <>
@@ -40,6 +42,9 @@ export default function Home() {
         </Reveal>
         <Reveal>
           <AreasSection />
+        </Reveal>
+        <Reveal>
+          <PopularSearches properties={allProperties} />
         </Reveal>
         <Reveal>
           <WhyWorldwise />
