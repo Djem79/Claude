@@ -53,6 +53,9 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
   const fileInputRef = useRef<HTMLInputElement>(null)
   const qrInputRef = useRef<HTMLInputElement>(null)
   const brochureInputRef = useRef<HTMLInputElement>(null)
+  const [floorPlans, setFloorPlans] = useState<string[]>(property?.floorPlans ?? [])
+  const [uploadingFloorPlans, setUploadingFloorPlans] = useState(false)
+  const floorPlanInputRef = useRef<HTMLInputElement>(null)
 
   function set(key: keyof Property, value: unknown) {
     setForm(f => ({ ...f, [key]: value }))
@@ -127,6 +130,33 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
     if (brochureInputRef.current) brochureInputRef.current.value = ''
   }
 
+  async function handleFloorPlanFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return
+    setUploadingFloorPlans(true)
+    setError('')
+    const fd = new FormData()
+    fd.append('propertyId', propertyId)
+    fd.append('kind', 'gallery') // floor plans are images written to the same property folder
+    Array.from(fileList).forEach(f => fd.append('files', f))
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok && data.paths) {
+        setFloorPlans(prev => [...prev, ...data.paths])
+      } else {
+        setError(data.error || 'Floor plan upload failed.')
+      }
+    } catch {
+      setError('Floor plan upload failed.')
+    }
+    setUploadingFloorPlans(false)
+    if (floorPlanInputRef.current) floorPlanInputRef.current.value = ''
+  }
+
+  function removeFloorPlan(idx: number) {
+    setFloorPlans(prev => prev.filter((_, i) => i !== idx))
+  }
+
   function removeImage(idx: number) {
     setImages(prev => prev.filter((_, i) => i !== idx))
   }
@@ -157,6 +187,7 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
       projectNumber,
       permitNumber,
       brochure: brochure || undefined,
+      floorPlans,
     }
 
     const url = draftId
@@ -431,6 +462,43 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
           <button type="button" onClick={() => setBrochure('')} className="text-xs text-red-500 mt-1">
             Remove brochure
           </button>
+        )}
+
+        <label className="block text-xs font-medium text-gray-500 mb-1.5 mt-5">Floor plans (gated on the property page)</label>
+        <div
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); handleFloorPlanFiles(e.dataTransfer.files) }}
+          onClick={() => floorPlanInputRef.current?.click()}
+          className="border-2 border-dashed border-gray-200 rounded-sm p-5 text-center hover:border-gold transition-colors cursor-pointer"
+        >
+          <input
+            ref={floorPlanInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={e => handleFloorPlanFiles(e.target.files)}
+          />
+          <p className="text-sm text-gray-500">
+            {uploadingFloorPlans ? 'Uploading...' : 'Drop floor-plan images here or click to choose'}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">JPG / PNG / WebP · shown blurred until a visitor submits the lead form</p>
+        </div>
+        {floorPlans.length > 0 && (
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            {floorPlans.map((src, idx) => (
+              <div key={idx} className="relative group border border-gray-100 rounded-sm overflow-hidden bg-white">
+                <img src={src} alt={`Floor plan ${idx + 1}`} className="w-full h-20 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeFloorPlan(idx)}
+                  className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-sm opacity-0 group-hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
