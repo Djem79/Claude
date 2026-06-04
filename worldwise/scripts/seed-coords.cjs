@@ -5,7 +5,7 @@
  *
  *   node --env-file=.env.local scripts/seed-coords.cjs            # dry-run (prints plan)
  *   node --env-file=.env.local scripts/seed-coords.cjs --apply    # write
- *   node --env-file=.env.local scripts/seed-coords.cjs --force    # also re-geocode props that already have coords
+ *   node --env-file=.env.local scripts/seed-coords.cjs --apply --force  # write AND re-geocode props that already have coords (--force alone only previews)
  *   then: npm run build && pm2 restart worldwise   (SSG pages are prerendered)
  *
  * Confidence gate: a result is accepted only when location_type is ROOFTOP or
