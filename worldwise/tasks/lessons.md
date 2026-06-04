@@ -235,3 +235,31 @@ pipeline byte-for-byte unchanged.
 relies on this staying as it is?" If the change serves a minority case, build a parallel
 path instead. And always re-verify the PRIMARY output (not just the new feature) on real
 data after the change — I only checked floor plans, not the gallery, and shipped a regression.
+
+---
+
+## 2026-06-04 — Geocoding by project name needs a title-quality gate
+
+**Context:** The property location-map feature geocodes `"<title>, <area>, Dubai, UAE"`
+via Google Geocoding to drop a building-level pin. A dry-run over 146 properties accepted
+137 (ROOFTOP/GEOMETRIC_CENTER inside a Dubai bbox).
+
+**Mistake avoided (caught in dry-run review, not shipped):** the confidence gate
+(location_type + bounding box) is NOT enough. Listings whose **title has no building name**
+— generic resale entries like "3-Bedroom Apartment in Dubai Hills Estate" — geocode
+*confidently but wrongly*: several Dubai Hills / Dubai Harbour units resolved to **Dubai
+Marina** (Google matched the apartment words, not the district). A confident pin in the
+WRONG district is worse than no pin — the district fallback is the only honest location for
+a building you can't identify.
+
+**Rule:** When geocoding by a free-text name (not a real postal address), add a
+**title-quality gate** before trusting the result: skip entries whose title is a generic
+description rather than a proper-noun building/project name (regex on leading tokens like
+`\d+-bedroom|studio|apartment|retail|…`). Skipped ones fall back to the area centroid.
+Branded project titles never start with those tokens, so they're unaffected.
+
+**How to apply:** For any name-based geocode, separate "named place" from "described unit"
+and only trust building-level coords for the former. Always **dry-run + eyeball the
+location_type=GEOMETRIC_CENTER bucket** (the imprecise ones) before `--apply` — that's where
+the wrong-district matches hide. Residual single-listing errors on named projects (e.g. one
+ROOFTOP that lands on the wrong street) are fixed per-row via the admin lat/lng fields.
