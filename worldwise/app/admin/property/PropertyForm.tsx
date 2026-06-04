@@ -19,6 +19,8 @@ const BLANK: Partial<Property> = {
   priceAed: 0,
   roi: undefined,
   grossYield: undefined,
+  lat: undefined,
+  lng: undefined,
   completionDate: '',
   paymentPlan: '',
   bedrooms: '',
@@ -313,6 +315,18 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Badge Label</label>
           <input className={fieldClass} value={form.badge} onChange={e => set('badge', e.target.value)} placeholder="e.g. Beachfront, High ROI" />
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Latitude</label>
+          <input type="number" step="any" className={fieldClass} value={form.lat ?? ''} onChange={e => set('lat', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 25.0805" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Longitude</label>
+          <input type="number" step="any" className={fieldClass} value={form.lng ?? ''} onChange={e => set('lng', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 55.1403" />
+          <p className="text-xs text-gray-400 mt-1">Optional. Blank → the map centres on the district. Find a building: right-click it in Google Maps → copy the lat, lng.</p>
         </div>
       </div>
 
