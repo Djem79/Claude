@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import type { ResolvedCoords } from '@/lib/property-coords'
 
 type Props = {
   title: string
   area: string
   /** Resolved map centre + zoom; null → render the text block only, no map. */
-  coords: { lat: number; lng: number; zoom: number; level: 'building' | 'area' } | null
+  coords: ResolvedCoords | null
   /** Area landing-page slug, when the property's area maps to one. */
   areaSlug?: string
 }
