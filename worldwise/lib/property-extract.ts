@@ -1,5 +1,6 @@
 import type { Property } from '@/types'
 import { mapGeminiToProperty } from '@/lib/property-map'
+import { DUBAI_AREAS } from '@/lib/dubai-areas'
 
 const SCHEMA = {
   type: 'OBJECT',
@@ -36,7 +37,7 @@ HARD FACTS — copy ONLY what the brochure states, never invent or guess. Omit t
 - developer: the developer/brand name. title: the project name. completionDate: handover date if stated.
 
 INFERRED / SUMMARISED FIELDS — always fill these from the brochure content; summarising is expected and is NOT considered invention:
-- area: the Dubai district / community the project is located in (e.g. "Dubai Marina", "Business Bay", "Palm Jumeirah", "Dubai Hills", "JVC", "Dubai Creek Harbour"). Infer it from the location / address / map section. Use the community name, NOT the full street address. This field is important — do your best to determine it.
+- area: the Dubai community the project is in. Choose the SINGLE closest match from this controlled list: ${DUBAI_AREAS.join(', ')}. If (and only if) none of them fits, return a short community name (never a full street address). Infer it from the location / address / map section. This field is important — do your best to determine it.
 - description: a FULL, extended description of the project — 3-4 paragraphs, roughly 150-250 words. Cover, drawing on the WHOLE brochure: what the project is and its developer / master-community context; the location and connectivity; the design and lifestyle concept; the standout amenities; the available unit types and their sizes; and the investment appeal. Write in warm, vivid, magazine-quality English with a natural human voice — engaging and evocative, with varied sentence rhythm; never robotic, templated or list-like, and avoid generic AI filler and repeated phrasing (no bullet lists). It must always be full and rich — never a single sentence, never empty.
 - shortDescription: a single-sentence hook.
 - amenities: the listed facilities / features as short individual items.
