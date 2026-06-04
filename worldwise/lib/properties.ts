@@ -14,6 +14,8 @@ const STRING_FIELDS: [keyof Property, number][] = [
   ['paymentPlan', 400], ['badge', 60], ['qrImage', 300],
   ['permitNumber', 120], ['projectNumber', 120], ['brochure', 80],
 ]
+// Plain finite-number fields (no range check). lat/lng are NOT here — they get
+// dedicated range-gated handling in coercePropertyInput below.
 const NUMBER_FIELDS: (keyof Property)[] = ['priceAed', 'pricePerSqft', 'roi', 'grossYield']
 const BOOLEAN_FIELDS: (keyof Property)[] = ['featured', 'rented']
 const ARRAY_FIELDS: (keyof Property)[] = ['amenities', 'images', 'floorPlans']
