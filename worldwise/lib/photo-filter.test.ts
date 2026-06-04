@@ -16,9 +16,7 @@ test('accepts large web-safe images', () => {
   assert.equal(isLikelyPhoto(200_000, 'page-1.jpg'), true)
 })
 
-test('keeps small floor-plan JPEGs (line art compresses tiny) — regression: real DAMAC Islands 2 unit layouts were 19–45 KB and got wrongly filtered out before classification', () => {
-  assert.equal(isLikelyPhoto(18_900, 'img-073.jpg'), true)
-  assert.equal(isLikelyPhoto(13_000, 'img-075.jpg'), true)
-  // genuine icons/dividers are still rejected
-  assert.equal(isLikelyPhoto(2_000, 'logo.png'), false)
+test('rejects small images below the gate (incl. tiny floor-plan line art) — keeping this gate high is what stops the candidate set exploding and burying the real renders', () => {
+  assert.equal(isLikelyPhoto(18_900, 'img-073.jpg'), false)
+  assert.equal(isLikelyPhoto(40_000, 'img-077.jpg'), false)
 })
