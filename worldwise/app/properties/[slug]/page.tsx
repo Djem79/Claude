@@ -11,6 +11,7 @@ import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
 import MortgageAnchorBar from '@/components/MortgageAnchorBar'
 import BrochureGate from '@/components/BrochureGate'
+import FloorPlanGate from '@/components/FloorPlanGate'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
@@ -267,6 +268,15 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   <div className="mt-6">
                     <BrochureGate
                       propertyId={property.id}
+                      propertySlug={property.slug}
+                      propertyTitle={property.title}
+                    />
+                  </div>
+                )}
+                {property.floorPlans && property.floorPlans.length > 0 && (
+                  <div className="mt-6">
+                    <FloorPlanGate
+                      floorPlans={property.floorPlans}
                       propertySlug={property.slug}
                       propertyTitle={property.title}
                     />
