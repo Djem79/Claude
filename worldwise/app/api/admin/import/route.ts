@@ -43,11 +43,13 @@ export async function POST(req: NextRequest) {
 
   let imageCandidates: string[] = []
   try {
-    imageCandidates = await extractImagesFromPdf(buf, draftId)
+    const extracted = await extractImagesFromPdf(buf, draftId)
+    if (extracted.gallery.length) fields.images = extracted.gallery
+    if (extracted.floorPlans.length) fields.floorPlans = extracted.floorPlans
+    imageCandidates = [...extracted.gallery, ...extracted.floorPlans]
   } catch (e) {
     console.error('[import] image extraction failed:', e) // non-fatal — fields still usable
   }
-  if (imageCandidates.length) fields.images = imageCandidates
 
   // Persist the source brochure so the published property can gate it (Wave 3/E).
   // draftId becomes the property id on publish, so the file is already correctly named.

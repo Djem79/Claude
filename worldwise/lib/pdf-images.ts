@@ -3,13 +3,16 @@ import { promisify } from 'node:util'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { classifyImages, selectByCategory, type ImgCategory } from '@/lib/image-classify'
+import { classifyImages, partitionByCategory, type ImgCategory } from '@/lib/image-classify'
 import { isLikelyPhoto } from '@/lib/photo-filter'
 
 const execFileP = promisify(execFile)
 
 // Safety cap on how many images end up in the gallery.
 const MAX_CANDIDATES = 24
+
+// Floor plans are surfaced in their own gated section; cap them separately from the gallery.
+const FLOORPLAN_MAX = 12
 
 // Don't ship more than this many thumbnails to the classifier in a single call
 // (developer brochures rarely exceed this once logos/icons are size-filtered out).
@@ -63,7 +66,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T, i: number
  * (≤1600px, q82). If classification is unavailable (no key / API error / no
  * ImageMagick) it falls back to document order. All tools run via async execFile.
  */
-export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<string[]> {
+export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<{ gallery: string[]; floorPlans: string[] }> {
   if (!/^\d{6,20}$/.test(id)) throw new Error(`[pdf-images] invalid id: ${id}`)
   const publicDir = path.join(process.cwd(), 'public', 'images', 'properties', id)
   fs.mkdirSync(publicDir, { recursive: true })
@@ -86,7 +89,7 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
       catch (e) { console.error('[pdf-images] pdftoppm failed', e) }
       usable = collect('page').filter(sizeOk)
     }
-    if (usable.length === 0) return []
+    if (usable.length === 0) return { gallery: [], floorPlans: [] }
 
     const resizer = await findResizer()
 
@@ -95,7 +98,8 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
     if (usable.length > CLASSIFY_MAX) {
       console.warn(`[pdf-images] ${usable.length} candidates; classifying first ${CLASSIFY_MAX}`)
     }
-    let keepIdx: number[]
+    let galleryIdx: number[]
+    let floorIdx: number[]
     try {
       if (!resizer) throw new Error('no ImageMagick for thumbnails')
       const thumbs = await mapLimit(classifiable, RESIZE_CONCURRENCY, async (f, i) => {
@@ -105,28 +109,35 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
       })
       const cats = await classifyImages(thumbs)
       const full: ImgCategory[] = classifiable.map((_, i) => cats[i] ?? 'other')
-      keepIdx = selectByCategory(full, MAX_CANDIDATES)
-      if (keepIdx.length === 0) {
+      const part = partitionByCategory(full, MAX_CANDIDATES, FLOORPLAN_MAX)
+      galleryIdx = part.gallery
+      floorIdx = part.floorPlans
+      if (galleryIdx.length === 0 && floorIdx.length === 0) {
         console.warn('[pdf-images] classifier kept nothing; falling back to document order')
-        keepIdx = classifiable.map((_, i) => i).slice(0, MAX_CANDIDATES)
+        galleryIdx = classifiable.map((_, i) => i).slice(0, MAX_CANDIDATES)
+        floorIdx = []
       }
     } catch (e) {
       console.error('[pdf-images] classification failed; using document order', e)
-      keepIdx = usable.map((_, i) => i).slice(0, MAX_CANDIDATES)
+      galleryIdx = usable.map((_, i) => i).slice(0, MAX_CANDIDATES)
+      floorIdx = []
     }
-    const keep = keepIdx.map(i => usable[i])
 
-    // --- write final downscaled images --------------------------------------
+    // Write gallery files first, then floor plans, with continuous numbering, then
+    // split the resulting URLs back into the two groups by count.
+    const galleryFiles = galleryIdx.map(i => usable[i])
+    const floorFiles = floorIdx.map(i => usable[i])
+    const allFiles = [...galleryFiles, ...floorFiles]
+
     const existing = fs.readdirSync(publicDir).filter(f => /^\d+\./.test(f))
     const startIdx = existing.length === 0 ? 0 : Math.max(...existing.map(f => parseInt(f.split('.')[0], 10))) + 1
 
-    const urls = await mapLimit(keep, RESIZE_CONCURRENCY, async (f, i) => {
+    const allUrls = await mapLimit(allFiles, RESIZE_CONCURRENCY, async (f, i) => {
       const src = path.join(tmpDir, f)
       const targetIdx = startIdx + i
       if (resizer) {
         const name = `${targetIdx}.jpg`
         try {
-          // `1600x1600>` only shrinks (never upscales); -strip drops metadata.
           await execFileP(resizer, [src, '-resize', `${MAX_DIM}x${MAX_DIM}>`, '-strip', '-quality', '82', path.join(publicDir, name)], { timeout: PROC_TIMEOUT_MS })
           return `/images/properties/${id}/${name}`
         } catch (e) { console.error('[pdf-images] resize failed, copying original', e) }
@@ -136,7 +147,8 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
       fs.copyFileSync(src, path.join(publicDir, name))
       return `/images/properties/${id}/${name}`
     })
-    return urls
+
+    return { gallery: allUrls.slice(0, galleryFiles.length), floorPlans: allUrls.slice(galleryFiles.length) }
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   }
