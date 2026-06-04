@@ -157,6 +157,16 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
     setFloorPlans(prev => prev.filter((_, i) => i !== idx))
   }
 
+  function moveFloorPlan(idx: number, dir: -1 | 1) {
+    setFloorPlans(prev => {
+      const next = [...prev]
+      const target = idx + dir
+      if (target < 0 || target >= next.length) return prev
+      ;[next[idx], next[target]] = [next[target], next[idx]]
+      return next
+    })
+  }
+
   function removeImage(idx: number) {
     setImages(prev => prev.filter((_, i) => i !== idx))
   }
@@ -489,6 +499,10 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
             {floorPlans.map((src, idx) => (
               <div key={idx} className="relative group border border-gray-100 rounded-sm overflow-hidden bg-white">
                 <img src={src} alt={`Floor plan ${idx + 1}`} className="w-full h-20 object-cover" />
+                <div className="absolute bottom-0.5 left-0.5 flex gap-1 opacity-0 group-hover:opacity-100">
+                  <button type="button" onClick={() => moveFloorPlan(idx, -1)} disabled={idx === 0} className="bg-white text-navy text-[10px] px-1.5 py-0.5 rounded-sm disabled:opacity-30">←</button>
+                  <button type="button" onClick={() => moveFloorPlan(idx, 1)} disabled={idx === floorPlans.length - 1} className="bg-white text-navy text-[10px] px-1.5 py-0.5 rounded-sm disabled:opacity-30">→</button>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeFloorPlan(idx)}
