@@ -292,6 +292,50 @@ export const areas: Area[] = [
     metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 1,200/sqft, 7–8% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
   },
   {
+    slug: 'mbr-city',
+    name: 'MBR City',
+    aliases: ['Mohammed Bin Rashid City', 'Sobha Hartland'],
+    heroImage: '/images/areas/mbr-city.jpg',
+    tagline: "Canal-side central Dubai between Downtown and Meydan — the city's strongest capital-appreciation play.",
+    metrics: {
+      avgPrice: 'AED 2,000/sqft',
+      roi: '6–7%',
+      typicalSize: '700–1,500 sqft',
+      handover: 'Active off-plan pipeline 2026–2028 (Sobha-led)',
+    },
+    whyInvest: [
+      "Mohammed Bin Rashid City (MBR City) is a master-planned central district wrapped around a swimmable lagoon and the Hartland greenways, sitting minutes from Downtown, DIFC and Meydan. Its flagship community, Sobha Hartland, has become one of Dubai's most reliable capital-growth stories — apartment values are up roughly 40–70% since 2021, with District One villas appreciating even faster.",
+      "The investment thesis here is appreciation first, yield second. Gross rental yields run a healthy 6–7% on Sobha Hartland apartments, supported by waterfront layouts and international-school proximity, but the bigger driver is sustained price growth as a central, low-rise, green district with finite land. Tenant demand skews towards families and executives who want Downtown access without high-rise density.",
+      "Supply is developer-led and quality-controlled — Sobha builds, manages and finishes the bulk of the district, which keeps construction standards and service levels consistent. An active off-plan pipeline through 2026–2028 lets investors enter on staged payment plans and ride the handover curve as the master plan completes.",
+    ],
+    whatsNearby: [
+      'Direct access to Al Khail Road and Ras Al Khor Road — 10 minutes to Downtown and DIFC',
+      'Hartland International School and North London Collegiate School within the community',
+      'Swimmable crystal lagoon and landscaped Hartland greenways',
+      'Ras Al Khor Wildlife Sanctuary and the Meydan racecourse nearby',
+      'Dubai International Airport reachable in around 15 minutes',
+    ],
+    faq: [
+      {
+        q: 'Is MBR City a yield play or a capital-appreciation play?',
+        a: 'Primarily capital appreciation. Sobha Hartland apartments are up roughly 40–70% since 2021 while still returning a solid 6–7% gross yield — investors here typically prioritise central-Dubai price growth over pure cash flow.',
+      },
+      {
+        q: 'Can foreigners buy property in MBR City?',
+        a: 'Yes — MBR City, including Sobha Hartland and District One, is freehold, so non-UAE nationals can buy with full ownership and no local sponsor required.',
+      },
+      {
+        q: 'Why is Sobha Hartland priced above neighbouring districts?',
+        a: 'Single-developer quality control, a swimmable lagoon, low-rise green master planning and two international schools inside the community command a premium — and underpin the area’s resale liquidity and appreciation.',
+      },
+      {
+        q: 'How central is MBR City really?',
+        a: 'Very — it borders Downtown, Business Bay and Meydan, with Al Khail and Ras Al Khor roads putting DIFC and Dubai Mall about 10 minutes away and the airport around 15.',
+      },
+    ],
+    metaDescription: 'Buy investment property in MBR City (Sobha Hartland) — AED 2,000/sqft, 6–7% yields and central-Dubai capital growth. Worldwise Real Estate.',
+  },
+  {
     slug: 'creek-harbour',
     name: 'Creek Harbour',
     heroImage: '/images/areas/creek-harbour.jpg',
