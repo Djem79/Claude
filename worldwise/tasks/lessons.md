@@ -190,3 +190,25 @@ natural language; only the prose addressed to the user is Russian.
 **Rule:** NO emojis anywhere on public-facing pages. The luxury/premium brand uses words, typographic glyphs (→ ← ✕ ★ ✓) or SVG/line icons instead. This applies to new components AND copy.
 
 **How to apply:** Before shipping any public UI, scan for pictographic emoji (U+1F000–1FAFF, regional-indicator flags, ✉/💬/📞/🔒, etc.). Admin CRM and Telegram-bot messages are NOT the public site and may keep their glyphs. Typographic arrows/stars/checks are fine.
+
+## Never let a pipe mask a build's exit code in a deploy chain (2026-06-04)
+
+**Mistake:** Ran `npm run build 2>&1 | tail -5 && pm2 restart worldwise` on the
+server. A pipeline's exit status is the **last** command's (`tail`, always 0), so
+`&&` fired `pm2 restart` even though `next build` had failed (ENOENT on a `.next`
+manifest) — risking serving a broken/half-written build. The site happened to stay
+up, but only by luck.
+
+**Rule:** in any build-then-restart/deploy chain, branch on the **build's real exit
+code**, never on a piped tail. Pattern: `npm run build > /tmp/build.log 2>&1; code=$?;
+if [ $code -eq 0 ]; then pm2 restart …; else echo "BUILD FAILED - not restarting"; fi`.
+Don't `&&` a restart onto a piped build.
+
+**How to apply:** When the build fails mid-deploy, do a CLEAN rebuild (`rm -rf .next`)
+and restart **only** on exit 0. Also: this repo is sometimes built by **two sessions
+sharing the same working tree / `.next`** — concurrent `next build`s corrupt each
+other's manifests (ENOENT on `pages-manifest.json`, `_ssgManifest.js`,
+`export/500.html`). Before building locally or on the server, confirm no other
+`next build` process is running (`ps aux | grep 'next build'`), then `rm -rf .next`
+and build once. The server's `.next` is isolated from local, so a local collision
+never blocks the prod build — the server build is the real gate.
