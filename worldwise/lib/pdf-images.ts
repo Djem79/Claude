@@ -3,8 +3,8 @@ import { promisify } from 'node:util'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { classifyImages, partitionByCategory, type ImgCategory } from '@/lib/image-classify'
-import { isLikelyPhoto } from '@/lib/photo-filter'
+import { classifyImages, isLikelyFloorPlanDims, partitionGallery, selectPlanSection, type ImgCategory } from '@/lib/image-classify'
+import { isLikelyPhoto, MIN_PHOTO_BYTES } from '@/lib/photo-filter'
 
 const execFileP = promisify(execFile)
 
@@ -13,6 +13,12 @@ const MAX_CANDIDATES = 24
 
 // Floor plans are surfaced in their own gated section; cap them separately from the gallery.
 const FLOORPLAN_MAX = 12
+
+// The plans pass works on SMALL images the 50KB gallery gate rejects. Keep its own
+// floor (drop true icons), narrow it by geometry, and cap the classify call.
+const PLAN_MIN_BYTES = 12 * 1024
+const PLAN_CLASSIFY_MAX = 60
+const MASTERPLAN_IN_PLANS = 2
 
 // Don't ship more than this many thumbnails to the classifier in a single call
 // (developer brochures rarely exceed this once logos/icons are size-filtered out).
@@ -36,6 +42,18 @@ async function findResizer(): Promise<string | null> {
     try { await execFileP(bin, ['-version'], { timeout: 5_000 }); return bin } catch { /* try next */ }
   }
   return null
+}
+
+// Read "<w> <h>" via ImageMagick identify (IM7 = `magick identify`, IM6 = `identify`).
+// Returns null on any failure so the caller can skip the plan-geometry filter.
+async function imageDims(resizer: string | null, file: string): Promise<{ w: number; h: number } | null> {
+  if (!resizer) return null
+  const [bin, pre] = resizer === 'magick' ? ['magick', ['identify']] : ['identify', []]
+  try {
+    const { stdout } = await execFileP(bin as string, [...(pre as string[]), '-format', '%w %h', file], { timeout: PROC_TIMEOUT_MS })
+    const [w, h] = stdout.trim().split(/\s+/).map(Number)
+    return Number.isFinite(w) && Number.isFinite(h) ? { w, h } : null
+  } catch { return null }
 }
 
 // Bounded-concurrency async map (no deps).
@@ -82,52 +100,74 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
 
     try { await execFileP('pdfimages', ['-all', pdfPath, path.join(tmpDir, 'img')], { timeout: PROC_TIMEOUT_MS }) }
     catch (e) { console.error('[pdf-images] pdfimages failed', e) }
-    let usable = collect('img').filter(sizeOk)
+    let galleryPool = collect('img').filter(sizeOk)
+    let rasterised = false
 
-    if (usable.length === 0) {
+    if (galleryPool.length === 0) {
       try { await execFileP('pdftoppm', ['-jpeg', '-r', '120', pdfPath, path.join(tmpDir, 'page')], { timeout: PROC_TIMEOUT_MS }) }
       catch (e) { console.error('[pdf-images] pdftoppm failed', e) }
-      usable = collect('page').filter(sizeOk)
+      galleryPool = collect('page').filter(sizeOk)
+      rasterised = true
     }
-    if (usable.length === 0) return { gallery: [], floorPlans: [] }
+    if (galleryPool.length === 0) return { gallery: [], floorPlans: [] }
 
     const resizer = await findResizer()
 
-    // --- choose which candidates to keep, by content ------------------------
-    const classifiable = usable.slice(0, CLASSIFY_MAX)
-    if (usable.length > CLASSIFY_MAX) {
-      console.warn(`[pdf-images] ${usable.length} candidates; classifying first ${CLASSIFY_MAX}`)
-    }
+    const thumbnail = (files: string[]) => mapLimit(files, RESIZE_CONCURRENCY, async (f, i) => {
+      const thumbPath = path.join(tmpDir, `thumb-${path.basename(f)}-${i}.jpg`)
+      await execFileP(resizer as string, [path.join(tmpDir, f), '-thumbnail', '320x320', '-background', 'white', '-flatten', '-strip', '-quality', '70', thumbPath], { timeout: PROC_TIMEOUT_MS })
+      return { b64: fs.readFileSync(thumbPath).toString('base64'), mime: 'image/jpeg' }
+    })
+
+    // ---- Gallery pass (large renders, unchanged 50KB gate) -----------------
+    const classifiable = galleryPool.slice(0, CLASSIFY_MAX)
+    if (galleryPool.length > CLASSIFY_MAX) console.warn(`[pdf-images] ${galleryPool.length} gallery candidates; classifying first ${CLASSIFY_MAX}`)
     let galleryIdx: number[]
-    let floorIdx: number[]
+    let galleryCats: ImgCategory[] = []
     try {
       if (!resizer) throw new Error('no ImageMagick for thumbnails')
-      const thumbs = await mapLimit(classifiable, RESIZE_CONCURRENCY, async (f, i) => {
-        const thumbPath = path.join(tmpDir, `thumb-${i}.jpg`)
-        await execFileP(resizer, [path.join(tmpDir, f), '-thumbnail', '320x320', '-background', 'white', '-flatten', '-strip', '-quality', '70', thumbPath], { timeout: PROC_TIMEOUT_MS })
-        return { b64: fs.readFileSync(thumbPath).toString('base64'), mime: 'image/jpeg' }
-      })
-      const cats = await classifyImages(thumbs)
-      const full: ImgCategory[] = classifiable.map((_, i) => cats[i] ?? 'other')
-      const part = partitionByCategory(full, MAX_CANDIDATES, FLOORPLAN_MAX)
-      galleryIdx = part.gallery
-      floorIdx = part.floorPlans
-      if (galleryIdx.length === 0 && floorIdx.length === 0) {
-        console.warn('[pdf-images] classifier kept nothing; falling back to document order')
+      const cats = await classifyImages(await thumbnail(classifiable))
+      galleryCats = classifiable.map((_, i) => cats[i] ?? 'other')
+      galleryIdx = partitionGallery(galleryCats, MAX_CANDIDATES)
+      if (galleryIdx.length === 0) {
+        console.warn('[pdf-images] classifier kept no gallery image; falling back to document order')
         galleryIdx = classifiable.map((_, i) => i).slice(0, MAX_CANDIDATES)
-        floorIdx = []
       }
     } catch (e) {
-      console.error('[pdf-images] classification failed; using document order', e)
-      galleryIdx = usable.map((_, i) => i).slice(0, MAX_CANDIDATES)
-      floorIdx = []
+      console.error('[pdf-images] gallery classification failed; using document order', e)
+      galleryIdx = galleryPool.map((_, i) => i).slice(0, MAX_CANDIDATES)
+      galleryCats = []
     }
 
-    // Write gallery files first, then floor plans, with continuous numbering, then
-    // split the resulting URLs back into the two groups by count.
-    const galleryFiles = galleryIdx.map(i => usable[i])
-    const floorFiles = floorIdx.map(i => usable[i])
-    const allFiles = [...galleryFiles, ...floorFiles]
+    // ---- Plan pass (SMALL images with floor-plan geometry) -----------------
+    // Skipped without ImageMagick (no identify/thumbnails) or when we rasterised
+    // pages (those are full-page renders, not embedded unit plans).
+    let planPool: string[] = []
+    if (resizer && !rasterised && galleryCats.length) {
+      const smalls = collect('img').filter(f => {
+        const b = fs.statSync(path.join(tmpDir, f)).size
+        return b >= PLAN_MIN_BYTES && b < MIN_PHOTO_BYTES
+      })
+      const measured = await mapLimit(smalls, RESIZE_CONCURRENCY, async f => {
+        const d = await imageDims(resizer, path.join(tmpDir, f))
+        return { f, ok: !!d && isLikelyFloorPlanDims(d.w, d.h) }
+      })
+      planPool = measured.filter(m => m.ok).map(m => m.f).slice(0, PLAN_CLASSIFY_MAX)
+    }
+    let planSel: { master: number[]; floor: number[] } = { master: [], floor: [] }
+    if (planPool.length && galleryCats.length) {
+      try {
+        const planCatsRaw = await classifyImages(await thumbnail(planPool))
+        const planCats = planPool.map((_, i) => planCatsRaw[i] ?? 'other')
+        planSel = selectPlanSection(galleryCats, planCats, MASTERPLAN_IN_PLANS, FLOORPLAN_MAX)
+      } catch (e) { console.error('[pdf-images] plan classification failed; no plans this import', e) }
+    }
+
+    // ---- Write: gallery files, then plan-section files (master + floor) -----
+    const galleryFiles = galleryIdx.map(i => classifiable[i] ?? galleryPool[i])
+    const masterFiles = planSel.master.map(i => classifiable[i]).filter(Boolean) as string[]
+    const floorFiles = planSel.floor.map(i => planPool[i]).filter(Boolean) as string[]
+    const allFiles = [...galleryFiles, ...masterFiles, ...floorFiles]
 
     const existing = fs.readdirSync(publicDir).filter(f => /^\d+\./.test(f))
     const startIdx = existing.length === 0 ? 0 : Math.max(...existing.map(f => parseInt(f.split('.')[0], 10))) + 1
