@@ -10,6 +10,7 @@ import CurrencySelect from '@/components/CurrencySelect'
 import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
 import MortgageAnchorBar from '@/components/MortgageAnchorBar'
+import BrochureGate from '@/components/BrochureGate'
 import { waPropertyMessage } from '@/lib/whatsapp'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
@@ -262,6 +263,15 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   propertySlug={property.slug}
                   propertyTitle={property.title}
                 />
+                {property.brochure && (
+                  <div className="mt-6">
+                    <BrochureGate
+                      propertyId={property.id}
+                      propertySlug={property.slug}
+                      propertyTitle={property.title}
+                    />
+                  </div>
+                )}
                 <div className="mt-6">
                   <SocialProofStrip />
                 </div>
