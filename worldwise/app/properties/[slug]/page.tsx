@@ -17,6 +17,9 @@ import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
 import { estimateMonthly } from '@/lib/mortgage'
 import JsonLd from '@/components/JsonLd'
+import PropertyLocation from '@/components/PropertyLocation'
+import { areas, propertyMatchesArea } from '@/lib/areas'
+import { resolvePropertyCoords } from '@/lib/property-coords'
 
 export const revalidate = 60
 
@@ -74,6 +77,9 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
     .sort(byPriceCloseness)
   const similar = [...contextual, ...fallback].slice(0, 3)
 
+  const matchedArea = areas.find(a => propertyMatchesArea(property.area, a))
+  const resolvedCoords = resolvePropertyCoords(property, matchedArea?.coords)
+
   const base = 'https://worldwise.pro'
   const url = `${base}/properties/${property.slug}`
 
@@ -127,6 +133,15 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       addressRegion: 'Dubai',
       addressCountry: 'AE',
     },
+    ...(resolvedCoords
+      ? {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: resolvedCoords.lat,
+            longitude: resolvedCoords.lng,
+          },
+        }
+      : {}),
     ...(bedroomsNum ? { numberOfRooms: Number(bedroomsNum) } : {}),
     // No aggregateRating here: Google's review-snippet validator rejects a rating
     // on RealEstateListing (an unsupported host type → "invalid object type for
@@ -220,6 +235,14 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
               )}
+
+              {/* Location */}
+              <PropertyLocation
+                title={property.title}
+                area={property.area}
+                coords={resolvedCoords}
+                areaSlug={matchedArea?.slug}
+              />
 
               {/* DLD Permit / QR Code */}
               {property.qrImage && (
