@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { DUBAI_AREAS } from '@/lib/dubai-areas'
 import { useRouter } from 'next/navigation'
 import { Property } from '@/types'
 
@@ -38,6 +39,7 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
   const [propertyId] = useState(() => property?.id ?? String(Date.now()))
   const [form, setForm] = useState<Partial<Property>>(property ?? BLANK)
   const [amenitiesRaw, setAmenitiesRaw] = useState((property?.amenities ?? []).join('\n'))
+  const [areaCustom, setAreaCustom] = useState<boolean>(() => !!property?.area && !DUBAI_AREAS.includes(property.area))
   const [images, setImages] = useState<string[]>(property?.images ?? [])
   const [qrImage, setQrImage] = useState(property?.qrImage ?? '')
   const [projectNumber, setProjectNumber] = useState(property?.projectNumber ?? '')
@@ -172,7 +174,28 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Area / District *</label>
-          <input className={fieldClass} value={form.area} onChange={e => set('area', e.target.value)} required />
+          <select
+            className={fieldClass}
+            value={areaCustom ? '__other__' : (form.area || '')}
+            onChange={e => {
+              if (e.target.value === '__other__') { setAreaCustom(true); set('area', '') }
+              else { setAreaCustom(false); set('area', e.target.value) }
+            }}
+            required
+          >
+            <option value="" disabled>Select area…</option>
+            {DUBAI_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+            <option value="__other__">Other…</option>
+          </select>
+          {areaCustom && (
+            <input
+              className={`${fieldClass} mt-2`}
+              value={form.area || ''}
+              onChange={e => set('area', e.target.value)}
+              placeholder="Custom area / community"
+              required
+            />
+          )}
         </div>
       </div>
 
