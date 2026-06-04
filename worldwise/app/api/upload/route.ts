@@ -37,8 +37,26 @@ export async function POST(req: NextRequest) {
   if (!/^\d{6,20}$/.test(propertyId)) {
     return NextResponse.json({ error: 'Invalid propertyId' }, { status: 400 })
   }
-  if (kind !== 'gallery' && kind !== 'qr') {
+  if (kind !== 'gallery' && kind !== 'qr' && kind !== 'brochure') {
     return NextResponse.json({ error: 'Invalid kind' }, { status: 400 })
+  }
+
+  // Brochure is a single PDF (not an image) -> handle before the image magic-bytes
+  // loop. Stored server-only under public/files/brochures/<id>.pdf (rsync-excluded);
+  // served via the soft-gated GET /api/properties/[id]/brochure route.
+  if (kind === 'brochure') {
+    const f = form.getAll('files').find((x): x is File => x instanceof File)
+    if (!f) return NextResponse.json({ error: 'No file' }, { status: 400 })
+    if (f.size > 25 * 1024 * 1024) return NextResponse.json({ error: 'File too large (max 25 MB)' }, { status: 400 })
+    const buf = Buffer.from(await f.arrayBuffer())
+    if (buf.length < 5 || buf.toString('ascii', 0, 5) !== '%PDF-') {
+      return NextResponse.json({ error: 'Not a PDF file' }, { status: 400 })
+    }
+    const dir = path.join(process.cwd(), 'public', 'files', 'brochures')
+    fs.mkdirSync(dir, { recursive: true })
+    const name = `${propertyId}.pdf`
+    fs.writeFileSync(path.join(dir, name), buf)
+    return NextResponse.json({ brochure: name })
   }
 
   const files = form.getAll('files').filter((f): f is File => f instanceof File)
