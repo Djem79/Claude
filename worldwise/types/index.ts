@@ -25,6 +25,8 @@ export interface Property {
   projectNumber?: string
   brochure?: string   // filename under public/files/brochures/<id>.pdf; presence => show the gate
   floorPlans?: string[]   // floor-plan image URLs under /images/properties/<id>/; shown gated, separate from `images`
+  lat?: number   // decimal degrees; building-level coordinate when known
+  lng?: number   // decimal degrees; paired with lat. Absent → fall back to area centroid
   createdAt: string
 }
 
