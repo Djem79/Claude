@@ -4,6 +4,8 @@ import { extractPropertyFromPdf } from '@/lib/property-extract'
 import { canonicalizeArea } from '@/lib/dubai-areas'
 import { extractImagesFromPdf } from '@/lib/pdf-images'
 import { addDraft, listDrafts } from '@/lib/property-drafts'
+import fs from 'fs'
+import path from 'path'
 
 export const dynamic = 'force-dynamic'
 const MAX_BYTES = 25 * 1024 * 1024 // 25 MB
@@ -46,6 +48,17 @@ export async function POST(req: NextRequest) {
     console.error('[import] image extraction failed:', e) // non-fatal — fields still usable
   }
   if (imageCandidates.length) fields.images = imageCandidates
+
+  // Persist the source brochure so the published property can gate it (Wave 3/E).
+  // draftId becomes the property id on publish, so the file is already correctly named.
+  try {
+    const brDir = path.join(process.cwd(), 'public', 'files', 'brochures')
+    fs.mkdirSync(brDir, { recursive: true })
+    fs.writeFileSync(path.join(brDir, `${draftId}.pdf`), buf)
+    fields.brochure = `${draftId}.pdf`
+  } catch (e) {
+    console.error('[import] brochure persist failed:', e) // non-fatal — fields still usable
+  }
 
   addDraft({
     draftId,
