@@ -61,6 +61,17 @@ export function coercePropertyInput(
       }
     }
   }
+  // lat/lng: validated as a pair with range gates (a swapped or typo'd coordinate
+  // must be dropped, not stored — it would drop a map pin in the wrong place).
+  // Out-of-range or NaN → silently cleared (optional fields). Dubai is ~25N, 55E
+  // but we accept any globally valid coordinate; the geocoder applies the tighter box.
+  for (const key of ['lat', 'lng'] as const) {
+    if (has(key)) {
+      const n = cleanNumber(b[key])
+      const limit = key === 'lat' ? 90 : 180
+      out[key] = n !== undefined && Math.abs(n) <= limit ? n : undefined
+    }
+  }
   for (const key of BOOLEAN_FIELDS) { if (has(key)) out[key] = Boolean(b[key]) }
   for (const key of ARRAY_FIELDS) { if (has(key)) out[key] = cleanStringArray(b[key]) }
 
