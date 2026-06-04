@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { getProperties } from '@/lib/properties'
 import { getAllArticles } from '@/lib/articles'
 import { areaSlugs } from '@/lib/areas'
+import { developerSlugs } from '@/lib/developers'
 
 export const revalidate = 3600
 
@@ -42,5 +43,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  return [...staticPages, ...areaPages, ...propertyPages, ...blogPages]
+  const developerPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/developers`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+    ...developerSlugs.map(slug => ({
+      url: `${BASE}/developers/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+  ]
+
+  return [...staticPages, ...areaPages, ...developerPages, ...propertyPages, ...blogPages]
 }
