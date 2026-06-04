@@ -37,23 +37,47 @@ export function selectByCategory(cats: ImgCategory[], cap: number): number[] {
   return keep.slice(0, cap)
 }
 
-// Split classified candidates into the photo gallery (exterior → interior → amenity,
-// ranked, capped at galleryCap) and floor plans (document order, capped at floorPlanCap).
-// Floor plans are surfaced separately (gated section) instead of polluting the gallery.
-// Pure (no I/O) — unit-tested.
-export function partitionByCategory(
-  cats: ImgCategory[],
-  galleryCap: number,
-  floorPlanCap: number,
-): { gallery: number[]; floorPlans: number[] } {
-  const GALLERY_ORDER: ImgCategory[] = ['exterior', 'interior', 'amenity', 'masterplan']
-  const gallery: number[] = []
-  for (const cat of GALLERY_ORDER) {
-    for (let i = 0; i < cats.length; i++) if (cats[i] === cat) gallery.push(i)
+// True only for images shaped like a floor plan / site plan: reasonably large in
+// BOTH dimensions (drops thin banners) and decent area (drops icons/small thumbs).
+// Used to narrow the SMALL-image pool (the ones the 50KB gallery gate rejects) before
+// the plans classify pass, so it isn't flooded by section-cover/decorative crops.
+// Pure — unit-tested.
+export function isLikelyFloorPlanDims(width: number, height: number): boolean {
+  return Math.min(width, height) >= 250 && width * height >= 150_000
+}
+
+// Gallery indices ranked exterior -> interior -> amenity (document order within each),
+// capped. Master-plans and everything else are intentionally NOT in the gallery —
+// they go to the plans section (selectPlanSection) or are dropped. Pure — unit-tested.
+export function partitionGallery(cats: ImgCategory[], cap: number): number[] {
+  const ORDER: ImgCategory[] = ['exterior', 'interior', 'amenity']
+  const out: number[] = []
+  for (const cat of ORDER) {
+    for (let i = 0; i < cats.length; i++) if (cats[i] === cat) out.push(i)
   }
-  const floorPlans: number[] = []
-  for (let i = 0; i < cats.length; i++) if (cats[i] === 'floorplan') floorPlans.push(i)
-  return { gallery: gallery.slice(0, galleryCap), floorPlans: floorPlans.slice(0, floorPlanCap) }
+  return out.slice(0, cap)
+}
+
+// Build the gated "Floor plans & site plans" section: up to `maxMaster` master-plan
+// indices (from the GALLERY classify pass — master-plans are large) plus the floorplan
+// indices (from the separate PLAN classify pass — unit layouts are small). Document
+// order within each; index spaces are separate (master -> gallery files, floor ->
+// plan files), so the caller maps them to the right file arrays. Pure — unit-tested.
+export function selectPlanSection(
+  galleryCats: ImgCategory[],
+  planCats: ImgCategory[],
+  maxMaster: number,
+  maxFloor: number,
+): { master: number[]; floor: number[] } {
+  const master: number[] = []
+  for (let i = 0; i < galleryCats.length && master.length < maxMaster; i++) {
+    if (galleryCats[i] === 'masterplan') master.push(i)
+  }
+  const floor: number[] = []
+  for (let i = 0; i < planCats.length && floor.length < maxFloor; i++) {
+    if (planCats[i] === 'floorplan') floor.push(i)
+  }
+  return { master, floor }
 }
 
 const MODEL = 'gemini-2.5-flash'
