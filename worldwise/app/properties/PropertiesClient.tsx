@@ -21,14 +21,26 @@ const TYPES = [
 
 const MAX_PRICE = 100_000_000
 
-export default function PropertiesClient({ properties }: { properties: Property[] }) {
+export default function PropertiesClient({
+  properties,
+  initialArea = 'All Areas',
+  initialType = 'all',
+  initialStatus = 'all',
+}: {
+  properties: Property[]
+  initialArea?: string
+  initialType?: string
+  initialStatus?: string
+}) {
   const areas = useMemo(
     () => ['All Areas', ...Array.from(new Set(properties.map(p => p.area).filter(Boolean))).sort()],
     [properties]
   )
-  const [area, setArea] = useState('All Areas')
-  const [status, setStatus] = useState('all')
-  const [type, setType] = useState('all')
+  const validTypes = ['all', 'apartment', 'villa', 'townhouse', 'penthouse']
+  const validStatuses = ['all', 'off-plan', 'secondary', 'rent']
+  const [area, setArea] = useState(areas.includes(initialArea) ? initialArea : 'All Areas')
+  const [status, setStatus] = useState(validStatuses.includes(initialStatus) ? initialStatus : 'all')
+  const [type, setType] = useState(validTypes.includes(initialType) ? initialType : 'all')
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE)
 
   const filtered = useMemo(

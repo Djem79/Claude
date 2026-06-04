@@ -25,7 +25,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PropertiesPage() {
+export default function PropertiesPage({
+  searchParams,
+}: {
+  searchParams: { area?: string; type?: string; status?: string }
+}) {
   const properties = getProperties()
   return (
     <>
@@ -43,7 +47,12 @@ export default function PropertiesPage() {
               {properties.length} properties available
             </p>
           </div>
-          <PropertiesClient properties={properties} />
+          <PropertiesClient
+            properties={properties}
+            initialArea={searchParams.area ?? 'All Areas'}
+            initialType={searchParams.type ?? 'all'}
+            initialStatus={searchParams.status ?? 'all'}
+          />
         </div>
       </main>
       <Footer />
