@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSection } from '@/lib/auth'
 import { extractPropertyFromPdf } from '@/lib/property-extract'
 import { canonicalizeArea } from '@/lib/dubai-areas'
+import { geocodeDubaiProperty } from '@/lib/geocode'
 import { extractImagesFromPdf } from '@/lib/pdf-images'
 import { addDraft, listDrafts } from '@/lib/property-drafts'
 import fs from 'fs'
@@ -40,6 +41,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Extraction failed: ${(e as Error).message}` }, { status: 502 })
   }
   if (fields.area) fields.area = canonicalizeArea(fields.area)
+
+  // No coordinates in the brochure? Resolve the building by name so the admin sees
+  // a pre-filled map pin in PropertyForm. Non-fatal + confidence-gated (generic
+  // titles / low-confidence / API errors leave coords empty → area-centroid fallback).
+  if (typeof fields.lat !== 'number' && fields.title) {
+    try {
+      const c = await geocodeDubaiProperty(fields.title, fields.area || '')
+      if (c) { fields.lat = c.lat; fields.lng = c.lng }
+    } catch (e) {
+      console.error('[import] geocoding failed:', e) // non-fatal
+    }
+  }
 
   let imageCandidates: string[] = []
   try {
