@@ -20,6 +20,10 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://*.tildacdn.com https://*.tildacdn.pro",
               "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com",
+              // Lazy click-to-load Google Maps embed on /properties/[slug] (PropertyLocation).
+              // Without frame-src the iframe falls back to default-src 'self' and the browser
+              // blocks the cross-origin Google frame (the map renders blank).
+              "frame-src https://www.google.com https://maps.google.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
