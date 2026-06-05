@@ -263,3 +263,30 @@ and only trust building-level coords for the former. Always **dry-run + eyeball 
 location_type=GEOMETRIC_CENTER bucket** (the imprecise ones) before `--apply` — that's where
 the wrong-district matches hide. Residual single-listing errors on named projects (e.g. one
 ROOFTOP that lands on the wrong street) are fixed per-row via the admin lat/lng fields.
+
+---
+
+## 2026-06-05 — A lazy/third-party `<iframe>` needs `frame-src` in the CSP
+
+**Bug:** The Google Maps embed on `/properties/[slug]` (PropertyLocation) was blank — on
+"Show map" the placeholder cleared but the map never loaded. No console error was obvious
+at first glance.
+
+**Root cause (confirmed, not guessed):** the site CSP in `next.config.mjs` is
+`default-src 'self'` with **no `frame-src`**. Per the CSP spec, a missing `frame-src` falls
+back to `default-src` → the browser refuses to load ANY cross-origin `<iframe>` (`Refused to
+frame 'https://www.google.com' … violates default-src 'self'`). The React state flipped and
+the iframe element rendered; the browser just blocked its navigation, so it showed blank.
+
+**Fix:** add `"frame-src https://www.google.com https://maps.google.com"` to the CSP array.
+Only `frame-src` is needed — the iframe's *internal* tile/script loads run in Google's own
+document context, governed by Google's CSP, not ours. The keyless `?output=embed` URL works
+fine once the frame is permitted.
+
+**How to apply:** Whenever you add a third-party `<iframe>` (maps, video, payments, widgets)
+to a site that ships a strict CSP, add its origin to **`frame-src`** in the SAME change.
+`X-Frame-Options`/`frame-ancestors 'none'` (who can frame US) is unrelated — don't confuse
+the two directions. Verify in a REAL browser (the iframe is cross-origin, so JS can't read
+its contents — confirm by screenshot + absence of a "Refused to frame" console error), not
+just by curling headers. `agent-browser`'s synthetic `click` may not fire React's onClick;
+a native `element.click()` via `eval` does.
