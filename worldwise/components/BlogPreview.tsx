@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getAllArticles } from '@/lib/articles'
 
 const TAG_COLORS: Record<string, string> = {
@@ -46,8 +47,15 @@ export default function BlogPreview() {
               className="group block bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {'image' in a && a.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.image} alt={a.title} className="h-48 w-full object-cover" />
+                <div className="relative h-48 w-full overflow-hidden">
+                  <Image
+                    src={a.image}
+                    alt={a.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="h-48 bg-gradient-to-br from-navy to-navy-light flex items-center justify-center">
                   <span className="font-serif text-4xl text-gold/30">W</span>
