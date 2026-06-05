@@ -46,7 +46,8 @@ export async function geocodeDubaiProperty(
     }
     if (!acceptGeocode(title, r)) return null
     return { lat: Number(r.lat.toFixed(6)), lng: Number(r.lng.toFixed(6)) }
-  } catch {
+  } catch (e) {
+    console.error('[geocode] lookup failed:', e) // non-fatal — caller falls back to area centroid
     return null
   }
 }
