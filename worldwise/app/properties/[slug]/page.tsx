@@ -218,7 +218,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
               {/* Description */}
               <div>
                 <h2 className="font-serif text-2xl text-navy mb-4">About This Property</h2>
-                <p className="text-gray-600 leading-relaxed">{property.description}</p>
+                {/* Preserve the author's paragraph breaks: raw \n in a single <p> would
+                    collapse to spaces, so split on newlines and render each as its own <p>. */}
+                <div className="space-y-4 text-gray-600 leading-relaxed">
+                  {property.description.split(/\n+/).map(p => p.trim()).filter(Boolean).map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
               </div>
 
               {/* Amenities */}
