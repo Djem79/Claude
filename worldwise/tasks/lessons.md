@@ -290,3 +290,42 @@ the two directions. Verify in a REAL browser (the iframe is cross-origin, so JS 
 its contents — confirm by screenshot + absence of a "Refused to frame" console error), not
 just by curling headers. `agent-browser`'s synthetic `click` may not fire React's onClick;
 a native `element.click()` via `eval` does.
+
+---
+
+## 2026-06-05 — Shared HEAD: a dispatched subagent committed to the WRONG branch
+
+**What happened:** Mid-task I created `feat/homepage-image-optimization`, committed the spec +
+plan, then dispatched an implementer subagent for the first code change. Between those two
+moments a **parallel Claude session** (working on `feat/geocode-on-import` in the SAME single
+working tree) switched the branch out from under me. My implementer ran on the parallel
+session's branch, so its commit (`9d31ae8`, BlogPreview → next/image) landed in the MIDDLE of
+their history, and they then committed their geocoder on top of it.
+
+**Root cause:** This repo is a normal (non-worktree) checkout — there is exactly ONE working
+tree and ONE shared `HEAD`. Two concurrent sessions both `git checkout`/commit against it.
+`git` has no per-session branch isolation here; whoever ran `checkout` last wins, and a
+subagent dispatched earlier has no idea the branch moved. The reflog told the whole story
+(`checkout: moving from feat/homepage-image-optimization to main`, then to the sibling branch,
+then my commit, then theirs).
+
+**How it was resolved (non-destructive):** Did NOT rewrite the other session's branch or yank
+the working tree mid-run. The other session later merged its work (carrying my stray commit)
+into `main` and parked the tree on `main`. Then: `git checkout` my branch → `git rebase main`
+(picked up the merged state, the duplicate `fix(property)` commit auto-dropped via
+`skipped previously applied commit`) → continued the remaining tasks → fast-forward merged
+back to `main`. Nothing lost; history ended linear.
+
+**How to apply (prevention):**
+
+1. **Every implementer/subagent prompt that commits MUST first assert the branch:**
+   `git branch --show-current` and STOP with BLOCKED if it isn't the expected one. (Tasks 2-3
+   of this plan added exactly that guard.) It's cheap insurance against a moved HEAD.
+2. **Before dispatching a subagent, re-check `git branch --show-current` in the controller** —
+   don't trust the branch you were on N tool-calls ago when another session may share the tree.
+3. **Coordinate via AGENTS.md** (who's lead / who owns the tree right now). A shared HEAD is a
+   single mutex; only one session should be doing checkouts/commits at a time. If you find the
+   tree on someone else's branch, that's a hard signal to PAUSE, not to push through.
+4. **Recovery is almost always non-destructive:** a stray commit sitting in another branch is
+   safe in history — cherry-pick/rebase it onto the right branch when the tree is free; never
+   rewrite a branch you don't own to "clean up" while the other session may still be on it.
