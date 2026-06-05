@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { areas as areaData } from '@/lib/areas'
 
 type AreaCard = {
@@ -52,9 +53,12 @@ export default function AreasSection() {
                     href={`/${area.slug}`}
                     className="group relative overflow-hidden rounded-sm aspect-[4/3] cursor-pointer"
                   >
-                    <div
-                      className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                      style={{ backgroundImage: `url('${area.img}')` }}
+                    <Image
+                      src={area.img}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
