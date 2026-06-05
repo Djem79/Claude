@@ -55,7 +55,7 @@ export default function PropertyLocation({ title, area, coords, areaSlug }: Prop
           <button
             type="button"
             onClick={() => setShow(true)}
-            className="group relative block w-full h-[320px] rounded-sm overflow-hidden border border-gray-200"
+            className="group relative block w-full h-[240px] rounded-sm overflow-hidden border border-gray-200"
             aria-label="Show map"
           >
             {/* District backdrop (real area photo) with a graceful navy fallback */}
@@ -64,14 +64,15 @@ export default function PropertyLocation({ title, area, coords, areaSlug }: Prop
                 src={`/images/areas/${areaSlug}.jpg`}
                 alt=""
                 fill
-                sizes="(max-width: 1024px) 100vw, 66vw"
+                quality={40}
+                sizes="(max-width: 1024px) 100vw, 760px"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
             ) : (
               <span className="absolute inset-0 bg-gradient-to-br from-navy to-[#0d1726]" />
             )}
             {/* Dark wash for legibility + premium depth */}
-            <span className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/55 to-navy/25" />
+            <span className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/45 to-navy/15" />
 
             {/* Centre content */}
             <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-white">
