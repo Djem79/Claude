@@ -15,11 +15,13 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Next.js requires unsafe-inline for its runtime scripts; JSON-LD blocks also need it
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+              // Cloudflare Web Analytics beacon (static.cloudflareinsights.com) is auto-injected by the CF proxy
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://*.tildacdn.com https://*.tildacdn.pro",
-              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com",
+              // CF Insights beacon POSTs RUM data to cloudflareinsights.com/cdn-cgi/rum
+              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://cloudflareinsights.com",
               // Lazy click-to-load Google Maps embed on /properties/[slug] (PropertyLocation).
               // Without frame-src the iframe falls back to default-src 'self' and the browser
               // blocks the cross-origin Google frame (the map renders blank).
@@ -27,6 +29,8 @@ const nextConfig = {
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
+              // Hardening: block legacy plugin/embed vectors explicitly (no <object>/<embed> used)
+              "object-src 'none'",
             ].join('; '),
           },
         ],

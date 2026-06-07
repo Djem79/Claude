@@ -66,6 +66,10 @@ export default function ArticlePage({ params }: Props) {
     '@type': 'BlogPosting',
     headline: article.title,
     description: article.excerpt,
+    // Article rich-result recommended field; mirrors the og:image resolution above
+    image: 'image' in article && article.image
+      ? `https://worldwise.pro${article.image}`
+      : 'https://worldwise.pro/opengraph-image',
     datePublished: dateISO,
     dateModified: dateISO,
     author: { '@type': 'Organization', name: 'Worldwise Real Estate', url: 'https://worldwise.pro' },

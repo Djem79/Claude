@@ -69,9 +69,9 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
                 <img src={d.imageCandidates[0]} alt="" className="w-full h-32 object-cover rounded-sm mb-3" />
               )}
               <p className="font-medium text-navy truncate">{d.fields.title || '(untitled)'}</p>
-              <p className="text-xs text-gray-500 truncate">{d.fields.developer || '\u2014'} \u00b7 {d.fields.area || '\u2014'}</p>
+              <p className="text-xs text-gray-500 truncate">{d.fields.developer || '\u2014'}{' \u00b7 '}{d.fields.area || '\u2014'}</p>
               <p className="text-xs text-gray-400 mt-1">
-                {d.fields.priceAed ? `AED ${d.fields.priceAed.toLocaleString()}` : 'no price'} \u00b7 {d.imageCandidates.length} photo(s)
+                {d.fields.priceAed ? `AED ${d.fields.priceAed.toLocaleString()}` : 'no price'}{' \u00b7 '}{d.imageCandidates.length} photo(s)
               </p>
               <p className="text-[11px] text-gray-300 truncate mt-1" title={d.sourcePdf}>{d.sourcePdf}</p>
               <div className="flex gap-3 mt-3 text-xs">

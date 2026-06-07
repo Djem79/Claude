@@ -18,7 +18,10 @@ const LISTING_LIMIT = 6
 // without a redeploy (matches /properties and the area pages).
 export const revalidate = 60
 
-const TITLE = 'Dubai Golden Visa Through Property Investment | Worldwise'
+// metadata.title stays brandless (layout title.template appends the brand once);
+// OG/twitter need the brand explicitly — the template does NOT apply to them.
+const TITLE = 'Dubai Golden Visa Through Property Investment'
+const OG_TITLE = `${TITLE} | Worldwise Real Estate`
 const DESCRIPTION =
   'Buy a Dubai property worth AED 2M or more and qualify for the UAE Golden Visa — a renewable 10-year residency for you and your family, with no local sponsor needed. See qualifying listings and check your eligibility.'
 
@@ -30,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: DESCRIPTION,
     alternates: { canonical: url },
     openGraph: {
-      title: TITLE,
+      title: OG_TITLE,
       description: DESCRIPTION,
       url,
       type: 'website',
@@ -38,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: TITLE,
+      title: OG_TITLE,
       description: DESCRIPTION,
       images: [image],
     },

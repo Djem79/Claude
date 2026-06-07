@@ -28,12 +28,14 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
           <>
             <button
               onClick={() => setCurrent(i => (i - 1 + images.length) % images.length)}
+              aria-label="Previous photo"
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"
             >
               ‹
             </button>
             <button
               onClick={() => setCurrent(i => (i + 1) % images.length)}
+              aria-label="Next photo"
               className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"
             >
               ›
@@ -49,6 +51,8 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
             <button
               key={i}
               onClick={() => setCurrent(i)}
+              aria-label={`View photo ${i + 1}`}
+              aria-current={i === current}
               className={`relative w-20 h-14 flex-shrink-0 overflow-hidden rounded-sm transition-all ${
                 i === current ? 'ring-2 ring-gold' : 'opacity-60 hover:opacity-90'
               }`}

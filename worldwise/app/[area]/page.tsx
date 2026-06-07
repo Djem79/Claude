@@ -30,7 +30,10 @@ export async function generateMetadata({
   const area = getArea(params.area)
   if (!area) return {}
 
-  const title = `${area.name} Apartments & Investment Properties | Worldwise Real Estate`
+  // metadata.title stays brandless (layout title.template appends the brand once);
+  // og/twitter titles need the brand explicitly — the template does NOT apply to them.
+  const title = `${area.name} Apartments & Investment Properties`
+  const ogTitle = `${title} | Worldwise Real Estate`
   const url = `${BASE}/${area.slug}`
   const image = `${BASE}${area.heroImage}`
 
@@ -39,7 +42,7 @@ export async function generateMetadata({
     description: area.metaDescription,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: ogTitle,
       description: area.metaDescription,
       url,
       type: 'website',
@@ -47,7 +50,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description: area.metaDescription,
       images: [image],
     },

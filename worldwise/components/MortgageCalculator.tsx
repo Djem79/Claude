@@ -15,18 +15,16 @@ function formatAedFull(n: number) {
 }
 
 const TERMS = [5, 10, 15, 20, 25]
-const DOWN_PAYMENTS = [10, 15, 20, 25, 30, 40]
+const DOWN_PAYMENTS = [20, 25, 30, 40]
 
 export default function MortgageCalculator() {
   const [price, setPrice] = useState(2_000_000)
   const [downPct, setDownPct] = useState(20)
   const [termYears, setTermYears] = useState(25)
   const [rate, setRate] = useState(4.5)
-  const [residency, setResidency] = useState<'resident' | 'non-resident'>('non-resident')
   const [modalOpen, setModalOpen] = useState(false)
 
-  const minDown = residency === 'non-resident' ? 20 : 20
-  const effectiveDown = Math.max(downPct, minDown)
+  const effectiveDown = downPct
 
   const calc = useMemo(() => {
     const downAmount = price * (effectiveDown / 100)
@@ -50,33 +48,13 @@ export default function MortgageCalculator() {
             Calculate Your Monthly Payment
           </h2>
           <p className="text-white/60 mt-3 text-lg">
-            Instant estimate for UAE property financing — residents and non-residents
+            Instant estimate for UAE property financing
           </p>
         </div>
 
         <div className="bg-navy-light rounded-sm p-8 md:p-12 grid md:grid-cols-2 gap-12 border border-white/10">
           {/* Inputs */}
           <div className="space-y-7">
-            {/* Residency */}
-            <div>
-              <label className="text-white/70 text-sm font-medium block mb-3">Residency Status</label>
-              <div className="grid grid-cols-2 gap-3">
-                {(['resident', 'non-resident'] as const).map(r => (
-                  <button
-                    key={r}
-                    onClick={() => setResidency(r)}
-                    className={`py-2.5 px-4 rounded-sm text-sm font-medium capitalize border transition-all ${
-                      residency === r
-                        ? 'bg-gold text-navy border-gold'
-                        : 'bg-transparent text-white/70 border-white/20 hover:border-gold/50'
-                    }`}
-                  >
-                    {r === 'resident' ? 'UAE Resident' : 'Non-Resident'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Property Price */}
             <div>
               <label className="text-white/70 text-sm font-medium block mb-3">Property Price</label>
@@ -103,29 +81,20 @@ export default function MortgageCalculator() {
                 <span className="text-white/40 font-normal">({formatAedFull(calc.downAmount)})</span>
               </label>
               <div className="flex gap-2 flex-wrap">
-                {DOWN_PAYMENTS.map(p => {
-                  const disabled = p < minDown
-                  return (
-                    <button
-                      key={p}
-                      onClick={() => !disabled && setDownPct(p)}
-                      disabled={disabled}
-                      className={`py-1.5 px-3 rounded-sm text-sm border transition-all ${
-                        effectiveDown === p
-                          ? 'bg-gold text-navy border-gold font-medium'
-                          : disabled
-                          ? 'opacity-30 text-white/40 border-white/10 cursor-not-allowed'
-                          : 'text-white/70 border-white/20 hover:border-gold/50'
-                      }`}
-                    >
-                      {p}%
-                    </button>
-                  )
-                })}
+                {DOWN_PAYMENTS.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setDownPct(p)}
+                    className={`py-1.5 px-3 rounded-sm text-sm border transition-all ${
+                      effectiveDown === p
+                        ? 'bg-gold text-navy border-gold font-medium'
+                        : 'text-white/70 border-white/20 hover:border-gold/50'
+                    }`}
+                  >
+                    {p}%
+                  </button>
+                ))}
               </div>
-              {residency === 'non-resident' && (
-                <p className="text-white/30 text-xs mt-2">Minimum 20% for non-residents (UAE Central Bank rules)</p>
-              )}
             </div>
 
             {/* Loan Term */}

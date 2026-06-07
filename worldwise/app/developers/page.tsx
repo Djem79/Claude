@@ -11,7 +11,7 @@ const BASE = 'https://worldwise.pro'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Dubai Property Developers | Worldwise Real Estate',
+  title: 'Dubai Property Developers',
   description: "Browse Dubai's leading developers — Emaar, DAMAC, Sobha, Ellington, Danube and more. See available projects and request developer pricing.",
   alternates: { canonical: `${BASE}/developers` },
 }

@@ -91,7 +91,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             </a>
             <Link
               href={`/properties/${property.slug}`}
-              className="btn-outline-gold text-sm px-5 py-2.5"
+              className="btn-outline-gold-light text-sm px-5 py-2.5"
             >
               View Details
             </Link>

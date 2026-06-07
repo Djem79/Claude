@@ -1,3 +1,6 @@
 
 # brainstorming visual companion (transient)
 .superpowers/
+
+# graphify knowledge-graph output (local only)
+graphify-out/

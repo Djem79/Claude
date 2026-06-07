@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { AdminUser, AdminRole, AdminSection } from '@/types'
 import { ALL_SECTIONS, DEFAULT_SECTIONS, effectiveSections } from '@/lib/permissions'
 
@@ -222,8 +222,8 @@ export default function UsersClient({ initialUsers, currentUsername }: {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {users.map(u => (
-              <>
-                <tr key={u.id} className={`hover:bg-gray-50 ${!u.active ? 'opacity-50' : ''}`}>
+              <Fragment key={u.id}>
+                <tr className={`hover:bg-gray-50 ${!u.active ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3 font-medium text-navy">{u.name}</td>
                   <td className="px-4 py-3 text-gray-500 font-mono text-xs">{u.username}</td>
                   <td className="px-4 py-3">
@@ -337,7 +337,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
             {users.length === 0 && (
               <tr>

@@ -78,7 +78,7 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
               rel="noopener noreferrer"
               className="block mt-6 w-full text-center rounded-sm py-3 px-4 text-sm font-medium bg-[#229ED9]/15 border border-[#229ED9]/40 text-[#229ED9] hover:bg-[#229ED9]/25 transition-colors"
             >
-              Bonus: Telegram channel «Смотрим Дубай» →
+              Bonus: our Telegram channel →
             </a>
             <p className="text-white/40 text-xs mt-2">Off-plan before public sales, market analytics, weekly case studies</p>
           </div>

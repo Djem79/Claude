@@ -1,5 +1,21 @@
 # Lessons
 
+## 2026-06-08 — `title.template` does NOT brand og:title / twitter:title
+
+**Context:** Fixing doubled-brand page titles (`… | Worldwise Real Estate | Worldwise Real Estate Dubai`), I stripped the brand from the `title` variable in `generateMetadata`. But that same variable was reused for `openGraph.title` and `twitter.title` — so social-card titles went brandless. Caught only by the self code-review workflow, after the doc `<title>` looked correct.
+
+**The rule:** Next.js App Router `title.template` (`%s | Brand` in `app/layout.tsx`) applies **only to the document `<title>`**. It is NOT inherited by `openGraph.title` / `twitter.title` — those are emitted verbatim unless the layout defines a separate `openGraph.title.{default,template}` object (it doesn't here). Resolver proof: `resolve-metadata.js` derives the OG/twitter template from the parent's *OG/twitter* title template, which is `null` for a plain-string OG title.
+
+**How to apply:** when a page's `metadata.title` is brandless (to let the template add the brand once), give `openGraph.title`/`twitter.title` an **explicit branded string** (e.g. `const ogTitle = \`${title} | Worldwise Real Estate\``). Verify with `curl … | grep -oE '<meta property="og:title"[^>]*>'`, not just `<title>`. Fixed in `app/[area]/page.tsx`, `app/golden-visa/page.tsx`, `app/developers/[slug]/page.tsx`.
+
+## 2026-06-08 — `sharp` PNG `palette: true` posterizes photographic PNGs
+
+**Context:** Wrote `scripts/recompress-images.cjs` to downscale/recompress oversized images in place. For PNGs I used `.png({ palette: true })` for max compression. Self-review flagged it BEFORE shipping: property photos stored as PNG (screenshot-style) would be quantised to ≤256 colours → visible banding/posterization. The `--apply` run had already overwritten 626 files; restored every one with `git checkout -- public/images`, removed `palette`, re-ran.
+
+**The rule:** `palette: true` (PNG8 quantization) is only safe for flat-colour graphics/logos, NOT photographic content. When batch-processing a mixed set where you can't tell photos from graphics, use full-colour PNG (`.png({ compressionLevel: 9, effort: 8 })`) — the savings come from the **downscale**, not palette. You can't switch a photographic PNG to JPEG either: image filenames are referenced by extension in `data/properties.json` + galleries, so changing the extension breaks links. Keep format, downscale, full colour.
+
+**Bonus:** in-place batch image edits are reversible only because the files are git-tracked — `git checkout -- <dir>` undoes a bad run instantly. Always dry-run first and keep the originals in git before an `--apply`.
+
 ## 2026-05-30 — Mobile horizontal-overflow ("can scroll right into an empty strip, won't snap back")
 
 A page-wide right-side empty strip = something makes `document.documentElement.scrollWidth > clientWidth`. Took three fixes because it had three independent causes and I kept testing at the wrong width.

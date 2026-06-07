@@ -22,6 +22,32 @@ const TYPES = [
 
 const MAX_PRICE = 100_000_000
 
+// Module-scope so its identity is stable across renders — a nested definition would
+// remount every <select> (dropping focus) on each filter/slider state change.
+function FilterSelect({
+  id, label, value, onChange, options,
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+}) {
+  return (
+    <select
+      id={id}
+      aria-label={label}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="w-40 max-w-full border border-gray-200 bg-white px-4 py-2.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold truncate"
+    >
+      {options.map(o => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  )
+}
+
 export default function PropertiesClient({
   properties,
   initialArea = 'All Areas',
@@ -56,55 +82,39 @@ export default function PropertiesClient({
     [properties, area, status, type, maxPrice]
   )
 
-  function FilterSelect({
-    value, onChange, options,
-  }: {
-    value: string
-    onChange: (v: string) => void
-    options: { value: string; label: string }[]
-  }) {
-    return (
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-40 max-w-full border border-gray-200 bg-white px-4 py-2.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold truncate"
-      >
-        {options.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-    )
-  }
-
   return (
     <>
       {/* Filters */}
       <div className="bg-white rounded-sm p-5 mb-8 shadow-sm flex flex-wrap gap-4 items-end">
         <div>
-          <label className="text-xs text-gray-500 font-medium block mb-1">Area</label>
+          <label htmlFor="filter-area" className="text-xs text-gray-500 font-medium block mb-1">Area</label>
           <FilterSelect
+            id="filter-area"
+            label="Area"
             value={area}
             onChange={setArea}
             options={areas.map(a => ({ value: a, label: a }))}
           />
         </div>
         <div>
-          <label className="text-xs text-gray-500 font-medium block mb-1">Status</label>
-          <FilterSelect value={status} onChange={setStatus} options={STATUSES} />
+          <label htmlFor="filter-status" className="text-xs text-gray-500 font-medium block mb-1">Status</label>
+          <FilterSelect id="filter-status" label="Status" value={status} onChange={setStatus} options={STATUSES} />
         </div>
         <div>
-          <label className="text-xs text-gray-500 font-medium block mb-1">Type</label>
-          <FilterSelect value={type} onChange={setType} options={TYPES} />
+          <label htmlFor="filter-type" className="text-xs text-gray-500 font-medium block mb-1">Type</label>
+          <FilterSelect id="filter-type" label="Type" value={type} onChange={setType} options={TYPES} />
         </div>
         <div>
           <label className="text-xs text-gray-500 font-medium block mb-1">Currency</label>
           <CurrencySelect />
         </div>
         <div className="flex-1 min-w-48">
-          <label className="text-xs text-gray-500 font-medium block mb-1">
+          <label htmlFor="filter-maxprice" className="text-xs text-gray-500 font-medium block mb-1">
             Max Price: AED {(maxPrice / 1_000_000).toFixed(1)}M
           </label>
           <input
+            id="filter-maxprice"
+            aria-label="Maximum price in AED"
             type="range"
             min={500_000}
             max={MAX_PRICE}

@@ -303,18 +303,18 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Payment Plan</label>
-          <input className={fieldClass} value={form.paymentPlan} onChange={e => set('paymentPlan', e.target.value)} placeholder="e.g. 70/30" />
+          <input className={fieldClass} value={form.paymentPlan ?? ''} onChange={e => set('paymentPlan', e.target.value)} placeholder="e.g. 70/30" />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Handover / Completion Date</label>
-          <input className={fieldClass} value={form.completionDate} onChange={e => set('completionDate', e.target.value)} placeholder="e.g. Q2 2026" />
+          <input className={fieldClass} value={form.completionDate ?? ''} onChange={e => set('completionDate', e.target.value)} placeholder="e.g. Q2 2026" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Badge Label</label>
-          <input className={fieldClass} value={form.badge} onChange={e => set('badge', e.target.value)} placeholder="e.g. Beachfront, High ROI" />
+          <input className={fieldClass} value={form.badge ?? ''} onChange={e => set('badge', e.target.value)} placeholder="e.g. Beachfront, High ROI" />
         </div>
       </div>
 

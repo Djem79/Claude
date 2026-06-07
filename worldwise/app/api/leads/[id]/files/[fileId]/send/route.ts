@@ -16,6 +16,11 @@ export async function POST(
   const lead = getLeadById(params.id)
   if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   if (!lead.email) return NextResponse.json({ error: 'Lead has no email address' }, { status: 400 })
+  // Telegram-intake leads store the user's @handle in the email field; reject non-addresses
+  // up front with a clear 400 instead of a confusing nodemailer 500 downstream.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
+    return NextResponse.json({ error: 'Lead email is not a valid address' }, { status: 400 })
+  }
 
   const attachment = (lead.attachments ?? []).find(a => a.id === params.fileId)
   if (!attachment) return NextResponse.json({ error: 'File not found' }, { status: 404 })

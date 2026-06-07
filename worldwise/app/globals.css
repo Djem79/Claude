@@ -32,6 +32,12 @@ body {
     @apply border border-gold text-gold font-semibold px-8 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold hover:text-navy active:scale-95 inline-block text-center;
   }
 
+  /* Gold-outline button for LIGHT surfaces: resting text uses --gold-dark (#8A6D1F, ~4.6:1, WCAG AA);
+     plain .btn-outline-gold (text-gold #C9A84C ~2:1) is for dark/navy backgrounds only. */
+  .btn-outline-gold-light {
+    @apply border border-gold text-[#8A6D1F] font-semibold px-8 py-3.5 rounded-sm transition-all duration-200 hover:bg-gold hover:text-navy active:scale-95 inline-block text-center;
+  }
+
   .section-title {
     @apply font-serif text-4xl md:text-5xl text-navy leading-tight;
   }

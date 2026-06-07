@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
@@ -253,9 +254,9 @@ export default function MortgageCalculatorPage() {
               <a href="#mortgage-calculator" className="btn-primary">
                 Use the Calculator Again
               </a>
-              <a href="/#contact" className="btn-outline">
+              <Link href="/#contact" className="btn-outline">
                 Talk to a Mortgage Advisor
-              </a>
+              </Link>
             </div>
           </div>
         </section>

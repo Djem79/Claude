@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
@@ -8,7 +9,8 @@ import type { Metadata } from 'next'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'UAE Real Estate Guides & Insights | Worldwise',
+  // Brand added by the layout title template (%s | Worldwise Real Estate Dubai) — keep it out here
+  title: 'UAE Real Estate Guides & Insights',
   description:
     'Expert guides for international investors: off-plan property, legal process, visa options and more. Practical knowledge for buying UAE real estate.',
   alternates: { canonical: 'https://worldwise.pro/blog' },
@@ -65,8 +67,15 @@ export default function BlogPage() {
                   className="group block bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   {'image' in a && a.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={a.image} alt={a.title} className="h-48 w-full object-cover" />
+                    <div className="relative h-48 w-full overflow-hidden">
+                      <Image
+                        src={a.image}
+                        alt={a.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="h-48 bg-gradient-to-br from-navy to-navy-light flex items-center justify-center">
                       <span className="font-serif text-4xl text-gold/30">W</span>

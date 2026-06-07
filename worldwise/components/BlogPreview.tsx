@@ -27,7 +27,7 @@ export default function BlogPreview() {
             </p>
           </div>
           <div className="flex flex-col gap-2 self-start md:self-end md:items-end">
-            <Link href="/blog" className="btn-outline-gold whitespace-nowrap">
+            <Link href="/blog" className="btn-outline-gold-light whitespace-nowrap">
               All Articles →
             </Link>
             <Link

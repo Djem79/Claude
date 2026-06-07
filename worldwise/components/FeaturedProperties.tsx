@@ -16,7 +16,7 @@ export default function FeaturedProperties({ properties }: { properties: Propert
               Curated opportunities with strong rental yields and capital growth potential
             </p>
           </div>
-          <Link href="/properties" className="btn-outline-gold whitespace-nowrap self-start md:self-end">
+          <Link href="/properties" className="btn-outline-gold-light whitespace-nowrap self-start md:self-end">
             View All Properties →
           </Link>
         </div>

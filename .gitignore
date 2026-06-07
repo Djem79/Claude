@@ -10,12 +10,12 @@
 **/.env.local
 **/.env.*.local
 
-# Lead submissions — contain customer PII (names, phones).
-# Back up via server snapshot, NOT git.
-worldwise/data/leads.json
-
-# Transient import staging — server-only, like other data/ stores.
-worldwise/data/property-drafts.json
+# Server-only data store — ALL of data/ lives on the server, never committed.
+# Holds customer PII (leads.json), bcrypt password hashes (users.json), the live
+# catalog (properties.json), AI article state, and import staging. Back up via
+# server snapshot, NOT git. (Previously only leads.json + property-drafts.json
+# were ignored, leaving users.json/properties.json/articles.json committable.)
+worldwise/data/
 
 # Uploaded client documents — contain customer PII.
 # Stored outside public/ (served only via authenticated route) — never commit.
@@ -44,3 +44,6 @@ ruvector.db
 
 # Personal Claude Code hooks (machine-local workflow)
 .claude/hooks/
+
+# Playwright MCP scratch output (screenshots/snapshots/console logs)
+.playwright-mcp/

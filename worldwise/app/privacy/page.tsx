@@ -1,8 +1,9 @@
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import FloatingCTA from '@/components/FloatingCTA'
 
 export const metadata = {
-  title: 'Privacy & Cookie Policy | Worldwise Real Estate',
+  title: 'Privacy & Cookie Policy',
   description: 'How Worldwise Real Estate collects, uses, and protects your personal data and cookies.',
   alternates: { canonical: 'https://worldwise.pro/privacy' },
 }
@@ -82,6 +83,7 @@ export default function PrivacyPage() {
         </div>
       </main>
       <Footer />
+      <FloatingCTA />
     </>
   )
 }

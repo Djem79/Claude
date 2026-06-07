@@ -1,8 +1,10 @@
+import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import FloatingCTA from '@/components/FloatingCTA'
 
 export const metadata = {
-  title: 'Terms of Use | Worldwise Real Estate',
+  title: 'Terms of Use',
   description: 'Terms and conditions governing your use of the Worldwise Real Estate website and services.',
   alternates: { canonical: 'https://worldwise.pro/terms' },
 }
@@ -58,7 +60,7 @@ export default function TermsPage() {
               When you submit an enquiry form, you consent to being contacted by Worldwise Real Estate
               via phone, WhatsApp, or email regarding your enquiry. We do not sell your contact details.
               See our{' '}
-              <a href="/privacy" className="text-gold-accessible hover:underline">Privacy & Cookie Policy</a> for
+              <Link href="/privacy" className="text-gold-accessible hover:underline">Privacy & Cookie Policy</Link> for
               full details on data handling.
             </p>
 
@@ -101,6 +103,7 @@ export default function TermsPage() {
         </div>
       </main>
       <Footer />
+      <FloatingCTA />
     </>
   )
 }

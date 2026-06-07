@@ -59,7 +59,7 @@ export default function PropertyEnquiryForm({
             rel="noopener noreferrer"
             className="block mt-5 w-full text-center rounded-sm py-2.5 px-4 text-sm font-medium bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors"
           >
-            Telegram channel «Смотрим Дубай» →
+            Our Telegram channel →
           </a>
           <p className="text-xs text-gray-400 mt-1">New off-plan listings and market analytics every week</p>
         </div>

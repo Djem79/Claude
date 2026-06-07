@@ -7,7 +7,8 @@ import GuideClient from './GuideClient'
 import JsonLd from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'Free Dubai Real Estate Investment Guide 2026 | Worldwise',
+  // Brand added by the layout title template — keep it out of the page title
+  title: 'Free Dubai Real Estate Investment Guide 2026',
   description:
     'Download the free 2026 Dubai Real Estate Investment Guide for international buyers — rental yields by district, the buying process, full costs, Golden Visa and a getting-started checklist.',
   alternates: { canonical: 'https://worldwise.pro/guide' },
@@ -16,6 +17,10 @@ export const metadata: Metadata = {
     description:
       'The free 2026 guide for international investors buying Dubai property — yields, process, costs and the Golden Visa. Instant download.',
     url: 'https://worldwise.pro/guide',
+    images: [{ url: '/images/hero-dubai.jpg', width: 1200, height: 630, alt: 'Free Dubai Real Estate Investment Guide 2026' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
     images: ['/images/hero-dubai.jpg'],
   },
 }

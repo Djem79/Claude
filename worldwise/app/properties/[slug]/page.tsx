@@ -9,6 +9,7 @@ import PropertyGallery from './PropertyGallery'
 import CurrencySelect from '@/components/CurrencySelect'
 import SocialProofStrip from '@/components/SocialProofStrip'
 import MobileCtaBar from '@/components/MobileCtaBar'
+import FloatingCTA from '@/components/FloatingCTA'
 import MortgageAnchorBar from '@/components/MortgageAnchorBar'
 import BrochureGate from '@/components/BrochureGate'
 import FloorPlanGate from '@/components/FloorPlanGate'
@@ -104,9 +105,10 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
     name: property.title,
     description: property.description,
     url,
-    image: property.images.slice(0, 5).map(img =>
-      img.startsWith('http') ? img : `${base}${img}`
-    ),
+    // Omit the field entirely when there are no images, rather than emitting image: []
+    ...(property.images.length
+      ? { image: property.images.slice(0, 5).map(img => (img.startsWith('http') ? img : `${base}${img}`)) }
+      : {}),
     datePosted: property.createdAt,
     offers: {
       '@type': 'Offer',
@@ -169,19 +171,23 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         <PropertyGallery images={property.images} title={property.title} />
 
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid lg:grid-cols-3 gap-12">
+          {/* grid-cols-1 (minmax(0,1fr) track) + min-w-0 stop the column's min-content
+              from blowing the layout wider than the viewport on narrow phones (360px) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Left: details */}
-            <div className="lg:col-span-2 space-y-10">
+            <div className="lg:col-span-2 space-y-10 min-w-0">
               {/* Header */}
               <div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="badge bg-navy text-gold">{property.status}</span>
                   {property.rented && <span className="badge bg-gray-800/80 text-white">Rented</span>}
-                  {property.badge && <span className="badge bg-gold/10 text-gold">{property.badge}</span>}
+                  {property.badge && <span className="badge bg-gold/10 text-gold-accessible">{property.badge}</span>}
                   {qualifiesForGoldenVisa(property.priceAed) && <span className="badge bg-gold text-navy">Golden Visa</span>}
                 </div>
                 <div className="flex items-start justify-between gap-4">
-                  <h1 className="font-serif text-4xl md:text-5xl text-navy">{property.title}</h1>
+                  {/* min-w-0 lets the long title wrap/shrink inside the flex row instead of
+                      forcing horizontal overflow on narrow phones (360px) — was a 48px leak */}
+                  <h1 className="font-serif text-4xl md:text-5xl text-navy min-w-0 break-words">{property.title}</h1>
                   <CurrencySelect className="border border-gray-200 bg-white px-3 py-1.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold shrink-0" />
                 </div>
                 <p className="text-gray-500 text-lg mt-2">
@@ -382,6 +388,8 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
         propertyTitle={property.title}
         monthlyNote={property.status !== 'rent' ? `Own from AED ${Math.round(estimateMonthly(property.priceAed)).toLocaleString('en-US')}/mo (mortgage)` : undefined}
       />
+      {/* Desktop persistent CTA (hidden md:flex); coexists with the md:hidden MobileCtaBar above */}
+      <FloatingCTA />
     </>
   )
 }

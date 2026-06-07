@@ -113,7 +113,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
               rel="noopener noreferrer"
               className="block mt-5 w-full text-center rounded-sm py-3 px-4 text-sm font-medium bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors"
             >
-              Bonus: subscribe to Telegram «Смотрим Дубай» →
+              Bonus: subscribe to our Telegram channel →
             </a>
             <p className="text-xs text-gray-400 mt-1">New off-plan and weekly market analytics</p>
             <button onClick={onClose} className="btn-primary mt-4 w-full">

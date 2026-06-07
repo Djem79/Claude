@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Area } from '@/lib/areas'
 
 type Props = {
@@ -14,9 +15,14 @@ export default function AreaHero({ area, listingCount, onCtaClick }: Props) {
       className="relative h-[70vh] min-h-[520px] w-full flex items-end overflow-hidden"
       aria-label={area.name}
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${area.heroImage}')` }}
+      {/* LCP image on area landing pages — next/image for AVIF/WebP + preload (was a raw CSS background) */}
+      <Image
+        src={area.heroImage}
+        alt={area.name}
+        fill
+        priority
+        className="object-cover object-center"
+        sizes="100vw"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/20" />
 

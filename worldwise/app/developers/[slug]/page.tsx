@@ -20,13 +20,18 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const dev = getDeveloper(params.slug)
   if (!dev) return {}
-  const title = `${dev.name} Projects in Dubai | Worldwise Real Estate`
+  // metadata.title stays brandless (layout title.template appends the brand once);
+  // og/twitter titles need the brand explicitly — the template does NOT apply to them.
+  const title = `${dev.name} Projects in Dubai`
+  const ogTitle = `${title} | Worldwise Real Estate`
   const url = `${BASE}/developers/${dev.slug}`
+  const ogImage = `${BASE}/opengraph-image`
   return {
     title,
     description: dev.blurb,
     alternates: { canonical: url },
-    openGraph: { title, description: dev.blurb, url, type: 'website' },
+    openGraph: { title: ogTitle, description: dev.blurb, url, type: 'website', images: [{ url: ogImage, width: 1200, height: 630, alt: dev.name }] },
+    twitter: { card: 'summary_large_image', title: ogTitle, description: dev.blurb, images: [ogImage] },
   }
 }
 

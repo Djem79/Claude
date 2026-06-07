@@ -45,8 +45,15 @@ export default function LeadModal({
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = ''
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      // Reset transient state on reopen so a previous success/error screen doesn't
+      // persist and block a second submission from the same long-lived instance.
+      setSuccess(false)
+      setError('')
+    } else {
+      document.body.style.overflow = ''
+    }
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
@@ -71,6 +78,9 @@ export default function LeadModal({
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)
+      // Clear the captured fields so a reopen of this long-lived instance can't
+      // re-submit the previous lead's PII (fields only clear after a successful send).
+      setName(''); setPhone(''); setEmail(''); setBudget('')
       track('lead_form_submit', { source, ...(propertyTitle ? { property: propertyTitle } : {}) })
     } catch {
       setError('Something went wrong. Please try WhatsApp instead.')
@@ -113,7 +123,7 @@ export default function LeadModal({
               rel="noopener noreferrer"
               className="block mt-5 w-full text-center rounded-sm py-3 px-4 text-sm font-medium bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors"
             >
-              Bonus: subscribe to Telegram «Смотрим Дубай» →
+              Bonus: subscribe to our Telegram channel →
             </a>
             <p className="text-xs text-gray-400 mt-1">New off-plan and weekly market analytics</p>
             <button onClick={onClose} className="btn-primary mt-4 w-full">
@@ -136,6 +146,7 @@ export default function LeadModal({
               <input
                 className="input-field"
                 placeholder="Full Name *"
+                aria-label="Full name"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -143,6 +154,7 @@ export default function LeadModal({
               <input
                 className="input-field"
                 placeholder="WhatsApp / Phone *"
+                aria-label="WhatsApp or phone number"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 required
@@ -150,12 +162,14 @@ export default function LeadModal({
               <input
                 className="input-field"
                 placeholder="Email (optional)"
+                aria-label="Email (optional)"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
               />
               <select
                 className="input-field"
+                aria-label="Investment budget (optional)"
                 value={budget}
                 onChange={e => setBudget(e.target.value)}
               >
