@@ -455,7 +455,7 @@ Local area images: `public/images/areas/` — never use external URLs. Property 
 
 Custom Tailwind palette: `navy` / `gold` (see `tailwind.config.ts`). Global button utilities `btn-primary`, `btn-outline`, `btn-outline-gold` in `app/globals.css` — use for all CTAs.
 
-**Gold-as-text accessibility:** `--gold` (#C9A84C) on a light background is ~2:1 — fails WCAG AA. For gold *text* on light surfaces (eyebrow labels, "Read More", stat values) use the `.text-gold-accessible` utility (`--gold-dark` #8A6D1F, ~4.6:1). Plain `text-gold` only on dark/navy backgrounds, and `btn-primary` (navy text on gold) is fine.
+**Gold-as-text accessibility:** `--gold` (#C9A84C) on a light background is ~2:1 — fails WCAG AA. For gold *text* on light surfaces (eyebrow labels, "Read More", stat values) use the `.text-gold-accessible` utility (`--gold-dark` #8A6D1F, ~4.6:1). Plain `text-gold` only on dark/navy backgrounds, and `btn-primary` (navy text on gold) is fine. **Gold-outline buttons:** `btn-outline-gold` (gold border + gold text) is for **dark/navy** backgrounds only; on **light** surfaces use `btn-outline-gold-light` (resting text `#8A6D1F`, gold fill + navy text on hover, AA-compliant). Don't put `btn-outline-gold` on a light section.
 
 ## Environment variables
 
