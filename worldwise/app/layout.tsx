@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
 import Analytics from '@/components/Analytics'
+import UtmCapture from '@/components/UtmCapture'
 import JsonLd from '@/components/JsonLd'
 
 const cormorant = Cormorant_Garamond({
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CookieBanner />
         <Analytics />
+        <UtmCapture />
       </body>
     </html>
   )

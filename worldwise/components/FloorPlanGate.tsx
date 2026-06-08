@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 
 export default function FloorPlanGate({
   floorPlans,
@@ -38,6 +39,7 @@ export default function FloorPlanGate({
           source: 'floor_plan',
           propertySlug,
           propertyTitle,
+          ...getStoredAttribution(),
           _hp: hpRef.current?.value ?? '',
         }),
       })

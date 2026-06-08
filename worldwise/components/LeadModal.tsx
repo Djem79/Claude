@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
@@ -74,7 +75,7 @@ export default function LeadModal({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, source, propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, email, budget, source, propertySlug, propertyTitle, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)

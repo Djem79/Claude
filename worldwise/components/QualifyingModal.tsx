@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 import { waLink } from '@/lib/whatsapp'
 import { areas } from '@/lib/areas'
 import { useFocusTrap } from '@/lib/useFocusTrap'
@@ -67,7 +68,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source, budget, propertyType, area, _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, source, budget, propertyType, area, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)

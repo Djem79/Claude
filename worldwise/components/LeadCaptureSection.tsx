@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 import SocialProofStrip from './SocialProofStrip'
 
 const BUDGETS = [
@@ -37,7 +38,7 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, budget, source, _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, budget, source, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)

@@ -295,7 +295,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   }
 
   function exportCsv() {
-    const cols = ['createdAt', 'name', 'phone', 'email', 'budget', 'propertyType', 'area', 'source', 'propertyTitle', 'status', 'notes']
+    const cols = ['createdAt', 'name', 'phone', 'email', 'budget', 'propertyType', 'area', 'source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'propertyTitle', 'status', 'notes']
     const escape = (v: unknown) => {
       let s = String(v ?? '')
       // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR)
@@ -437,6 +437,22 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                               <div className="md:col-span-1 space-y-2 text-sm">
                                 <div><span className="text-gray-400 text-xs">Email:</span> {l.email ?? '—'}</div>
                                 <div><span className="text-gray-400 text-xs">Source:</span> <span className="badge bg-gray-100 text-gray-600 text-xs">{l.source}</span></div>
+                                {(l.utm_source || l.utm_medium || l.utm_campaign || l.utm_term || l.utm_content || l.gclid || l.fbclid) && (
+                                  <div>
+                                    <span className="text-gray-400 text-xs">Attribution:</span>{' '}
+                                    <span className="text-gray-700 text-xs">
+                                      {[
+                                        l.utm_source && `src=${l.utm_source}`,
+                                        l.utm_medium && `med=${l.utm_medium}`,
+                                        l.utm_campaign && `cmp=${l.utm_campaign}`,
+                                        l.utm_term && `term=${l.utm_term}`,
+                                        l.utm_content && `content=${l.utm_content}`,
+                                        l.gclid && 'gclid',
+                                        l.fbclid && 'fbclid',
+                                      ].filter(Boolean).join(' · ')}
+                                    </span>
+                                  </div>
+                                )}
                                 {l.budget && <div><span className="text-gray-400 text-xs">Budget:</span> {l.budget}</div>}
                                 {l.propertyType && <div><span className="text-gray-400 text-xs">Property type:</span> {l.propertyType}</div>}
                                 {l.area && <div><span className="text-gray-400 text-xs">Preferred area:</span> {l.area}</div>}

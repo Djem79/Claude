@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 
 export default function BrochureGate({
   propertyId,
@@ -38,6 +39,7 @@ export default function BrochureGate({
           source: 'brochure_request',
           propertySlug,
           propertyTitle,
+          ...getStoredAttribution(),
           _hp: hpRef.current?.value ?? '',
         }),
       })

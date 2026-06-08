@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 
 const INSIDE = [
   'Real rental yields by district — what to actually expect in 2026',
@@ -31,7 +32,7 @@ export default function GuideClient() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source: 'lead_magnet_guide', _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, source: 'lead_magnet_guide', ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error('Failed')
       setSuccess(true)

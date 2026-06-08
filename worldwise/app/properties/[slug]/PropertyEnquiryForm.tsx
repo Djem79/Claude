@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
+import { getStoredAttribution } from '@/lib/utm'
 
 const BUDGETS = ['Under AED 1M', 'AED 1M – 3M', 'AED 3M – 7M', 'AED 7M – 15M', 'Above AED 15M']
 
@@ -34,7 +35,7 @@ export default function PropertyEnquiryForm({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_enquiry', propertySlug, propertyTitle, _hp: hpRef.current?.value ?? '' }),
+        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_enquiry', propertySlug, propertyTitle, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
       })
       if (!res.ok) throw new Error()
       setSuccess(true)

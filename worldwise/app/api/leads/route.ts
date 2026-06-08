@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
-  const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, _hp } = body
+  const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, attributionCapturedAt, _hp } = body
 
   // Honeypot — filled by bots, empty for real users
   if (_hp) return FAKE_OK
@@ -84,6 +84,15 @@ export async function POST(req: NextRequest) {
     source: cap(source, 60) ?? 'unknown',
     propertySlug: cap(propertySlug, 160),
     propertyTitle: cap(propertyTitle, 200),
+    // Marketing attribution — whitelisted utm_*/click-ids from the form body (lib/utm.ts)
+    utm_source: cap(utm_source, 100),
+    utm_medium: cap(utm_medium, 60),
+    utm_campaign: cap(utm_campaign, 120),
+    utm_term: cap(utm_term, 120),
+    utm_content: cap(utm_content, 120),
+    gclid: cap(gclid, 200),
+    fbclid: cap(fbclid, 200),
+    attributionCapturedAt: cap(attributionCapturedAt, 40),
   })
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `${req.nextUrl.protocol}//${req.nextUrl.host}`

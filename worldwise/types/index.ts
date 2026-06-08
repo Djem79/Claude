@@ -77,6 +77,15 @@ export interface Lead {
   source: string
   propertySlug?: string
   propertyTitle?: string
+  // Attribution — captured first-touch from URL utm_*/click-ids (lib/utm.ts)
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+  utm_term?: string
+  utm_content?: string
+  gclid?: string
+  fbclid?: string
+  attributionCapturedAt?: string
   status?: LeadStatus
   notes?: string
   contactedAt?: string
