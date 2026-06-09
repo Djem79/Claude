@@ -393,6 +393,12 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log
 
 **Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title).
 
+### Marketing attribution (UTM / click-IDs)
+
+First-touch attribution feeds paid-ad ROI (Google Search is live). `lib/utm.ts`: pure `parseUtmParams()` (node:test'd) + `captureUtmOnFirstTouch()` / `getStoredAttribution()` store `utm_source/medium/campaign/term/content` + `gclid`/`fbclid` in `localStorage` key `ww_attribution` — **first touch wins** (a later organic visit never overwrites). `components/UtmCapture.tsx` (mounted in `app/layout.tsx`) captures on mount and is **deliberately NOT gated on cookie consent** — gclid lands even when GA4 is blocked, which is what makes consent-independent **Offline Conversion Import (gclid)** possible (see `docs/marketing/2026-06-09-google-ads-fixes-and-conversion-tracking.md`).
+
+**Invariant:** every lead form spreads `...getStoredAttribution()` into its `/api/leads` POST body (LeadModal, LeadCaptureSection, PropertyEnquiryForm, QualifyingModal, BrochureGate, FloorPlanGate, GuideClient). `POST /api/leads` whitelists + length-caps the fields (never spread the raw body); `Lead` carries them; the CRM expanded view shows an "Attribution" line and CSV export includes the columns. A new lead form MUST attach `getStoredAttribution()`, or its paid clicks are untracked. The Telegram new-lead notification (`lib/notify.ts`) flags paid leads (utm_source/gclid present) and offers a one-tap "Reply on WhatsApp" button (speed-to-lead).
+
 ### GSC CLI (local diagnostics)
 
 `scripts/gsc.mjs` is a Node ESM CLI for Google Search Console — used both as a local diagnostic tool (URL inspection, top queries, top pages, sitemap status) and as a weekly cron on the server that posts a Telegram digest.
