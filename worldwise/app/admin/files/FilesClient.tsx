@@ -63,6 +63,7 @@ export default function FilesClient() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [preview, setPreview] = useState<StorageFile | null>(null)
+  const [dragOver, setDragOver] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -237,8 +238,21 @@ export default function FilesClient() {
       {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
       {loading && <p className="text-gray-400 text-sm">Loading…</p>}
 
+      {view?.mode === 'folder' && (
+        <p className="text-xs text-gray-400 mb-2">Drag files onto the list below to upload to this folder.</p>
+      )}
+
       {!loading && view && (
-        <div className="border border-gray-200 rounded-sm divide-y divide-gray-100">
+        <div
+          onDragOver={e => { if (view.mode === 'folder' && !busy) { e.preventDefault(); setDragOver(true) } }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={e => {
+            e.preventDefault()
+            setDragOver(false)
+            if (view.mode === 'folder' && !busy) upload(e.dataTransfer.files)
+          }}
+          className={`border rounded-sm divide-y divide-gray-100 transition-colors ${dragOver ? 'border-gold border-2 bg-gold/5' : 'border-gray-200'}`}
+        >
           {view.folders.length === 0 && view.files.length === 0 && (
             <p className="px-4 py-10 text-center text-gray-400 text-sm">
               {isSearch ? 'No matches.' : 'This folder is empty.'}
