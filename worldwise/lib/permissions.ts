@@ -1,6 +1,6 @@
 import { AdminRole, AdminSection } from '@/types'
 
-export const ALL_SECTIONS: AdminSection[] = ['properties', 'leads', 'dashboard']
+export const ALL_SECTIONS: AdminSection[] = ['properties', 'leads', 'dashboard', 'files']
 
 /** Default sections granted to a newly-created manager. */
 export const DEFAULT_SECTIONS: AdminSection[] = ['properties']
@@ -10,6 +10,7 @@ export const SECTION_PATH: Record<AdminSection, string> = {
   properties: '/admin',
   leads: '/admin/leads',
   dashboard: '/admin/dashboard',
+  files: '/admin/files',
 }
 
 type Principal = { role: AdminRole; sections?: AdminSection[] }
