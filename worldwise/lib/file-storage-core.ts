@@ -3,7 +3,7 @@ import type { FileStore, StorageFolder, StorageFile, Crumb, FolderSearchHit, Fil
 // --- Allowed types (documents + images). SVG intentionally excluded. ---------
 export const ALLOWED_EXT = new Set([
   'pdf', 'jpg', 'jpeg', 'png', 'webp',
-  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip',
+  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'csv',
 ])
 
 // Detected magic-byte family → the extensions it may legitimately back.
@@ -28,6 +28,17 @@ export const MIME_FOR_EXT: Record<string, string> = {
   ppt: 'application/vnd.ms-powerpoint',
   pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   zip: 'application/zip',
+  csv: 'text/csv',
+}
+
+/** Allowed types that have NO magic-byte signature (plain text); validated by content shape, not a sniff. */
+export const SNIFFLESS_EXT = new Set(['csv'])
+
+/** True if the buffer is plausibly text (no NUL byte in the first 8 KB). */
+export function looksLikeText(buf: Buffer): boolean {
+  const n = Math.min(buf.length, 8192)
+  for (let i = 0; i < n; i++) if (buf[i] === 0) return false
+  return true
 }
 
 /** Types we will render inline (preview). Everything else is download-only. SVG excluded. */

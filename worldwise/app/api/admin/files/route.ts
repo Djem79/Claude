@@ -4,6 +4,7 @@ import { readStore, mutateStore, makeId, writeFileBytes } from '@/lib/file-stora
 import {
   breadcrumb, subfoldersOf, filesInFolder, searchStore,
   sanitizeStorageName, sniffStorageFile, ALLOWED_EXT, SNIFF_OK, MIME_FOR_EXT,
+  SNIFFLESS_EXT, looksLikeText,
 } from '@/lib/file-storage-core'
 import type { StorageFile } from '@/types'
 
@@ -60,9 +61,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `${file.name}: unsupported file type` }, { status: 400 })
     }
     const buf = Buffer.from(await file.arrayBuffer())
-    const detected = sniffStorageFile(buf)
-    if (!detected || !SNIFF_OK[detected]?.has(ext)) {
-      return NextResponse.json({ error: `${file.name}: content does not match its type` }, { status: 400 })
+    if (SNIFFLESS_EXT.has(ext)) {
+      // Plain-text types (csv) have no magic signature — validate shape, not bytes.
+      // Safe: never previewable, always served as an attachment (octet-stream).
+      if (!looksLikeText(buf)) {
+        return NextResponse.json({ error: `${file.name}: not a valid text/CSV file` }, { status: 400 })
+      }
+    } else {
+      const detected = sniffStorageFile(buf)
+      if (!detected || !SNIFF_OK[detected]?.has(ext)) {
+        return NextResponse.json({ error: `${file.name}: content does not match its type` }, { status: 400 })
+      }
     }
     const id = makeId()
     const sf: StorageFile = {
