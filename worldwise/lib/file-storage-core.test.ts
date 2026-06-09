@@ -14,6 +14,8 @@ import {
   searchStore,
   isPreviewable,
   PREVIEWABLE_EXT,
+  SNIFFLESS_EXT,
+  looksLikeText,
 } from './file-storage-core.ts'
 import type { FileStore } from '../types'
 
@@ -118,4 +120,17 @@ test('MIME_FOR_EXT maps known extensions', () => {
   assert.equal(MIME_FOR_EXT.pdf, 'application/pdf')
   assert.equal(MIME_FOR_EXT.png, 'image/png')
   assert.equal(MIME_FOR_EXT.docx, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+})
+
+test('looksLikeText: text yes, binary (NUL byte) no', () => {
+  assert.equal(looksLikeText(Buffer.from('a,b,c\n1,2,3\n')), true)
+  assert.equal(looksLikeText(Buffer.from('строка,значение\nдом,100\n', 'utf-8')), true)
+  assert.equal(looksLikeText(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00])), false) // zip w/ NUL
+  assert.equal(looksLikeText(Buffer.from('')), true)
+})
+
+test('csv is an allowed, signature-less, non-previewable type', () => {
+  assert.ok(ALLOWED_EXT.has('csv'))
+  assert.ok(SNIFFLESS_EXT.has('csv'))
+  assert.equal(isPreviewable('csv'), false)
 })
