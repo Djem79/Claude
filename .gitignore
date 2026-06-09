@@ -20,6 +20,9 @@ worldwise/data/
 # Uploaded client documents — contain customer PII.
 # Stored outside public/ (served only via authenticated route) — never commit.
 worldwise/lead-files/
+# Shared admin file storage — staff documents, stored outside public/ (served
+# only via authenticated route). Server-only; survives deploys (rsync has no --delete).
+worldwise/file-storage/
 # Legacy location (pre-P3); kept ignored for safety.
 worldwise/public/files/
 # Server-generated per-article blog images (AI photo + branded card)

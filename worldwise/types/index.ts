@@ -97,7 +97,7 @@ export interface Lead {
 
 export type AdminRole = 'owner' | 'manager'
 
-export type AdminSection = 'properties' | 'leads' | 'dashboard'
+export type AdminSection = 'properties' | 'leads' | 'dashboard' | 'files'
 
 export interface AdminUser {
   id: string
@@ -111,3 +111,35 @@ export interface AdminUser {
   createdAt: string
   lastLoginAt?: string
 }
+
+export interface StorageFolder {
+  id: string
+  name: string
+  parentId: string | null   // null = root
+  createdAt: string
+  createdBy: string          // username
+}
+
+export interface StorageFile {
+  id: string
+  name: string               // sanitized original filename, with extension
+  ext: string                // lowercase, no dot, e.g. "pdf"
+  mime: string
+  size: number               // bytes
+  folderId: string | null    // null = root
+  uploadedAt: string
+  uploadedBy: string         // username
+}
+
+export interface FileStore {
+  folders: StorageFolder[]
+  files: StorageFile[]
+}
+
+export interface Crumb {
+  id: string | null          // null = Root
+  name: string
+}
+
+export interface FolderSearchHit extends StorageFolder { pathLabel: string }
+export interface FileSearchHit extends StorageFile { pathLabel: string }

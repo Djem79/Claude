@@ -10,6 +10,7 @@ const SECTION_LABEL: Record<AdminSection, string> = {
   properties: 'Properties',
   leads: 'Leads',
   dashboard: 'Dashboard',
+  files: 'Files',
 }
 
 function toggle(list: AdminSection[], s: AdminSection): AdminSection[] {
