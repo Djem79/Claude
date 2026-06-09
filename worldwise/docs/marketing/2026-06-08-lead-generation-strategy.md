@@ -234,7 +234,117 @@ CLOSE      → WhatsApp: Hook (точный актив, с которым вза
 
 **Описание YouTube-канала (EN, дословно):** «Worldwise Real Estate · Dubai property investment guidance. We help international investors buy and grow capital in Dubai real estate. ▸ Inside Dubai — premium property tours (every 2 weeks) ▸ Buyer's Brief — 60-second investor tips (twice a week) ▸ Market Pulse — monthly market reports. RERA-licensed · 500+ investors served · 30+ countries. Free consultation → worldwise.pro · WhatsApp → wa.me/971506960435».
 
-**Обложки/баннер:** 2-зонные (40% лицо ведущего с эмоцией / 60% текст ≤5 слов), один gold-акцент, ≤2 шрифта. Полные промты (Figma, navy/gold) — в исходном share `666fe4ec`.
+**Обложки/баннер:** 2-зонные (40% лицо ведущего с эмоцией / 60% текст ≤5 слов), один gold-акцент, ≤2 шрифта. Полные промты ниже (Figma, navy/gold; исходник — share `666fe4ec`).
+
+**Промт №1 — шаблон обложки YouTube** (для Figma / Midjourney / DALL·E / Firefly / Higgsfield):
+```
+Create a YouTube thumbnail template for "Worldwise Real Estate" —
+a Dubai property investment agency. Design must work in 2026 algorithm
+context: maximum CTR, instant recognition, mobile-readable.
+
+VISUAL STRUCTURE:
+Aspect ratio: 1280×720 px (16:9)
+Composition: two-zone split
+  • LEFT (40%): close-up portrait of presenter (waist up) — confident,
+    direct eye contact with camera, slight expressive gesture
+    (raised eyebrow, hand pointing, mouth slightly open as if making a point)
+  • RIGHT (60%): bold typography zone with 3–5 words maximum
+
+COLOR PALETTE (strict — no deviations):
+  • Background: deep navy #0A2540 OR matte black #1A1A1A
+  • Primary text: pure white #FFFFFF
+  • Accent: muted gold #C9A961 (use for ONE element only — underline, arrow, frame, or single word)
+  • Avoid: gradients, neon colors, blue glow effects, photo-filter overlays
+
+TYPOGRAPHY:
+  • Headline: bold sans-serif (Inter Black, Montserrat ExtraBold, or Anton). Size: 110–140 px. All caps OR sentence case but NEVER mixed
+  • Maximum 5 words on the cover
+  • One word in gold accent color
+  • Line height tight (0.9–1.0)
+  • Slight outline on text (3 px white-to-navy stroke) for contrast against any background photo
+
+ACCENT ELEMENT — pick ONE per cover, never combine:
+  • Yellow circle behind a key number (e.g. "6.5M" pops in gold disc)
+  • Red diagonal slash through "no go" content
+  • White arrow pointing at presenter or property
+  • Gold underline beneath the punchline word
+
+LIGHTING & PHOTO:
+  • Presenter shot on neutral indoor location (modern apartment, Dubai skyline blurred behind)
+  • High contrast — face brightly lit, background slightly darkened
+  • Subject extends slightly past the cover frame to break the 4th wall
+
+WHAT NOT TO INCLUDE:
+  • No logo on the cover (logo only at end of video)
+  • No Worldwise wordmark — covers must work as standalone images
+  • No watermarks, no website URLs, no phone numbers
+  • No "luxury skyscraper" cliché shots (Burj Khalifa from every angle)
+  • No stock photo handshakes or skyline panoramas
+
+VARIATIONS NEEDED (deliver 3 versions):
+  1. Property tour template — presenter + price tag in gold disc
+  2. Investor guide template — presenter + bold question headline + yellow arrow
+  3. Market news template — presenter + red flag accent + date stamp
+
+DELIVERABLE FORMAT:
+  • Figma file with layered, editable template
+  • All text as actual text layers (not flattened)
+  • Photo placeholder smart object — easy to swap presenter
+  • Color variables for navy / gold / white so they can be changed in 1 click
+  • Export presets: 1280×720 PNG, RGB
+
+REFERENCE MOOD:
+  Think: New York Times opinion piece visual style meets modern fintech YouTuber covers.
+  Clean, premium, but with bold human energy. Not "real estate brochure" — more like "investigative journalism" feel.
+```
+
+**Промт №2 — баннер канала YouTube:**
+```
+Create a YouTube channel banner for "Worldwise Real Estate" — a Dubai property investment agency.
+
+TECHNICAL SPECS:
+  • Full size: 2560×1440 px
+  • Safe zone (visible on all devices): 1546×423 px centered
+  • All critical content must fit within safe zone
+  • Edges may be cropped on mobile — design accordingly
+
+COMPOSITION (within safe zone):
+  • LEFT THIRD: three team members (Dzhambulat, Arina, Max) in clean professional portrait — waist up, side by side, confident posture, slight smile, looking at camera
+  • CENTER: large bold tagline + sub-tagline
+  • RIGHT THIRD: minimal — single visual accent (Dubai skyline silhouette OR abstract geometric shape in gold)
+
+HEADLINE TEXT (center):
+  Primary: "Dubai property investment"
+  Secondary line: "Without the noise"
+  Both in white serif (Georgia or Playfair Display)
+  Size: primary 70 px, secondary 40 px italic gold
+
+SUPPORTING ELEMENTS (below tagline):
+  Small caps charcoal text: "RERA-LICENSED · 500+ INVESTORS SERVED · 30+ COUNTRIES"
+  Spaced letters, 18 px, white at 70% opacity
+
+COLOR PALETTE:
+  • Background: solid deep navy #0A2540 with subtle texture (very fine grain, almost imperceptible)
+  • Optional: 10% opacity Dubai skyline silhouette as background
+  • Team portraits: natural lighting, neutral backdrop, slight desaturation
+  • Gold accent #C9A961 — used only on italic "without the noise" and one decorative line
+
+WHAT NOT TO INCLUDE:
+  • No Burj Khalifa silhouette as the dominant element
+  • No stock photos of skyscrapers or handshakes
+  • No company logo (channel avatar handles that separately)
+  • No multiple gold accents (one only, for elegance)
+  • No "luxury palm-tree-and-sunset" Dubai cliché
+
+REFERENCE MOOD:
+  Think: Bloomberg Markets meets a high-end private bank brochure. Subdued confidence, premium typography, real people not models, zero kitsch.
+
+DELIVERABLE:
+  • Figma file with editable layers
+  • Team photos as smart objects (easy to swap)
+  • Full-size PNG export for upload
+  • Mobile-cropped preview to verify safe zone
+```
 
 ### 13.6 Quick wins, добавленные этим разбором
 
