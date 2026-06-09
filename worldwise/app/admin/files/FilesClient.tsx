@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { StorageFolder, StorageFile, Crumb, FolderSearchHit, FileSearchHit } from '@/types'
+import { isPreviewable } from '@/lib/file-storage-core'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 type FolderView = {
   mode: 'folder'
@@ -19,6 +21,40 @@ function fmtSize(n: number): string {
   return `${(n / 1024 / 1024).toFixed(1)} MB`
 }
 
+function PreviewLightbox({ file, onClose }: { file: StorageFile; onClose: () => void }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(panelRef, true, onClose)
+  const src = `/api/admin/files/${file.id}/preview`
+  const isPdf = file.ext.toLowerCase() === 'pdf'
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={file.name}
+        className="bg-white rounded-sm max-w-4xl w-full max-h-[90vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+          <span className="text-navy text-sm truncate">{file.name}</span>
+          <div className="flex items-center gap-3 shrink-0">
+            <a className="text-xs text-gray-500 hover:text-navy" href={`/api/admin/files/${file.id}/download`}>Download</a>
+            <button aria-label="Close" className="text-gray-500 hover:text-navy text-lg leading-none" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto bg-gray-50 flex items-center justify-center">
+          {isPdf ? (
+            <iframe src={src} title={file.name} className="w-full h-[80vh]" />
+          ) : (
+            <img src={src} alt={file.name} className="max-w-full max-h-[80vh] object-contain" />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function FilesClient() {
   const [folderId, setFolderId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -26,6 +62,7 @@ export default function FilesClient() {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [preview, setPreview] = useState<StorageFile | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -172,7 +209,11 @@ export default function FilesClient() {
           placeholder="Search files and folders…"
           className="flex-1 min-w-48 border border-gray-200 px-4 py-2.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold"
         />
-        <button onClick={newFolder} disabled={busy || isSearch} className="btn-outline text-sm disabled:opacity-40">
+        <button
+          onClick={newFolder}
+          disabled={busy || isSearch}
+          className="border border-navy/40 text-navy hover:bg-navy hover:text-white rounded-sm px-4 py-2.5 text-sm transition-colors disabled:opacity-40"
+        >
           New folder
         </button>
         <button onClick={() => fileInput.current?.click()} disabled={busy || isSearch} className="btn-primary text-sm disabled:opacity-40">
@@ -208,33 +249,60 @@ export default function FilesClient() {
           {view.folders.map(f => (
             <div key={f.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50">
               <button
-                className="flex-1 text-left text-navy font-medium"
+                className="flex-1 text-left text-navy font-medium min-w-0 truncate"
                 onClick={() => { setQuery(''); setFolderId(f.id) }}
               >
                 <span className="mr-2">📁</span>{f.name}
                 {isSearch && <span className="text-gray-400 font-normal text-xs ml-2">{(f as FolderSearchHit).pathLabel}</span>}
               </button>
-              <button className="text-xs text-gray-400 hover:text-navy" onClick={() => renameFolder(f)}>Rename</button>
-              <button className="text-xs text-gray-400 hover:text-red-600" onClick={() => deleteFolder(f)}>Delete</button>
+              <button className="text-xs text-gray-400 hover:text-navy shrink-0" onClick={() => renameFolder(f)}>Rename</button>
+              <button className="text-xs text-gray-400 hover:text-red-600 shrink-0" onClick={() => deleteFolder(f)}>Delete</button>
             </div>
           ))}
 
           {/* Files */}
-          {view.files.map(f => (
-            <div key={f.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50">
-              <a className="flex-1 text-navy" href={`/api/admin/files/${f.id}/download`}>
-                <span className="mr-2">📄</span>{f.name}
-                {isSearch && <span className="text-gray-400 text-xs ml-2">{(f as FileSearchHit).pathLabel}</span>}
-              </a>
-              <span className="text-xs text-gray-400 w-20 text-right">{fmtSize(f.size)}</span>
-              <span className="hidden sm:inline text-xs text-gray-400 w-28 truncate">{f.uploadedBy}</span>
-              <a className="text-xs text-gray-400 hover:text-navy" href={`/api/admin/files/${f.id}/download`}>Download</a>
-              <button className="text-xs text-gray-400 hover:text-navy" onClick={() => renameFile(f)}>Rename</button>
-              <button className="text-xs text-gray-400 hover:text-red-600" onClick={() => deleteFile(f)}>Delete</button>
-            </div>
-          ))}
+          {view.files.map(f => {
+            const previewable = isPreviewable(f.ext)
+            const isImg = previewable && f.ext.toLowerCase() !== 'pdf'
+            const label = (
+              <>
+                {isImg ? (
+                  <img
+                    src={`/api/admin/files/${f.id}/preview`}
+                    loading="lazy"
+                    alt=""
+                    className="w-9 h-9 object-cover rounded-sm border border-gray-100 shrink-0"
+                  />
+                ) : (
+                  <span className="w-9 h-9 flex items-center justify-center text-lg shrink-0">{f.ext.toLowerCase() === 'pdf' ? '📕' : '📄'}</span>
+                )}
+                <span className="truncate">{f.name}</span>
+                {isSearch && <span className="text-gray-400 text-xs ml-2 shrink-0">{(f as FileSearchHit).pathLabel}</span>}
+              </>
+            )
+            return (
+              <div key={f.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50">
+                {previewable ? (
+                  <button className="flex-1 flex items-center gap-2 text-left text-navy min-w-0" onClick={() => setPreview(f)}>
+                    {label}
+                  </button>
+                ) : (
+                  <a className="flex-1 flex items-center gap-2 text-navy min-w-0" href={`/api/admin/files/${f.id}/download`}>
+                    {label}
+                  </a>
+                )}
+                <span className="text-xs text-gray-400 w-20 text-right shrink-0">{fmtSize(f.size)}</span>
+                <span className="hidden sm:inline text-xs text-gray-400 w-28 truncate shrink-0">{f.uploadedBy}</span>
+                <a className="text-xs text-gray-400 hover:text-navy shrink-0" href={`/api/admin/files/${f.id}/download`}>Download</a>
+                <button className="text-xs text-gray-400 hover:text-navy shrink-0" onClick={() => renameFile(f)}>Rename</button>
+                <button className="text-xs text-gray-400 hover:text-red-600 shrink-0" onClick={() => deleteFile(f)}>Delete</button>
+              </div>
+            )
+          })}
         </div>
       )}
+
+      {preview && <PreviewLightbox file={preview} onClose={() => setPreview(null)} />}
     </div>
   )
 }
