@@ -20,8 +20,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!file) return NextResponse.json({ error: 'File not found' }, { status: 404 })
 
   // Keep the real extension; sanitize the supplied base name and re-append it.
+  // Case-insensitive check so a user typing "Отчёт.PDF" on a `pdf` file doesn't
+  // get "Отчёт.PDF.pdf" — and the extension can never be changed via rename.
   let name = sanitizeStorageName(body.name)
-  if (!name.endsWith(`.${file.ext}`)) name = `${name.replace(/\.[^.]*$/, '')}.${file.ext}`
+  if (!name.toLowerCase().endsWith(`.${file.ext.toLowerCase()}`)) {
+    name = `${name.replace(/\.[^.]*$/, '')}.${file.ext}`
+  }
 
   mutateStore(s => ({ ...s, files: s.files.map(f => (f.id === params.id ? { ...f, name } : f)) }))
   return NextResponse.json({ ok: true, name })
