@@ -45,6 +45,11 @@ export function diskPathFor(file: Pick<StorageFile, 'id' | 'ext'>): string {
   return path.join(STORAGE_BASE, `${file.id}.${file.ext}`)
 }
 
+/**
+ * Write a file's bytes to disk. Call BEFORE adding its record via mutateStore:
+ * a crash leaving orphaned bytes (no index entry) is harmless, whereas an index
+ * entry with no bytes would be a broken download.
+ */
 export function writeFileBytes(file: StorageFile, buf: Buffer): void {
   fs.mkdirSync(STORAGE_BASE, { recursive: true })
   fs.writeFileSync(diskPathFor(file), buf)
@@ -55,16 +60,29 @@ export function removeFileBytes(file: Pick<StorageFile, 'id' | 'ext'>): void {
   if (fs.existsSync(p)) fs.unlinkSync(p)
 }
 
-/** Delete a folder, all descendant folders, and all their files (bytes + index). */
+/**
+ * Delete a folder, all descendant folders, and all their files (index + bytes).
+ * The index is written FIRST (transactionally), then byte files are unlinked.
+ * If an unlink fails, the bytes are orphaned but harmless — far safer than the
+ * reverse, where a mid-loop failure would leave index records pointing at
+ * already-deleted bytes (broken downloads).
+ */
 export function deleteFolderRecursive(folderId: string): FileStore {
-  return mutateStore(store => {
+  let removed: StorageFile[] = []
+  const next = mutateStore(store => {
     const ids = new Set(collectDescendantFolderIds(store, folderId))
-    for (const f of store.files) {
-      if (f.folderId && ids.has(f.folderId)) removeFileBytes(f)
-    }
+    removed = store.files.filter(f => f.folderId && ids.has(f.folderId))
     return {
       folders: store.folders.filter(fo => !ids.has(fo.id)),
       files: store.files.filter(f => !(f.folderId && ids.has(f.folderId))),
     }
   })
+  for (const f of removed) {
+    try {
+      removeFileBytes(f)
+    } catch (e) {
+      console.error('[file-storage] orphaned bytes after folder delete', f.id, e)
+    }
+  }
+  return next
 }
