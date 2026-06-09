@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
+import AdvisorCard from '@/components/AdvisorCard'
 import { getArticleBySlug, getAllArticles } from '@/lib/articles'
 import JsonLd from '@/components/JsonLd'
 import type { Metadata } from 'next'
@@ -132,6 +133,9 @@ export default function ArticlePage({ params }: Props) {
             <Link href="/#contact" className="btn-primary">
               Get Free Consultation
             </Link>
+            <div className="max-w-md mx-auto mt-12">
+              <AdvisorCard />
+            </div>
           </div>
         </section>
       </main>

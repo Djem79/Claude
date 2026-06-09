@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { getStoredAttribution } from '@/lib/utm'
+import AdvisorCard from '@/components/AdvisorCard'
 
 const INSIDE = [
   'Real rental yields by district — what to actually expect in 2026',
@@ -67,6 +68,7 @@ export default function GuideClient() {
               </li>
             ))}
           </ul>
+          <AdvisorCard className="mt-10" />
         </div>
 
         {/* Gated form card */}
