@@ -42,10 +42,12 @@ CLAUDE.md / the `project_json_mutation_race` memory).
 
 ### Storage locations (both server-only)
 
-- **Bytes:** `public/files/storage/<fileId>.<ext>` — `public/files/` is already
-  rsync-excluded, so the store persists on the server across deploys and is
-  never committed to git or rsynced from local (same as lead attachments &
-  brochures).
+- **Bytes:** `file-storage/<fileId>.<ext>` at the repo root — stored **outside
+  `public/`** so it is never statically served (mirrors lead attachments'
+  `lead-files/`, audit P3); access only via the authenticated download route.
+  Survives deploys because the rsync command has no `--delete` and the dir
+  doesn't exist locally, so nothing overwrites the server copy. Add to
+  `.gitignore`.
 - **Index:** `data/files-storage.json` — `data/` is server-only and excluded
   from rsync. Created lazily (missing file → empty store `{folders:[],files:[]}`).
 
@@ -193,6 +195,7 @@ File & folder ids are server-generated (`Date.now().toString(36)+rand`).
 ## Deploy notes
 
 - Standard flow (backup data → rsync → grep markers → server build → pm2 restart).
-- First deploy: `public/files/storage/` and `data/files-storage.json` are created
-  lazily on first use on the server; nothing to seed.
-- Both paths are rsync-excluded — confirm they are NOT accidentally added to git.
+- First deploy: `file-storage/` (repo root) and `data/files-storage.json` are
+  created lazily on first use on the server; nothing to seed.
+- `data/` is rsync-excluded; `file-storage/` is gitignored and survives because
+  rsync has no `--delete`. Confirm neither is accidentally committed.
