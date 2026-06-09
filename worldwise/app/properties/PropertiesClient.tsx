@@ -69,23 +69,42 @@ export default function PropertiesClient({
   const [status, setStatus] = useState(validStatuses.includes(initialStatus) ? initialStatus : 'all')
   const [type, setType] = useState(validTypes.includes(initialType) ? initialType : 'all')
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE)
+  const [query, setQuery] = useState('')
 
   const filtered = useMemo(
-    () =>
-      properties.filter(
+    () => {
+      const q = query.trim().toLowerCase()
+      return properties.filter(
         p =>
+          (q === '' ||
+            p.title.toLowerCase().includes(q) ||
+            p.area.toLowerCase().includes(q) ||
+            p.developer.toLowerCase().includes(q)) &&
           (area === 'All Areas' || canonicalizeArea(p.area) === area) &&
           (status === 'all' || p.status === status) &&
           (type === 'all' || p.type === type) &&
           p.priceAed <= maxPrice
-      ),
-    [properties, area, status, type, maxPrice]
+      )
+    },
+    [properties, query, area, status, type, maxPrice]
   )
 
   return (
     <>
       {/* Filters */}
       <div className="bg-white rounded-sm p-5 mb-8 shadow-sm flex flex-wrap gap-4 items-end">
+        <div className="w-full">
+          <label htmlFor="filter-search" className="text-xs text-gray-500 font-medium block mb-1">Search</label>
+          <input
+            id="filter-search"
+            type="search"
+            aria-label="Search by name, area or developer"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search by name, area or developer…"
+            className="w-full border border-gray-200 bg-white px-4 py-2.5 rounded-sm text-navy text-sm focus:outline-none focus:border-gold"
+          />
+        </div>
         <div>
           <label htmlFor="filter-area" className="text-xs text-gray-500 font-medium block mb-1">Area</label>
           <FilterSelect
@@ -125,7 +144,7 @@ export default function PropertiesClient({
           />
         </div>
         <button
-          onClick={() => { setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(MAX_PRICE) }}
+          onClick={() => { setQuery(''); setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(MAX_PRICE) }}
           className="text-sm text-gray-400 hover:text-navy transition-colors"
         >
           Reset
@@ -136,7 +155,7 @@ export default function PropertiesClient({
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <p className="text-xl mb-2">No properties match your filters.</p>
-          <button onClick={() => { setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(25_000_000) }} className="text-gold-accessible underline">
+          <button onClick={() => { setQuery(''); setArea('All Areas'); setStatus('all'); setType('all'); setMaxPrice(25_000_000) }} className="text-gold-accessible underline">
             Reset filters
           </button>
         </div>
