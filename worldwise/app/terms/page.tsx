@@ -30,7 +30,7 @@ export default function TermsPage() {
             <p className="text-gray-700 leading-relaxed mb-4">
               Worldwise Real Estate L.L.C. is a licensed real estate brokerage registered in Dubai, UAE,
               and regulated by the Real Estate Regulatory Authority (RERA). Our office is at Rasis
-              Business Center, Al Barsha, 5th floor EBC03, Dubai, UAE. Contact:{' '}
+              Business Center, Al Barsha, 5th floor, EBC03, Dubai, UAE. Contact:{' '}
               <a href="mailto:info@worldwise.pro" className="text-gold-accessible hover:underline">info@worldwise.pro</a>.
             </p>
 
