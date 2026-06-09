@@ -12,6 +12,8 @@ import {
   filesInFolder,
   collectDescendantFolderIds,
   searchStore,
+  isPreviewable,
+  PREVIEWABLE_EXT,
 } from './file-storage-core.ts'
 import type { FileStore } from '../types'
 
@@ -35,10 +37,35 @@ test('cleanFolderName trims, collapses, strips slashes, caps length', () => {
   assert.equal(cleanFolderName('x'.repeat(80)).length, 60)
 })
 
-test('sanitizeStorageName keeps extension, removes unsafe chars', () => {
-  assert.equal(sanitizeStorageName('My Report (final).PDF'), 'my-report-final.pdf')
+test('sanitizeStorageName preserves Unicode/case/spaces, strips hostile chars', () => {
+  // Cyrillic + spaces + case preserved (display name only; disk path is id-based)
+  assert.equal(sanitizeStorageName('Мой отчёт.pdf'), 'Мой отчёт.pdf')
+  assert.equal(sanitizeStorageName('My Report (final).PDF'), 'My Report (final).PDF')
+  // path separators + leading dots stripped → no traversal residue
   assert.equal(sanitizeStorageName('../../etc/passwd'), 'etcpasswd')
+  assert.equal(sanitizeStorageName('../../этц/passwd'), 'этцpasswd')
+  // filesystem/header-hostile chars removed
+  assert.equal(sanitizeStorageName('a<b>c:"d"|e?f*g.pdf'), 'abcdefg.pdf')
+  // whitespace collapsed, trimmed
+  assert.equal(sanitizeStorageName('  too   many   spaces .pdf '), 'too many spaces .pdf')
+  // empties → fallback
+  assert.equal(sanitizeStorageName('   '), 'file')
   assert.equal(sanitizeStorageName(''), 'file')
+  assert.equal(sanitizeStorageName('...'), 'file')
+  // length cap (120 chars)
+  assert.equal(sanitizeStorageName('x'.repeat(200)).length, 120)
+  // no path separator can survive
+  assert.ok(!sanitizeStorageName('a/b\\c').includes('/') && !sanitizeStorageName('a/b\\c').includes('\\'))
+})
+
+test('isPreviewable: images + pdf only', () => {
+  for (const ext of ['jpg', 'jpeg', 'png', 'webp', 'pdf']) assert.equal(isPreviewable(ext), true, ext)
+  for (const ext of ['doc', 'docx', 'xls', 'xlsx', 'zip', 'svg', '']) assert.equal(isPreviewable(ext), false, ext)
+  assert.equal(isPreviewable('PDF'), true) // case-insensitive
+})
+
+test('PREVIEWABLE_EXT excludes svg', () => {
+  assert.ok(!PREVIEWABLE_EXT.has('svg'))
 })
 
 test('sniffStorageFile detects allowed magic bytes', () => {

@@ -30,6 +30,12 @@ export const MIME_FOR_EXT: Record<string, string> = {
   zip: 'application/zip',
 }
 
+/** Types we will render inline (preview). Everything else is download-only. SVG excluded. */
+export const PREVIEWABLE_EXT = new Set(['jpg', 'jpeg', 'png', 'webp', 'pdf'])
+export function isPreviewable(ext: string): boolean {
+  return PREVIEWABLE_EXT.has(ext.toLowerCase())
+}
+
 /** Magic-byte sniff — never trust the client MIME/extension alone (audit P7). */
 export function sniffStorageFile(buf: Buffer): 'pdf' | 'jpeg' | 'png' | 'webp' | 'ole' | 'zip' | null {
   if (buf.length >= 4 && buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) return 'pdf'
@@ -41,15 +47,22 @@ export function sniffStorageFile(buf: Buffer): 'pdf' | 'jpeg' | 'png' | 'webp' |
   return null
 }
 
-/** Filename for storage/display: lowercase, safe chars only, keeps the extension. */
+/**
+ * Display/storage NAME for a file (the on-disk file is always `<id>.<ext>`, so
+ * this never becomes a filesystem path). Unicode-aware: keeps letters of any
+ * script (Cyrillic etc.), digits, spaces, and `.-_()`; preserves case. Strips
+ * control chars, path separators, and filesystem/header-hostile chars, plus
+ * leading/trailing dots. Caps length; falls back to 'file' when empty.
+ */
 export function sanitizeStorageName(name: string): string {
   return name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9.\-_]/g, '')
-    .replace(/-{2,}/g, '-')
-    .replace(/\.{2,}/g, '.')
-    .replace(/^[.\-_]+|[.\-_]+$/g, '')
+    .replace(/[\x00-\x1f]/g, '')               // control chars
+    .replace(/[\/\\<>:"|?*]/g, '')              // path separators + filesystem/header-hostile
+    .replace(/\s+/g, ' ')                       // collapse whitespace runs
+    .trim()
+    .replace(/^\.+/, '')                        // no leading dots (hidden/empty-base)
+    .replace(/\.+$/, '')                        // no trailing dots (trailing dots confuse Windows)
+    .trim()
     .slice(0, 120) || 'file'
 }
 
