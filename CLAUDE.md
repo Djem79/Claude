@@ -105,7 +105,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   "cp -r /var/www/worldwise/data /var/www/worldwise/data_backup_$(date +%Y%m%d_%H%M%S)"
 
 # 1. Sync (exclude git, node_modules, build artifacts, server-only data, env secrets, and the AI-docs symlinks)
-rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' --exclude='AGENTS.md' --exclude='CLAUDE.md' --exclude='ruvector.db' \
+rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='data/' --exclude='public/files/' --exclude='public/images/blog/' --exclude='.env.local' --exclude='AGENTS.md' --exclude='CLAUDE.md' --exclude='ruvector.db' --exclude='file-storage/' \
   -e "ssh -i ~/.ssh/id_ed25519" worldwise/ root@62.238.35.20:/var/www/worldwise/
 
 # 2. Build and restart on server
@@ -253,7 +253,7 @@ Every mutating API handler also calls `isAuthenticated()` / `getSession()` / `re
 
 ### Per-section access control (managers)
 
-Owners have full access. A `manager` is restricted to the sections listed in `AdminUser.sections` (`AdminSection = 'properties' | 'leads' | 'dashboard'`). **Absent `sections` = legacy user = full access** (backward-compat); new managers default to `['properties']`. The owner-only Users section is never part of `sections`.
+Owners have full access. A `manager` is restricted to the sections listed in `AdminUser.sections` (`AdminSection = 'properties' | 'leads' | 'dashboard' | 'files'`). **Absent `sections` = legacy user = full access** (backward-compat); new managers default to `['properties']`. The owner-only Users section is never part of `sections`. When adding a new section, append it LAST to `ALL_SECTIONS` (so existing users' `landingPath` is unchanged) and add its entry to `SECTION_PATH` (permissions) and `SECTION_LABEL` (`UsersClient` — TS exhaustiveness enforces this).
 
 `lib/permissions.ts` is the single source of truth (a **pure** module — no `fs`/`next` imports, so it's importable from client components and Edge alike): `ALL_SECTIONS`, `DEFAULT_SECTIONS`, `SECTION_PATH`, `effectiveSections(user)` (the `undefined → all` rule lives here only), `canAccess(user, section)`, `landingPath(user)` (first accessible section's path, or `null`).
 
@@ -274,6 +274,17 @@ The token shape (`SessionPayload`) is intentionally unchanged — do not add `se
 - `/admin/dashboard` — lead stats/funnel — section `dashboard`
 - `/admin/users` — owner-only: add/edit/deactivate/delete admin accounts, reset passwords, **set manager section access** (checkboxes shown only for role `manager`)
 - `/admin/property/new` and `/admin/property/[id]` — both use `PropertyForm` (drag-and-drop gallery, DLD QR + permit/project numbers) — section `properties`
+- `/admin/files` — shared staff file manager (folders, upload, download, rename, delete, global name search) — section `files`
+
+### Admin file storage (Files tab)
+
+A shared file manager for staff documents (`/admin/files`, `FilesClient.tsx`), gated by the `files` section. **Virtual folders:** file bytes are stored flat on disk keyed by a server-generated id at `file-storage/<id>.<ext>` (repo root, **outside `public/`** like `lead-files/` — served only via the authenticated download route, never statically); the folder tree + metadata live in `data/files-storage.json`. Because no user string ever reaches a filesystem path, traversal is structurally impossible. `file-storage/` is gitignored and rsync-excluded (survives deploys — rsync has no `--delete`); `data/files-storage.json` is server-only like the other JSON stores.
+
+- **Logic split:** pure core `lib/file-storage-core.ts` (sniff/sanitize, allowed-type maps, tree helpers, search — `node:test`'d, NO fs/`@/` imports) + fs layer `lib/file-storage.ts` (`readStore` ENOENT→empty/throw-on-corrupt, `mutateStore` synchronous re-read critical section, atomic writes, recursive delete that writes the index **before** unlinking bytes).
+- **Upload validation:** per-file ≤25 MB, extension in `ALLOWED_EXT` (PDF/Word/Excel/PowerPoint/jpg/png/webp/zip — **SVG excluded**), and a magic-byte sniff must match the extension (client MIME never trusted). Bytes written before the index entry (orphaned bytes are harmless; an index entry without bytes is a broken download).
+- **Download** (`GET /api/admin/files/[id]/download`) always forces `Content-Disposition: attachment` + `Content-Type: application/octet-stream` — an uploaded HTML/SVG can never render or execute.
+- **Routes** under `app/api/admin/files/**` — every handler guards with `requireSection('files')` → 403: `GET` (list folder / `?q=` global search) + `POST` (multi-upload); `POST /folder`, `PATCH|DELETE /folder/[id]` (delete is recursive); `PATCH|DELETE /[id]`; `GET /[id]/download`.
+- Move-between-folders is intentionally not built (v2). Spec/plan: `docs/superpowers/specs/2026-06-09-admin-file-storage-design.md`, `docs/superpowers/plans/2026-06-09-admin-file-storage.md`.
 
 ### API routes
 
