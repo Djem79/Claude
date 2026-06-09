@@ -97,12 +97,16 @@ export function filesInFolder(store: FileStore, folderId: string | null): Storag
 
 /** The folder id plus every descendant folder id (for recursive delete). */
 export function collectDescendantFolderIds(store: FileStore, folderId: string): string[] {
+  const seen = new Set<string>([folderId])
   const ids = [folderId]
   let i = 0
   while (i < ids.length) {
     const parent = ids[i++]
     for (const f of store.folders) {
-      if (f.parentId === parent && !ids.includes(f.id)) ids.push(f.id)
+      if (f.parentId === parent && !seen.has(f.id)) {
+        seen.add(f.id)
+        ids.push(f.id)
+      }
     }
   }
   return ids
@@ -115,8 +119,10 @@ export function searchStore(store: FileStore, term: string): { folders: FolderSe
   const folders = store.folders
     .filter(f => f.name.toLowerCase().includes(q))
     .map(f => ({ ...f, pathLabel: pathLabel(store, f.parentId) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
   const files = store.files
     .filter(f => f.name.toLowerCase().includes(q))
     .map(f => ({ ...f, pathLabel: pathLabel(store, f.folderId) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
   return { folders, files }
 }

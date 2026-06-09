@@ -6,6 +6,7 @@ import {
   sniffStorageFile,
   ALLOWED_EXT,
   SNIFF_OK,
+  MIME_FOR_EXT,
   breadcrumb,
   subfoldersOf,
   filesInFolder,
@@ -45,6 +46,8 @@ test('sniffStorageFile detects allowed magic bytes', () => {
   assert.equal(sniffStorageFile(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 0, 0, 0])), 'png')
   assert.equal(sniffStorageFile(Buffer.from([0x50, 0x4b, 0x03, 0x04])), 'zip')
   assert.equal(sniffStorageFile(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0, 0, 0, 0])), 'ole')
+  assert.equal(sniffStorageFile(Buffer.from([0xff, 0xd8, 0xff, 0xe0])), 'jpeg')
+  assert.equal(sniffStorageFile(Buffer.from('RIFF\x00\x00\x00\x00WEBP')), 'webp')
   assert.equal(sniffStorageFile(Buffer.from('<svg></svg>')), null)
 })
 
@@ -82,4 +85,10 @@ test('searchStore matches files & folders by name with path labels', () => {
   assert.equal(res.files[0].pathLabel, 'Root / Contracts')
   const empty = searchStore(store, '   ')
   assert.deepEqual(empty, { folders: [], files: [] })
+})
+
+test('MIME_FOR_EXT maps known extensions', () => {
+  assert.equal(MIME_FOR_EXT.pdf, 'application/pdf')
+  assert.equal(MIME_FOR_EXT.png, 'image/png')
+  assert.equal(MIME_FOR_EXT.docx, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 })
