@@ -33,6 +33,12 @@ const NAV_LINKS: {
     section: 'properties',
     active: (p: string) => p === '/admin' || p.startsWith('/admin/property'),
   },
+  {
+    href: '/admin/files',
+    label: 'Files',
+    section: 'files',
+    active: (p: string) => p.startsWith('/admin/files'),
+  },
 ]
 
 export default function AdminNav({ session }: { session: NavSession }) {
