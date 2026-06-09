@@ -93,31 +93,67 @@ export default function FilesClient() {
   async function renameFolder(f: StorageFolder) {
     const name = window.prompt('Rename folder', f.name)
     if (!name || name === f.name) return
-    await fetch(`/api/admin/files/folder/${f.id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
-    })
-    await load()
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/files/folder/${f.id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+      })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Rename failed')
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Rename failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function deleteFolder(f: StorageFolder) {
     if (!window.confirm(`Delete folder "${f.name}" and everything inside it?`)) return
-    await fetch(`/api/admin/files/folder/${f.id}`, { method: 'DELETE' })
-    await load()
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/files/folder/${f.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed')
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function renameFile(f: StorageFile) {
     const name = window.prompt('Rename file', f.name)
     if (!name || name === f.name) return
-    await fetch(`/api/admin/files/${f.id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
-    })
-    await load()
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/files/${f.id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+      })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Rename failed')
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Rename failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function deleteFile(f: StorageFile) {
     if (!window.confirm(`Delete "${f.name}"?`)) return
-    await fetch(`/api/admin/files/${f.id}`, { method: 'DELETE' })
-    await load()
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/files/${f.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed')
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   const isSearch = view?.mode === 'search'
@@ -130,6 +166,7 @@ export default function FilesClient() {
       <div className="flex flex-wrap gap-3 items-center mb-4">
         <input
           type="search"
+          aria-label="Search files and folders"
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search files and folders…"
