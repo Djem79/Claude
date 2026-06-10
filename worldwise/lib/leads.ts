@@ -1,15 +1,12 @@
-import fs from 'fs'
 import path from 'path'
 import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
 import { normalizePhone } from '@/lib/lead-parse'
-import { writeFileAtomic } from '@/lib/atomic-write'
+import { readJsonFile, mutateJsonFile } from '@/lib/json-store'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'leads.json')
 
 export function getLeads(): Lead[] {
-  if (!fs.existsSync(DATA_FILE)) return []
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-  return JSON.parse(raw) as Lead[]
+  return readJsonFile<Lead[]>(DATA_FILE, [])
 }
 
 export function getLeadById(id: string): Lead | null {
@@ -22,20 +19,28 @@ export function findLeadByPhone(phone: string): Lead | null {
   return getLeads().find(l => normalizePhone(l.phone) === norm) ?? null
 }
 
-function saveLeads(leads: Lead[]): void {
-  writeFileAtomic(DATA_FILE, JSON.stringify(leads, null, 2))
+// All mutations run inside mutateJsonFile's synchronous critical section —
+// fresh read + sync transform + atomic write; an await cannot fit in between.
+function mutateLeads(mutate: (current: Lead[]) => Lead[]): void {
+  mutateJsonFile<Lead[]>(DATA_FILE, [], mutate)
 }
 
 export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead {
-  const leads = getLeads()
-  const lead: Lead = {
-    ...data,
-    id: String(Date.now()),
-    status: 'new',
-    createdAt: new Date().toISOString(),
-  }
-  saveLeads([lead, ...leads])
-  return lead
+  let saved: Lead | null = null
+  mutateLeads(leads => {
+    // Date.now() can collide when two leads land in the same millisecond —
+    // bump until unique so the second submit can't shadow the first.
+    let id = Date.now()
+    while (leads.some(l => l.id === String(id))) id++
+    saved = {
+      ...data,
+      id: String(id),
+      status: 'new',
+      createdAt: new Date().toISOString(),
+    }
+    return [saved, ...leads]
+  })
+  return saved!
 }
 
 export function updateLead(
@@ -43,19 +48,20 @@ export function updateLead(
   data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments' | 'source' | 'propertyTitle' | 'propertySlug'>>,
   actor?: { uid: string; username: string; name: string }
 ): Lead | null {
-  const leads = getLeads()
-  const idx = leads.findIndex(l => l.id === id)
-  if (idx === -1) return null
-  const prev = leads[idx]
-  const updated: Lead = {
-    ...prev,
-    ...data,
-    updatedAt: new Date().toISOString(),
-  }
-  if (data.status === 'contacted' && !prev.contactedAt) {
-    updated.contactedAt = new Date().toISOString()
-  }
-  if (actor) {
+  let result: Lead | null = null
+  mutateLeads(leads => {
+    const idx = leads.findIndex(l => l.id === id)
+    if (idx === -1) return leads
+    const prev = leads[idx]
+    const updated: Lead = {
+      ...prev,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    }
+    if (data.status === 'contacted' && !prev.contactedAt) {
+      updated.contactedAt = new Date().toISOString()
+    }
+    if (actor) {
     const parts: string[] = []
     if (data.status && data.status !== prev.status) {
       parts.push(`Status: ${prev.status ?? 'new'} → ${data.status}`)
@@ -83,10 +89,11 @@ export function updateLead(
       action: parts.join(', ') || 'Updated',
     }
     updated.activityLog = [...(prev.activityLog ?? []), entry]
-  }
-  leads[idx] = updated
-  saveLeads(leads)
-  return updated
+    }
+    result = updated
+    return leads.map((l, i) => (i === idx ? updated : l))
+  })
+  return result
 }
 
 /**
@@ -96,9 +103,8 @@ export function updateLead(
  * Callers (file upload/delete/send/log handlers) read the lead before awaiting
  * formData/disk I/O; building the new array from that pre-await snapshot loses
  * concurrent changes (two uploads → one attachment dropped). Routing the array
- * computation through here re-reads fresh state and the whole read-modify-write
- * runs synchronously (no await between getLeadById and updateLead), so it cannot
- * interleave with another request on the event loop.
+ * computation through here re-reads fresh state inside updateLead's synchronous
+ * mutateJsonFile section, so it cannot interleave with another request.
  */
 export function mutateLeadAttachments(
   id: string,
@@ -111,11 +117,13 @@ export function mutateLeadAttachments(
 }
 
 export function deleteLead(id: string): boolean {
-  const leads = getLeads()
-  const filtered = leads.filter(l => l.id !== id)
-  if (filtered.length === leads.length) return false
-  saveLeads(filtered)
-  return true
+  let removed = false
+  mutateLeads(leads => {
+    const filtered = leads.filter(l => l.id !== id)
+    removed = filtered.length !== leads.length
+    return filtered
+  })
+  return removed
 }
 
 export function leadStats(leads: Lead[]) {
