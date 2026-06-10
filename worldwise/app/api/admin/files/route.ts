@@ -50,6 +50,11 @@ export async function POST(req: NextRequest) {
 
   const files = form.getAll('files').filter((x): x is File => x instanceof File)
   if (files.length === 0) return NextResponse.json({ error: 'No files provided' }, { status: 400 })
+  // Every file is buffered in memory before the index write — cap the batch
+  // (same limit as /api/upload) so one request can't hold hundreds of MB.
+  if (files.length > 30) {
+    return NextResponse.json({ error: 'Too many files (max 30 per upload)' }, { status: 400 })
+  }
 
   const saved: StorageFile[] = []
   for (const file of files) {

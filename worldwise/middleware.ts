@@ -7,12 +7,8 @@ const NOINDEX_PARAMS = ['_rsc', 'gtm_latency']
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
 
-  // Internal Next.js RSC params and GTM test params must not be indexed
-  if (NOINDEX_PARAMS.some(p => searchParams.has(p))) {
-    const response = NextResponse.next()
-    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
-    return response
-  }
+  // Auth gates run FIRST — an early return for the noindex header would let
+  // `?_rsc=1` skip every guard below (latent bypass for statically-served paths).
 
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const token = request.cookies.get(SESSION_COOKIE)?.value
@@ -36,7 +32,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next()
+  const response = NextResponse.next()
+  // Internal Next.js RSC params and GTM test params must not be indexed
+  if (NOINDEX_PARAMS.some(p => searchParams.has(p))) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  }
+  return response
 }
 
 export const config = {

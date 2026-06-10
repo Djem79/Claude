@@ -5,13 +5,26 @@ import { getClientIp } from '@/lib/ip'
 import { landingPath } from '@/lib/permissions'
 
 // 5 attempts per IP per 15 minutes
+const LOGIN_WINDOW_MS = 15 * 60_000
 const loginRateMap = new Map<string, { count: number; resetAt: number }>()
+let lastSweep = 0
+
+// Drop expired entries at most once per window so the map can't grow unbounded
+// (one entry per distinct IP forever, only reclaimed on PM2 restart otherwise).
+function sweepExpired(now: number): void {
+  if (now - lastSweep < LOGIN_WINDOW_MS) return
+  lastSweep = now
+  loginRateMap.forEach((rec, ip) => {
+    if (rec.resetAt < now) loginRateMap.delete(ip)
+  })
+}
 
 function isLoginRateLimited(ip: string): boolean {
   const now = Date.now()
+  sweepExpired(now)
   const rec = loginRateMap.get(ip)
   if (!rec || rec.resetAt < now) {
-    loginRateMap.set(ip, { count: 1, resetAt: now + 15 * 60_000 })
+    loginRateMap.set(ip, { count: 1, resetAt: now + LOGIN_WINDOW_MS })
     return false
   }
   if (rec.count >= 5) return true
@@ -45,6 +58,10 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
+
+  // Successful login should not consume the failed-attempt budget — otherwise a
+  // busy shared-NAT office locks itself out of the 5/15-min window.
+  loginRateMap.delete(getClientIp(req))
 
   await updateUser(user.id, { lastLoginAt: new Date().toISOString() })
 

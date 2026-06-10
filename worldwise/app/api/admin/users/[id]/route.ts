@@ -29,7 +29,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   // Only accept a real boolean — a non-boolean (e.g. the string "false") must not be
   // stored verbatim, and must not slip past the strict `=== false` deactivation guards.
   if (typeof active === 'boolean') patch.active = active
-  if (password) patch.password = password
+  if (password) {
+    if (String(password).length < 8) {
+      return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+    }
+    patch.password = password
+  }
   if (Array.isArray(sections)) {
     patch.sections = ALL_SECTIONS.filter(s => sections.includes(s))
   }
