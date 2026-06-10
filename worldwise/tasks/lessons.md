@@ -389,3 +389,27 @@ for the user. Two separate bugs:
    page and have the user open it in their real Safari — one round-trip beats guessing.
 4. **A passing isolated test is not "done" for a browser-rendered feature.** Confirm on the
    real deployed page, in the real browser, on the user's actual file before claiming it works.
+
+---
+
+## 2026-06-10 — Осиротевший dev/prod-сервер на :3000 маскируется под сломанную гидрацию
+
+**Симптом, который чуть не увёл в ложный дебаг:** после рефактора лид-форм локальная
+проверка показала «React не гидрируется» — модалка не открывается, эффекты не бегут,
+`localStorage` пуст, при этом консоль ЧИСТАЯ и `window.next` существует. Выглядело как
+регрессия Next 16.
+
+**Причина:** свежий `npm run start` упал с `EADDRINUSE` (порт 3000 держал осиротевший
+сервер из прошлой проверки), а ошибка ушла в фоновый лог и осталась незамеченной.
+Старый сервер отдавал HTML старого билда, чьи JS-чанки уже были перезаписаны на диске
+новой сборкой → хэши не совпали, клиентский бандл не подгрузился → «мёртвая» страница
+без единой ошибки в консоли.
+
+**How to apply (prevention):**
+
+1. Перед локальным стендом: `lsof -ti :3000 | xargs kill` — и только потом `npm run start`.
+2. Запустил сервер в фоне — сразу проверь лог запуска (`tail /tmp/…log`): `✓ Ready` или
+   `EADDRINUSE`. Код 200 от curl НЕ доказывает, что отвечает твой свежий процесс.
+3. Диагноз «гидрация сломана» при чистой консоли → первым делом проверь, чей это сервер
+   и тот ли билд: `Object.keys(domNode).some(k => k.startsWith('__react'))` — нет fiber-ключей
+   при чистой консоли = чанки не загрузились, а не «React сломался».
