@@ -8,26 +8,36 @@
 
 ## A. Промт для claude.ai-chrome (вставить в браузерный Claude с доступом к Google Ads + GA4)
 
-> **КОНТЕКСТ.** Рекламный аккаунт worldwise.pro — недвижимость Дубай. Запущена Google Search кампания (группы A — Buyer-intent, B — Investor/ROI/Golden Visa, C — Brand). Цель — лиды с форм сайта. На сайте GA4 грузится ТОЛЬКО после согласия на cookies; событие конверсии = `lead_form_submit`. Сайт уже захватывает `gclid` и `utm_*` в каждый лид (CRM `/admin/leads` → строка Attribution; и CSV-экспорт). Подтверждай каждое изменение, ничего не удаляй, НЕ повышай бюджет, НЕ включай Display и Search Partners. Если шаг блокирован правами — не ломай, опиши, что нужно от владельца.
+*(v2, 2026-06-10: добавлена ЗАДАЧА 2 — создание трёх OCI-действий под кнопку CRM «Export Google Ads». После выполнения Задачи 1 в CRM появится тестовый лид «Test Claude» — удалить руками.)*
+
+> **КОНТЕКСТ.** Ты работаешь в браузере с доступом к Google Ads и GA4 для worldwise.pro (недвижимость Дубай). Запущена Google Search кампания (группы A — Buyer-intent, B — Investor/ROI/Golden Visa, C — Brand). Цель — лиды с форм сайта. Факты о сайте (из кода, не перепроверяй): GA4 грузится ТОЛЬКО после согласия на cookies; событие конверсии = `lead_form_submit`. `gclid`/`utm_*` пишутся в каждый лид НЕЗАВИСИМО от согласия; CRM в один клик выгружает файл офлайн-конверсий (строки с именами действий «CRM Lead», «CRM Qualified», «CRM Deal», таймзона +0400, валюта AED) — владелец будет грузить его еженедельно через Goals → Conversions → Uploads.
 >
-> **ЗАДАЧА 1 — КРИТИЧНО: починить конверсии** (сейчас «Misconfigured»):
-> 1. GA4 → Admin → Events: собирается ли `lead_form_submit`? Если нет — открой сайт, **прими cookies**, отправь тестовую заявку (`/guide` или `/mortgage-calculator`), проверь в GA4 Realtime/DebugView. Без согласия событие не сработает — так устроен сайт.
+> **ЖЁСТКИЕ ПРАВИЛА:** ничего не удаляй; НЕ повышай бюджет; НЕ меняй стратегию ставок (остаётся Manual CPC); НЕ включай Display Network и Search Partners; перед каждым сохранением показывай, что меняешь. Если шаг блокирован правами — не ломай, запиши в отчёт, что нужно от владельца, и иди дальше.
+>
+> **ЗАДАЧА 1 — починить GA4-конверсию** (сейчас «Misconfigured»):
+> 1. GA4 → Admin → Events: приходит ли `lead_form_submit`? Если нет — открой `https://worldwise.pro/guide`, **прими cookies**, отправь тестовую заявку (имя: Test Claude, телефон: +971500000001), проверь событие в GA4 Realtime. Без согласия событие не сработает — так устроен сайт.
 > 2. GA4 → Admin → Key events: пометь `lead_form_submit` как Key event.
 > 3. GA4 → Admin → Product links → Google Ads: связать аккаунт, если не связан.
-> 4. Google Ads → Goals → Conversions → New → Import → Google Analytics 4 (Web): импортируй `lead_form_submit`, поставь **Primary**. Сломанную старую цель → Secondary (не удалять).
+> 4. Google Ads → Goals → Conversions → New conversion action → Import → Google Analytics 4 properties (Web): импортируй `lead_form_submit`, поставь **Primary**. Сломанную старую цель «Отправка формы…» → Secondary (не удалять).
 > 5. Включи Enhanced Conversions for Leads, если доступно.
 > 6. Убедись: статус сменился с «Misconfigured» на «Recording»/«No recent conversions».
-> 7. Отметь владельцу: из-за cookie-согласия GA4-конверсии недосчитают; надёжный путь — Offline Conversion Import по `gclid` (уже пишется в лид/CSV).
 >
-> **ЗАДАЧА 2 — минус-слова на уровне кампании:** `price, prices, rupees, bhk, "1 bhk", "2 bhk", villa, villas, land, "burj khalifa", cheap, salary, jobs, rent, "for rent"`. Проверь привязку к кампании.
+> **ЗАДАЧА 2 — создать 3 действия для офлайн-конверсий** (КРИТИЧНО: имена символ в символ — файл из CRM ссылается на них по имени, расхождение = ошибка загрузки). Goals → Conversions → New conversion action → **Import → CRMs, files, or other data sources → Track conversions from clicks**. Три действия:
+> - `CRM Lead` — категория Submit lead form · Count: One · Click-through window: 90 days · Value: Don't use a value · **Secondary**
+> - `CRM Qualified` — категория Qualified lead · Count: One · 90 days · Don't use a value · **Secondary**
+> - `CRM Deal` — категория Converted lead · Count: One · 90 days · Value: Use different values, default 0, AED · **Secondary**
 >
-> **ЗАДАЧА 3 — отклонить авто-рекомендации:** Dismiss «Search Partners» и «Display Network». Подтверди Networks → Search only.
+> Все три пока Secondary: Primary остаётся GA4 `lead_form_submit`, иначе столбец Conversions задваивает. (Когда накопится 15–30 Qualified — владелец переключит `CRM Qualified` в Primary.)
 >
-> **ЗАДАЧА 4 — типы соответствия:** мусор тянет phrase `"dubai property for sale"`. Пока не паузь; если после минус-слов продолжится — сузь грязные phrase до exact. Отметь владельцу.
+> **ЗАДАЧА 3 — минус-слова на уровне кампании:** `price, prices, rupees, bhk, "1 bhk", "2 bhk", villa, villas, land, "burj khalifa", cheap, salary, jobs, rent, "for rent"`. Проверь привязку к кампании.
 >
-> **НЕ ДЕЛАЙ:** Display/Partners, рост бюджета, смену стратегии ставок (Manual CPC до конверсий), удаление ключей/кампаний.
+> **ЗАДАЧА 4 — отклонить авто-рекомендации:** Dismiss «Expand to Search Partners» и «Display Network». Подтверди Networks → Search only.
 >
-> **ОТЧЁТ:** (1) статус конверсии после правок; (2) добавленные минус-слова; (3) что отклонил; (4) что требует владельца (доступы, OCI).
+> **ЗАДАЧА 5 — типы соответствия:** мусор тянет phrase `"dubai property for sale"`. Пока не паузь; если после минус-слов продолжится — сузь грязные phrase до exact. Отметь владельцу.
+>
+> **ЗАДАЧА 6 — финальные проверки:** (а) Conversions Summary: GA4-импорт Recording, три CRM-действия существуют со статусом Secondary; (б) Goals → Conversions → **Uploads** — страница доступна (сюда грузится еженедельный файл). Если тестовая загрузка скажет «conversion action not found» — действия активируются до 6 часов после создания, это не ошибка.
+>
+> **ОТЧЁТ:** (1) статус GA4-конверсии до/после; (2) три созданных действия — имя/категория/окно/Primary-Secondary; (3) добавленные минус-слова; (4) что отклонил; (5) что не удалось и что нужно от владельца.
 
 ---
 
