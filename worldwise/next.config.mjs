@@ -48,6 +48,14 @@ const nextConfig = {
     // Next 16 restricts allowed qualities to [75] by default — keep the low-fi 40
     // used by PropertyLocation's lazy map thumbnail from being coerced to 75.
     qualities: [40, 75],
+    // Next 16 blocks local next/image srcs with query strings unless allowed here
+    // (broke the /blog prerender on the server: AI article cards are served by
+    // /api/blog-image?slug=…&title=…&tag=…). Listing patterns also restricts all
+    // other local srcs to the ones below — /images/** covers every static asset.
+    localPatterns: [
+      { pathname: '/images/**', search: '' },
+      { pathname: '/api/blog-image' }, // query params are the API — search intentionally open
+    ],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '**.tildacdn.com' },
