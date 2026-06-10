@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { Lead, LeadStatus, ActivityEntry, FileAttachment } from '@/types'
 import { LEAD_STATUSES } from '@/lib/lead-status'
+import { buildOciCsv } from '@/lib/oci-export'
 
 const STATUS_META: Record<LeadStatus, { label: string; color: string }> = {
   new: { label: 'New', color: 'bg-blue-50 text-blue-700' },
@@ -326,6 +327,22 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
     URL.revokeObjectURL(url)
   }
 
+  function exportGoogleAds() {
+    // ALL leads, not `filtered` — active CRM filters must not silently drop deals.
+    const { csv, counts } = buildOciCsv(leads, new Date())
+    if (counts.lead === 0) {
+      alert('No leads with a gclid in the last 90 days — nothing to upload to Google Ads.')
+      return
+    }
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `google-ads-oci-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-6">
       {/* View toggle */}
@@ -385,6 +402,9 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
         </div>
         <button onClick={exportCsv} className="text-sm text-navy border border-gray-200 px-4 py-2 rounded-sm hover:border-gold">
           Export CSV
+        </button>
+        <button onClick={exportGoogleAds} className="text-sm text-navy border border-gray-200 px-4 py-2 rounded-sm hover:border-gold">
+          Export Google Ads
         </button>
         <p className="text-xs text-gray-400 self-center">{filtered.length} of {leads.length}</p>
       </div>

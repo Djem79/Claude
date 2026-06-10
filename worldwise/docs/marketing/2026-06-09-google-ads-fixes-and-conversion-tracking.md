@@ -51,21 +51,16 @@
 
 **Настройка (один раз):**
 1. Google Ads → Goals → Conversions → **New conversion action** → **Import** → **CRMs, files or other data sources** → **Track conversions from clicks**.
-2. Создай действия (можно несколько по воронке): например `CRM Lead` (Count: One, окно 90 дней) и `CRM Qualified` / `CRM Deal` (с Value, валюта AED). Для оптимизации лучше грузить именно качественную стадию (Qualified/Deal), а не сырой лид.
+2. Создай три действия с именами **ровно** как в экспорте (`lib/oci-export.ts` `OCI_ACTIONS`): `CRM Lead` (Count: One, окно 90 дней), `CRM Qualified` (Count: One), `CRM Deal` (Count: One, Value enabled, валюта AED). Для оптимизации ставок опирайся на качественные стадии (Qualified/Deal), а не на сырой лид.
 
-**Загрузка (еженедельно):**
-1. Экспортируй лиды из CRM (`/admin/leads` → Export CSV). В файле есть колонки `gclid`, `createdAt`, `status`.
-2. Отфильтруй строки, где `gclid` не пуст И лид достиг нужной стадии (например `status = won` для `CRM Deal`, или квалифицирован).
-3. Сформируй файл загрузки по шаблону Google Ads (Goals → Conversions → **Uploads** → шаблон):
-   ```
-   Parameters:TimeZone=+0400
-   Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency
-   Cj0KCQ...gclid...,CRM Qualified,2026-06-15 14:30:00,0,AED
-   Cj0KCQ...gclid...,CRM Deal,2026-06-18 11:00:00,50000,AED
-   ```
-   - `Conversion Time` — момент достижения стадии (или `createdAt` для сырого лида), формат `yyyy-MM-dd HH:mm:ss`, таймзона из строки Parameters (Dubai = `+0400`).
-   - `Conversion Value` — комиссия/ценность сделки (для `Deal`); для лида можно 0.
-4. Google Ads → Goals → Conversions → **Uploads** → Upload файл → Preview → Apply.
+**Загрузка (еженедельно) — автоматизировано (2026-06-10):**
+1. CRM `/admin/leads` → кнопка **Export Google Ads** — скачивает готовый файл
+   `google-ads-oci-<дата>.csv`: все gclid-лиды за 90 дней, строки `CRM Lead` /
+   `CRM Qualified` / `CRM Deal`, время стадий из activityLog (конвертировано в
+   +0400), Value 0 (ценность сделки при желании вписать руками перед загрузкой).
+2. Google Ads → Goals → Conversions → **Uploads** → Upload файл → Preview → Apply.
+   Повторные строки Google сам отбрасывает как дубликаты — выгружать весь файл
+   каждый раз безопасно.
 
 **Правила:**
 - Грузить **в пределах окна** (по умолчанию gclid-клик не старше ~90 дней; время конверсии — после клика).
