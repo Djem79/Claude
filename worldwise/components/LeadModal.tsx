@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { getStoredAttribution } from '@/lib/utm'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
+import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface Props {
@@ -16,14 +17,6 @@ interface Props {
   propertyTitle?: string
   ctaLabel?: string
 }
-
-const BUDGETS = [
-  'Under AED 1M',
-  'AED 1M – 3M',
-  'AED 3M – 7M',
-  'AED 7M – 15M',
-  'Above AED 15M',
-]
 
 export default function LeadModal({
   isOpen,
@@ -175,7 +168,7 @@ export default function LeadModal({
                 onChange={e => setBudget(e.target.value)}
               >
                 <option value="">Investment Budget (optional)</option>
-                {BUDGETS.map(b => (
+                {BUDGET_BRACKETS.map(b => (
                   <option key={b} value={b}>{b}</option>
                 ))}
               </select>

@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE, SessionPayload } from '@/lib/session'
 import { getUserById } from '@/lib/users'
 import { AdminSection } from '@/types'
@@ -9,7 +9,34 @@ export { SESSION_COOKIE }
 /** Session payload enriched with the user's effective sections (read fresh from DB). */
 export type Session = SessionPayload & { sections: AdminSection[] }
 
+/**
+ * CSRF defence-in-depth on top of SameSite=Lax: when a browser sends an Origin
+ * header (always on POST/PUT/DELETE, never on top-level GET navigations), it must
+ * match the request host. Cross-site requests that somehow carry the cookie are
+ * rejected before any session is granted. Same-origin admin fetches always match.
+ */
+function originAllowed(): boolean {
+  const h = headers()
+  const origin = h.get('origin')
+  if (!origin) return true
+  try {
+    const originHost = new URL(origin).host
+    // Behind the nginx proxy the app may see Host: localhost:3000 — accept the
+    // forwarded host and the canonical site host too, or every admin mutation
+    // from the real domain would be rejected.
+    const siteHost = process.env.NEXT_PUBLIC_SITE_URL
+      ? new URL(process.env.NEXT_PUBLIC_SITE_URL).host
+      : null
+    return [h.get('x-forwarded-host'), h.get('host'), siteHost]
+      .filter(Boolean)
+      .includes(originHost)
+  } catch {
+    return false // malformed or "null" Origin — never grant a session to it
+  }
+}
+
 export async function getSession(): Promise<Session | null> {
+  if (!originAllowed()) return null
   const cookieStore = cookies()
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null

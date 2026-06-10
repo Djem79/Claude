@@ -54,10 +54,11 @@ export async function extractPropertyFromPdf(pdfBuf: Buffer): Promise<Partial<Pr
   if (!key) throw new Error('GEMINI_API_KEY not set')
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Key in a header, not the URL — URLs end up in proxy logs and error traces.
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM }] },
         contents: [{

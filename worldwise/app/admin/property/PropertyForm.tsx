@@ -207,19 +207,24 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
       : isEdit ? `/api/properties/${property!.id}` : '/api/properties'
     const method = draftId ? 'POST' : isEdit ? 'PUT' : 'POST'
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
-    if (res.ok) {
-      router.push('/admin')
-      router.refresh()
-    } else {
-      setError('Something went wrong. Please try again.')
+      if (res.ok) {
+        router.push('/admin')
+        router.refresh()
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const fieldClass = 'w-full border border-gray-200 bg-white px-4 py-2.5 rounded-sm text-navy placeholder-gray-400 focus:outline-none focus:border-gold text-sm'
@@ -562,7 +567,7 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         <button type="submit" disabled={loading} className="btn-primary disabled:opacity-60">
           {loading ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Property'}
         </button>
-        <a href="/admin" className="btn-outline-gold">
+        <a href="/admin" className="btn-outline-gold-light">
           Cancel
         </a>
       </div>

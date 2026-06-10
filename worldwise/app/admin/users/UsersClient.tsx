@@ -21,6 +21,7 @@ function fmt(iso?: string) {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Dubai',
   })
 }
 
@@ -62,21 +63,25 @@ export default function UsersClient({ initialUsers, currentUsername }: {
     e.preventDefault()
     setSaving(true)
     setError('')
-    const res = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: addName, username: addUsername, password: addPassword, role: addRole, sections: addSections }),
-    })
-    if (res.ok) {
-      const user: SafeUser = await res.json()
-      setUsers(prev => [...prev, user])
-      setShowAdd(false)
-      setAddName(''); setAddUsername(''); setAddPassword(''); setAddRole('manager'); setAddSections(DEFAULT_SECTIONS)
-    } else {
-      const data = await res.json()
-      setError(data.error ?? 'Error creating user')
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: addName, username: addUsername, password: addPassword, role: addRole, sections: addSections }),
+      })
+      if (res.ok) {
+        const user: SafeUser = await res.json()
+        setUsers(prev => [...prev, user])
+        setShowAdd(false)
+        setAddName(''); setAddUsername(''); setAddPassword(''); setAddRole('manager'); setAddSections(DEFAULT_SECTIONS)
+      } else {
+        setError((await res.json().catch(() => ({}))).error ?? 'Error creating user')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   async function handleSaveEdit(id: string) {
@@ -84,20 +89,24 @@ export default function UsersClient({ initialUsers, currentUsername }: {
     setError('')
     const body: Record<string, unknown> = { name: editName, role: editRole, active: editActive, sections: editSections }
     if (editPassword.trim()) body.password = editPassword
-    const res = await fetch(`/api/admin/users/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-    if (res.ok) {
-      const updated: SafeUser = await res.json()
-      setUsers(prev => prev.map(u => u.id === id ? updated : u))
-      setEditingId(null)
-    } else {
-      const data = await res.json()
-      setError(data.error ?? 'Error saving')
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (res.ok) {
+        const updated: SafeUser = await res.json()
+        setUsers(prev => prev.map(u => u.id === id ? updated : u))
+        setEditingId(null)
+      } else {
+        setError((await res.json().catch(() => ({}))).error ?? 'Error saving')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   async function handleDelete(id: string, username: string) {

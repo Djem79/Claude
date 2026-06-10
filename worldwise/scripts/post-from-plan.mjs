@@ -143,23 +143,35 @@ async function main() {
   log(`Today (Dubai): ${today}`)
 
   const plan = loadPlan()
-  const index = plan.posts.findIndex(p => p.date === today && !p.sent)
-  if (index === -1) {
+  const todays = () =>
+    plan.posts.map((p, i) => ({ p, i })).filter(({ p }) => p.date === today && !p.sent)
+
+  if (todays().length === 0) {
     log(`No unsent post scheduled for ${today}`)
     process.exit(0)
   }
 
-  const post = { ...plan.posts[index] }
-  log(`Post: "${post.title}" (${post.type})`)
-
-  // Polls go straight to channel — no approval step needed
-  if (post.type === 'poll') {
-    await sendPollToChannel(post)
+  // Polls go straight to channel — no approval step needed. Send ALL of today's
+  // polls (a single-post pick would strand the second one forever, since the
+  // date never matches again).
+  for (const { p, i } of todays().filter(({ p }) => p.type === 'poll')) {
+    log(`Post: "${p.title}" (poll)`)
+    await sendPollToChannel({ ...p })
     log('Poll sent to channel')
-    markSent(plan, index)
+    markSent(plan, i)
     log('Marked as sent')
-    return
   }
+
+  const pending = todays()
+  if (pending.length === 0) return
+  if (pending.length > 1) {
+    // plan-draft.json holds a single pending draft — a second non-poll today would
+    // overwrite the first before approval. Loudly flag instead of silently stranding.
+    log(`WARNING: ${pending.length} non-poll posts dated ${today}; only the first will be sent (single plan-draft.json). Reschedule the rest.`)
+  }
+  const index = pending[0].i
+  const post = { ...pending[0].p }
+  log(`Post: "${post.title}" (${post.type})`)
 
   // Build a stable slug for image naming
   post.slug = sanitizeSlug(post.title)

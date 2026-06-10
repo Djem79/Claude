@@ -30,11 +30,19 @@ export async function GET(
 
   const buf = fs.readFileSync(filePath)
   const ext = attachment.name.split('.').pop()?.toLowerCase() ?? ''
+  // Inline rendering only for types the browser handles safely (CRM preview);
+  // everything else is forced to download as an inert attachment — same threat
+  // model as the admin file manager's download route.
+  const INLINE_OK = new Set(['jpg', 'jpeg', 'png', 'webp', 'pdf'])
+  const disposition = INLINE_OK.has(ext) ? 'inline' : 'attachment'
   return new NextResponse(new Uint8Array(buf), {
     status: 200,
     headers: {
-      'Content-Type': ATTACHMENT_CONTENT_TYPE[ext] ?? 'application/octet-stream',
-      'Content-Disposition': `inline; filename="${attachment.name}"`,
+      'Content-Type': INLINE_OK.has(ext)
+        ? ATTACHMENT_CONTENT_TYPE[ext] ?? 'application/octet-stream'
+        : 'application/octet-stream',
+      'Content-Disposition': `${disposition}; filename="${attachment.name}"`,
+      'X-Content-Type-Options': 'nosniff',
       'Cache-Control': 'private, no-store',
     },
   })

@@ -18,6 +18,7 @@ function fmt(iso?: string) {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Dubai',
   })
 }
 
@@ -49,16 +50,6 @@ function fileIcon(name: string): string {
   if (['doc', 'docx'].includes(ext ?? '')) return '📝'
   return '📎'
 }
-
-const KNOWN_SOURCES = [
-  'hero_cta',
-  'mortgage_calculator',
-  'roi_calculator',
-  'property_enquiry',
-  'lead_capture_section',
-  'floating_cta',
-  'blog_cta',
-]
 
 const CARD_BORDER: Record<LeadStatus, string> = {
   new: 'border-l-blue-400',
@@ -97,30 +88,44 @@ function FilesSection({ lead, onUpdate }: { lead: Lead; onUpdate: (updated: Lead
     setUploading(true)
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`/api/leads/${lead.id}/files`, { method: 'POST', body: form })
-    if (res.ok) onUpdate(await res.json())
-    else alert((await res.json()).error ?? 'Upload failed')
-    setUploading(false)
-    if (inputRef.current) inputRef.current.value = ''
+    try {
+      const res = await fetch(`/api/leads/${lead.id}/files`, { method: 'POST', body: form })
+      if (res.ok) onUpdate(await res.json())
+      else alert((await res.json().catch(() => ({}))).error ?? 'Upload failed')
+    } catch {
+      alert('Upload failed')
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ''
+    }
   }
 
   async function handleDelete(fileId: string) {
     if (!confirm('Delete this file? This cannot be undone.')) return
-    const res = await fetch(`/api/leads/${lead.id}/files/${fileId}`, { method: 'DELETE' })
-    if (res.ok) onUpdate(await res.json())
-    else alert((await res.json()).error ?? 'Delete failed')
+    try {
+      const res = await fetch(`/api/leads/${lead.id}/files/${fileId}`, { method: 'DELETE' })
+      if (res.ok) onUpdate(await res.json())
+      else alert((await res.json().catch(() => ({}))).error ?? 'Delete failed')
+    } catch {
+      alert('Delete failed')
+    }
   }
 
   async function handleEmail(fileId: string) {
     setSendingId(fileId)
-    const res = await fetch(`/api/leads/${lead.id}/files/${fileId}/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ via: 'email' }),
-    })
-    if (res.ok) onUpdate(await res.json())
-    else alert((await res.json()).error ?? 'Email failed')
-    setSendingId(null)
+    try {
+      const res = await fetch(`/api/leads/${lead.id}/files/${fileId}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ via: 'email' }),
+      })
+      if (res.ok) onUpdate(await res.json())
+      else alert((await res.json().catch(() => ({}))).error ?? 'Email failed')
+    } catch {
+      alert('Email failed')
+    } finally {
+      setSendingId(null)
+    }
   }
 
   function handleWhatsApp(att: FileAttachment) {
@@ -252,8 +257,7 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
 
   const sources = useMemo(() => {
     const dynamic = leads.map(l => l.source).filter(Boolean) as string[]
-    const extra = dynamic.filter(s => !KNOWN_SOURCES.includes(s))
-    return [...KNOWN_SOURCES, ...Array.from(new Set(extra)).sort()]
+    return Array.from(new Set(dynamic)).sort()
   }, [leads])
 
   const filtered = useMemo(() => {
@@ -273,16 +277,23 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
 
   async function patchLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'propertyTitle'>>) {
     setSavingId(id)
-    const res = await fetch(`/api/leads/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
-    })
-    if (res.ok) {
-      const updated: Lead = await res.json()
-      setLeads(prev => prev.map(l => (l.id === id ? updated : l)))
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      })
+      if (res.ok) {
+        const updated: Lead = await res.json()
+        setLeads(prev => prev.map(l => (l.id === id ? updated : l)))
+      } else {
+        alert((await res.json().catch(() => ({}))).error ?? 'Save failed')
+      }
+    } catch {
+      alert('Save failed')
+    } finally {
+      setSavingId(null)
     }
-    setSavingId(null)
   }
 
   async function removeLead(id: string) {

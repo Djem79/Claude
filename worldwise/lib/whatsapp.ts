@@ -14,3 +14,6 @@ export function waLink(message: string): string {
 export function waPropertyMessage(title: string): string {
   return `Hi Worldwise, I'm interested in "${title}". Please send details.`
 }
+
+/** Shared tel: link — same default number as the hardcoded links it replaces. */
+export const PHONE_TEL = `tel:${process.env.NEXT_PUBLIC_PHONE ?? '+971506960435'}`

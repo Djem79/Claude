@@ -57,7 +57,10 @@ export function coercePropertyInput(
       const n = cleanNumber(b[key])
       if (n === undefined) {
         if (key === 'priceAed') return { ok: false, error: 'priceAed must be a number' }
-        // optional numbers: a blank/invalid value just clears the field
+        // Optional numbers: a blank/invalid value clears the field. The explicit
+        // undefined is required — an absent key would survive the {...existing, ...out}
+        // spread in updateProperty, keeping the stale value forever.
+        out[key] = undefined
       } else {
         out[key] = n
       }

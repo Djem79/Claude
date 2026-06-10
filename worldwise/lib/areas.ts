@@ -33,6 +33,7 @@ export type Area = {
   metaDescription: string
 }
 
+// NOTE: area names are mirrored in lib/area-names.ts for client bundles — keep in sync.
 export const areas: Area[] = [
   {
     slug: 'dubai-marina',

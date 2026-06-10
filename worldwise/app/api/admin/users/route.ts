@@ -34,10 +34,20 @@ export async function POST(req: NextRequest) {
   if (role !== 'owner' && role !== 'manager') {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }
+  if (String(password).length < 8) {
+    return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+  }
   // Owner always has every section; managers get the validated subset.
   const userSections = role === 'owner' ? ALL_SECTIONS : sanitizeSections(sections)
   try {
-    const user = await createUser({ name, username, password, role, sections: userSections })
+    // Length caps — users.json is re-read on every getSession() call.
+    const user = await createUser({
+      name: String(name).slice(0, 120),
+      username: String(username).slice(0, 60),
+      password,
+      role,
+      sections: userSections,
+    })
     return NextResponse.json(safeUser(user), { status: 201 })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Error'

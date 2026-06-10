@@ -4,7 +4,7 @@
 import { google } from 'googleapis'
 import http from 'node:http'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { exec } from 'node:child_process'
+import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -90,7 +90,8 @@ function getFreePort() {
 
 function openInBrowser(url) {
   // macOS only; project is macOS-bound for local dev.
-  exec(`open "${url.replace(/"/g, '\\"')}"`)
+  // execFile (no shell) — a shell string is one env-var paste away from injection.
+  execFile('open', [url])
 }
 
 async function cmdAuth() {

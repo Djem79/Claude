@@ -56,11 +56,15 @@ export default function ArticlePage({ params }: Props) {
   const article = getArticleBySlug(params.slug)
   if (!article) notFound()
 
+  // Static editorial articles carry no publishedAt — omit the date rather than
+  // fabricate "now": rendering the current time made every static article claim
+  // it was published today and shifted the JSON-LD dates on each revalidation.
   const publishedAt = 'publishedAt' in article ? article.publishedAt : null
-  const dateISO = publishedAt ?? new Date().toISOString()
-  const dateDisplay = new Date(dateISO).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  })
+  const dateDisplay = publishedAt
+    ? new Date(publishedAt).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : null
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -71,8 +75,7 @@ export default function ArticlePage({ params }: Props) {
     image: 'image' in article && article.image
       ? `https://worldwise.pro${article.image}`
       : 'https://worldwise.pro/opengraph-image',
-    datePublished: dateISO,
-    dateModified: dateISO,
+    ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
     author: { '@type': 'Organization', name: 'Worldwise Real Estate', url: 'https://worldwise.pro' },
     publisher: {
       '@type': 'Organization',
@@ -101,7 +104,7 @@ export default function ArticlePage({ params }: Props) {
               {article.title}
             </h1>
             <p className="text-white/60 text-sm">
-              {dateDisplay} · {article.readTime}
+              {[dateDisplay, article.readTime].filter(Boolean).join(' · ')}
             </p>
             {'image' in article && article.image && (
               // eslint-disable-next-line @next/next/no-img-element

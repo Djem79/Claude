@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { getStoredAttribution } from '@/lib/utm'
 import { waLink } from '@/lib/whatsapp'
-import { areas } from '@/lib/areas'
+import { AREA_NAMES } from '@/lib/area-names'
+import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface Props {
@@ -13,17 +14,7 @@ interface Props {
   source: string
 }
 
-const BUDGETS = [
-  'Under AED 1M',
-  'AED 1M – 3M',
-  'AED 3M – 7M',
-  'AED 7M – 15M',
-  'Above AED 15M',
-]
-
 const PROPERTY_TYPES = ['Ready', 'Off-plan']
-
-const AREA_NAMES = areas.map(a => a.name)
 
 export default function QualifyingModal({ isOpen, onClose, source }: Props) {
   const [step, setStep] = useState(1)
@@ -144,7 +135,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
                 <h3 className="font-serif text-2xl text-navy mb-1">What&apos;s your budget?</h3>
                 <p className="text-gray-500 text-sm mb-6">Helps us match the right opportunities. Optional.</p>
                 <div className="space-y-2">
-                  {BUDGETS.map(b => (
+                  {BUDGET_BRACKETS.map(b => (
                     <button
                       key={b}
                       type="button"
@@ -191,6 +182,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
                 </div>
                 <select
                   className="input-field"
+                  aria-label="Preferred area"
                   value={area}
                   onChange={e => setArea(e.target.value)}
                 >

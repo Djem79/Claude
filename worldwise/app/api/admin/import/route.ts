@@ -7,6 +7,7 @@ import { extractImagesFromPdf } from '@/lib/pdf-images'
 import { addDraft, listDrafts } from '@/lib/property-drafts'
 import fs from 'fs'
 import path from 'path'
+import { randomInt } from 'crypto'
 
 export const dynamic = 'force-dynamic'
 const MAX_BYTES = 25 * 1024 * 1024 // 25 MB
@@ -33,7 +34,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not a PDF file' }, { status: 400 })
   }
 
-  const draftId = String(Date.now())
+  // Timestamp + 4 random digits (17 digits, still matches the ^\d{6,20}$ id contract).
+  // A bare Date.now() is guessable, and draft assets (images, brochure) are publicly
+  // served before the admin publishes — don't let outsiders brute-force the id.
+  const draftId = `${Date.now()}${randomInt(1000, 10000)}`
   let fields
   try {
     fields = await extractPropertyFromPdf(buf)

@@ -33,11 +33,13 @@ export async function createUser(data: {
   role: AdminRole
   sections?: AdminSection[]
 }): Promise<AdminUser> {
+  // Hash BEFORE the read — the ~100ms bcrypt await must not sit between
+  // getUsers() and saveUsers(), or a concurrent mutation gets silently lost.
+  const passwordHash = await bcrypt.hash(data.password, 10)
   const users = getUsers()
   if (users.some(u => u.username === data.username)) {
     throw new Error('Username already taken')
   }
-  const passwordHash = await bcrypt.hash(data.password, 10)
   const user: AdminUser = {
     id: String(Date.now()),
     name: data.name,
@@ -56,13 +58,16 @@ export async function updateUser(
   id: string,
   patch: Partial<{ name: string; role: AdminRole; active: boolean; password: string; lastLoginAt: string; sections: AdminSection[] }>
 ): Promise<AdminUser | null> {
+  // Hash BEFORE the read — keeps the read-modify-write fully synchronous so a
+  // concurrent createUser/deleteUser can't be overwritten by this stale snapshot.
+  const { password, ...rest } = patch
+  const passwordHash = password ? await bcrypt.hash(password, 10) : undefined
   const users = getUsers()
   const idx = users.findIndex(u => u.id === id)
   if (idx === -1) return null
-  const { password, ...rest } = patch
   const updated: AdminUser = { ...users[idx], ...rest }
-  if (password) {
-    updated.passwordHash = await bcrypt.hash(password, 10)
+  if (passwordHash) {
+    updated.passwordHash = passwordHash
   }
   users[idx] = updated
   saveUsers(users)

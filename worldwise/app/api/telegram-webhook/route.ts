@@ -241,13 +241,19 @@ async function postPlanToChannel(post: Record<string, unknown>) {
     }
   }
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: channelId, text }),
-    signal: AbortSignal.timeout(10000),
-  })
-  if (!res.ok) console.error('[telegram-webhook] postPlanToChannel text failed', await res.text())
+  // Wrapped like the image branch above — this function is called fire-and-forget,
+  // so an unobserved rejection here would crash the single PM2 process.
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: channelId, text }),
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) console.error('[telegram-webhook] postPlanToChannel text failed', await res.text())
+  } catch (e) {
+    console.error('[telegram-webhook] postPlanToChannel text error', e)
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -410,7 +416,8 @@ export async function POST(req: NextRequest) {
       // draft missing or unreadable
     }
     if (planPost) {
-      postPlanToChannel(planPost)
+      // Fire-and-forget — never let a rejection escape unobserved.
+      postPlanToChannel(planPost).catch(e => console.error('[telegram-webhook] postPlanToChannel', e))
       answerText = '✅ Опубликовано'
     } else {
       answerText = '⚠️ Черновик не найден'

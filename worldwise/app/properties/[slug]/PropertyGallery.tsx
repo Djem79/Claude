@@ -11,6 +11,16 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
     track('property_view', { property: title })
   }, [title])
 
+  // Guard: a property can have zero images (draft/import edge cases) —
+  // render a neutral block with the same height instead of crashing <Image>.
+  if (images.length === 0) {
+    return (
+      <div className="relative bg-navy">
+        <div className="relative h-[50vh] md:h-[65vh] overflow-hidden bg-navy/5" />
+      </div>
+    )
+  }
+
   return (
     <div className="relative bg-navy">
       <div className="relative h-[50vh] md:h-[65vh] overflow-hidden">

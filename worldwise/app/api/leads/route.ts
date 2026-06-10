@@ -32,8 +32,6 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
-const FAKE_OK = NextResponse.json({ ok: true }, { status: 201 })
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
@@ -45,8 +43,10 @@ export async function POST(req: NextRequest) {
   }
   const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, attributionCapturedAt, _hp } = body
 
-  // Honeypot — filled by bots, empty for real users
-  if (_hp) return FAKE_OK
+  // Honeypot — filled by bots, empty for real users. Response built per request:
+  // a module-level Response's body stream is consumable once — the second hit
+  // would 500 and reveal the honeypot.
+  if (_hp) return NextResponse.json({ ok: true }, { status: 201 })
 
   if (!name || !phone) {
     return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 })

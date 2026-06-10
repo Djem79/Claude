@@ -14,18 +14,23 @@ export default function AdminLoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-    if (res.ok) {
-      const data = await res.json().catch(() => ({} as { redirect?: string }))
-      router.push(data.redirect ?? '/admin')
-    } else {
-      setError('Invalid username or password.')
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+      if (res.ok) {
+        const data = await res.json().catch(() => ({} as { redirect?: string }))
+        router.push(data.redirect ?? '/admin')
+      } else {
+        setError('Invalid username or password.')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

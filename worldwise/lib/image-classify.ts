@@ -110,10 +110,11 @@ export async function classifyImages(thumbs: { b64: string; mime: string }[]): P
   parts.push({ text: `Classify all ${thumbs.length} images. Return exactly ${thumbs.length} category strings in order.` })
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Key in a header, not the URL — URLs end up in proxy logs and error traces.
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: CLASSIFY_SYSTEM }] },
         contents: [{ parts }],

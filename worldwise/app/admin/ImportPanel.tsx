@@ -20,30 +20,45 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
     const file = e.target.files?.[0]
     if (!file) return
     setBusy(true); setError('')
-    const fd = new FormData()
-    fd.append('file', file)
-    const res = await fetch('/api/admin/import', { method: 'POST', body: fd })
-    if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Import failed')
-    else await refresh()
-    setBusy(false)
-    e.target.value = ''
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/admin/import', { method: 'POST', body: fd })
+      if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Import failed')
+      else await refresh()
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setBusy(false)
+      e.target.value = ''
+    }
   }
 
   async function publish(id: string) {
     setBusy(true); setError('')
-    const res = await fetch(`/api/admin/import/${id}/publish`, { method: 'POST' })
-    if (res.ok) { await refresh(); router.refresh() }
-    else setError((await res.json().catch(() => ({}))).error || 'Publish failed')
-    setBusy(false)
+    try {
+      const res = await fetch(`/api/admin/import/${id}/publish`, { method: 'POST' })
+      if (res.ok) { await refresh(); router.refresh() }
+      else setError((await res.json().catch(() => ({}))).error || 'Publish failed')
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function reject(id: string) {
     if (!confirm('Reject and delete this draft?')) return
     setBusy(true); setError('')
-    const res = await fetch(`/api/admin/import/${id}`, { method: 'DELETE' })
-    if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Reject failed')
-    else await refresh()
-    setBusy(false)
+    try {
+      const res = await fetch(`/api/admin/import/${id}`, { method: 'DELETE' })
+      if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Reject failed')
+      else await refresh()
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (

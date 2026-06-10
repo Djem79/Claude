@@ -57,8 +57,9 @@ export default function MortgageCalculator() {
           <div className="space-y-7">
             {/* Property Price */}
             <div>
-              <label className="text-white/70 text-sm font-medium block mb-3">Property Price</label>
+              <label htmlFor="mortgage-price" className="text-white/70 text-sm font-medium block mb-3">Property Price</label>
               <input
+                id="mortgage-price"
                 type="range"
                 min={500_000}
                 max={10_000_000}
@@ -119,10 +120,11 @@ export default function MortgageCalculator() {
 
             {/* Interest Rate */}
             <div>
-              <label className="text-white/70 text-sm font-medium block mb-3">
+              <label htmlFor="mortgage-rate" className="text-white/70 text-sm font-medium block mb-3">
                 Annual Interest Rate — <span className="text-gold">{rate.toFixed(1)}%</span>
               </label>
               <input
+                id="mortgage-rate"
                 type="range"
                 min={2.5}
                 max={8}

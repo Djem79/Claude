@@ -21,11 +21,13 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export default function PropertyCard({ property }: { property: Property }) {
+  // Guard: images can be empty (draft/import edge cases) — fall back to a generic area shot.
+  const img = property.images[0] ?? '/images/areas/dubai-marina.jpg'
   return (
     <div className="bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
       <Link href={`/properties/${property.slug}`} className="relative block h-52 overflow-hidden">
         <Image
-          src={property.images[0]}
+          src={img}
           alt={property.title}
           fill
           className={`object-cover group-hover:scale-105 transition-transform duration-500${property.rented ? ' opacity-60' : ''}`}

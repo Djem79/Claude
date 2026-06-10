@@ -3,15 +3,9 @@
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { getStoredAttribution } from '@/lib/utm'
+import { waNumber, PHONE_TEL } from '@/lib/whatsapp'
+import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 import SocialProofStrip from './SocialProofStrip'
-
-const BUDGETS = [
-  'Under AED 1M',
-  'AED 1M – 3M',
-  'AED 3M – 7M',
-  'AED 7M – 15M',
-  'Above AED 15M',
-]
 
 interface LeadCaptureSectionProps {
   source?: string
@@ -109,7 +103,7 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
               onChange={e => setBudget(e.target.value)}
             >
               <option value="">Your Investment Budget</option>
-              {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+              {BUDGET_BRACKETS.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -130,14 +124,14 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
 
         <div className="flex flex-wrap justify-center gap-8 mt-12 pt-10 border-t border-white/10 text-white/60 text-sm">
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP ?? '971506960435'}`}
+            href={`https://wa.me/${waNumber()}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors"
           >
             WhatsApp
           </a>
-          <a href="tel:+971506960435" className="hover:text-white transition-colors">
+          <a href={PHONE_TEL} className="hover:text-white transition-colors">
             +971 50 696 0435
           </a>
           <a href="mailto:info@worldwise.pro" className="hover:text-white transition-colors">

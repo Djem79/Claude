@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { Currency, Rates } from '@/lib/fx'
 import { FALLBACK_RATES, SYMBOL } from '@/lib/fx'
 import { getStoredCurrency, EVENT } from '@/lib/currency-client'
+import { formatAedCompact } from '@/lib/format'
 
 // Shared across every PriceTag on the page: a single /api/fx request.
 let ratesPromise: Promise<Rates> | null = null
@@ -14,12 +15,6 @@ function loadRates(): Promise<Rates> {
       .catch(() => FALLBACK_RATES)
   }
   return ratesPromise
-}
-
-// AED primary — same formatting as PropertyCard's formatPrice.
-function formatAed(aed: number) {
-  if (aed >= 1_000_000) return `AED ${(aed / 1_000_000).toFixed(2)}M`
-  return `AED ${(aed / 1000).toFixed(0)}K`
 }
 
 // Compact converted value, e.g. $2.45M / $520K.
@@ -60,7 +55,7 @@ export default function PriceTag({
   return (
     <span className={className}>
       {prefix}
-      {formatAed(aed)}
+      {formatAedCompact(aed)}
       {converted && (
         <span className="block text-xs text-gray-400 font-sans font-normal">≈ {converted}</span>
       )}
