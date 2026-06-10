@@ -1,7 +1,6 @@
-import fs from 'fs'
 import path from 'path'
 import { Property } from '@/types'
-import { writeFileAtomic } from '@/lib/atomic-write'
+import { readJsonFile, mutateJsonFile } from '@/lib/json-store'
 import { sanitizeSlug, uniqueSlug } from '@/lib/slug'
 
 const PROPERTY_TYPES: Property['type'][] = ['apartment', 'villa', 'townhouse', 'penthouse']
@@ -114,29 +113,26 @@ export function coercePropertyInput(
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'properties.json')
 
-export function getProperties(): Property[] {
-  let raw: string
-  try {
-    raw = fs.readFileSync(DATA_FILE, 'utf-8')
-  } catch (e) {
-    // A genuinely MISSING file (fresh checkout where data/ is server-only) → empty
-    // list is correct and lets the build/render degrade gracefully.
-    if ((e as NodeJS.ErrnoException).code === 'ENOENT') return []
-    throw e
-  }
-  // A present-but-unparseable/truncated file must NOT be masked as "no properties":
-  // createProperty/updateProperty/deleteProperty read-then-save, so returning [] here
-  // would let the next mutation overwrite the whole catalog with near-empty data.
-  // Fail loud instead — the read error is recoverable; a clobbered catalog is not.
-  const parsed = JSON.parse(raw) as (Omit<Property, 'status'> & { status: string })[]
+type RawProperty = Omit<Property, 'status'> & { status: string }
+
+// Shared by reads AND the mutation critical section: array-shape check (a
+// present-but-unparseable/truncated file must NOT be masked as "no properties",
+// or the next mutation would overwrite the whole catalog with near-empty data —
+// readJsonFile already throws on parse errors; this guards the root shape) plus
+// the legacy 'ready' → 'secondary' status mapping.
+function normalizeProperties(parsed: RawProperty[]): Property[] {
   if (!Array.isArray(parsed)) {
     throw new Error(`[properties] ${DATA_FILE} is not a JSON array`)
   }
-  // Legacy 'ready' status was removed — render those entries as 'secondary'.
   return parsed.map(p => ({
     ...p,
     status: (p.status === 'ready' ? 'secondary' : p.status) as Property['status'],
   }))
+}
+
+export function getProperties(): Property[] {
+  // ENOENT → [] (fresh checkout where data/ is server-only); corrupt → throw.
+  return normalizeProperties(readJsonFile<RawProperty[]>(DATA_FILE, []))
 }
 
 export function getPropertyBySlug(slug: string): Property | null {
@@ -151,46 +147,52 @@ export function getFeaturedProperties(): Property[] {
   return getProperties().filter(p => p.featured)
 }
 
-export function saveProperties(properties: Property[]): void {
-  // Atomic temp-file + rename so a crash/full-disk mid-write can't truncate the
-  // live catalog (the file the whole public site reads). See lib/atomic-write.ts.
-  writeFileAtomic(DATA_FILE, JSON.stringify(properties, null, 2))
+// All catalog mutations run inside mutateJsonFile's synchronous critical
+// section (fresh read + sync transform + atomic temp-file/rename write).
+function mutateProperties(mutate: (current: Property[]) => Property[]): void {
+  mutateJsonFile<RawProperty[]>(DATA_FILE, [], raw => mutate(normalizeProperties(raw)))
 }
 
 export function createProperty(data: Omit<Property, 'createdAt'> & { id?: string }): Property {
-  const properties = getProperties()
-  // Honor a client-supplied id (the gallery upload folder is keyed by it) only if it's
-  // well-formed AND not already taken — a duplicate id would shadow an existing record
-  // in every find/findIndex lookup. Otherwise generate a fresh one.
-  const id = data.id && /^\d{6,20}$/.test(data.id) && !properties.some(p => p.id === data.id)
-    ? data.id
-    : String(Date.now())
-  // Guarantee slug uniqueness — two listings sharing a slug would leave the second
-  // unreachable (getPropertyBySlug resolves the first). Suffix -2/-3 on collision.
-  const slug = data.slug ? uniqueSlug(data.slug, properties.map(p => p.slug)) : data.slug
-  const newProperty: Property = {
-    ...data,
-    id,
-    slug,
-    createdAt: new Date().toISOString(),
-  }
-  saveProperties([...properties, newProperty])
-  return newProperty
+  let created: Property | null = null
+  mutateProperties(properties => {
+    // Honor a client-supplied id (the gallery upload folder is keyed by it) only if it's
+    // well-formed AND not already taken — a duplicate id would shadow an existing record
+    // in every find/findIndex lookup. Otherwise generate a fresh one.
+    const id = data.id && /^\d{6,20}$/.test(data.id) && !properties.some(p => p.id === data.id)
+      ? data.id
+      : String(Date.now())
+    // Guarantee slug uniqueness — two listings sharing a slug would leave the second
+    // unreachable (getPropertyBySlug resolves the first). Suffix -2/-3 on collision.
+    const slug = data.slug ? uniqueSlug(data.slug, properties.map(p => p.slug)) : data.slug
+    created = {
+      ...data,
+      id,
+      slug,
+      createdAt: new Date().toISOString(),
+    }
+    return [...properties, created]
+  })
+  return created!
 }
 
 export function updateProperty(id: string, data: Partial<Omit<Property, 'id' | 'createdAt'>>): Property | null {
-  const properties = getProperties()
-  const index = properties.findIndex(p => p.id === id)
-  if (index === -1) return null
-  properties[index] = { ...properties[index], ...data }
-  saveProperties(properties)
-  return properties[index]
+  let updated: Property | null = null
+  mutateProperties(properties => {
+    const index = properties.findIndex(p => p.id === id)
+    if (index === -1) return properties
+    updated = { ...properties[index], ...data }
+    return properties.map((p, i) => (i === index ? updated! : p))
+  })
+  return updated
 }
 
 export function deleteProperty(id: string): boolean {
-  const properties = getProperties()
-  const filtered = properties.filter(p => p.id !== id)
-  if (filtered.length === properties.length) return false
-  saveProperties(filtered)
-  return true
+  let removed = false
+  mutateProperties(properties => {
+    const filtered = properties.filter(p => p.id !== id)
+    removed = filtered.length !== properties.length
+    return filtered
+  })
+  return removed
 }

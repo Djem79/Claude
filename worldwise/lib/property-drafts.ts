@@ -1,12 +1,15 @@
 import fs from 'fs'
 import path from 'path'
-import { writeFileAtomic } from '@/lib/atomic-write'
+import { mutateJsonFile } from '@/lib/json-store'
 import { coercePropertyInput, createProperty, getProperties } from '@/lib/properties'
 import { revalidatePropertyPages } from '@/lib/revalidate'
 import type { Property, PropertyDraft } from '@/types'
 
 const DRAFTS_PATH = path.join(process.cwd(), 'data', 'property-drafts.json')
 
+// Forgiving read for DISPLAY only (admin panel shows an empty list on a corrupt
+// file instead of crashing). Mutations go through mutateJsonFile, whose strict
+// read throws on corruption — persisting this [] fallback would wipe the drafts.
 function read(): PropertyDraft[] {
   try {
     if (!fs.existsSync(DRAFTS_PATH)) return []
@@ -17,30 +20,31 @@ function read(): PropertyDraft[] {
     return []
   }
 }
-function write(drafts: PropertyDraft[]): void {
-  writeFileAtomic(DRAFTS_PATH, JSON.stringify(drafts, null, 2))
+
+function mutateDrafts(mutate: (current: PropertyDraft[]) => PropertyDraft[]): void {
+  mutateJsonFile<PropertyDraft[]>(DRAFTS_PATH, [], mutate)
 }
 
 export function listDrafts(): PropertyDraft[] { return read() }
 export function getDraft(id: string): PropertyDraft | null { return read().find(d => d.draftId === id) ?? null }
 
 export function addDraft(draft: PropertyDraft): void {
-  const all = read()
-  all.unshift(draft)
-  write(all)
+  mutateDrafts(all => [draft, ...all])
 }
 
 export function updateDraftFields(id: string, fields: Partial<Property>): PropertyDraft | null {
-  const all = read()
-  const i = all.findIndex(d => d.draftId === id)
-  if (i === -1) return null
-  all[i] = { ...all[i], fields: { ...all[i].fields, ...fields } }
-  write(all)
-  return all[i]
+  let updated: PropertyDraft | null = null
+  mutateDrafts(all => {
+    const i = all.findIndex(d => d.draftId === id)
+    if (i === -1) return all
+    updated = { ...all[i], fields: { ...all[i].fields, ...fields } }
+    return all.map((d, j) => (j === i ? updated! : d))
+  })
+  return updated
 }
 
 function removeRecord(id: string): void {
-  write(read().filter(d => d.draftId !== id))
+  mutateDrafts(all => all.filter(d => d.draftId !== id))
 }
 
 /** Reject: drop the draft record AND its extracted-image folder. */

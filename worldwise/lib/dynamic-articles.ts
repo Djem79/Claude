@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { writeFileAtomic } from '@/lib/atomic-write'
+import { writeFileAtomic, mutateJsonFile } from '@/lib/json-store'
 
 export interface DynamicArticle {
   slug: string
@@ -52,17 +52,20 @@ export function deleteDraft(): void {
 export function publishDraft(): DynamicArticle | null {
   const draft = getDraft()
   if (!draft) return null
-  const existing = getDynamicArticles()
-  // Guarantee slug uniqueness — Gemini can mint a slug that collides with an
-  // already-published article. Suffix it so both stay reachable instead of one
-  // silently shadowing the other.
-  if (existing.some(a => a.slug === draft.slug)) {
-    let n = 2
-    while (existing.some(a => a.slug === `${draft.slug}-${n}`)) n++
-    draft.slug = `${draft.slug}-${n}`
-  }
-  existing.unshift(draft)
-  writeFileAtomic(ARTICLES_PATH, JSON.stringify(existing, null, 2))
+  // mutateJsonFile reads articles.json STRICTLY (corrupt → throw) — unlike the
+  // forgiving readJson above, which must never feed a mutation: persisting its
+  // [] fallback here would wipe every published article.
+  mutateJsonFile<DynamicArticle[]>(ARTICLES_PATH, [], existing => {
+    // Guarantee slug uniqueness — Gemini can mint a slug that collides with an
+    // already-published article. Suffix it so both stay reachable instead of one
+    // silently shadowing the other.
+    if (existing.some(a => a.slug === draft.slug)) {
+      let n = 2
+      while (existing.some(a => a.slug === `${draft.slug}-${n}`)) n++
+      draft.slug = `${draft.slug}-${n}`
+    }
+    return [draft, ...existing]
+  })
   deleteDraft()
   return draft
 }
