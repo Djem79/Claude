@@ -9,7 +9,8 @@ function safeUser(u: AdminUser) {
   return rest
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getSession()
   if (session?.role !== 'owner') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -63,7 +64,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(safeUser(updated))
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getSession()
   if (session?.role !== 'owner') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

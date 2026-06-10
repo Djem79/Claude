@@ -4,7 +4,8 @@ import { coercePropertyInput } from '@/lib/properties'
 import { updateDraftFields, rejectDraft } from '@/lib/property-drafts'
 import { Property } from '@/types'
 
-export async function PUT(req: NextRequest, { params }: { params: { draftId: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ draftId: string }> }) {
+  const params = await props.params;
   if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
@@ -17,7 +18,8 @@ export async function PUT(req: NextRequest, { params }: { params: { draftId: str
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { draftId: string } }) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ draftId: string }> }) {
+  const params = await props.params;
   if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }

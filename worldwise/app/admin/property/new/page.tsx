@@ -7,7 +7,8 @@ import PropertyForm from '../PropertyForm'
 
 export const dynamic = 'force-dynamic'
 
-export default async function NewPropertyPage({ searchParams }: { searchParams: { draft?: string } }) {
+export default async function NewPropertyPage(props: { searchParams: Promise<{ draft?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getSession()
   if (!session) redirect('/admin/login')
   if (!canAccess(session, 'properties')) redirect(landingPath(session) ?? '/admin')

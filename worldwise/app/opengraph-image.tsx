@@ -78,7 +78,7 @@ export default async function OgImage() {
         {/* Content */}
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 80px 80px' }}>
           {logoSrc && (
-            // eslint-disable-next-line @next/next/no-img-element
+             
             <img src={logoSrc} alt="Worldwise Real Estate" width={685} height={360} style={{ objectFit: 'contain' }} />
           )}
 

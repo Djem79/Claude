@@ -4,7 +4,7 @@ import { verifySessionToken, SESSION_COOKIE } from '@/lib/session'
 
 const NOINDEX_PARAMS = ['_rsc', 'gtm_latency']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
 
   // Auth gates run FIRST — an early return for the noindex header would let

@@ -15,7 +15,8 @@ const TYPES: Record<string, string> = {
   '.webp': 'image/webp', '.gif': 'image/gif',
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { file: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ file: string }> }) {
+  const params = await props.params;
   const { file } = params
   // Strict whitelist — file is "<propertyId>.<ext>"; reject anything that could
   // traverse out of the qr folder.

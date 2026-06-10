@@ -10,7 +10,8 @@ import { isValidBrochureId, brochureBasename } from '@/lib/brochure'
 // (fs) — never Edge.
 export const dynamic = 'force-dynamic'
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { id } = params
   if (!isValidBrochureId(id)) {
     return new NextResponse('Bad request', { status: 400 })

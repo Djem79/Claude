@@ -22,11 +22,12 @@ export function generateStaticParams() {
   return areaSlugs.map(slug => ({ area: slug }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { area: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ area: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const area = getArea(params.area)
   if (!area) return {}
 
@@ -57,7 +58,8 @@ export async function generateMetadata({
   }
 }
 
-export default function AreaPage({ params }: { params: { area: string } }) {
+export default async function AreaPage(props: { params: Promise<{ area: string }> }) {
+  const params = await props.params;
   const area = getArea(params.area)
   if (!area) notFound()
 

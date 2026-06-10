@@ -45,6 +45,9 @@ const nextConfig = {
     // Serve AVIF (then WebP) — smaller than the WebP-only default, improving LCP
     // on image-heavy pages (hero, galleries, area/property cards).
     formats: ['image/avif', 'image/webp'],
+    // Next 16 restricts allowed qualities to [75] by default — keep the low-fi 40
+    // used by PropertyLocation's lazy map thumbnail from being coerced to 75.
+    qualities: [40, 75],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '**.tildacdn.com' },
@@ -60,12 +63,15 @@ const nextConfig = {
       { source: '/tpost/ti51yhg191-new-rule-for-overseas-sellers-bank-accou', destination: '/blog/dubai-property-title-deed-transfer-guide-international-investors', permanent: true },
       { source: '/tpost/z9jizlp8u1-does-buying-property-in-the-uae-grant-a',   destination: '/blog/uae-property-residence-visa', permanent: true },
       { source: '/tpost/:path*',    destination: '/blog',       permanent: true },
-      { source: '/page:path*.html', destination: '/',           permanent: true },
-      { source: '/rss-feed-:path*.xml', destination: '/sitemap.xml', permanent: true },
+      // Next 16 (strict path-to-regexp): a repeated param (:path*) can't carry a
+      // suffix like ".html". Old Tilda URLs are single-segment anyway — plain :path
+      // matches /pageNNNN.html and /rss-feed-NNN.xml exactly as before.
+      { source: '/page:path.html', destination: '/',           permanent: true },
+      { source: '/rss-feed-:path.xml', destination: '/sitemap.xml', permanent: true },
 
       // Duplicate-draft property slugs that leaked into Google's index
       // (admin "duplicate" workflow produces "copy-<original>" — never a real listing)
-      { source: '/properties/copy-:path*', destination: '/properties', permanent: true },
+      { source: '/properties/copy-:path', destination: '/properties', permanent: true },
 
       // Bare social media URLs (missing https://)
       { source: '/www.youtube.com/:path*',  destination: 'https://www.youtube.com/:path*',  permanent: true },

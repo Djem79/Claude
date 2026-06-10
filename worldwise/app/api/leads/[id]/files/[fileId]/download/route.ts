@@ -9,8 +9,9 @@ import path from 'path'
 // (audit P3), so this route is the only way to read them — admin session required.
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string; fileId: string } }
+  props: { params: Promise<{ id: string; fileId: string }> }
 ) {
+  const params = await props.params;
   const session = await requireSection('leads')
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

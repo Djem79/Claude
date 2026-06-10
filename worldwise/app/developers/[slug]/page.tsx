@@ -17,7 +17,8 @@ export function generateStaticParams() {
   return developerSlugs.map(slug => ({ slug }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const dev = getDeveloper(params.slug)
   if (!dev) return {}
   // metadata.title stays brandless (layout title.template appends the brand once);
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default function DeveloperPage({ params }: { params: { slug: string } }) {
+export default async function DeveloperPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const dev = getDeveloper(params.slug)
   if (!dev) notFound()
   const matched = getProperties().filter(p => propertyMatchesDeveloper(p.developer, dev))
