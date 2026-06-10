@@ -307,6 +307,7 @@ A shared file manager for staff documents (`/admin/files`, `FilesClient.tsx`), g
 | `POST /api/properties` | section `properties` | Create property |
 | `PUT/DELETE /api/properties/[id]` | section `properties` | Update / delete property |
 | `POST /api/telegram-webhook` | `WEBHOOK_SECRET` header | Receives Telegram callbacks: publish/skip article buttons, `/add_keyword` command |
+| `GET /api/google-ads-oci` | Basic Auth (`OCI_FEED_USER`/`OCI_FEED_PASS`) | Offline-conversion feed (gclid, no PII) fetched weekly by the Google Ads scheduled import; same CSV as the CRM "Export Google Ads" button |
 | `POST /api/admin/import` | section `properties` | Upload developer PDF → Gemini field extraction + poppler photo extraction → staged draft |
 | `GET /api/admin/import` | section `properties` | List pending import drafts |
 | `PUT/DELETE /api/admin/import/[draftId]` | section `properties` | Update draft fields / reject draft (+ delete its image folder) |
@@ -485,6 +486,7 @@ See `.env.example`. Key vars:
 - `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications and auto-blog approvals; comma-separated for multiple recipients. The first ID is the admin who can use `/add_keyword`.
 - `WEBHOOK_SECRET` — validates `X-Telegram-Bot-Api-Secret-Token` header on `POST /api/telegram-webhook`
 - `GEMINI_API_KEY` — Gemini 2.0 Flash API key used by `scripts/generate-article.mjs`
+- `OCI_FEED_USER` / `OCI_FEED_PASS` — Basic Auth for the Google Ads offline-conversion feed (`/api/google-ads-oci`); feed answers 401 until both are set
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
 - `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); GA loads only after cookie consent

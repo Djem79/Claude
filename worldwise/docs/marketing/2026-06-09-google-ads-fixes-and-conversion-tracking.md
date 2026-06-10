@@ -63,14 +63,14 @@
 1. Google Ads → Goals → Conversions → **New conversion action** → **Import** → **CRMs, files or other data sources** → **Track conversions from clicks**.
 2. Создай три действия с именами **ровно** как в экспорте (`lib/oci-export.ts` `OCI_ACTIONS`): `CRM Lead` (Count: One, окно 90 дней), `CRM Qualified` (Count: One), `CRM Deal` (Count: One, Value enabled, валюта AED). Для оптимизации ставок опирайся на качественные стадии (Qualified/Deal), а не на сырой лид.
 
-**Загрузка (еженедельно) — автоматизировано (2026-06-10):**
-1. CRM `/admin/leads` → кнопка **Export Google Ads** — скачивает готовый файл
-   `google-ads-oci-<дата>.csv`: все gclid-лиды за 90 дней, строки `CRM Lead` /
-   `CRM Qualified` / `CRM Deal`, время стадий из activityLog (конвертировано в
-   +0400), Value 0 (ценность сделки при желании вписать руками перед загрузкой).
-2. Google Ads → Goals → Conversions → **Uploads** → Upload файл → Preview → Apply.
-   Повторные строки Google сам отбрасывает как дубликаты — выгружать весь файл
-   каждый раз безопасно.
+**Загрузка — ПОЛНОСТЬЮ автоматическая (scheduled import, 2026-06-10):**
+Google Ads сам забирает фид раз в неделю — настроить один раз:
+1. Goals → Conversions → Uploads → **Schedules** → «+» → источник **HTTPS**.
+2. URL: `https://worldwise.pro/api/google-ads-oci` · Username/Password = `OCI_FEED_USER`/`OCI_FEED_PASS` из серверного `.env.local`.
+3. Frequency: **Weekly** (день/время любые). Сохранить → Google покажет тестовый Preview.
+Фид отдаёт те же строки, что и кнопка (все gclid-лиды за 90 дней, `CRM Lead`/`CRM Qualified`/`CRM Deal`, +0400, Value 0, без PII). Дубликаты Google отбрасывает сам; при ошибке загрузки шлёт e-mail владельцу аккаунта. Диагностика — на странице Uploads (поглядывать раз в месяц, событие в календаре стоит).
+
+**Ручной запасной путь:** CRM `/admin/leads` → кнопка **Export Google Ads** → Uploads → Upload файл → Preview → Apply (тот же файл; полезно для разовой догрузки с вписанной ценностью сделки).
 
 **Правила:**
 - Грузить **в пределах окна** (по умолчанию gclid-клик не старше ~90 дней; время конверсии — после клика).
