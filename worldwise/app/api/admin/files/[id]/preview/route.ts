@@ -31,8 +31,15 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     'Content-Length': String(buf.length),
     'Cache-Control': 'private, no-store',
   }
-  // PDFs can embed scripting/auto-navigation; sandbox neutralizes it.
-  if (file.ext.toLowerCase() === 'pdf') headers['Content-Security-Policy'] = 'sandbox'
+  // NOTE: do NOT set `Content-Security-Policy: sandbox` here. WebKit/Safari
+  // refuses to render a PDF inside a sandboxed <iframe> (even with
+  // allow-same-origin allow-scripts) — the lightbox shows blank. Verified
+  // across header variants: only "no sandbox" renders in Safari (Chrome
+  // renders either way). Safety is preserved without it: the route is auth-gated
+  // (requireSection), only whitelisted types are served inline (isPreviewable —
+  // never HTML/SVG), `nosniff` blocks MIME reinterpretation, the global CSP
+  // (default-src 'self', object-src 'none') still applies, and the browser's
+  // own PDF viewer isolates any PDF-embedded scripting.
 
   return new NextResponse(new Uint8Array(buf), { headers })
 }
