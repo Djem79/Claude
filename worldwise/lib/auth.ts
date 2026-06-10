@@ -20,7 +20,16 @@ function originAllowed(): boolean {
   const origin = h.get('origin')
   if (!origin) return true
   try {
-    return new URL(origin).host === h.get('host')
+    const originHost = new URL(origin).host
+    // Behind the nginx proxy the app may see Host: localhost:3000 — accept the
+    // forwarded host and the canonical site host too, or every admin mutation
+    // from the real domain would be rejected.
+    const siteHost = process.env.NEXT_PUBLIC_SITE_URL
+      ? new URL(process.env.NEXT_PUBLIC_SITE_URL).host
+      : null
+    return [h.get('x-forwarded-host'), h.get('host'), siteHost]
+      .filter(Boolean)
+      .includes(originHost)
   } catch {
     return false // malformed or "null" Origin — never grant a session to it
   }
