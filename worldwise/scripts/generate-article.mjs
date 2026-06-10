@@ -102,7 +102,10 @@ function getKeywords() {
 }
 
 function incrementKeywordIndex(currentIndex) {
-  const data = getKeywords()
+  // Read raw and THROW on any read/parse failure — getKeywords()' empty fallback
+  // must never be persisted here, or a transient error permanently wipes the
+  // keyword bank (only repopulated by hand via /add_keyword).
+  const data = JSON.parse(fs.readFileSync(KEYWORDS_PATH, 'utf-8'))
   data.index = currentIndex + 1
   writeFileAtomic(KEYWORDS_PATH, JSON.stringify(data, null, 2))
 }
