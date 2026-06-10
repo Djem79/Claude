@@ -23,13 +23,13 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Lead files are stored in public/ but must not be accessible without auth
+  // Legacy lead-attachment path — DEAD since attachments moved to lead-files/
+  // (outside public/, served only via the section-guarded download API). The
+  // server holds zero files here (verified 2026-06-10), so the path is closed
+  // unconditionally: the old token-only gate let a deactivated user's still-valid
+  // cookie read lead PII for up to 7 days (audit finding).
   if (pathname.startsWith('/files/leads/')) {
-    const token = request.cookies.get(SESSION_COOKIE)?.value
-    const session = token ? await verifySessionToken(token) : null
-    if (!session) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
+    return new NextResponse('Not found', { status: 404 })
   }
 
   const response = NextResponse.next()
