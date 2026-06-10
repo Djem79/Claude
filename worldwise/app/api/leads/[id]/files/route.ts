@@ -35,17 +35,15 @@ function sanitizeName(name: string): string {
     .replace(/-{2,}/g, '-')
     .replace(/\.{2,}/g, '.')
     .replace(/^[.\-_]+|[.\-_]+$/g, '')
-    .slice(0, 100) || 'file'
+    .slice(0, 100) || 'file';
 }
 
 function makeId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await requireSection('leads')
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

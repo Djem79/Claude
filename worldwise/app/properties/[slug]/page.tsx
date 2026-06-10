@@ -30,7 +30,8 @@ export async function generateStaticParams() {
   return getProperties().map(p => ({ slug: p.slug }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const p = getPropertyBySlug(params.slug)
   if (!p) return {}
   const url = `https://worldwise.pro/properties/${p.slug}`
@@ -57,7 +58,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default function PropertyPage({ params }: { params: { slug: string } }) {
+export default async function PropertyPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const property = getPropertyBySlug(params.slug)
   if (!property) notFound()
 
@@ -381,5 +383,5 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
       {/* Desktop persistent CTA (hidden md:flex); coexists with the md:hidden MobileCtaBar above */}
       <FloatingCTA />
     </>
-  )
+  );
 }

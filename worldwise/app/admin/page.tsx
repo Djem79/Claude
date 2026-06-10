@@ -39,6 +39,7 @@ export default async function AdminPage() {
           { label: 'Total Properties', value: properties.length },
           { label: 'Featured', value: properties.filter(p => p.featured).length },
           { label: 'Total Leads', value: leads.length },
+          // eslint-disable-next-line react-hooks/purity -- server component, force-dynamic: per-request "now" is intended
           { label: 'New Leads (7 days)', value: leads.filter(l => Date.now() - new Date(l.createdAt).getTime() < 7 * 86400_000).length },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-sm p-5 shadow-sm border border-gray-100">

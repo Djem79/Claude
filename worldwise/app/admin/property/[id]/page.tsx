@@ -6,7 +6,8 @@ import PropertyForm from '../PropertyForm'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EditPropertyPage({ params }: { params: { id: string } }) {
+export default async function EditPropertyPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getSession()
   if (!session) redirect('/admin/login')
   if (!canAccess(session, 'properties')) redirect(landingPath(session) ?? '/admin')

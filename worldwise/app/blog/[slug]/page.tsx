@@ -11,14 +11,15 @@ import type { Metadata } from 'next'
 export const revalidate = 60
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export function generateStaticParams() {
   return getAllArticles().map(a => ({ slug: a.slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const article = getArticleBySlug(params.slug)
   if (!article) return {}
   const ogImage = 'image' in article && article.image
@@ -52,7 +53,8 @@ const TAG_COLORS: Record<string, string> = {
   'Area Spotlight': 'bg-rose-50 text-rose-700',
 }
 
-export default function ArticlePage({ params }: Props) {
+export default async function ArticlePage(props: Props) {
+  const params = await props.params;
   const article = getArticleBySlug(params.slug)
   if (!article) notFound()
 
@@ -108,11 +110,11 @@ export default function ArticlePage({ params }: Props) {
             </p>
             {'image' in article && article.image && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
+              (<img
                 src={article.image}
                 alt={article.title}
                 className="w-full rounded-sm mt-8 aspect-[1200/630] object-cover"
-              />
+              />)
             )}
           </div>
         </section>
@@ -145,7 +147,7 @@ export default function ArticlePage({ params }: Props) {
       <Footer />
       <FloatingCTA />
     </>
-  )
+  );
 }
 
 function escapeHtml(text: string): string {
@@ -154,7 +156,7 @@ function escapeHtml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+    .replace(/'/g, '&#39;');
 }
 
 // Escape HTML first (article content — including AI-generated — is untrusted),
@@ -162,7 +164,7 @@ function escapeHtml(text: string): string {
 function formatInline(text: string): string {
   return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
 
 function ArticleContent({ content }: { content: string }) {

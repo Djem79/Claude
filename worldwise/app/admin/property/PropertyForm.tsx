@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 import { DUBAI_AREAS } from '@/lib/dubai-areas'
 import { useRouter } from 'next/navigation'
 import { Property } from '@/types'
@@ -567,9 +568,9 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         <button type="submit" disabled={loading} className="btn-primary disabled:opacity-60">
           {loading ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Property'}
         </button>
-        <a href="/admin" className="btn-outline-gold-light">
+        <Link href="/admin" className="btn-outline-gold-light">
           Cancel
-        </a>
+        </Link>
       </div>
     </form>
   )

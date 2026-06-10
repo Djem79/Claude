@@ -15,7 +15,11 @@ const TYPES: Record<string, string> = {
   '.webp': 'image/webp', '.gif': 'image/gif',
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string; file: string } }) {
+export async function GET(
+  _req: NextRequest,
+  props: { params: Promise<{ id: string; file: string }> }
+) {
+  const params = await props.params;
   const { id, file } = params
   // Strict whitelist — id and file are path segments; reject anything that could
   // traverse out of the property image folder.

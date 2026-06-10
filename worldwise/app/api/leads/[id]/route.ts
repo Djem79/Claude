@@ -7,7 +7,8 @@ import { LEAD_FILES_BASE } from '@/lib/lead-files'
 import fs from 'fs'
 import path from 'path'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await requireSection('leads')
   if (!session) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -45,7 +46,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await requireSection('leads')
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   if (session.role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -57,7 +59,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ success: ok })
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!(await requireSection('leads'))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }

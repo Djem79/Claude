@@ -15,8 +15,8 @@ export type Session = SessionPayload & { sections: AdminSection[] }
  * match the request host. Cross-site requests that somehow carry the cookie are
  * rejected before any session is granted. Same-origin admin fetches always match.
  */
-function originAllowed(): boolean {
-  const h = headers()
+async function originAllowed(): Promise<boolean> {
+  const h = await headers()
   const origin = h.get('origin')
   if (!origin) return true
   try {
@@ -36,8 +36,8 @@ function originAllowed(): boolean {
 }
 
 export async function getSession(): Promise<Session | null> {
-  if (!originAllowed()) return null
-  const cookieStore = cookies()
+  if (!(await originAllowed())) return null
+  const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
   const payload = await verifySessionToken(token)

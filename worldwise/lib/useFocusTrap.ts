@@ -7,7 +7,8 @@ import { useEffect, RefObject } from 'react'
  * Shared by LeadModal and QualifyingModal so the a11y behavior can't drift.
  */
 export function useFocusTrap(
-  panelRef: RefObject<HTMLElement>,
+  // React 19: useRef<T>(null) yields RefObject<T | null> — accept the nullable form.
+  panelRef: RefObject<HTMLElement | null>,
   active: boolean,
   onClose: () => void,
   extraDeps: unknown[] = []

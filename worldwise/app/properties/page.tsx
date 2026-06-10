@@ -25,11 +25,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PropertiesPage({
-  searchParams,
-}: {
-  searchParams: { area?: string; type?: string; status?: string }
-}) {
+export default async function PropertiesPage(
+  props: {
+    searchParams: Promise<{ area?: string; type?: string; status?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const properties = getProperties()
   return (
     <>

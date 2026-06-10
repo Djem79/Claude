@@ -8,8 +8,9 @@ import path from 'path'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string; fileId: string } }
+  props: { params: Promise<{ id: string; fileId: string }> }
 ) {
+  const params = await props.params;
   const session = await requireSection('leads')
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

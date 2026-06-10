@@ -4,7 +4,8 @@ import { coercePropertyInput } from '@/lib/properties'
 import { publishDraft } from '@/lib/property-drafts'
 import { Property } from '@/types'
 
-export async function POST(req: NextRequest, { params }: { params: { draftId: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ draftId: string }> }) {
+  const params = await props.params;
   if (!(await requireSection('properties'))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
