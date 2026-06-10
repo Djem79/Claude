@@ -68,7 +68,7 @@ function isCtaRateLimited(chatId: number | string): boolean {
   return false
 }
 
-async function handleCtaKeyword(chatId: number | string, keyword: string, from: Record<string, unknown>) {
+async function handleCtaKeyword(chatId: number | string, keyword: string, from: TgUser) {
   if (isCtaRateLimited(chatId)) {
     console.warn(`[telegram-webhook] CTA rate-limit hit for chat ${chatId} (keyword "${keyword}")`)
     return
@@ -256,6 +256,59 @@ async function postPlanToChannel(post: Record<string, unknown>) {
   }
 }
 
+// Minimal shapes of the Telegram update payloads we actually read — keeps the
+// handlers typed without pulling in a bot SDK.
+interface TgUser {
+  first_name?: string
+  last_name?: string
+  username?: string
+}
+interface TgMessage {
+  text?: string
+  chat?: { id: number | string }
+  from?: TgUser
+}
+interface TgCallback {
+  id: string
+  data?: string
+  message?: { chat: { id: number | string }; message_id: number }
+}
+
+/**
+ * Acknowledge a callback button and strip/replace the message's keyboard —
+ * the answer/edit pair every callback branch needs (was copy-pasted 3x).
+ * With `newText` the message text is replaced; without it only the keyboard
+ * is removed.
+ */
+async function answerAndEdit(
+  callbackId: string,
+  chatId: number | string,
+  messageId: number,
+  answerText: string,
+  newText?: string
+) {
+  const token = process.env.TELEGRAM_BOT_TOKEN!
+  const editMethod = newText !== undefined ? 'editMessageText' : 'editMessageReplyMarkup'
+  const editBody: Record<string, unknown> = {
+    chat_id: chatId,
+    message_id: messageId,
+    reply_markup: { inline_keyboard: [] },
+  }
+  if (newText !== undefined) editBody.text = newText
+  await Promise.all([
+    fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
+      signal: AbortSignal.timeout(8000),
+    }),
+    fetch(`https://api.telegram.org/bot${token}/${editMethod}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editBody),
+      signal: AbortSignal.timeout(8000),
+    }),
+  ])
+}
+
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-telegram-bot-api-secret-token')
   if (!safeEqual(secret, process.env.WEBHOOK_SECRET)) {
@@ -269,137 +322,119 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  const message = body.message as any
-  if (message?.text) {
-    const chatId = String(message.chat?.id ?? '')
-    const allowed = allowedChatIds()
-    const text: string = message.text
+  const message = body.message as TgMessage | undefined
+  if (message?.text && message.chat) {
+    await handleTextMessage(message as TgMessage & { text: string; chat: { id: number | string } })
+    return NextResponse.json({ ok: true })
+  }
 
-    // CTA keyword handler — open to any subscriber, not just admin
-    const keyword = text.trim().toUpperCase()
-    if (Object.prototype.hasOwnProperty.call(CTA_REPLIES, keyword)) {
-      try {
-        await handleCtaKeyword(message.chat.id, keyword, message.from ?? {})
-      } catch (e) {
-        console.error('[telegram-webhook] handleCtaKeyword error', e)
-      }
-      return NextResponse.json({ ok: true })
-    }
+  const callback = body.callback_query as TgCallback | undefined
+  if (callback) {
+    await handleCallback(callback)
+  }
+  return NextResponse.json({ ok: true })
+}
 
-    // Everything below is admin-only
-    if (!allowed.includes(chatId)) return NextResponse.json({ ok: true })
+// Text messages: public CTA keywords, then admin-only commands and lead pastes.
+async function handleTextMessage(message: TgMessage & { text: string; chat: { id: number | string } }) {
+  const chatId = String(message.chat.id)
+  const allowed = allowedChatIds()
+  const text = message.text
 
-    // /add_keyword — first chat id only (unchanged)
-    if (text.toLowerCase().startsWith('/add_keyword')) {
-      if (chatId !== allowed[0]) return NextResponse.json({ ok: true })
-      const query = text.replace(/^\/add_keyword\s*/i, '').trim()
-      if (!query) {
-        await sendMessage(message.chat.id, '❌ Usage: /add_keyword <search query>')
-        return NextResponse.json({ ok: true })
-      }
-      const keywordsPath = path.join(process.cwd(), 'data', 'article-keywords.json')
-      let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
-      try {
-        data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
-      } catch (e) {
-        console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
-      }
-      data.keywords.push(query)
-      writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
-      await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
-      return NextResponse.json({ ok: true })
-    }
-
-    // /lead command — works in group chats even with bot privacy mode ON
-    // (commands reach the bot; plain text doesn't). Also valid in DMs.
-    const leadCommand = parseLeadCommand(text)
-    if (leadCommand !== null) {
-      if (!leadCommand) {
-        await sendMessage(message.chat.id, 'Использование: /lead <имя, телефон, email> (можно с новой строки)')
-        return NextResponse.json({ ok: true })
-      }
-      try {
-        await handleLeadIntake(message.chat.id, leadCommand)
-      } catch (e) {
-        console.error('[telegram-webhook] handleLeadIntake error', e)
-        await sendMessage(message.chat.id, '⚠️ Ошибка при сохранении лида, попробуйте позже.')
-      }
-      return NextResponse.json({ ok: true })
-    }
-
-    // Ignore other slash commands; in a DM, plain text is treated as a lead paste
-    if (text.startsWith('/')) return NextResponse.json({ ok: true })
+  // CTA keyword handler — open to any subscriber, not just admin
+  const keyword = text.trim().toUpperCase()
+  if (Object.prototype.hasOwnProperty.call(CTA_REPLIES, keyword)) {
     try {
-      await handleLeadIntake(message.chat.id, text)
+      await handleCtaKeyword(message.chat.id, keyword, message.from ?? {})
+    } catch (e) {
+      console.error('[telegram-webhook] handleCtaKeyword error', e)
+    }
+    return
+  }
+
+  // Everything below is admin-only
+  if (!allowed.includes(chatId)) return
+
+  // /add_keyword — first chat id only (unchanged)
+  if (text.toLowerCase().startsWith('/add_keyword')) {
+    if (chatId !== allowed[0]) return
+    const query = text.replace(/^\/add_keyword\s*/i, '').trim()
+    if (!query) {
+      await sendMessage(message.chat.id, '❌ Usage: /add_keyword <search query>')
+      return
+    }
+    const keywordsPath = path.join(process.cwd(), 'data', 'article-keywords.json')
+    let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
+    try {
+      data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+    } catch (e) {
+      console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
+    }
+    data.keywords.push(query)
+    writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
+    await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
+    return
+  }
+
+  // /lead command — works in group chats even with bot privacy mode ON
+  // (commands reach the bot; plain text doesn't). Also valid in DMs.
+  const leadCommand = parseLeadCommand(text)
+  if (leadCommand !== null) {
+    if (!leadCommand) {
+      await sendMessage(message.chat.id, 'Использование: /lead <имя, телефон, email> (можно с новой строки)')
+      return
+    }
+    try {
+      await handleLeadIntake(message.chat.id, leadCommand)
     } catch (e) {
       console.error('[telegram-webhook] handleLeadIntake error', e)
       await sendMessage(message.chat.id, '⚠️ Ошибка при сохранении лида, попробуйте позже.')
     }
-    return NextResponse.json({ ok: true })
+    return
   }
 
-  // publish / skip callback buttons
-  const callback = body.callback_query as any
-  if (!callback) return NextResponse.json({ ok: true })
+  // Ignore other slash commands; in a DM, plain text is treated as a lead paste
+  if (text.startsWith('/')) return
+  try {
+    await handleLeadIntake(message.chat.id, text)
+  } catch (e) {
+    console.error('[telegram-webhook] handleLeadIntake error', e)
+    await sendMessage(message.chat.id, '⚠️ Ошибка при сохранении лида, попробуйте позже.')
+  }
+}
 
+// Callback buttons: lead source/delete, publish/skip article and plan posts.
+async function handleCallback(callback: TgCallback) {
   const { id: callbackId, data, message: cbMessage } = callback
-  if (!cbMessage) return NextResponse.json({ ok: true })
+  if (!cbMessage) return
   const chatId = cbMessage.chat.id
   const messageId = cbMessage.message_id
-  const token = process.env.TELEGRAM_BOT_TOKEN!
 
   // Defence-in-depth: callback buttons (delete lead, publish article/plan) are
   // admin-only. The WEBHOOK_SECRET header alone is not enough — require the chat
-  // to be in the allowlist, mirroring the text-command branch above. Without this,
+  // to be in the allowlist, mirroring the text-command branch. Without this,
   // anyone who can press an inline button in a non-admin chat (or anyone who learns
   // the secret) could delete leads or publish drafts.
-  if (!allowedChatIds().includes(String(chatId))) {
-    return NextResponse.json({ ok: true })
-  }
-
-  let answerText: string
+  if (!allowedChatIds().includes(String(chatId))) return
 
   if (typeof data === 'string' && data.startsWith('leadsrc:')) {
     const [, id, src] = data.split(':')
     const updated = updateLead(id, { source: src }, { uid: 'telegram', username: 'telegram-bot', name: 'Telegram' })
-    answerText = updated ? `✅ ${LEAD_SOURCE_LABEL[src] ?? src}` : '⚠️ Лид не найден'
     const newText = updated
       ? `✅ Добавлено в CRM — источник: ${LEAD_SOURCE_LABEL[src] ?? src}\n👤 ${updated.name} · 📞 ${updated.phone}`
       : '⚠️ Лид не найден'
-    await Promise.all([
-      fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
-        signal: AbortSignal.timeout(8000),
-      }),
-      fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: newText, reply_markup: { inline_keyboard: [] } }),
-        signal: AbortSignal.timeout(8000),
-      }),
-    ])
-    return NextResponse.json({ ok: true })
+    await answerAndEdit(callbackId, chatId, messageId, updated ? `✅ ${LEAD_SOURCE_LABEL[src] ?? src}` : '⚠️ Лид не найден', newText)
+    return
   }
 
   if (typeof data === 'string' && data.startsWith('leaddel:')) {
     const [, id] = data.split(':')
     const removed = deleteLead(id)
-    answerText = removed ? '🗑 Удалён' : '⚠️ Не найден'
-    await Promise.all([
-      fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
-        signal: AbortSignal.timeout(8000),
-      }),
-      fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, message_id: messageId, text: removed ? '🗑 Лид удалён' : '⚠️ Лид не найден', reply_markup: { inline_keyboard: [] } }),
-        signal: AbortSignal.timeout(8000),
-      }),
-    ])
-    return NextResponse.json({ ok: true })
+    await answerAndEdit(callbackId, chatId, messageId, removed ? '🗑 Удалён' : '⚠️ Не найден', removed ? '🗑 Лид удалён' : '⚠️ Лид не найден')
+    return
   }
 
+  let answerText: string
   if (data === 'publish_article') {
     const published = publishDraft()
     answerText = published ? '✅ Опубликовано' : '⚠️ Черновик не найден'
@@ -426,25 +461,9 @@ export async function POST(req: NextRequest) {
     try { fs.unlinkSync(path.join(process.cwd(), 'data', 'plan-draft.json')) } catch { /* already gone */ }
     answerText = '❌ Пропущено'
   } else {
-    return NextResponse.json({ ok: true })
+    return
   }
 
-  await Promise.all([
-    fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ callback_query_id: callbackId, text: answerText }),
-    }),
-    fetch(`https://api.telegram.org/bot${token}/editMessageReplyMarkup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        message_id: messageId,
-        reply_markup: { inline_keyboard: [] },
-      }),
-    }),
-  ])
-
-  return NextResponse.json({ ok: true })
+  // Keyboard-only edit: the approval message text stays, buttons disappear.
+  await answerAndEdit(callbackId, chatId, messageId, answerText)
 }
