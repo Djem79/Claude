@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { track } from '@/lib/analytics'
-import { getStoredAttribution } from '@/lib/utm'
+import { useState } from 'react'
 import { waNumber, PHONE_TEL } from '@/lib/whatsapp'
 import { BUDGET_BRACKETS } from '@/lib/lead-constants'
+import { useLeadSubmit } from '@/lib/useLeadSubmit'
+import Honeypot from '@/components/Honeypot'
 import SocialProofStrip from './SocialProofStrip'
 
 interface LeadCaptureSectionProps {
@@ -15,33 +15,15 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [budget, setBudget] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-  const hpRef = useRef<HTMLInputElement>(null)
+  const { hpRef, loading, success, error, submit } = useLeadSubmit({
+    source,
+    emptyError: 'Please enter your name and phone number.',
+    failError: 'Something went wrong. Please contact us via WhatsApp.',
+  })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Please enter your name and phone number.')
-      return
-    }
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, budget, source, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
-      })
-      if (!res.ok) throw new Error()
-      setSuccess(true)
-      track('lead_form_submit', { source })
-    } catch {
-      setError('Something went wrong. Please contact us via WhatsApp.')
-    } finally {
-      setLoading(false)
-    }
+    await submit({ name, phone, budget })
   }
 
   return (
@@ -80,7 +62,7 @@ export default function LeadCaptureSection({ source = 'lead_capture_section' }: 
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-sm p-8 space-y-4 text-left">
             {/* Honeypot — hidden from users, visible to bots */}
-            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
+            <Honeypot hpRef={hpRef} />
             <div className="grid md:grid-cols-2 gap-4">
               <input
                 className="input-field"

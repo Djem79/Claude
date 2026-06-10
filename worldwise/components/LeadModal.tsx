@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
-import { getStoredAttribution } from '@/lib/utm'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 import { useFocusTrap } from '@/lib/useFocusTrap'
+import { useLeadSubmit } from '@/lib/useLeadSubmit'
+import Honeypot from '@/components/Honeypot'
 
 interface Props {
   isOpen: boolean
@@ -32,10 +33,10 @@ export default function LeadModal({
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [budget, setBudget] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-  const hpRef = useRef<HTMLInputElement>(null)
+  const { hpRef, loading, success, error, submit, resetStatus } = useLeadSubmit({
+    source,
+    trackParams: propertyTitle ? { property: propertyTitle } : undefined,
+  })
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -43,12 +44,12 @@ export default function LeadModal({
       document.body.style.overflow = 'hidden'
       // Reset transient state on reopen so a previous success/error screen doesn't
       // persist and block a second submission from the same long-lived instance.
-      setSuccess(false)
-      setError('')
+      resetStatus()
     } else {
       document.body.style.overflow = ''
     }
     return () => { document.body.style.overflow = '' }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   // Accessibility: trap focus, Escape-to-close, focus first field (audit Low — modal a11y).
@@ -58,28 +59,10 @@ export default function LeadModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Please fill in your name and phone number.')
-      return
-    }
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, source, propertySlug, propertyTitle, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
-      })
-      if (!res.ok) throw new Error('Failed')
-      setSuccess(true)
+    if (await submit({ name, phone, email, budget, propertySlug, propertyTitle })) {
       // Clear the captured fields so a reopen of this long-lived instance can't
       // re-submit the previous lead's PII (fields only clear after a successful send).
       setName(''); setPhone(''); setEmail(''); setBudget('')
-      track('lead_form_submit', { source, ...(propertyTitle ? { property: propertyTitle } : {}) })
-    } catch {
-      setError('Something went wrong. Please try WhatsApp instead.')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -136,7 +119,7 @@ export default function LeadModal({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
+              <Honeypot hpRef={hpRef} />
               <input
                 className="input-field"
                 placeholder="Full Name *"
