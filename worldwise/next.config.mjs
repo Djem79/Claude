@@ -22,11 +22,15 @@ const nextConfig = {
               "img-src 'self' data: blob: https://images.unsplash.com https://*.tildacdn.com https://*.tildacdn.pro",
               // CF Insights beacon POSTs RUM data to cloudflareinsights.com/cdn-cgi/rum
               "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://cloudflareinsights.com",
-              // Lazy click-to-load Google Maps embed on /properties/[slug] (PropertyLocation).
-              // Without frame-src the iframe falls back to default-src 'self' and the browser
-              // blocks the cross-origin Google frame (the map renders blank).
-              "frame-src https://www.google.com https://maps.google.com",
-              "frame-ancestors 'none'",
+              // 'self' lets the admin file-manager preview PDFs in a same-origin <iframe>
+              // (app/admin/files lightbox). The Google domains are the lazy click-to-load
+              // Google Maps embed on /properties/[slug] (PropertyLocation) — without them the
+              // cross-origin map frame renders blank.
+              "frame-src 'self' https://www.google.com https://maps.google.com",
+              // 'self' (not 'none') so same-origin pages may frame our routes — required by the
+              // PDF preview iframe above, and consistent with X-Frame-Options: SAMEORIGIN.
+              // External origins still cannot frame us (clickjacking protection preserved).
+              "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
               // Hardening: block legacy plugin/embed vectors explicitly (no <object>/<embed> used)
