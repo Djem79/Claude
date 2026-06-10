@@ -92,7 +92,7 @@ These constraints are non-negotiable — violating them causes data loss or secu
 - **Never change the session token payload structure** (`SessionPayload` in `lib/session.ts`) without invalidating all existing sessions first — the HMAC signs the exact payload shape.
 - **Never install npm packages with native bindings** (C++ addons) without checking `proxy.ts` first. Since Next 16 the request guard (`proxy.ts`, ex-`middleware.ts`) runs on the Node runtime, so the old hard Edge constraint is gone — but keep the data layer dependency-free regardless.
 - **Never use external image URLs** for property photos or area images. All images must be in `public/images/`. Unsplash URLs in Hero.tsx are an accepted legacy exception.
-- **Never add a lead capture form without the honeypot field.** Every form must include a hidden `<input ref={hpRef} />` and send `_hp` in the POST body. See existing components for the pattern.
+- **Never build a lead form by hand — use `useLeadSubmit` (`lib/useLeadSubmit.ts`) + `<Honeypot hpRef={hpRef} />` (`components/Honeypot.tsx`).** The hook owns both load-bearing invariants (honeypot `_hp` + `getStoredAttribution()` spread + the `lead_form_submit` GA4 event); the component owns the clip-hidden style. All 7 existing forms use them.
 - **Never `git add -A` or `git add .`** — stage files by name to avoid accidentally committing `.env.local` or leftover data files.
 
 ## Production deployment
@@ -322,9 +322,9 @@ A shared file manager for staff documents (`/admin/files`, `FilesClient.tsx`), g
 
 `POST /api/leads` enforces: honeypot field (`_hp`) check → phone digit validation (7–15 digits) → in-memory rate limit (10 submissions/IP/hour). Rate limit is counted after validation so typos don't consume quota. The `rateMap` resets per 1-hour window and lives in module state (single PM2 instance).
 
-All lead capture components (`LeadModal`, `LeadCaptureSection`, `PropertyEnquiryForm`, `QualifyingModal`, `GuideClient`; `FloatingCTA` opens `LeadModal`) include a hidden honeypot `<input name="website">` and send `_hp` in the POST body. Keep `source` strings consistent across components for analytics.
+All lead capture components (`LeadModal`, `LeadCaptureSection`, `PropertyEnquiryForm`, `QualifyingModal`, `BrochureGate`, `FloorPlanGate`, `GuideClient`; `FloatingCTA` opens `LeadModal`) submit through the shared `useLeadSubmit` hook and render `<Honeypot hpRef={hpRef} />` — the hook sends `_hp` automatically. Keep `source` strings consistent across components for analytics.
 
-**Honeypot must be clip-hidden, not off-screen-left.** Use `style={{ position:'absolute', width:'1px', height:'1px', margin:'-1px', padding:0, overflow:'hidden', clip:'rect(0,0,0,0)', border:0 }}`. The old `left:-9999px` pattern makes the page horizontally scrollable into a huge empty band on **iOS Safari** (Chrome clamps it, so it won't reproduce in headless testing) — that was a real shipped bug. Any new honeypot must use the clip pattern.
+**Honeypot must be clip-hidden, not off-screen-left** — the canonical markup lives ONLY in `components/Honeypot.tsx` (the old `left:-9999px` pattern made pages horizontally scrollable on **iOS Safari** — a real shipped bug that Chrome clamps, so headless tests won't catch it). Never inline a honeypot input again; render the component.
 
 ### Conversion & investor UI (Tier 1–3, added 2026-05)
 
@@ -410,7 +410,7 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log
 
 First-touch attribution feeds paid-ad ROI (Google Search is live). `lib/utm.ts`: pure `parseUtmParams()` (node:test'd) + `captureUtmOnFirstTouch()` / `getStoredAttribution()` store `utm_source/medium/campaign/term/content` + `gclid`/`fbclid` in `localStorage` key `ww_attribution` — **first touch wins** (a later organic visit never overwrites). `components/UtmCapture.tsx` (mounted in `app/layout.tsx`) captures on mount and is **deliberately NOT gated on cookie consent** — gclid lands even when GA4 is blocked, which is what makes consent-independent **Offline Conversion Import (gclid)** possible (see `docs/marketing/2026-06-09-google-ads-fixes-and-conversion-tracking.md`).
 
-**Invariant:** every lead form spreads `...getStoredAttribution()` into its `/api/leads` POST body (LeadModal, LeadCaptureSection, PropertyEnquiryForm, QualifyingModal, BrochureGate, FloorPlanGate, GuideClient). `POST /api/leads` whitelists + length-caps the fields (never spread the raw body); `Lead` carries them; the CRM expanded view shows an "Attribution" line and CSV export includes the columns. A new lead form MUST attach `getStoredAttribution()`, or its paid clicks are untracked. The Telegram new-lead notification (`lib/notify.ts`) flags paid leads (utm_source/gclid present) and offers a one-tap "Reply on WhatsApp" button (speed-to-lead).
+**Invariant:** every lead form submits via `useLeadSubmit`, which spreads `...getStoredAttribution()` into the `/api/leads` POST body automatically (all 7 forms migrated 2026-06-10). `POST /api/leads` whitelists + length-caps the fields (never spread the raw body); `Lead` carries them; the CRM expanded view shows an "Attribution" line and CSV export includes the columns. A new lead form MUST use the hook — hand-rolled fetches lose paid-click tracking. The Telegram new-lead notification (`lib/notify.ts`) flags paid leads (utm_source/gclid present) and offers a one-tap "Reply on WhatsApp" button (speed-to-lead).
 
 ### GSC CLI (local diagnostics)
 
