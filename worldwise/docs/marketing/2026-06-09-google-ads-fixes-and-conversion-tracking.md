@@ -1,5 +1,7 @@
 # Google Ads — фиксы запуска + отслеживание конверсий
 
+**Статус (2026-06-10): §A ВЫПОЛНЕН** (браузерный Claude): GA4-импорт `lead_form_submit` = Primary/Recording (старая цель → Secondary, не удалена); Enhanced conversions for leads включены; три OCI-действия `CRM Lead`/`CRM Qualified`/`CRM Deal` созданы (Secondary, 90 дней, Deal с Value AED); минус-слова добавлены (81→94, campaign-level); Search Partners отклонён, Networks = Search only. **Расхождение с брифом: стратегия ставок в кампании = Maximize Clicks, НЕ Manual CPC** — осознанно оставлена до накопления 15–30 Qualified-конверсий, затем переход на Target CPA (вместе с переключением CRM Qualified в Primary). Осталось: владелец настраивает scheduled import (§C) — первая загрузка активирует OCI-действия.
+
 **Дата:** 2026-06-09 · **Контекст:** Search-кампания запущена (первые часы: 18 показов, 1 клик). Анализ живой страницы (claude.ai-chrome) выявил: (1) **критично** — конверсия «Отправка формы…» = «Неверная конфигурация»; (2) мусорный трафик (нужны минус-слова); (3) весь трафик в группу A; (4) Google навязывает Display/Search Partners.
 
 **Ключевой технический факт (из кода сайта):** GA4 грузится только **после согласия на cookies** (`Analytics.tsx` ждёт `ww_consent_accepted`) → событие `lead_form_submit` срабатывает не у всех → **GA4-конверсии недосчитывают**. НО захват `gclid`/`utm_*` (`components/UtmCapture.tsx`) **не привязан к согласию** — он пишется в каждый лид и в CSV всегда. Поэтому надёжный учёт = **Offline Conversion Import по gclid** (раздел C).
