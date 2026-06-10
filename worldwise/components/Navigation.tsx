@@ -9,6 +9,7 @@ export default function Navigation({ transparent = false }: { transparent?: bool
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
+    onScroll() // pages can load pre-scrolled (anchor URLs) — sync initial state
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])

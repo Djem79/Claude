@@ -7,12 +7,9 @@ import { canAccess, landingPath } from '@/lib/permissions'
 import AdminPropertyActions from './AdminPropertyActions'
 import ImportPanel from './ImportPanel'
 import { listDrafts } from '@/lib/property-drafts'
+import { formatAedCompact } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
-
-function formatPrice(aed: number) {
-  return aed >= 1_000_000 ? `AED ${(aed / 1_000_000).toFixed(2)}M` : `AED ${(aed / 1000).toFixed(0)}K`
-}
 
 export default async function AdminPage() {
   const session = await getSession()
@@ -81,7 +78,7 @@ export default async function AdminPage() {
                     <td className="px-4 py-3 font-medium text-navy">{p.title}</td>
                     <td className="px-4 py-3 text-gray-500">{p.developer}</td>
                     <td className="px-4 py-3 text-gray-500">{p.area}</td>
-                    <td className="px-4 py-3 font-medium text-navy">{formatPrice(p.priceAed)}</td>
+                    <td className="px-4 py-3 font-medium text-navy">{formatAedCompact(p.priceAed)}</td>
                     <td className="px-4 py-3">
                       <span className={`badge text-xs ${p.status === 'off-plan' ? 'bg-blue-50 text-blue-700' : p.status === 'rent' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'}`}>
                         {p.status}

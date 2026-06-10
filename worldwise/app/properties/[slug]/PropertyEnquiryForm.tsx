@@ -3,8 +3,8 @@
 import { useState, useRef } from 'react'
 import { track } from '@/lib/analytics'
 import { getStoredAttribution } from '@/lib/utm'
-
-const BUDGETS = ['Under AED 1M', 'AED 1M – 3M', 'AED 3M – 7M', 'AED 7M – 15M', 'Above AED 15M']
+import { waLink, PHONE_TEL } from '@/lib/whatsapp'
+import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 
 export default function PropertyEnquiryForm({
   propertySlug,
@@ -76,7 +76,7 @@ export default function PropertyEnquiryForm({
             <input className="input-field" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
             <select className="input-field" value={budget} onChange={e => setBudget(e.target.value)}>
               <option value="">Budget</option>
-              {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+              {BUDGET_BRACKETS.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
             <textarea
               className="input-field resize-none"
@@ -93,7 +93,7 @@ export default function PropertyEnquiryForm({
 
           <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
             <a
-              href={`https://wa.me/971506960435?text=Hi%2C%20I%27m%20interested%20in%20${encodeURIComponent(propertyTitle)}`}
+              href={waLink(`Hi, I'm interested in ${propertyTitle}`)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 bg-[#25D366] text-white text-sm font-medium py-2.5 rounded-sm text-center hover:opacity-90 transition-opacity"
@@ -102,7 +102,7 @@ export default function PropertyEnquiryForm({
               WhatsApp
             </a>
             <a
-              href="tel:+971506960435"
+              href={PHONE_TEL}
               className="flex-1 border border-gray-200 text-navy text-sm font-medium py-2.5 rounded-sm text-center hover:border-gold transition-colors"
             >
               Call

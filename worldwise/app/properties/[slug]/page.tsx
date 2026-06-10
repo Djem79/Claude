@@ -13,7 +13,8 @@ import FloatingCTA from '@/components/FloatingCTA'
 import MortgageAnchorBar from '@/components/MortgageAnchorBar'
 import BrochureGate from '@/components/BrochureGate'
 import FloorPlanGate from '@/components/FloorPlanGate'
-import { waPropertyMessage } from '@/lib/whatsapp'
+import { waPropertyMessage, PHONE_TEL } from '@/lib/whatsapp'
+import WhatsAppCta from './WhatsAppCta'
 import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
 import { estimateMonthly } from '@/lib/mortgage'
@@ -21,6 +22,7 @@ import JsonLd from '@/components/JsonLd'
 import PropertyLocation from '@/components/PropertyLocation'
 import { areas, propertyMatchesArea } from '@/lib/areas'
 import { resolvePropertyCoords } from '@/lib/property-coords'
+import { formatAedCompact } from '@/lib/format'
 
 export const revalidate = 60
 
@@ -28,17 +30,12 @@ export async function generateStaticParams() {
   return getProperties().map(p => ({ slug: p.slug }))
 }
 
-function formatPrice(aed: number) {
-  if (aed >= 1_000_000) return `AED ${(aed / 1_000_000).toFixed(2)}M`
-  return `AED ${(aed / 1000).toFixed(0)}K`
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = getPropertyBySlug(params.slug)
   if (!p) return {}
   const url = `https://worldwise.pro/properties/${p.slug}`
   const img = p.images[0] ?? '/images/areas/dubai-marina.jpg'
-  const title = `${p.title} by ${p.developer} — ${formatPrice(p.priceAed)}`
+  const title = `${p.title} by ${p.developer} — ${formatAedCompact(p.priceAed)}`
   const description = `${p.shortDescription} Located in ${p.area}, Dubai.${p.roi ? ` Est. ROI ${p.roi}%.` : ''}${p.completionDate ? ` Handover ${p.completionDate}.` : ''} RERA-certified listing.`
   return {
     title,
@@ -333,7 +330,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
                   <Link key={p.id} href={`/properties/${p.slug}`} className="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
-                        src={p.images[0]}
+                        src={p.images[0] ?? '/images/areas/dubai-marina.jpg'}
                         alt={p.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -358,15 +355,8 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
           </p>
           <p className="text-white/60 mb-8">Contact us and we&apos;ll send you a full investment breakdown.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href={`https://wa.me/971506960435?text=Hi%2C%20I%27m%20interested%20in%20${encodeURIComponent(property.title)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
-              WhatsApp Now
-            </a>
-            <a href="tel:+971506960435" className="btn-outline">
+            <WhatsAppCta title={property.title} />
+            <a href={PHONE_TEL} className="btn-outline">
               Call Us
             </a>
           </div>

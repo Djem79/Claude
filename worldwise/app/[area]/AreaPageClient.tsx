@@ -28,7 +28,7 @@ export default function AreaPageClient({ area, listingCount, children }: Props) 
         subtitle="Tell us what you're looking for — we'll send curated options within 24 hours."
       />
       <MobileCtaBar
-        enquireSource={`area_${area.slug.replace(/-/g, '_')}`}
+        enquireSource={leadSource}
         enquireLabel={`Invest in ${area.name}`}
         waMessage={`Hi Worldwise, I'm interested in investing in ${area.name}, Dubai.`}
       />
