@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { track } from '@/lib/analytics'
-import { getStoredAttribution } from '@/lib/utm'
 import { waLink, PHONE_TEL } from '@/lib/whatsapp'
 import { BUDGET_BRACKETS } from '@/lib/lead-constants'
+import { useLeadSubmit } from '@/lib/useLeadSubmit'
+import Honeypot from '@/components/Honeypot'
 
 export default function PropertyEnquiryForm({
   propertySlug,
@@ -18,33 +19,16 @@ export default function PropertyEnquiryForm({
   const [email, setEmail] = useState('')
   const [budget, setBudget] = useState('')
   const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-  const hpRef = useRef<HTMLInputElement>(null)
+  const { hpRef, loading, success, error, submit } = useLeadSubmit({
+    source: 'property_enquiry',
+    trackParams: { property: propertyTitle },
+    emptyError: 'Name and phone are required.',
+    failError: 'Something went wrong. Try WhatsApp.',
+  })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Name and phone are required.')
-      return
-    }
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, budget, message, source: 'property_enquiry', propertySlug, propertyTitle, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
-      })
-      if (!res.ok) throw new Error()
-      setSuccess(true)
-      track('lead_form_submit', { source: 'property_enquiry', property: propertyTitle })
-    } catch {
-      setError('Something went wrong. Try WhatsApp.')
-    } finally {
-      setLoading(false)
-    }
+    await submit({ name, phone, email, budget, message, propertySlug, propertyTitle })
   }
 
   return (
@@ -70,7 +54,7 @@ export default function PropertyEnquiryForm({
           <p className="text-gray-400 text-sm mb-5">Free consultation · No obligation</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
+            <Honeypot hpRef={hpRef} />
             <input className="input-field" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required />
             <input className="input-field" placeholder="WhatsApp / Phone *" value={phone} onChange={e => setPhone(e.target.value)} required />
             <input className="input-field" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />

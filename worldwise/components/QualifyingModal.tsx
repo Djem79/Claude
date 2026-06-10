@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics'
-import { getStoredAttribution } from '@/lib/utm'
 import { waLink } from '@/lib/whatsapp'
 import { AREA_NAMES } from '@/lib/area-names'
 import { BUDGET_BRACKETS } from '@/lib/lead-constants'
 import { useFocusTrap } from '@/lib/useFocusTrap'
+import { useLeadSubmit } from '@/lib/useLeadSubmit'
+import Honeypot from '@/components/Honeypot'
 
 interface Props {
   isOpen: boolean
@@ -23,22 +24,19 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
   const [area, setArea] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-  const hpRef = useRef<HTMLInputElement>(null)
+  const { hpRef, loading, success, error, submit, resetStatus } = useLeadSubmit({ source })
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setStep(1)
-      setSuccess(false)
-      setError('')
+      resetStatus()
     } else {
       document.body.style.overflow = ''
     }
     return () => { document.body.style.overflow = '' }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   // Accessibility: trap focus, Escape-to-close, focus first field. Re-runs per step
@@ -49,26 +47,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Please fill in your name and phone number.')
-      return
-    }
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source, budget, propertyType, area, ...getStoredAttribution(), _hp: hpRef.current?.value ?? '' }),
-      })
-      if (!res.ok) throw new Error('Failed')
-      setSuccess(true)
-      track('lead_form_submit', { source })
-    } catch {
-      setError('Something went wrong. Please try WhatsApp instead.')
-    } finally {
-      setLoading(false)
-    }
+    await submit({ name, phone, budget, propertyType, area })
   }
 
   return (
@@ -128,7 +107,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
 
             {/* Honeypot — present on every step's form via the contact form below;
                 kept mounted here so it always submits. */}
-            <input ref={hpRef} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }} />
+            <Honeypot hpRef={hpRef} />
 
             {step === 1 && (
               <>
