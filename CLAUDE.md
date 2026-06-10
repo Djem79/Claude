@@ -265,7 +265,7 @@ Enforced in three layers — **all three must stay in sync when you add an admin
 
 The token shape (`SessionPayload`) is intentionally unchanged — do not add `sections` to it. Login redirects each user to `landingPath(user) ?? '/admin'`.
 
-**When restricting a resource, guard EVERY route under it, not just the index.** `find app/api/<resource> -name route.ts` and guard each handler — a section is only as protected as its least-guarded sibling route (the lead-attachment sub-routes under `app/api/leads/[id]/files/**` were missed once; see `tasks/lessons.md`). The static `/files/leads/` path stays auth-only at the proxy layer (the token carries no sections); the app reaches those files only through the section-guarded download API.
+**When restricting a resource, guard EVERY route under it, not just the index.** `find app/api/<resource> -name route.ts` and guard each handler — a section is only as protected as its least-guarded sibling route (the lead-attachment sub-routes under `app/api/leads/[id]/files/**` were missed once; see `tasks/lessons.md`). The legacy static `/files/leads/` path is DEAD — `proxy.ts` returns an unconditional 404 (attachments live in `lead-files/` outside `public/`, reachable only via the section-guarded download API).
 
 ### Admin routes
 
