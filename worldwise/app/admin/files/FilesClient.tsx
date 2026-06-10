@@ -65,8 +65,12 @@ export default function FilesClient() {
   const [preview, setPreview] = useState<StorageFile | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const loadAbortRef = useRef<AbortController | null>(null)
 
   const load = useCallback(async () => {
+    loadAbortRef.current?.abort()
+    const controller = new AbortController()
+    loadAbortRef.current = controller
     setLoading(true)
     setError('')
     const q = query.trim()
@@ -74,13 +78,15 @@ export default function FilesClient() {
       ? `/api/admin/files?q=${encodeURIComponent(q)}`
       : `/api/admin/files?folder=${folderId ?? 'root'}`
     try {
-      const res = await fetch(url)
+      const res = await fetch(url, { signal: controller.signal })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Failed to load')
       setView(await res.json())
     } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return
       setError(e instanceof Error ? e.message : 'Failed to load')
     } finally {
-      setLoading(false)
+      // An aborted call must not clear the loading state of the newer one.
+      if (loadAbortRef.current === controller) setLoading(false)
     }
   }, [folderId, query])
 

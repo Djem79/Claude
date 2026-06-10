@@ -7,7 +7,8 @@ export default function AdminPropertyActions({ propertyId }: { propertyId: strin
 
   async function handleDelete() {
     if (!confirm('Delete this property? This cannot be undone.')) return
-    await fetch(`/api/properties/${propertyId}`, { method: 'DELETE' })
+    const res = await fetch(`/api/properties/${propertyId}`, { method: 'DELETE' }).catch(() => null)
+    if (!res?.ok) { alert('Delete failed'); return }
     router.refresh()
   }
 
