@@ -90,7 +90,7 @@ These constraints are non-negotiable — violating them causes data loss or secu
 - **Never add a database.** The JSON file approach is intentional — simple, zero-dependency, backed up automatically. A database would require a migration and breaks the single-PM2-instance assumption.
 - **Never run multiple PM2 instances.** The file-based data layer has no locking. Two processes writing simultaneously will corrupt JSON.
 - **Never change the session token payload structure** (`SessionPayload` in `lib/session.ts`) without invalidating all existing sessions first — the HMAC signs the exact payload shape.
-- **Never install npm packages with native bindings** (C++ addons). `middleware.ts` runs in the Edge runtime which does not support native modules.
+- **Never install npm packages with native bindings** (C++ addons) without checking `proxy.ts` first. Since Next 16 the request guard (`proxy.ts`, ex-`middleware.ts`) runs on the Node runtime, so the old hard Edge constraint is gone — but keep the data layer dependency-free regardless.
 - **Never use external image URLs** for property photos or area images. All images must be in `public/images/`. Unsplash URLs in Hero.tsx are an accepted legacy exception.
 - **Never add a lead capture form without the honeypot field.** Every form must include a hidden `<input ref={hpRef} />` and send `_hp` in the POST body. See existing components for the pattern.
 - **Never `git add -A` or `git add .`** — stage files by name to avoid accidentally committing `.env.local` or leftover data files.
@@ -199,7 +199,7 @@ Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card
 
 ## Architecture
 
-Next.js 14 App Router, TypeScript, Tailwind CSS.
+Next.js 16 (App Router, Turbopack build, `proxy.ts` instead of `middleware.ts`), React 19, TypeScript, Tailwind CSS. Upgraded from 14 on 2026-06-10 (`docs/superpowers/plans/2026-06-10-next16-upgrade.md`). Linting: ESLint 9 flat config (`eslint.config.mjs`); `npm run lint` = `eslint .` (`next lint` no longer exists).
 
 ### Load-bearing invariants (read before editing data, SEO, or forms)
 
@@ -241,9 +241,9 @@ Single PM2 instance only — concurrent writes from multiple processes would cor
 
 **First-run bootstrap:** only when `data/users.json` is empty (no users exist) and the login password matches `ADMIN_PASSWORD`, the owner account is auto-created. Once any user exists, `ADMIN_PASSWORD` can no longer mint accounts. No manual seeding needed.
 
-`middleware.ts` (Edge runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`. Middleware does **not** enforce per-section access (the Edge token deliberately carries no `sections` — see below); that happens in the page/API handlers.
+`proxy.ts` (Next 16; ex-`middleware.ts`, now Node runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`. The proxy does **not** enforce per-section access (the token deliberately carries no `sections` — see below); that happens in the page/API handlers.
 
-Every mutating API handler also calls `isAuthenticated()` / `getSession()` / `requireSection()` from `lib/auth.ts` — defence-in-depth since middleware does not run on API routes.
+Every mutating API handler also calls `isAuthenticated()` / `getSession()` / `requireSection()` from `lib/auth.ts` — defence-in-depth since the proxy does not run on API routes. `getSession()` additionally rejects requests whose `Origin` header mismatches the host (CSRF, proxy-aware).
 
 `lib/auth.ts` exports (all `async`, HMAC verification):
 
@@ -265,7 +265,7 @@ Enforced in three layers — **all three must stay in sync when you add an admin
 
 The token shape (`SessionPayload`) is intentionally unchanged — do not add `sections` to it. Login redirects each user to `landingPath(user) ?? '/admin'`.
 
-**When restricting a resource, guard EVERY route under it, not just the index.** `find app/api/<resource> -name route.ts` and guard each handler — a section is only as protected as its least-guarded sibling route (the lead-attachment sub-routes under `app/api/leads/[id]/files/**` were missed once; see `tasks/lessons.md`). The static `/files/leads/` path stays auth-only at the middleware layer (Edge can't read sections); the app reaches those files only through the section-guarded download API.
+**When restricting a resource, guard EVERY route under it, not just the index.** `find app/api/<resource> -name route.ts` and guard each handler — a section is only as protected as its least-guarded sibling route (the lead-attachment sub-routes under `app/api/leads/[id]/files/**` were missed once; see `tasks/lessons.md`). The static `/files/leads/` path stays auth-only at the proxy layer (the token carries no sections); the app reaches those files only through the section-guarded download API.
 
 ### Admin routes
 
