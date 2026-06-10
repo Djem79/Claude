@@ -345,3 +345,47 @@ back to `main`. Nothing lost; history ended linear.
 4. **Recovery is almost always non-destructive:** a stray commit sitting in another branch is
    safe in history — cherry-pick/rebase it onto the right branch when the tree is free; never
    rewrite a branch you don't own to "clean up" while the other session may still be on it.
+
+---
+
+## 2026-06-10 — "It works" claimed from a test that didn't replicate the live CSP; and Safari won't render a sandboxed PDF iframe
+
+**What happened:** Built an admin file-preview lightbox that frames PDFs via
+`<iframe src="/api/admin/files/[id]/preview">`. The preview route set
+`Content-Security-Policy: sandbox` on the PDF response. I "verified" PDF preview
+worked by serving the same PDF from a throwaway local server and loading it in an
+iframe — it rendered, so I reported it working. In production it was **blank/blocked**
+for the user. Two separate bugs:
+1. The site has a **global CSP** (`next.config.mjs`, `source: '/(.*)'`) with
+   `frame-src https://www.google.com https://maps.google.com` (no `'self'`) and
+   `frame-ancestors 'none'`. The parent `/admin/files` page therefore could not frame
+   the same-origin preview, and the preview couldn't be framed at all → Chrome showed
+   "Этот контент заблокирован". My local test had **no global CSP on the parent page**,
+   so it never reproduced the block.
+2. After fixing the CSP (`frame-src 'self'`, `frame-ancestors 'self'` — consistent with
+   the existing `X-Frame-Options: SAMEORIGIN`), Chrome rendered the PDF but **Safari
+   still showed a blank/dark iframe**. WebKit refuses to render a PDF inside a *sandboxed*
+   iframe — tested all variants in real Safari: `sandbox`, `sandbox allow-same-origin`,
+   and `sandbox allow-same-origin allow-scripts` all fail; only **no `sandbox` header**
+   renders (Chrome renders either way). Fix: drop the `Content-Security-Policy: sandbox`
+   on the preview route. Safety preserved via auth gate + `isPreviewable` whitelist
+   (never HTML/SVG inline) + `nosniff` + global CSP + the browser's own PDF-JS isolation.
+
+**How to apply (prevention):**
+
+1. **Reproduce the REAL environment, not a stripped-down stand-in.** For anything touching
+   security headers (CSP, X-Frame-Options, CORS), the test must replicate the *actual*
+   response headers on BOTH the parent page and the sub-resource. A local server with no
+   CSP "proves" nothing about a site that ships a global CSP. When in doubt, check the live
+   header: `curl -sD - -o /dev/null <url> | grep -i content-security-policy`.
+2. **iframes are governed by TWO directives in opposite directions:** the *parent's*
+   `frame-src` (what it may embed) and the *framed response's* `frame-ancestors` /
+   `X-Frame-Options` (who may embed it). Same-origin framing needs `frame-src 'self'` AND
+   `frame-ancestors 'self'` (not `'none'`). Keep `frame-ancestors` consistent with
+   `X-Frame-Options`.
+3. **Inline PDF rendering is browser-specific — test Chrome AND Safari/WebKit.** WebKit
+   will not render a PDF in a `sandbox`ed iframe at all. Playwright WebKit is unavailable
+   on macOS 13, so when you can't drive Safari headless, stand up a local multi-variant
+   page and have the user open it in their real Safari — one round-trip beats guessing.
+4. **A passing isolated test is not "done" for a browser-rendered feature.** Confirm on the
+   real deployed page, in the real browser, on the user's actual file before claiming it works.
