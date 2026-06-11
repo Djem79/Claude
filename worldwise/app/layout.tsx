@@ -44,6 +44,7 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://worldwise.pro',
+    types: { 'application/rss+xml': 'https://worldwise.pro/blog/rss.xml' },
   },
   robots: {
     index: true,
