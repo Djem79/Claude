@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://worldwise.pro'),
   title: {
     default: 'Dubai Real Estate Investment | Worldwise — 8-10% ROI, 0% Tax',
-    template: '%s | Worldwise Real Estate Dubai',
+    template: '%s | Worldwise',
   },
   description:
     'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. 50+ investors from 30+ countries. Free consultation.',

@@ -11,7 +11,7 @@ import JsonLd from '@/components/JsonLd'
 const YEAR = new Date().getFullYear()
 
 export const metadata: Metadata = {
-  title: `UAE Mortgage Calculator ${YEAR} | Dubai Property Financing`,
+  title: `UAE Mortgage Calculator ${YEAR} — Dubai Financing`,
   description:
     'Free UAE mortgage calculator for residents and non-residents. Instantly calculate monthly payments, loan amount and total interest for Dubai property. Get a personalised mortgage quote from 15+ banks.',
   alternates: { canonical: 'https://worldwise.pro/mortgage-calculator' },

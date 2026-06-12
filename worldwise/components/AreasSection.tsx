@@ -55,7 +55,7 @@ export default function AreasSection() {
                   >
                     <Image
                       src={area.img}
-                      alt=""
+                      alt={`${area.name}, Dubai — investment properties`}
                       fill
                       sizes="(max-width: 768px) 50vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"

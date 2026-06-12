@@ -9,7 +9,7 @@ export const revalidate = 60
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Dubai Properties for Investment | Off-Plan & Secondary Market',
+  title: 'Dubai Investment Properties — Off-Plan & Ready',
   description:
     'Browse 148+ off-plan and secondary market properties in Dubai. Filter by area, price, type and ROI. Expert guidance for international investors. Free consultation.',
   alternates: { canonical: 'https://worldwise.pro/properties' },

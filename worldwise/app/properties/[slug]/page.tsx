@@ -39,7 +39,9 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const title = `${p.title} by ${p.developer} — ${formatAedCompact(p.priceAed)}`
   const description = `${p.shortDescription} Located in ${p.area}, Dubai.${p.roi ? ` Est. ROI ${p.roi}%.` : ''}${p.completionDate ? ` Handover ${p.completionDate}.` : ''} RERA-certified listing.`
   return {
-    title,
+    // absolute: property titles are long free text — the layout's
+    // "| Worldwise" template suffix would push them past SERP truncation
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {

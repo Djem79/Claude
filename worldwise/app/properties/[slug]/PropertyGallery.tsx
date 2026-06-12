@@ -30,6 +30,7 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
           fill
           className="object-contain"
           priority
+          fetchPriority="high"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent" />
