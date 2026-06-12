@@ -68,6 +68,13 @@ export default async function ArticlePage(props: Props) {
       })
     : null
 
+  // Same-tag articles first, newest-first order preserved from getAllArticles()
+  const others = getAllArticles().filter(a => a.slug !== article.slug)
+  const related = [
+    ...others.filter(a => a.tag === article.tag),
+    ...others.filter(a => a.tag !== article.tag),
+  ].slice(0, 3)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -125,6 +132,30 @@ export default async function ArticlePage(props: Props) {
             <ArticleContent content={article.content} />
           </div>
         </section>
+
+        {/* Related articles — keep daily content from being a dead end */}
+        {related.length > 0 && (
+          <section className="py-16 bg-white border-t border-gray-100">
+            <div className="max-w-4xl mx-auto px-6">
+              <h2 className="font-serif text-2xl text-navy mb-8">Continue Reading</h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                {related.map(r => (
+                  <Link
+                    key={r.slug}
+                    href={`/blog/${r.slug}`}
+                    className="group block border border-gray-100 rounded-sm p-5 hover:border-gold/40 transition-colors"
+                  >
+                    <span className={`badge ${TAG_COLORS[r.tag] ?? 'bg-gray-100 text-gray-600'} mb-3 inline-block`}>
+                      {r.tag}
+                    </span>
+                    <h3 className="font-serif text-lg text-navy leading-snug">{r.title}</h3>
+                    <p className="text-gray-500 text-sm mt-2 line-clamp-3">{r.excerpt}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA */}
         <section className="py-16 bg-[#F8F8F6]">
