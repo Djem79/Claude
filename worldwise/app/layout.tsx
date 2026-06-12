@@ -69,7 +69,7 @@ const orgJsonLd = {
   email: 'info@worldwise.pro',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Rasis Business Center, Al Barsha, 5th floor, EBC03',
+    streetAddress: 'Rasis Business Centre - 5, 5th Floor, Office 502 (EBC03), Al Barsha 1',
     addressLocality: 'Dubai',
     addressCountry: 'AE',
   },

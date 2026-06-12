@@ -56,9 +56,9 @@ export default function Footer() {
               <li>+971 50 696 0435</li>
               <li>info@worldwise.pro</li>
               <li className="leading-relaxed">
-                Rasis Business Center,<br />
-                Al Barsha, 5th floor, EBC03,<br />
-                Dubai, UAE
+                Rasis Business Centre - 5,<br />
+                5th Floor, Office 502 (EBC03),<br />
+                Al Barsha 1, Dubai, UAE
               </li>
             </ul>
           </div>
