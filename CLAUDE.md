@@ -460,6 +460,7 @@ The featured-properties grid on the area page matches `Property.area` **tolerant
 ### SEO / crawler layer
 
 - `app/robots.ts` — blocks `/admin` and `/api`
+- `app/blog/rss.xml/route.ts` — RSS 2.0 feed of the blog (`revalidate 3600`), built by the pure `lib/rss.ts` (node:test'd). **`escapeXml` is load-bearing** — AI article titles/excerpts are untrusted (same threat class as the JSON-LD invariant); never interpolate raw strings into the feed. The feed drives the Zapier→LinkedIn Company Page autopost; discovery `<link rel="alternate">` lives in `app/layout.tsx` `alternates.types`.
 - `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + /golden-visa + /guide + 8 area landing pages + all property and article slugs)
 - `next.config.mjs` — `images.formats: ['image/avif','image/webp']` (AVIF for smaller LCP); old Tilda `/tpost/*` and `/tproduct/*` URLs 301-redirect to `/blog` / `/properties` (two high-traffic posts to topically-matched articles)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
