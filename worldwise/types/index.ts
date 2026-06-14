@@ -75,6 +75,7 @@ export interface Lead {
   area?: string
   message?: string
   source: string
+  pfLeadId?: string   // Property Finder lead id (dedup + provenance for portal webhook leads)
   propertySlug?: string
   propertyTitle?: string
   // Attribution — captured first-touch from URL utm_*/click-ids (lib/utm.ts)

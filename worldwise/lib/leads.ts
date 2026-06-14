@@ -43,6 +43,30 @@ export function saveLead(data: Omit<Lead, 'id' | 'createdAt' | 'status'>): Lead 
   return saved!
 }
 
+/**
+ * Idempotent insert for Property Finder webhook leads. PF delivers at-least-once,
+ * so the dedup-by-pfLeadId check and the insert happen in ONE mutateLeads section.
+ * Returns the existing lead (deduped:true) on a repeat delivery, else the new one.
+ */
+export function savePfLead(
+  data: Omit<Lead, 'id' | 'createdAt' | 'status'> & { pfLeadId: string },
+): { lead: Lead; deduped: boolean } {
+  let result: { lead: Lead; deduped: boolean } | null = null
+  mutateLeads((leads) => {
+    const existing = leads.find((l) => l.pfLeadId === data.pfLeadId)
+    if (existing) {
+      result = { lead: existing, deduped: true }
+      return leads
+    }
+    let id = Date.now()
+    while (leads.some((l) => l.id === String(id))) id++
+    const lead: Lead = { ...data, id: String(id), status: 'new', createdAt: new Date().toISOString() }
+    result = { lead, deduped: false }
+    return [lead, ...leads]
+  })
+  return result!
+}
+
 export function updateLead(
   id: string,
   data: Partial<Pick<Lead, 'status' | 'notes' | 'contactedAt' | 'attachments' | 'source' | 'propertyTitle' | 'propertySlug'>>,
