@@ -181,7 +181,7 @@ async function postToChannel(article: DynamicArticle) {
     '',
     `\\#DubaiRealEstate ${tagHashtag}`,
     '',
-    `👉 [Читать статью](${url})`,
+    `👉 [Read the full article](${url})`,
   ].join('\n')
   try {
     // The card is served by /api/blog-image (Next doesn't serve public/ files added
