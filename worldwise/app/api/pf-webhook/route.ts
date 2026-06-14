@@ -10,8 +10,9 @@ export const runtime = 'nodejs'
 function verifySignature(raw: string, signature: string | null, secret: string | undefined): boolean {
   if (!signature || !secret) return false
   const expected = crypto.createHmac('sha256', secret).update(raw, 'utf8').digest('hex')
-  const a = Buffer.from(signature)
-  const b = Buffer.from(expected)
+  // Both are lowercase hex of equal length; encode explicitly and length-guard before compare.
+  const a = Buffer.from(signature, 'utf8')
+  const b = Buffer.from(expected, 'utf8')
   return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
@@ -24,8 +25,9 @@ export async function POST(req: Request) {
   let event: unknown
   try {
     event = JSON.parse(raw)
-  } catch {
-    return NextResponse.json({ ok: true }) // ack malformed body so PF stops retrying
+  } catch (err) {
+    console.error('[pf-webhook] malformed JSON after valid signature', err)
+    return NextResponse.json({ ok: true }) // ack so PF stops retrying an unparseable body
   }
 
   const e = event as { type?: string }
@@ -34,7 +36,10 @@ export async function POST(req: Request) {
   }
 
   const fields = mapPfLead(event as Parameters<typeof mapPfLead>[0])
-  if (!fields.pfLeadId) return NextResponse.json({ ok: true })
+  if (!fields.pfLeadId) {
+    console.warn('[pf-webhook] lead.created with no entity.id — skipping')
+    return NextResponse.json({ ok: true })
+  }
 
   const { lead, deduped } = savePfLead(fields)
 

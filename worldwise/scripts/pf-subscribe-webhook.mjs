@@ -23,7 +23,8 @@ async function main() {
 
   const listRes = await fetch(`${BASE}/v1/webhooks?eventType=${EVENT}`, { headers: auth })
   const list = listRes.ok ? ((await listRes.json()).data ?? []) : []
-  if (list.some((w) => w.eventId === EVENT && w.url === CALLBACK)) {
+  // GET /v1/webhooks returns WebhookItem { eventId, url, createdAt }; accept callbackUrl too (schema drift).
+  if (list.some((w) => w.eventId === EVENT && (w.url === CALLBACK || w.callbackUrl === CALLBACK))) {
     console.log('Already subscribed:', EVENT, '→', CALLBACK)
     return
   }
