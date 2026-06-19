@@ -170,14 +170,14 @@ If you are financing the purchase, the process has additional layers:
   {
     slug: 'uae-property-residence-visa',
     tag: 'Visa & Residency',
-    title: 'Does Buying Property in the UAE Grant a Residence Visa?',
+    title: 'UAE Residence Visa by Buying Property: Rules & Minimum Investment (2026)',
     excerpt:
-      'An overview of the three investor visa types — 2-year, 5-year Green Visa and 10-year Golden Visa — with minimum investment thresholds and required documentation.',
+      'Yes — buying UAE property can get you residency. The thresholds: AED 750,000 for a 2-year investor visa and AED 2 million for the 5-year Green Visa or 10-year Golden Visa. Full 2026 rules, eligibility and documents.',
     readTime: '5 min read',
     content: `
 ## The Short Answer
 
-Yes — owning property in the UAE can qualify you for a UAE residence visa, but the rules depend on the value of the property and how it is financed. There are three main visa categories linked to property ownership: the 2-year Investor Visa, the 5-year Green Visa and the 10-year Golden Visa.
+Yes — owning property in the UAE can qualify you for a UAE residence visa, but the rules depend on the value of the property and how it is financed. **The minimum property investment is AED 750,000 for a 2-year investor visa, and AED 2 million for the 5-year Green Visa or the 10-year Golden Visa.** There are three main visa categories linked to property ownership: the 2-year Investor Visa, the 5-year Green Visa and the 10-year Golden Visa.
 
 ## 2-Year Property Investor Visa
 
@@ -224,6 +224,12 @@ Golden Visa holders can sponsor an unlimited number of domestic staff without th
 | Off-plan eligible | After handover | After handover | After handover |
 
 ## Frequently Asked Questions
+
+**Do I get a visa if I buy property in the UAE?**
+Yes. A property worth AED 750,000 or more qualifies you for a 2-year investor visa, and a property worth AED 2 million or more qualifies you for the 5-year Green Visa or the 10-year Golden Visa. The property must be fully paid (or have paid equity meeting the threshold if mortgaged).
+
+**What is the minimum property investment for UAE residency?**
+AED 750,000 for the 2-year investor visa, and AED 2 million for both the 5-year Green Visa and the 10-year Golden Visa. Multiple properties registered in the same name can be combined to reach the AED 2 million threshold.
 
 **Can I get a visa on a jointly-owned property?**
 Each co-owner can apply for a visa based on their share of the property value, provided their individual share meets the minimum threshold.

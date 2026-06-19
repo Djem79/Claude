@@ -60,13 +60,33 @@ export default async function DeveloperPage(props: { params: Promise<{ slug: str
     url: `${BASE}/developers/${dev.slug}`,
     ...(dev.logo ? { logo: `${BASE}${dev.logo}` } : {}),
   }
+  const faqJsonLd = dev.faqs?.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: dev.faqs.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null
 
   return (
     <>
       <Navigation />
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={orgJsonLd} />
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
       <DeveloperPageClient developer={dev} listingCount={matched.length}>
+        {dev.intro && (
+          <section className="py-16 bg-white">
+            <div className="max-w-3xl mx-auto px-6">
+              <h2 className="section-title mb-6">About {dev.name} in Dubai</h2>
+              <p className="text-gray-600 leading-relaxed text-lg">{dev.intro}</p>
+            </div>
+          </section>
+        )}
         <section className="py-16 bg-[#F8F8F6]">
           <div className="max-w-7xl mx-auto px-6">
             <h2 className="section-title text-center mb-10">Available {dev.name} properties</h2>
@@ -81,6 +101,21 @@ export default async function DeveloperPage(props: { params: Promise<{ slug: str
             )}
           </div>
         </section>
+        {dev.faqs?.length ? (
+          <section className="py-16 bg-white">
+            <div className="max-w-3xl mx-auto px-6">
+              <h2 className="section-title text-center mb-10">{dev.name} — frequently asked questions</h2>
+              <div className="space-y-6">
+                {dev.faqs.map(f => (
+                  <div key={f.q} className="border-b border-gray-100 pb-5">
+                    <h3 className="font-serif text-xl text-navy mb-2">{f.q}</h3>
+                    <p className="text-gray-600 leading-relaxed">{f.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
         <LeadCaptureSection source={source} />
       </DeveloperPageClient>
       <FloatingCTA />
