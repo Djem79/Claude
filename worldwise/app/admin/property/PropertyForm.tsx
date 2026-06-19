@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { DUBAI_AREAS } from '@/lib/dubai-areas'
 import { useRouter } from 'next/navigation'
 import { Property } from '@/types'
+import PfListingPanel from '@/components/PfListingPanel'
 
 function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -294,6 +295,31 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
         </div>
       </div>
 
+      {/* Property Finder listing fields — required to publish a listing to PF. */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Bathrooms <span className="text-gray-300">(PF)</span></label>
+          <select className={fieldClass} value={form.bathrooms ?? ''} onChange={e => set('bathrooms', e.target.value || undefined)}>
+            <option value="">—</option>
+            <option value="none">none</option>
+            {Array.from({ length: 10 }, (_, i) => String(i + 1)).map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Size (sqft) <span className="text-gray-300">(PF)</span></label>
+          <input type="number" className={fieldClass} value={form.sizeSqft ?? ''} onChange={e => set('sizeSqft', e.target.value ? Number(e.target.value) : undefined)} placeholder="e.g. 1200" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Furnishing <span className="text-gray-300">(PF)</span></label>
+          <select className={fieldClass} value={form.furnishingType ?? ''} onChange={e => set('furnishingType', e.target.value || undefined)}>
+            <option value="">—</option>
+            <option value="unfurnished">unfurnished</option>
+            <option value="semi-furnished">semi-furnished</option>
+            <option value="furnished">furnished</option>
+          </select>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-4 gap-4">
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Price (AED) *</label>
@@ -561,6 +587,8 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
           </span>
         </label>
       )}
+
+      {isEdit && property && <PfListingPanel property={property} />}
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

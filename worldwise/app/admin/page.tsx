@@ -11,6 +11,17 @@ import { formatAedCompact } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
+// PF listing status → table-badge label + colour (back-office only).
+const PF_LABEL: Record<string, string> = {
+  draft: 'Draft', pending: 'Pending', live: 'Live',
+  unpublished: 'Unpublished', action_required: 'Action', failed: 'Failed',
+}
+const PF_BADGE: Record<string, string> = {
+  draft: 'bg-amber-50 text-amber-700', pending: 'bg-blue-50 text-blue-700',
+  live: 'bg-green-50 text-green-700', unpublished: 'bg-gray-50 text-gray-500',
+  action_required: 'bg-red-50 text-red-700', failed: 'bg-red-50 text-red-700',
+}
+
 export default async function AdminPage() {
   const session = await getSession()
   if (!session) redirect('/admin/login')
@@ -66,7 +77,7 @@ export default async function AdminPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {['Property', 'Developer', 'Area', 'Price', 'Status', 'Featured', 'Actions'].map(h => (
+                  {['Property', 'Developer', 'Area', 'Price', 'Status', 'PF', 'Featured', 'Actions'].map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
                       {h}
                     </th>
@@ -84,6 +95,15 @@ export default async function AdminPage() {
                       <span className={`badge text-xs ${p.status === 'off-plan' ? 'bg-blue-50 text-blue-700' : p.status === 'rent' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'}`}>
                         {p.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {p.pfListingStatus ? (
+                        <span className={`badge text-xs ${PF_BADGE[p.pfListingStatus] ?? 'bg-gray-50 text-gray-500'}`}>
+                          {PF_LABEL[p.pfListingStatus] ?? p.pfListingStatus}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-medium ${p.featured ? 'text-gold-accessible' : 'text-gray-300'}`}>
