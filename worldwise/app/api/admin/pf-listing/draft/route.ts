@@ -7,6 +7,33 @@ import type { PfCompliance } from '@/lib/pf-listing-map'
 
 export const runtime = 'nodejs'
 
+interface PfLocationNode { id?: number; name?: string; type?: string }
+interface PfLocation { id?: number; name?: string; tree?: PfLocationNode[] }
+
+// Resolve a PF location-tree id from our free-text area. Hardened from live probing
+// (2026-06-19): PF multi-word `search` misses, so use the longest single token; a
+// 2nd query param is required (a bare `?search=` misroutes to a 404); and the
+// endpoint intermittently 404s upstream, so retry with backoff. Among results,
+// prefer a node whose tree sits under Dubai, then an exact name match.
+// pilot: re-verify match quality once the PF locations service is reliably up.
+async function resolvePfLocationId(area: string): Promise<number | undefined> {
+  const token = area.trim().split(/\s+/).sort((a, b) => b.length - a.length)[0] || area.trim()
+  if (token.length < 2) return undefined
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const r = await pfFetch(`/v1/locations?search=${encodeURIComponent(token)}&type=community&language=en`)
+    if (r.ok) {
+      const j = (await r.json()) as { data?: PfLocation[] }
+      const all = j.data ?? []
+      const dubai = all.filter((l) => (l.tree ?? []).some((n) => /dubai/i.test(n.name ?? '')))
+      const pool = dubai.length ? dubai : all
+      const exact = pool.find((l) => (l.name ?? '').toLowerCase() === area.trim().toLowerCase())
+      return (exact ?? pool[0])?.id
+    }
+    await new Promise((res) => setTimeout(res, 300 * (attempt + 1)))
+  }
+  return undefined
+}
+
 // POST { propertyId } — create a PF DRAFT listing (no credits spent) and return its
 // id + the publish credit price. The admin confirms before /publish actually spends.
 export async function POST(req: NextRequest) {
@@ -42,18 +69,16 @@ export async function POST(req: NextRequest) {
   let locationId = property.pfLocationId
   if (!locationId) {
     try {
-      const r = await pfFetch(`/v1/locations?search=${encodeURIComponent(property.area)}`)
-      if (!r.ok) {
-        return NextResponse.json({ error: `PF locations lookup failed (${r.status})`, detail: await r.text() }, { status: 422 })
-      }
-      const j = await r.json()
-      // pilot: confirm the locations response shape (data[] vs locations[]) + best-match logic.
-      const first = (j.data ?? j.locations ?? [])[0]
-      locationId = first?.id
+      locationId = await resolvePfLocationId(property.area)
     } catch (e) {
       return NextResponse.json({ error: 'PF location lookup error', detail: String(e) }, { status: 502 })
     }
-    if (!locationId) return NextResponse.json({ error: `No PF location found for area "${property.area}"` }, { status: 422 })
+    if (!locationId) {
+      return NextResponse.json(
+        { error: `Could not resolve a Property Finder location for area "${property.area}". The PF locations service may be temporarily unavailable — try again shortly.` },
+        { status: 422 },
+      )
+    }
   }
 
   // 2. Pull DLD compliance for the permit + company license (price/type cross-check).

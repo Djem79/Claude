@@ -25,8 +25,17 @@ export interface PropertyLike {
 }
 
 export interface PfCompliance {
-  // From GET /v1/compliances/... — we only read saleType to derive projectStatus.
-  saleType?: string // 'primary' | 'secondary' | ...
+  // Real GET /v1/compliances/{permit}/{license} shape (verified 2026-06-19):
+  // { data: [ { property: { saleType: 'Primary'|'Secondary', locationName, value, size }, ... } ] }.
+  // `saleType` (top-level) kept as a forgiving fallback.
+  data?: Array<{ property?: { saleType?: string; locationName?: string; value?: number; size?: number } }>
+  saleType?: string
+}
+
+// PF capitalises saleType ('Secondary'); normalise to lowercase. Reads the real
+// nested path first, then the legacy top-level fallback.
+function complianceSaleType(c?: PfCompliance): string | undefined {
+  return (c?.data?.[0]?.property?.saleType ?? c?.saleType)?.toLowerCase()
 }
 
 export interface PfListingContext {
@@ -163,7 +172,7 @@ function absoluteImageUrl(path: string): string {
 // projectStatus (sale only): completion from our status + primary/secondary from DLD.
 function deriveProjectStatus(status: string, compliance?: PfCompliance): string {
   const base = status === 'off-plan' ? 'off_plan' : 'completed'
-  const suffix = compliance?.saleType === 'primary' ? 'primary' : 'secondary'
+  const suffix = complianceSaleType(compliance) === 'primary' ? 'primary' : 'secondary'
   return `${base}_${suffix}`
 }
 

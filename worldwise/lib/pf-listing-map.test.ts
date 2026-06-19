@@ -100,6 +100,21 @@ test('strips non-ASCII (emoji / typographic) from title + description', () => {
   assert.ok(out.title.en.includes('Apartment'))
 })
 
+test('derives projectStatus from the real nested compliance shape', () => {
+  // sale + DLD saleType 'Primary' (capitalised, nested under data[].property)
+  const primary = mapPropertyToPfListing(
+    { ...complete, status: 'off-plan' },
+    { ...ctx, compliance: { data: [{ property: { saleType: 'Primary' } }] } },
+  )
+  assert.equal(primary.projectStatus, 'off_plan_primary')
+
+  const secondary = mapPropertyToPfListing(
+    complete,
+    { ...ctx, compliance: { data: [{ property: { saleType: 'Secondary' } }] } },
+  )
+  assert.equal(secondary.projectStatus, 'completed_secondary')
+})
+
 test('leaves already-absolute image URLs untouched', () => {
   const out = mapPropertyToPfListing({ ...complete, images: ['https://cdn.example.com/x.jpg'] }, ctx)
   assert.equal(out.media.images[0].original.url, 'https://cdn.example.com/x.jpg')
