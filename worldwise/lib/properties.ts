@@ -199,3 +199,33 @@ export function deleteProperty(id: string): boolean {
   })
   return removed
 }
+
+// --- Property Finder listing state (#2) -------------------------------------
+// These write ONLY the pf* state fields and run inside the same mutateProperties
+// critical section. Kept out of coercePropertyInput so the form body can never
+// forge listing state — it is set exclusively by the pf-listing routes/webhook.
+
+// Set listing state by property id (used by the draft/publish/unpublish routes).
+export function setPfListingState(id: string, patch: Partial<Pick<Property,
+  'pfListingId' | 'pfListingStatus' | 'pfLocationId' | 'pfPublishedAt'>>): Property | null {
+  let updated: Property | null = null
+  mutateProperties(list => list.map(p => {
+    if (p.id !== id) return p
+    updated = { ...p, ...patch }
+    return updated
+  }))
+  return updated
+}
+
+// Idempotent: locate the property by its PF listing id (the webhook path, where we
+// only know the PF id, not our property id). No-op (returns null) if none matches.
+export function setPfStatusByListingId(pfListingId: string, patch: Partial<Pick<Property,
+  'pfListingStatus' | 'pfPublishedAt'>>): Property | null {
+  let updated: Property | null = null
+  mutateProperties(list => list.map(p => {
+    if (p.pfListingId !== pfListingId) return p
+    updated = { ...p, ...patch }
+    return updated
+  }))
+  return updated
+}
