@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { savePfLead } from '@/lib/leads'
 import { mapPfLead } from '@/lib/pf-lead'
+import { setPfStatusByListingId } from '@/lib/properties'
 import { notifyTelegram, notifyEmail } from '@/lib/notify'
 
 export const runtime = 'nodejs'
@@ -31,6 +32,26 @@ export async function POST(req: Request) {
   }
 
   const e = event as { type?: string }
+
+  // Listing events (integration #2) — flip the property's PF status, located by its
+  // PF listing id. Same signed endpoint + secret as the leads webhook. Idempotent:
+  // setPfStatusByListingId is a no-op when no property carries that listing id.
+  const listingId = (event as { entity?: { id?: string } }).entity?.id
+  if (listingId && (e.type === 'listing.published' || e.type === 'listing.unpublished' || e.type === 'listing.action')) {
+    const id = String(listingId)
+    if (e.type === 'listing.published') {
+      setPfStatusByListingId(id, { pfListingStatus: 'live', pfPublishedAt: new Date().toISOString() })
+    } else if (e.type === 'listing.unpublished') {
+      setPfStatusByListingId(id, { pfListingStatus: 'unpublished' })
+    } else {
+      // listing.action = a compliance issue the admin must resolve, else PF auto-unpublishes.
+      const action = (event as { payload?: { actionType?: string } }).payload?.actionType
+      console.warn('[pf-webhook] listing.action', id, action ?? '')
+      setPfStatusByListingId(id, { pfListingStatus: 'action_required' })
+    }
+    return NextResponse.json({ ok: true })
+  }
+
   if (e?.type !== 'lead.created') {
     return NextResponse.json({ ok: true }) // ignore other event types
   }
