@@ -20,15 +20,31 @@ export default function CookieBanner() {
     }
   }, [])
 
+  // Consent Mode v2: flip gtag's consent state. Accept → granted (cookies on);
+  // Decline → explicit denied so the cookieless tags fire now instead of waiting
+  // out wait_for_update. gtag is bootstrapped denied-by-default in Analytics.tsx.
+  function updateConsent(state: 'granted' | 'denied') {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', {
+        ad_storage: state,
+        ad_user_data: state,
+        ad_personalization: state,
+        analytics_storage: state,
+      })
+    }
+  }
+
   function accept() {
     try { localStorage.setItem(COOKIE_KEY, 'accepted') } catch { /* storage disabled */ }
     setVisible(false)
+    updateConsent('granted')
     window.dispatchEvent(new Event('ww_consent_accepted'))
   }
 
   function decline() {
     try { localStorage.setItem(COOKIE_KEY, 'declined') } catch { /* storage disabled */ }
     setVisible(false)
+    updateConsent('denied')
   }
 
   if (!visible) return null
