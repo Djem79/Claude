@@ -23,6 +23,15 @@ export interface Property {
   qrImage?: string
   permitNumber?: string
   projectNumber?: string
+  // Property Finder listing integration (#2). Admin-entered listing fields:
+  bathrooms?: string                 // PF enum: 'none' | '1'..'20'
+  sizeSqft?: number                  // property area in sqft (PF `size`), required to publish
+  furnishingType?: 'unfurnished' | 'semi-furnished' | 'furnished'
+  // PF listing state — written ONLY by the pf-listing routes/webhook, never trusted from the form body:
+  pfListingId?: string               // PF listing id once a draft/listing exists
+  pfListingStatus?: 'draft' | 'pending' | 'live' | 'unpublished' | 'action_required' | 'failed'
+  pfLocationId?: number              // cached PF location tree id for this property's area
+  pfPublishedAt?: string             // ISO; set when listing.published webhook arrives
   brochure?: string   // filename under public/files/brochures/<id>.pdf; presence => show the gate
   floorPlans?: string[]   // floor-plan image URLs under /images/properties/<id>/; shown gated, separate from `images`
   lat?: number   // decimal degrees; building-level coordinate when known

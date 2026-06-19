@@ -12,10 +12,13 @@ const STRING_FIELDS: [keyof Property, number][] = [
   ['shortDescription', 400], ['description', 8000], ['completionDate', 60],
   ['paymentPlan', 400], ['badge', 60], ['qrImage', 300],
   ['permitNumber', 120], ['projectNumber', 120], ['brochure', 80],
+  // PF listing admin-entered fields (the pf* STATE fields are written only by the
+  // pf-listing routes/webhook, never whitelisted here):
+  ['bathrooms', 16], ['furnishingType', 32],
 ]
 // Plain finite-number fields (no range check). lat/lng are NOT here — they get
 // dedicated range-gated handling in coercePropertyInput below.
-const NUMBER_FIELDS: (keyof Property)[] = ['priceAed', 'pricePerSqft', 'roi', 'grossYield']
+const NUMBER_FIELDS: (keyof Property)[] = ['priceAed', 'pricePerSqft', 'roi', 'grossYield', 'sizeSqft']
 const BOOLEAN_FIELDS: (keyof Property)[] = ['featured', 'rented']
 const ARRAY_FIELDS: (keyof Property)[] = ['amenities', 'images', 'floorPlans']
 
