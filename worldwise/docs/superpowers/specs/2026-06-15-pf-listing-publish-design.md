@@ -105,7 +105,7 @@ A new module `lib/pf-listing-store.ts` (or an extension of `lib/properties.ts`) 
 
 - `PF_COMPANY_LICENSE` — agency real-estate company license number (for DLD compliance).
 - `PF_PUBLIC_PROFILE_ID` — the PF Expert public-profile id to attach listings to (resolve once via `GET /v1/users`).
-- **New PF API key** with `listings:full_access` + `users:read` (+ default webhooks/compliance/locations/projects scopes). The #1 key (`leads:read`+`users:read`) cannot publish listings.
+- **Separate listings PF key** (`listings:full_access` + `users:read`) in its OWN vars `PF_LISTINGS_API_KEY` / `PF_LISTINGS_API_SECRET`. The leads key stays in `PF_API_KEY`/`PF_API_SECRET` (`leads:read`+`users:read`), untouched — least-privilege, independently revocable. The webhook endpoint + `PF_WEBHOOK_SECRET` are shared across both integrations.
 
 ## Error handling & credits safety
 

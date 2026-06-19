@@ -11,14 +11,14 @@
 
 Spec: `docs/superpowers/specs/2026-06-15-pf-listing-publish-design.md`. Read it before starting.
 
-**PREREQUISITE (operator, before deploy — not a code task):** create a **second PF API key** with scopes `listings:full_access` + `users:read` (the #1 key is `leads:read`+`users:read` only); set `PF_COMPANY_LICENSE` and `PF_PUBLIC_PROFILE_ID` in the server `.env.local` (resolve the profile id via `GET /v1/users`). Until then the routes will 401/403 against PF — expected.
+**PREREQUISITE (operator, before deploy — not a code task):** create a **separate listings PF key** (scopes `listings:full_access` + `users:read`) and put it in the server `.env.local` as `PF_LISTINGS_API_KEY` / `PF_LISTINGS_API_SECRET` (leave the leads key in `PF_API_KEY`/`PF_API_SECRET`). Also set `PF_COMPANY_LICENSE` (= DET trade license `1265053`; verify vs RERA ORN at pilot) and `PF_PUBLIC_PROFILE_ID` (resolve via `GET /v1/users`). Until then the routes will 401/403 against PF — expected.
 
 ## File structure
 
 - Modify `types/index.ts` — new `Property` fields.
 - Modify `lib/properties.ts` — whitelist new form fields in `coercePropertyInput`; add `setPfListingState(id, patch)` + `setPfStatusByListingId(pfListingId, patch)` (via `mutateProperties`).
 - Modify `components/PropertyForm.tsx` — 3 new inputs + the "Property Finder" panel.
-- Create `lib/pf-client.ts` — token cache + `pfFetch` (server-only). [routes only; the `.mjs` subscribe script keeps its own token fetch — `.mjs` can't import `.ts`]
+- Create `lib/pf-client.ts` — credential-parameterized token cache + `pfFetch` (server-only); listing routes use the **listings** creds. [the `.mjs` subscribe script keeps its own token fetch — `.mjs` can't import `.ts`]
 - Create `lib/pf-listing-map.ts` + `lib/pf-listing-map.test.ts` — pure `validateForPf` + `mapPropertyToPfListing`.
 - Create `app/api/admin/pf-listing/draft/route.ts`, `.../publish/route.ts`, `.../unpublish/route.ts`.
 - Modify `app/api/pf-webhook/route.ts` — dispatch listing events.
@@ -106,13 +106,14 @@ git commit -m "feat(pf-listing): setPfListingState + setPfStatusByListingId (mut
 import 'server-only'
 
 const BASE = 'https://atlas.propertyfinder.com'
-let cached: { token: string; expiresAt: number } | null = null
+export interface PfCreds { apiKey: string; apiSecret: string }
+const cache = new Map<string, { token: string; expiresAt: number }>() // keyed by apiKey
 
-async function fetchToken(): Promise<{ token: string; expiresAt: number }> {
+async function fetchToken(creds: PfCreds): Promise<{ token: string; expiresAt: number }> {
   const r = await fetch(`${BASE}/v1/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey: process.env.PF_API_KEY, apiSecret: process.env.PF_API_SECRET }),
+    body: JSON.stringify({ apiKey: creds.apiKey, apiSecret: creds.apiSecret }),
   })
   if (!r.ok) throw new Error(`PF auth ${r.status}: ${await r.text()}`)
   const j = await r.json()
@@ -120,13 +121,21 @@ async function fetchToken(): Promise<{ token: string; expiresAt: number }> {
   return { token: j.accessToken, expiresAt: Date.now() + (j.expiresIn ?? 1800) * 1000 - 60_000 }
 }
 
-export async function getAccessToken(): Promise<string> {
-  if (!cached || Date.now() >= cached.expiresAt) cached = await fetchToken()
-  return cached.token
+async function getAccessToken(creds: PfCreds): Promise<string> {
+  const c = cache.get(creds.apiKey)
+  if (c && Date.now() < c.expiresAt) return c.token
+  const fresh = await fetchToken(creds)
+  cache.set(creds.apiKey, fresh)
+  return fresh.token
 }
 
-export async function pfFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getAccessToken()
+// Listings credentials (this feature). The leads integration uses its own key elsewhere.
+export function listingCreds(): PfCreds {
+  return { apiKey: process.env.PF_LISTINGS_API_KEY!, apiSecret: process.env.PF_LISTINGS_API_SECRET! }
+}
+
+export async function pfFetch(path: string, init: RequestInit = {}, creds: PfCreds = listingCreds()): Promise<Response> {
+  const token = await getAccessToken(creds)
   const headers = { ...(init.headers ?? {}), Authorization: `Bearer ${token}`, Accept: 'application/json' }
   return fetch(`${BASE}${path}`, { ...init, headers })
 }
@@ -228,7 +237,7 @@ if (e.type === 'listing.action' && listingId) {
 ```
 Keep the existing 200-ack for unknown types at the end. (Import `setPfStatusByListingId` from `@/lib/properties`.)
 
-- [ ] **Step 2: Subscribe the listing events.** In `scripts/pf-subscribe-webhook.mjs`, change the single-event logic to iterate an array `['lead.created','listing.published','listing.unpublished','listing.action']`, subscribing each that isn't already present (same dedup check). Keep idempotent + loud-on-error.
+- [ ] **Step 2: Subscribe the listing events with the LISTINGS key.** In `scripts/pf-subscribe-webhook.mjs`: subscribe `lead.created` with the **leads** key (`PF_API_KEY`/`PF_API_SECRET`, needs `leads:read`) and `listing.published`/`listing.unpublished`/`listing.action` with the **listings** key (`PF_LISTINGS_API_KEY`/`PF_LISTINGS_API_SECRET`, needs `listings:read`) — two token exchanges. ALL subscriptions pass the SAME `PF_WEBHOOK_SECRET` so the single `/api/pf-webhook` endpoint verifies them all. Idempotent dedup per event, loud-on-error.
 
 - [ ] **Step 3: Verify** — `npx tsc --noEmit` clean; `node --check scripts/pf-subscribe-webhook.mjs`.
 
@@ -272,7 +281,9 @@ git commit -m "feat(pf-listing): admin Property Finder panel (2-step publish) + 
 
 - [ ] **Step 1: Document env vars.** Append to `.env.example`:
 ```bash
-# Property Finder listings (integration #2) — needs a PF key with listings:full_access + users:read
+# Property Finder listings (integration #2) — SEPARATE key with listings:full_access + users:read
+PF_LISTINGS_API_KEY=
+PF_LISTINGS_API_SECRET=
 PF_COMPANY_LICENSE=
 PF_PUBLIC_PROFILE_ID=
 ```
@@ -286,7 +297,7 @@ git commit -m "docs(pf-listing): env vars for listing publish (company license +
 ```
 
 - [ ] **Step 4 (operator, at deploy — not a code commit):**
-  1. Create the second PF API key (`listings:full_access` + `users:read`) in PF Expert; put key/secret in server `.env.local` (replacing the leads key if reused, or keep both — the routes use `PF_API_KEY`/`PF_API_SECRET`, so decide which key those point to; simplest: upgrade to a key that has BOTH leads+listings+users scopes so one key serves everything).
+  1. Create the SEPARATE listings PF key (`listings:full_access` + `users:read`) in PF Expert; put it in server `.env.local` as `PF_LISTINGS_API_KEY`/`PF_LISTINGS_API_SECRET` (leave the leads key in `PF_API_KEY`/`PF_API_SECRET`, untouched).
   2. `GET /v1/users` → pick the owner's `publicProfile.id` → set `PF_PUBLIC_PROFILE_ID`; set `PF_COMPANY_LICENSE`.
   3. Deploy from `main` (backup data → rsync → build → pm2 restart).
   4. Re-run `scripts/pf-subscribe-webhook.mjs` (subscribes the new listing events).
