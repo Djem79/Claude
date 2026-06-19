@@ -26,8 +26,21 @@ function writeFileAtomic(filePath, contents) {
   fs.renameSync(tmp, filePath)
 }
 
+// Cyrillic → Latin so Russian titles (this channel is Russian) produce a non-empty
+// slug. Without this, an all-Cyrillic title strips to '' and /api/blog-image returns
+// 400 (isValidSlug requires [a-z0-9-]{1,80}) → the post goes out with no image.
+const CYR = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i',
+  й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't',
+  у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch', ъ: '', ы: 'y',
+  ь: '', э: 'e', ю: 'yu', я: 'ya',
+}
+function transliterate(s) {
+  return s.toLowerCase().split('').map(c => (c in CYR ? CYR[c] : c)).join('')
+}
+
 function sanitizeSlug(raw) {
-  return String(raw || '').toLowerCase()
+  return transliterate(String(raw || ''))
     .replace(/[^a-z0-9]+/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 80).replace(/-+$/g, '')
 }
 
@@ -173,8 +186,9 @@ async function main() {
   const post = { ...pending[0].p }
   log(`Post: "${post.title}" (${post.type})`)
 
-  // Build a stable slug for image naming
-  post.slug = sanitizeSlug(post.title)
+  // Build a stable slug for image naming. Fallback guarantees a valid non-empty
+  // slug (e.g. plan-2026-06-26) so /api/blog-image never 400s on an empty slug.
+  post.slug = sanitizeSlug(post.title) || `plan-${post.date}`
 
   // Generate image: raw AI photo → branded card
   let imagePath = null
