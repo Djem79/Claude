@@ -194,6 +194,13 @@ function escapeHtml(text: string): string {
 // then apply our own bold/italic markup. See tasks/security-audit.md C1.
 function formatInline(text: string): string {
   return escapeHtml(text)
+    // Internal links only: [label](/path). The leading "/" requirement means article copy
+    // can never inject an offsite or javascript: href — escapeHtml has already run, so the
+    // captured groups are safe to interpolate into the anchor.
+    .replace(
+      /\[([^\]]+)\]\((\/[^)\s]+)\)/g,
+      '<a href="$2" class="text-gold-accessible underline underline-offset-2 hover:opacity-80">$1</a>',
+    )
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
