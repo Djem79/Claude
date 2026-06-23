@@ -133,6 +133,7 @@ Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own l
 | `0 8 * * 1` (Mon) | `scripts/seo-audit.mjs` | `/var/log/worldwise-seo-audit.log` | Weekly site self-check (URL reachability, SSL, robots.txt, sitemap freshness) → Telegram |
 | `0 5 * * 0` (Sun) | `scripts/discover-keywords.mjs` | `/var/log/worldwise-keyword-discovery.log` | Weekly keyword discovery → tops up the auto-blog keyword bank (see *Keyword discovery* under Architecture) |
 | `0 6 1 * *` | `scripts/competitor-gap.mjs` | `/var/log/worldwise-competitor-gap.log` | Monthly competitor keyword-gap (DataForSEO Labs) → Telegram report + top-5 into the autoblog bank |
+| `0 7 1 * *` | `scripts/gsc.mjs content-review` | `/var/log/worldwise-content-review.log` | Monthly GSC content-performance review (winners / decaying / striking-distance / low-CTR) → Telegram |
 
 All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
@@ -449,6 +450,7 @@ node --env-file=.env.local scripts/gsc.mjs queries [--days=N] [--limit=N]     # 
 node --env-file=.env.local scripts/gsc.mjs pages   [--days=N] [--limit=N]     # top pages
 node --env-file=.env.local scripts/gsc.mjs sitemaps                           # sitemap status
 node --env-file=.env.local scripts/gsc.mjs digest [--dry-run]                 # send weekly snapshot to Telegram
+node --env-file=.env.local scripts/gsc.mjs content-review [--days=N] [--dry-run]  # monthly content-performance review → Telegram
 ```
 
 **Weekly cron on the server** (Hetzner VPS) runs the `digest` command every Monday at 06:00 UTC and appends to `/var/log/worldwise-gsc.log`:
