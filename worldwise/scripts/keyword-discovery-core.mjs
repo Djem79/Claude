@@ -90,3 +90,24 @@ export function dedupeKeywords(keywords, seenSet) {
   }
   return out
 }
+
+/** Full pure pipeline: normalize → filter → score → sort → top N. opts: { minVolume, n }. */
+export function scoreAndSelect(candidates, opts) {
+  const minVolume = Number(opts?.minVolume) || 0
+  const n = Number(opts?.n) || 5
+  const normalized = normalizeVolumePerGeo(candidates)
+  const scored = []
+  for (const c of normalized) {
+    const verdict = passesFilters(c.keyword, { minVolume, maxVol: c.maxVol })
+    if (!verdict.ok) continue
+    const rise = Math.max(
+      1e-9,
+      ...Object.values(c.perGeo || {}).map(g => trendRiseFactor(g.trend)),
+    )
+    const intent = intentWeight(c.keyword)
+    const score = c.normVol * rise * intent
+    scored.push({ keyword: c.keyword, score, normVol: c.normVol, rise, intent, maxVol: c.maxVol, perGeo: c.perGeo })
+  }
+  scored.sort((a, b) => b.score - a.score)
+  return scored.slice(0, n)
+}

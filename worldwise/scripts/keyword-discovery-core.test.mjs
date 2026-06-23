@@ -5,6 +5,7 @@ import { trendRiseFactor } from './keyword-discovery-core.mjs'
 import { normalizeVolumePerGeo } from './keyword-discovery-core.mjs'
 import { passesFilters, intentWeight } from './keyword-discovery-core.mjs'
 import { dedupeKeywords } from './keyword-discovery-core.mjs'
+import { scoreAndSelect } from './keyword-discovery-core.mjs'
 
 const mk = (...vals) => vals.map((value, i) => ({ month: String(i), year: 2026, value }))
 
@@ -110,4 +111,32 @@ test('dedupeKeywords: removes against seen set (case-insensitive)', () => {
 test('dedupeKeywords: removes in-list duplicates, keeps first casing', () => {
   const out = dedupeKeywords(['Dubai ROI', 'dubai roi', 'jvc yield'], new Set())
   assert.deepEqual(out, ['Dubai ROI', 'jvc yield'])
+})
+
+const trend = (a, b) => [ // 12 months: first 3 = a, last 3 = b, middle flat
+  ...[a,a,a], ...[a,a,a,a,a,a], ...[b,b,b],
+].map((value, i) => ({ month: String(i), year: 2026, value }))
+
+test('scoreAndSelect: filters, scores, returns top N', () => {
+  const cands = [
+    { keyword: 'dubai off plan payment plans', perGeo: { uk: { vol: 1300, trend: trend(100, 400) }, in: { vol: 4400, trend: trend(100, 400) } } }, // rising
+    { keyword: 'dubai property market news',    perGeo: { uk: { vol: 1000, trend: trend(400, 100) } } },                                          // declining, weak intent
+    { keyword: 'abu dhabi villas for sale',     perGeo: { uk: { vol: 5000, trend: trend(100, 400) } } },                                          // rejected: emirate + listing
+    { keyword: 'low vol dubai roi',             perGeo: { uk: { vol: 10,   trend: trend(100, 400) } } },                                          // rejected: maxVol < minVolume
+  ]
+  const out = scoreAndSelect(cands, { minVolume: 100, n: 5 })
+  const kws = out.map(o => o.keyword)
+  assert.ok(kws.includes('dubai off plan payment plans'))
+  assert.ok(!kws.includes('abu dhabi villas for sale'))
+  assert.ok(!kws.includes('low vol dubai roi'))
+  // rising buyer-intent kw outranks the declining news kw
+  assert.equal(out[0].keyword, 'dubai off plan payment plans')
+})
+
+test('scoreAndSelect: respects N', () => {
+  const cands = Array.from({ length: 10 }, (_, i) => ({
+    keyword: `dubai investment topic ${i}`,
+    perGeo: { uk: { vol: 200 + i, trend: trend(100, 200) } },
+  }))
+  assert.equal(scoreAndSelect(cands, { minVolume: 100, n: 3 }).length, 3)
 })
