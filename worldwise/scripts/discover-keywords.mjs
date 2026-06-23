@@ -164,3 +164,30 @@ function insertIntoBank(selectedKeywords) {
   }
   return fresh
 }
+
+async function sendTelegram(text) {
+  if (!TG_TOKEN || !TG_CHAT_ID) { log('Telegram not configured, skipping'); return }
+  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text, disable_web_page_preview: true }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) log(`Telegram ${res.status}: ${(await res.text()).slice(0, 160)}`)
+}
+
+function summaryText({ added, selected, skippedCount, reserve, creditsRemaining }) {
+  const lines = [`🔎 Weekly keyword discovery — added ${added.length} of ${selected.length} top picks:`]
+  for (const s of selected) {
+    const mark = added.some(a => a.toLowerCase() === s.keyword.toLowerCase()) ? '•' : '— (dup, skipped)'
+    const risePct = Math.round((s.rise - 1) * 100)
+    lines.push(`${mark} ${s.keyword} — vol ~${s.maxVol}/mo, trend ${risePct >= 0 ? '↑' : '↓'}${Math.abs(risePct)}%`)
+  }
+  lines.push('', `Filtered out ${skippedCount} candidates (dupes / off-niche / low volume).`)
+  if (reserve.length) lines.push(`Reserve: ${reserve.slice(0, 5).join(' · ')}`)
+  if (creditsRemaining != null) {
+    lines.push(`KE credits remaining: ${creditsRemaining}`)
+    if (creditsRemaining < CREDIT_LOW_WATERMARK) lines.push('⚠️ Top up Keywords Everywhere soon.')
+  }
+  return lines.join('\n')
+}
