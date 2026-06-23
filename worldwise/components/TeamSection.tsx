@@ -1,6 +1,15 @@
 import Image from 'next/image'
 
-const TEAM = [
+type Member = {
+  slug: string
+  ext: string
+  name: string
+  role: string
+  bio: string
+  contain?: boolean
+}
+
+const TEAM: Member[] = [
   {
     slug: 'dzhambulat',
     ext: 'png',
@@ -37,11 +46,12 @@ const TEAM = [
     bio: 'Runs operations, scheduling, and client coordination. Your first point of contact for documentation and logistics.',
   },
   {
-    slug: 'zhanna',
+    slug: 'ko-conveyancing',
     ext: 'jpg',
-    name: 'Zhanna Rean',
-    role: 'Creative Director · London',
-    bio: 'External creative director based in London. Oversees brand, editorial output, and the Worldwise Journal.',
+    name: 'Conveyancing Team',
+    role: 'K.O Conveyancing',
+    bio: 'Experienced conveyancing team handling every legal aspect — from contract to transfer — for a smooth, secure closing.',
+    contain: true,
   },
 ]
 
@@ -86,7 +96,7 @@ export default function TeamSection() {
                     alt={m.name}
                     width={80}
                     height={80}
-                    className="w-full h-full object-cover object-top"
+                    className={`w-full h-full ${m.contain ? 'object-contain' : 'object-cover object-top'}`}
                   />
                 </div>
                 <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gold flex items-center justify-center text-white text-[9px] font-semibold">
