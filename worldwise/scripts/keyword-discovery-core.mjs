@@ -28,6 +28,35 @@ function percentiles(values) {
   })
 }
 
+const OTHER_EMIRATES = ['abu dhabi', 'sharjah', 'ajman', 'ras al khaimah', 'rak ', 'fujairah', 'umm al quwain']
+const NICHE_TOKENS = ['dubai', 'uae', 'off plan', 'off-plan', 'golden visa', 'property', 'real estate',
+  'apartment', 'villa', 'townhouse', 'invest', 'rental', 'yield', 'roi', 'mortgage', 'freehold',
+  'payment plan', 'residence', 'residency', 'developer', 'emaar', 'damac', 'sobha']
+const DENY_TOKENS = ['tourist', 'holiday', 'hotel', 'airbnb short stay', 'job', 'salary', 'rent a car',
+  'visa cost tourist', 'flight', 'restaurant', 'biryani']
+const INTENT_TOKENS = ['buy', 'invest', 'investment', 'payment plan', 'golden visa', 'residency',
+  'residence visa', 'mortgage', 'roi', 'rental yield', 'off plan', 'off-plan', 'best area']
+const GUIDE_TOKENS = ['guide', 'how', 'best', 'vs', ' or ', 'worth', 'should', 'review', 'explained', 'compare']
+
+const has = (s, list) => list.some(t => s.includes(t))
+
+/** Soft buyer-intent multiplier. */
+export function intentWeight(keyword) {
+  return has(String(keyword).toLowerCase(), INTENT_TOKENS) ? 1.3 : 1.0
+}
+
+/** Niche + geo + intent + min-volume gate. opts: { minVolume, maxVol }. */
+export function passesFilters(keyword, opts) {
+  const k = String(keyword).toLowerCase().trim()
+  if (!k) return { ok: false, reason: 'empty' }
+  if (has(k, DENY_TOKENS)) return { ok: false, reason: 'off-topic' }
+  if (has(k, OTHER_EMIRATES) && !k.includes('dubai')) return { ok: false, reason: 'other-emirate' }
+  if (!has(k, NICHE_TOKENS)) return { ok: false, reason: 'off-niche' }
+  if (/\bfor sale\b/.test(k) && !has(k, GUIDE_TOKENS)) return { ok: false, reason: 'listing-intent' }
+  if ((Number(opts?.maxVol) || 0) < (Number(opts?.minVolume) || 0)) return { ok: false, reason: 'low-volume' }
+  return { ok: true, reason: 'ok' }
+}
+
 /** Adds normVol (avg per-geo percentile) and maxVol to each candidate. */
 export function normalizeVolumePerGeo(candidates) {
   if (!candidates.length) return []

@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { trendRiseFactor } from './keyword-discovery-core.mjs'
 import { normalizeVolumePerGeo } from './keyword-discovery-core.mjs'
+import { passesFilters, intentWeight } from './keyword-discovery-core.mjs'
 
 const mk = (...vals) => vals.map((value, i) => ({ month: String(i), year: 2026, value }))
 
@@ -66,4 +67,35 @@ test('normalizeVolumePerGeo: India size does not dominate vs a UK+IN balanced kw
 
 test('normalizeVolumePerGeo: empty input', () => {
   assert.deepEqual(normalizeVolumePerGeo([]), [])
+})
+
+const OPTS = { minVolume: 100, maxVol: 500 }
+
+test('passesFilters: accepts on-niche Dubai buyer query', () => {
+  assert.equal(passesFilters('dubai off plan payment plans', OPTS).ok, true)
+})
+
+test('passesFilters: rejects other emirate', () => {
+  assert.equal(passesFilters('abu dhabi property investor visa', OPTS).ok, false)
+  // ...unless it also references Dubai
+  assert.equal(passesFilters('dubai vs abu dhabi property investment', OPTS).ok, true)
+})
+
+test('passesFilters: rejects off-niche', () => {
+  assert.equal(passesFilters('dubai tourist visa cost', OPTS).ok, false)   // deny token "tourist"
+  assert.equal(passesFilters('best biryani in london', OPTS).ok, false)    // no niche token
+})
+
+test('passesFilters: rejects bare listing-intent but keeps guides', () => {
+  assert.equal(passesFilters('studio for sale in jvc dubai', OPTS).ok, false)
+  assert.equal(passesFilters('best areas to buy off plan in dubai guide', OPTS).ok, true)
+})
+
+test('passesFilters: rejects below min volume', () => {
+  assert.equal(passesFilters('dubai property investment', { minVolume: 100, maxVol: 40 }).ok, false)
+})
+
+test('intentWeight: buyer-intent tokens score higher', () => {
+  assert.ok(intentWeight('how to get golden visa by buying property in dubai') > 1)
+  assert.equal(intentWeight('dubai real estate news'), 1)
 })
