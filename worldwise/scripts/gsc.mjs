@@ -27,6 +27,11 @@ const PRIORITY_PATHS = [
   '/jlt',
   '/creek-harbour',
   '/emaar-beachfront',
+  // Commercial landing pages — monitor crawl/index status weekly (added 2026-06-24).
+  '/invest/buy-apartment-in-dubai',
+  '/invest/buy-villa-in-dubai',
+  '/invest/dubai-off-plan-payment-plans',
+  '/invest/dubai-mortgage-for-non-residents',
 ]
 
 // ─── env helpers ────────────────────────────────────────────────────────────
