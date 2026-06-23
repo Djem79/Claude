@@ -65,8 +65,8 @@ const SUPPORT = [
     desc: 'A licensed AML Officer monitors all transactions in accordance with UAE laws and international standards.',
   },
   {
-    title: 'Conveyancing',
-    desc: 'Experienced conveyancing team handles all legal aspects — from contract to transfer — ensuring a smooth closing.',
+    title: 'Golden Visa & Residency',
+    desc: 'End-to-end support on property-linked residency — from eligibility to Emirates ID.',
   },
 ]
 
