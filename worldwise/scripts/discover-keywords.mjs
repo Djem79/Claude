@@ -191,3 +191,52 @@ function summaryText({ added, selected, skippedCount, reserve, creditsRemaining 
   }
   return lines.join('\n')
 }
+
+async function main() {
+  log(`Starting keyword discovery${DRY_RUN ? ' (DRY RUN)' : ''}`)
+  if (!KE_API_KEY) { log('ERROR: Missing KE_API_KEY'); process.exit(1) }
+
+  // Bank read is strict; a malformed bank must stop us before spending credits.
+  const bank = readBankStrict()
+  const seen = new Set([
+    ...bank.keywords.map(k => k.toLowerCase().trim()),
+    ...readPublishedSeen(),
+  ])
+
+  let candidates = await gatherCandidates()
+  log(`Gathered ${candidates.length} raw candidates`)
+  candidates = dedupeKeywords(candidates, seen)          // pre-KE dedup → fewer credits
+  log(`${candidates.length} candidates after dedup vs bank+published`)
+  if (!candidates.length) {
+    if (!DRY_RUN) await sendTelegram('🔎 Weekly keyword discovery: no new candidates this week.')
+    log('No candidates, exiting'); return
+  }
+
+  let enriched, creditsRemaining
+  try {
+    ({ enriched, creditsRemaining } = await enrichCandidates(candidates))
+  } catch (e) {
+    log(`KE error: ${e.message}`)
+    if (!DRY_RUN) await sendTelegram(`⚠️ Keyword discovery failed (Keywords Everywhere): ${e.message}`)
+    process.exit(1)                                       // bank untouched
+  }
+  log(`Enriched ${enriched.length} candidates; KE credits left: ${creditsRemaining}`)
+
+  const selected = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK })
+  const skippedCount = enriched.length - selected.length
+  const reserve = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK + 5 })
+    .slice(N_PER_WEEK).map(s => s.keyword)
+
+  if (DRY_RUN) {
+    log(`Would add ${selected.length}:`)
+    for (const s of selected) log(`  ${s.score.toFixed(2)}  ${s.keyword}  (vol ${s.maxVol}, rise ${s.rise.toFixed(2)})`)
+    return
+  }
+
+  const added = insertIntoBank(selected.map(s => s.keyword))
+  log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
+  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, creditsRemaining }))
+  log('Done')
+}
+
+main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
