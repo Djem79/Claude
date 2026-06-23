@@ -187,7 +187,7 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 - Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
-`hero_cta`, `mortgage_calculator`, `mortgage_anchor`, `roi_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `golden_visa`, `lead_magnet_guide`, `brochure_request`, `floor_plan`, `property_card`, `mobile_bar`, `qualify`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`
+`hero_cta`, `mortgage_calculator`, `mortgage_anchor`, `roi_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `golden_visa`, `lead_magnet_guide`, `brochure_request`, `floor_plan`, `property_card`, `mobile_bar`, `qualify`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`, `landing_buy_apartment_in_dubai`
 
 Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card` (per-listing WhatsApp button) and `mobile_bar` (mobile sticky bottom CTA on property/area pages) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
 
@@ -460,6 +460,17 @@ node --env-file=.env.local scripts/gsc.mjs digest [--dry-run]                 # 
 The digest needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` on the server (already present, used by lead notifications) plus the three `GSC_*` vars — these were copied to server `.env.local` during initial setup (the file is excluded from rsync, so it persists across deploys).
 
 If the refresh token expires (`invalid_grant`), re-run `auth` locally and re-copy `GSC_REFRESH_TOKEN` to server `.env.local`. Tokens can be revoked at any time via `myaccount.google.com/permissions` (the consent screen is named `Worldwise GSC CLI`).
+
+### Commercial landing pages
+
+`/invest/[slug]` serves SEO and paid-ads landing pages targeting high-intent buyer queries (e.g. "buy apartment in Dubai"). All content lives in `lib/landings.ts` — the single source of truth. Adding a new page = appending one entry to the `landings` array (no new route file needed).
+
+- **Data file:** `lib/landings.ts` exports `Landing[]`, `landingSlugs`, `getLanding(slug)`, and the pure `propertiesForLanding(landing, properties)` filter (type / area / maxPriceAed, capped at 6). No fs or Next imports — `node:test`'d in `lib/landings.test.ts`.
+- **Route:** `app/invest/[slug]/page.tsx` (server component) — `generateStaticParams` from `landingSlugs`, `notFound()` on unknown slug, three JSON-LD blocks (`WebPage`, `FAQPage`, `BreadcrumbList`), canonical `https://worldwise.pro/invest/<slug>`.
+- **Client wrapper:** `app/invest/[slug]/LandingClient.tsx` — owns `LeadModal` open/close state, renders the hero, content sections (with optional comparison table), property grid via `<AreaFeaturedProperties heading={landing.gridHeading} />`, FAQ accordion, mid-page CTA band, `<MobileCtaBar>`, and `<LeadModal>`.
+- **Sitemap:** `landingSlugs` are included in `app/sitemap.ts` at priority 0.85, changeFrequency monthly.
+- **Lead sources:** `landing_<slug_underscored>` (e.g. `landing_buy_apartment_in_dubai`).
+- **Invariants:** `<FloatingCTA />` + `<Footer />` mounted in the server page (outside `LandingClient`); `<LeadCaptureSection>` also in the server page. No emojis. JSON-LD via `<JsonLd data={...} />` only.
 
 ### Area landing pages
 
