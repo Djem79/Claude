@@ -6,6 +6,7 @@ import assert from 'node:assert/strict'
 import {
   computeGap,
   isWinnable,
+  isGapWorthy,
   scoreGap,
   selectGap,
   formatGapReport,
@@ -223,6 +224,46 @@ test('selectGap: returns highest-score first', () => {
   if (result.length >= 2) {
     assert.ok(result[0].score >= result[1].score, 'highest score first')
   }
+})
+
+// ---------------------------------------------------------------------------
+// isGapWorthy
+// ---------------------------------------------------------------------------
+
+test('isGapWorthy: keeps buyer/info-intent queries', () => {
+  assert.ok(isGapWorthy('dubai property prices'))
+  assert.ok(isGapWorthy('best area to buy off plan in dubai'))
+  assert.ok(isGapWorthy('golden visa cost dubai'))
+  assert.ok(isGapWorthy('dubai apartment service charges'))
+})
+
+test('isGapWorthy: rejects navigational + classifieds noise', () => {
+  assert.ok(!isGapWorthy('d1 tower dubai'))                                   // navigational building name, no intent
+  assert.ok(!isGapWorthy('khalifa city uae'))                                 // community name, no intent
+  assert.ok(!isGapWorthy('buying used cars in dubai'))                        // deny: cars (beats the 'buy' intent)
+  assert.ok(!isGapWorthy('general directorate of residency dubai al awir'))   // deny: directorate (beats 'residency')
+  assert.ok(!isGapWorthy('dubai flats for rent'))                            // rental search = renter, not our buyer
+  assert.ok(!isGapWorthy('damac vera residences'))                           // building name ("residences" ≠ residency)
+  assert.ok(!isGapWorthy('mayfair residency'))                              // building-name suffix, not residency-visa intent
+  assert.ok(!isGapWorthy('detroit house'))                                  // 'roi' must be word-bounded, not match "detROIt"
+})
+
+test('isGapWorthy: keeps investor rental-yield but rejects rental search', () => {
+  assert.ok(isGapWorthy('dubai apartment rental yield'))    // 'yield' intent kept
+  assert.ok(!isGapWorthy('apartment for rent in dubai'))    // 'rent' denied
+})
+
+test('selectGap: rejects navigational/classifieds even when winnable', () => {
+  const rows = [
+    { keyword: 'd1 tower dubai',                  domain: 'bayut.com', rank: 5, search_volume: 5000, keyword_difficulty: 0,  cpc: 1.0, competition: 0.2 },
+    { keyword: 'buying used cars in dubai',        domain: 'bayut.com', rank: 3, search_volume: 8000, keyword_difficulty: 2,  cpc: 0.5, competition: 0.3 },
+    { keyword: 'dubai off plan payment plan guide', domain: 'bayut.com', rank: 6, search_volume: 900, keyword_difficulty: 25, cpc: 2.0, competition: 0.5 },
+  ]
+  const out = selectGap(rows, new Set(), { maxDifficulty: 40, minVolume: 100, maxVolume: 20000, n: 10, maxPerTheme: 2 })
+  const kws = out.map(r => r.keyword.toLowerCase())
+  assert.ok(!kws.includes('d1 tower dubai'), 'navigational excluded')
+  assert.ok(!kws.includes('buying used cars in dubai'), 'classifieds excluded')
+  assert.ok(kws.includes('dubai off plan payment plan guide'), 'buyer-intent kept')
 })
 
 // ---------------------------------------------------------------------------

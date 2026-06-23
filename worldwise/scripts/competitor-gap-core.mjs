@@ -101,6 +101,36 @@ export function scoreGap(cand) {
 }
 
 // ---------------------------------------------------------------------------
+// 3b. isGapWorthy — stricter than the blog niche gate.
+// Competitor domains (esp. classifieds/portals) rank for masses of navigational
+// and off-topic terms (specific building/tower/community names, gov offices,
+// cars, jobs) that merely contain "dubai". A gap candidate must show real
+// buyer/investment/informational intent AND not be classifieds noise.
+// ---------------------------------------------------------------------------
+
+const GAP_DENY = ['car', 'cars', 'used car', 'job', 'jobs', 'salary', 'vacancy', 'directorate',
+  'foreigners affairs', 'licence', 'license', 'tourist', 'flight', 'court', 'police',
+  'visa stamp', 'hotel', 'furniture', 'metro station', 'bus',
+  // rental-search = renters, not our sales/investor customer (rental YIELD still kept via 'yield')
+  'rent', 'renting', 'accommodation', 'flatmate']
+// NOTE: no bare 'residence'/'rent' here — they match building names ("Damac Residences") and rental
+// search. Use specific multi-word intent ('residence visa') + 'residency' (won't match "residences").
+// 'roi' and ' vs ' are space-bounded (k is space-padded) so they don't match inside words
+// ("detROIt"); bare 'residency' removed — it's a common Dubai building-name suffix ("Mayfair Residency").
+const GAP_INTENT = ['buy', 'invest', 'for sale', 'price', 'yield', ' roi ', 'off plan',
+  'off-plan', 'payment plan', 'golden visa', 'residence visa', 'property visa', 'mortgage', 'freehold',
+  'handover', 'service charge', 'cost', 'fees', 'cheap', 'affordable', 'best area', 'how to',
+  'what is', 'guide', 'worth', ' vs ']
+const normPad = s => ` ${String(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim()} `
+
+/** Require buyer/info intent; reject word-bounded classifieds/navigational noise. */
+export function isGapWorthy(keyword) {
+  const k = normPad(keyword)
+  if (GAP_DENY.some(t => k.includes(` ${t} `))) return false
+  return GAP_INTENT.some(t => k.includes(t))
+}
+
+// ---------------------------------------------------------------------------
 // 4. selectGap
 // ---------------------------------------------------------------------------
 
@@ -137,8 +167,11 @@ export function selectGap(competitorRows, ourSet, opts) {
     return passesFilters(c.keyword, { minVolume: opts.minVolume, maxVol: vol }).ok
   })
 
+  // Step 3b: gap-worthy gate — buyer/info intent only, no classifieds/navigational noise
+  const worthy = niched.filter(c => isGapWorthy(c.keyword))
+
   // Step 4: winnability gate
-  const winnable = niched.filter(c => isWinnable(c, {
+  const winnable = worthy.filter(c => isWinnable(c, {
     maxDifficulty: opts.maxDifficulty,
     minVolume: opts.minVolume,
     maxVolume: opts.maxVolume,
