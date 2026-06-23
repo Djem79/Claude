@@ -131,6 +131,7 @@ Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own l
 | `0 4 * * 0` (Sun) | `scripts/prune-leads.mjs` | `/var/log/worldwise-prune.log` | Weekly maintenance pass over `data/leads.json` |
 | `0 6 * * 1` (Mon) | `scripts/gsc.mjs digest` | `/var/log/worldwise-gsc.log` | Weekly Search Console digest → Telegram (see *GSC CLI* under Architecture) |
 | `0 8 * * 1` (Mon) | `scripts/seo-audit.mjs` | `/var/log/worldwise-seo-audit.log` | Weekly site self-check (URL reachability, SSL, robots.txt, sitemap freshness) → Telegram |
+| `0 5 * * 0` (Sun) | `scripts/discover-keywords.mjs` | `/var/log/worldwise-keyword-discovery.log` | Weekly keyword discovery → tops up the auto-blog keyword bank (see *Keyword discovery* under Architecture) |
 
 All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
@@ -401,6 +402,10 @@ ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/worldwise-blog.log"
 ```
 
+### Keyword discovery (weekly)
+
+`scripts/discover-keywords.mjs` (cron, Sun 05:00 UTC) keeps the auto-blog keyword bank fresh. Pure core `scripts/keyword-discovery-core.mjs` (`node --test scripts/keyword-discovery-core.test.mjs`) handles scoring/filtering/normalization/dedup; the shell pulls candidates from Google autocomplete on `SEEDS`, enriches them with **Keywords Everywhere** `get_keyword_data` (volume + 12-month trend) across `TARGET_GEOS` (`uk`,`ae`,`in`, **normalized per geo** so India can't dominate), filters (Dubai-geo / niche / buyer-intent / `MIN_VOLUME` / dedup vs bank + `data/articles.json`), scores by `normVol × trendRise × intent`, and **inserts the top `N_PER_WEEK` at the current bank index** (strict-read + atomic-write, like `incrementKeywordIndex`). It sends a Telegram summary and auto-adds (no per-keyword approval — the per-article approval in `generate-article.mjs` still gates publishing). `--dry-run` prints the would-add list without writing or notifying. Needs `KE_API_KEY` in the server `.env.local`.
+
 ### Analytics
 
 `components/Analytics.tsx` — consent-aware GA4 loader. Renders `<Script>` tags only after the user accepts cookies. Listens for the `ww_consent_accepted` custom event dispatched by `CookieBanner.tsx` (also checks `localStorage` on mount for returning visitors). Mounted in `app/layout.tsx`.
@@ -494,3 +499,4 @@ See `.env.example`. Key vars:
 - `NEXT_PUBLIC_SITE_URL` — absolute URLs in Telegram messages and sitemap
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); GA loads only after cookie consent
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
+- `KE_API_KEY` — Keywords Everywhere API key for the weekly keyword-discovery cron (`scripts/discover-keywords.mjs`)
