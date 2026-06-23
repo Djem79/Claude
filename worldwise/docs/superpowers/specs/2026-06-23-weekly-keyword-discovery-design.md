@@ -20,17 +20,16 @@ A weekly automated service that discovers the hottest / rising search queries in
 | Decision | Choice |
 | --- | --- |
 | Data source | **Paid SEO API**, budget ≤ $15–20/mo |
-| Provider | **Keywords Everywhere** ($15 = 100k credits, no subscription, ~1 yr validity) |
+| Provider | **DataForSEO** (pay-as-you-go; ~$0.05–0.075/run/geo; $50 min deposit, lasts years; $1 free trial) |
 | Human-in-the-loop | **Auto-add** top candidates to the bank + Telegram **summary** (no per-keyword approval). The existing per-article Telegram approval remains the publish gate. |
 
-## Keywords Everywhere API (confirmed capabilities)
+## DataForSEO API
 
-Official REST API (`api.keywordseverywhere.com`), Bearer token:
-- **PASF** ("people also search for") — confirmed; discovery from a seed term. A **Related Keywords** discovery method also appears to exist (KE's newer REST methods); the exact discovery-endpoint set is to be confirmed against the live KE docs during implementation, and the script degrades gracefully if only PASF is available (seed list is then expanded via PASF + Google autocomplete as a fallback).
-- **Get Keyword Data** — confirmed; up to 100 keywords/request; returns search volume, CPC, competition, and a **12-month monthly-volume trend** array. **1 credit per keyword.**
-- Each response reports remaining credit balance.
-
-Cost estimate: ~15 seeds → a few hundred candidates → enrich a few hundred keywords ≈ a few hundred credits/run × ~4 runs/mo ≈ 1–2k credits/mo. The $15 / 100k-credit pack lasts effectively years → well within budget. Volume queries are **per-country** (credits multiply by number of geos queried — see Config).
+REST API (`api.dataforseo.com`), Basic auth (`DATAFORSEO_LOGIN:DATAFORSEO_PASSWORD`):
+- **`keywords_data/google_ads/search_volume/live`** — up to 1000 keywords per request; returns `search_volume` (current monthly), `monthly_searches` (12-month trend array with `year`/`month`/`search_volume` per entry), `competition`, and `cpc`. Trend entries are sorted chronological before use.
+- Location codes: uk = 2826, ae = 2784, in = 2356. Language: `en`. One request per geo.
+- Top-level response includes `cost` (USD spent on this call) — logged per run.
+- Pay-as-you-go: ~$0.05–0.075/run/geo depending on keyword count; 3 geos ≈ $0.15–0.23/run × 4 runs/mo ≈ < $1/mo. Minimum $50 deposit (lasts years at this volume). $1 free trial available at signup.
 
 ## Architecture
 
@@ -40,8 +39,8 @@ A standalone Node ESM cron script `scripts/discover-keywords.mjs`, mirroring exi
 
 ```
 SEEDS (niche terms)
-  → KE Related Keywords + PASF            → candidate pool (discovery)
-  → KE Get Keyword Data (volume + 12-mo trend, per target geo, normalized per geo)
+  → Google autocomplete                   → candidate pool (discovery)
+  → DataForSEO search_volume (volume + 12-mo trend, per geo, normalized per geo)
   → SCORE   (rising-trend × volume × buyer-intent)
   → FILTER  (niche + Dubai-geo + min volume + buyer-intent)
   → DEDUP   (vs bank keywords + already-published article slugs)
@@ -80,28 +79,28 @@ After a run, send one message to the admin chat:
 > • `<keyword>` — vol ~X/mo, trend ↑Y%
 > …
 > Skipped **M** (duplicates / off-niche / low volume). Reserve candidates: `<…>`
-> KE credits remaining: Z.
+> This run cost: $X.XX (DataForSEO).
 
 The user can manually drop a bad one or add a reserve via the existing `/add_keyword` command.
 
 ## Failure handling & budget
 
-- KE API error / non-200 / timeout → log + Telegram alert; **bank untouched** (no partial/garbage write).
-- Credit balance returned each call → log it; if below a threshold, Telegram alert ("top up Keywords Everywhere").
+- DataForSEO API error / non-20000 status / timeout → log + Telegram alert; **bank untouched** (no partial/garbage write).
+- Run cost returned in `json.cost` → logged per run in the Telegram summary.
 - Zero survivors after filtering → notify "no new keywords this week" and exit cleanly (no write).
 - All bank mutations behind the strict-read / atomic-write invariant.
 
 ## Configuration & environment
 
-- `KE_API_KEY` in the **server** `.env.local` (excluded from rsync, persists across deploys) + documented in `.env.example`.
-- Config constants in the script: `SEEDS[]`, `N_PER_WEEK` (5), `MIN_VOLUME` (100), `TARGET_GEOS` (default `['uk','ae','in']` — UK + UAE + India, the primary Dubai-buyer markets; US dropped as a minor market; volumes are normalized per geo, not summed, so India can't dominate; more geos = more credits), `EMIRATE_DENYLIST[]`, `INTENT_DENYLIST[]`.
+- `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` in the **server** `.env.local` (excluded from rsync, persists across deploys) + documented in `.env.example`. Get from https://app.dataforseo.com/api-access.
+- Config constants in the script: `SEEDS[]`, `N_PER_WEEK` (5), `MIN_VOLUME` (100), `TARGET_GEOS` (default `['uk','ae','in']` — UK + UAE + India, the primary Dubai-buyer markets; US dropped as a minor market; volumes are normalized per geo, not summed, so India can't dominate), `LOCATION_CODES` (`{ uk: 2826, ae: 2784, in: 2356 }` — Google geo target IDs), `EMIRATE_DENYLIST[]`, `INTENT_DENYLIST[]`.
 - Reuses `GEMINI_API_KEY` (only if the optional relevance check is enabled) and `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` (already on the server).
 
 ## Ops
 
 - Cron on the Hetzner VPS: **Sunday 05:00 UTC** (before the Monday GSC digest and ahead of the daily 09:00 generation), logging to `/var/log/worldwise-keyword-discovery.log`.
-- Document in CLAUDE.md *Scheduled jobs* table + *Architecture* (a short "Keyword discovery" subsection) and add `KE_API_KEY` to the env list.
-- Deploy: script ships via the normal rsync (it's code, not `data/`). `KE_API_KEY` set once on the server.
+- Document in CLAUDE.md *Scheduled jobs* table + *Architecture* (a short "Keyword discovery" subsection) and add `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD` to the env list.
+- Deploy: script ships via the normal rsync (it's code, not `data/`). DataForSEO credentials (`DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD`) set once in server `.env.local`; get from https://app.dataforseo.com/api-access. $1 free trial credit for initial validation; $50 minimum deposit thereafter (lasts years at this call volume).
 
 ## Testing
 
@@ -111,7 +110,7 @@ The user can manually drop a bad one or add a reserve via the existing `/add_key
 ## Non-goals (YAGNI)
 
 - No per-keyword approval UI / Telegram buttons (auto-add by decision; per-article approval already gates publishing).
-- No second data provider (DataForSEO / Google Trends / Google Ads Planner) — Keywords Everywhere only.
+- No additional data provider (Google Trends / Google Ads Planner) — DataForSEO only.
 - No change to `generate-article.mjs` or the article format.
 - No historical analytics/dashboard of discovered keywords (the Telegram summary + log suffice).
-- No automatic credit top-up (alert only).
+- No automatic credit alerts (pay-as-you-go cost is logged per run; deposit refill is manual).

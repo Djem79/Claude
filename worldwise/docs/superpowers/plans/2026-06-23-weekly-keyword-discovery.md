@@ -4,9 +4,9 @@
 
 **Goal:** A weekly cron that discovers hot/rising Dubai-property buyer search queries and auto-tops-up the auto-blog keyword bank, so daily articles target fresh demand.
 
-**Architecture:** One standalone Node ESM cron script `scripts/discover-keywords.mjs` (IO shell) + one pure, dependency-free core module `scripts/keyword-discovery-core.mjs` (scoring, filtering, normalization, dedup — unit-tested with `node --test`). Candidates come from Google autocomplete on seed terms; volume + 12-month trend come from the Keywords Everywhere `get_keyword_data` API (geos UK+UAE+India, normalized per geo). Top N are inserted at the current index of `data/article-keywords.json` (strict-read + atomic-write), then a Telegram summary is sent. The existing per-article Telegram approval still gates publishing.
+**Architecture:** One standalone Node ESM cron script `scripts/discover-keywords.mjs` (IO shell) + one pure, dependency-free core module `scripts/keyword-discovery-core.mjs` (scoring, filtering, normalization, dedup — unit-tested with `node --test`). Candidates come from Google autocomplete on seed terms; volume + 12-month trend come from the **DataForSEO** `keywords_data/google_ads/search_volume/live` API (geos UK+UAE+India, normalized per geo). Top N are inserted at the current index of `data/article-keywords.json` (strict-read + atomic-write), then a Telegram summary is sent. The existing per-article Telegram approval still gates publishing.
 
-**Tech Stack:** Node.js 24 ESM (`node --env-file=.env.local`), `node --test` (native test runner), Keywords Everywhere REST API, Google autocomplete (`suggestqueries.google.com`), Telegram Bot API. No new npm dependencies.
+**Tech Stack:** Node.js 24 ESM (`node --env-file=.env.local`), `node --test` (native test runner), DataForSEO REST API (Basic auth), Google autocomplete (`suggestqueries.google.com`), Telegram Bot API. No new npm dependencies.
 
 **Spec:** `docs/superpowers/specs/2026-06-23-weekly-keyword-discovery-design.md`
 
@@ -20,10 +20,10 @@ The cron runs `node --env-file=.env.local scripts/discover-keywords.mjs` and imp
 
 - **Create** `scripts/keyword-discovery-core.mjs` — pure helpers: `trendRiseFactor`, `normalizeVolumePerGeo`, `intentWeight`, `passesFilters`, `dedupeKeywords`, `scoreAndSelect`. No `fs`, no network, no imports.
 - **Create** `scripts/keyword-discovery-core.test.mjs` — `node --test` unit tests for the core.
-- **Create** `scripts/discover-keywords.mjs` — IO shell: config, autocomplete fetch, KE client, bank read/write, Telegram, `--dry-run`, logging, `main()`.
-- **Modify** `.env.example` — add `KE_API_KEY`.
+- **Create** `scripts/discover-keywords.mjs` — IO shell: config, autocomplete fetch, DataForSEO client, bank read/write, Telegram, `--dry-run`, logging, `main()`.
+- **Modify** `.env.example` — add `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD`.
 - **Modify** `CLAUDE.md` — Scheduled-jobs table row, env-var entry, short Architecture subsection.
-- **Server (ops, manual at deploy):** `KE_API_KEY` in `/var/www/worldwise/.env.local`; root crontab entry; log at `/var/log/worldwise-keyword-discovery.log`.
+- **Server (ops, manual at deploy):** `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD` in `/var/www/worldwise/.env.local`; root crontab entry; log at `/var/log/worldwise-keyword-discovery.log`.
 
 ## Data shapes (used across tasks)
 
@@ -504,14 +504,14 @@ git commit -m "feat(keyword-discovery): scoreAndSelect pipeline"
 **Files:**
 - Create: `scripts/discover-keywords.mjs`
 
-Build the IO shell incrementally. This task adds the top matter, config, logging, atomic-write, and the Google autocomplete candidate generator. (KE client, bank IO, Telegram, and `main()` follow in later tasks.) No test here — verified by the dry-run in Task 10.
+Build the IO shell incrementally. This task adds the top matter, config, logging, atomic-write, and the Google autocomplete candidate generator. (DataForSEO client, bank IO, Telegram, and `main()` follow in later tasks.) No test here — verified by the dry-run in Task 10.
 
 - [ ] **Step 1: Create the script with config + autocomplete**
 
 ```js
 // scripts/discover-keywords.mjs
 // Weekly keyword-discovery cron. Discovers hot/rising Dubai-property buyer queries
-// (Google autocomplete → Keywords Everywhere volume+trend) and tops up the auto-blog
+// (Google autocomplete → DataForSEO volume+trend) and tops up the auto-blog
 // keyword bank. See docs/superpowers/plans/2026-06-23-weekly-keyword-discovery.md.
 //
 // Run: node --env-file=.env.local scripts/discover-keywords.mjs [--dry-run]
@@ -537,12 +537,13 @@ const SEEDS = [
   'dubai property fees', 'dubai property for foreigners', 'dubai real estate roi',
 ]
 const TARGET_GEOS = ['uk', 'ae', 'in']     // UK + UAE + India; per-geo normalized
+const LOCATION_CODES = { uk: 2826, ae: 2784, in: 2356 }   // Google geo target IDs
 const N_PER_WEEK = 5
 const MIN_VOLUME = 100
-const CANDIDATE_CAP = 200                    // cap unique candidates before KE enrichment (credit guard)
-const CREDIT_LOW_WATERMARK = 20000           // Telegram alert if KE credits drop below this
+const CANDIDATE_CAP = 200                    // cap unique candidates before DataForSEO enrichment
 
-const KE_API_KEY = process.env.KE_API_KEY
+const DFS_LOGIN = process.env.DATAFORSEO_LOGIN
+const DFS_PASSWORD = process.env.DATAFORSEO_PASSWORD
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TG_CHAT_ID = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim()
 
@@ -605,70 +606,65 @@ git commit -m "feat(keyword-discovery): script config + autocomplete candidate g
 
 ---
 
-### Task 7: KE client — `fetchKeywordData`
+### Task 7: DataForSEO client — `fetchKeywordData`
 
 **Files:**
 - Modify: `scripts/discover-keywords.mjs`
 
-Adds the Keywords Everywhere `get_keyword_data` client: batches up to 100 keywords/request, one request per geo, returns `{ rows, creditsRemaining }`. Throws on auth/HTTP errors so `main()` can abort without touching the bank.
+Adds the DataForSEO `keywords_data/google_ads/search_volume/live` client: up to 1000 keywords per request, one request per geo (Basic auth), returns `{ rows, cost }`. Throws on non-20000 status codes so `main()` can abort without touching the bank.
 
-- [ ] **Step 1: Add the KE client**
+- [ ] **Step 1: Add the DataForSEO client**
 
 ```js
 // add to scripts/discover-keywords.mjs (after gatherCandidates)
 
-// ── Keywords Everywhere: volume + 12-month trend ─────────────────────────────
-const KE_URL = 'https://api.keywordseverywhere.com/v1/get_keyword_data'
+// ── DataForSEO: volume + 12-month trend ──────────────────────────────────────
+const DFS_URL = 'https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live'
 
-function chunk(arr, size) {
-  const out = []
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
-  return out
-}
-
-/** One geo, up to 100 kw/request. Returns { rows: [{keyword, vol, trend}], creditsRemaining }. */
+// One geo (≤1000 kw/request). Returns { rows: [{keyword, vol, trend}], cost }.
 async function fetchKeywordData(keywords, geo) {
+  const auth = Buffer.from(`${DFS_LOGIN}:${DFS_PASSWORD}`).toString('base64')
+  const res = await fetch(DFS_URL, {
+    method: 'POST',
+    headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([{
+      location_code: LOCATION_CODES[geo],
+      language_code: 'en',
+      search_partners: false,
+      keywords: keywords.slice(0, 1000),
+    }]),
+    signal: AbortSignal.timeout(60000),
+  })
+  if (!res.ok) throw new Error(`DataForSEO ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  const json = await res.json()
+  if (json.status_code !== 20000) throw new Error(`DataForSEO status ${json.status_code}: ${json.status_message}`)
+  const task = json.tasks?.[0]
+  if (task && task.status_code !== 20000) throw new Error(`DataForSEO task ${task.status_code}: ${task.status_message}`)
   const rows = []
-  let creditsRemaining = null
-  for (const batch of chunk(keywords, 100)) {
-    const body = new URLSearchParams()
-    body.set('dataSource', 'gkp')
-    body.set('country', geo)
-    body.set('currency', 'usd')
-    for (const kw of batch) body.append('kw[]', kw)
-    const res = await fetch(KE_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${KE_API_KEY}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body,
-      signal: AbortSignal.timeout(30000),
-    })
-    if (!res.ok) throw new Error(`KE ${res.status} (${geo}): ${(await res.text()).slice(0, 200)}`)
-    const json = await res.json()
-    for (const d of json.data ?? []) {
-      rows.push({ keyword: String(d.keyword).toLowerCase().trim(), vol: Number(d.vol) || 0, trend: d.trend ?? [] })
-    }
-    if (typeof json.credits === 'number') creditsRemaining = json.credits
+  for (const r of task?.result ?? []) {
+    if (!r?.keyword) continue
+    const trend = (r.monthly_searches ?? [])
+      .slice()
+      .sort((a, b) => (a.year - b.year) || (a.month - b.month))   // chronological for trendRiseFactor
+      .map(m => ({ value: Number(m.search_volume) || 0 }))
+    rows.push({ keyword: String(r.keyword).toLowerCase().trim(), vol: Number(r.search_volume) || 0, trend })
   }
-  return { rows, creditsRemaining }
+  return { rows, cost: Number(json.cost) || 0 }
 }
 
-/** Enrich candidates with per-geo {vol, trend} from KE across all TARGET_GEOS. */
+// Enrich candidates with per-geo {vol,trend} across TARGET_GEOS. Returns { enriched, totalCost }.
 async function enrichCandidates(candidates) {
   const byKw = new Map(candidates.map(k => [k, { keyword: k, perGeo: {} }]))
-  let creditsRemaining = null
+  let totalCost = 0
   for (const geo of TARGET_GEOS) {
-    const { rows, creditsRemaining: cr } = await fetchKeywordData(candidates, geo)
-    if (cr != null) creditsRemaining = cr
+    const { rows, cost } = await fetchKeywordData(candidates, geo)
+    totalCost += cost
     for (const r of rows) {
       const c = byKw.get(r.keyword)
       if (c) c.perGeo[geo] = { vol: r.vol, trend: r.trend }
     }
   }
-  return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), creditsRemaining }
+  return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), totalCost }
 }
 ```
 
@@ -681,7 +677,7 @@ Expected: `syntax OK`.
 
 ```bash
 git add scripts/discover-keywords.mjs
-git commit -m "feat(keyword-discovery): Keywords Everywhere get_keyword_data client"
+git commit -m "feat(keyword-discovery): DataForSEO search_volume client"
 ```
 
 ---
@@ -756,7 +752,7 @@ git commit -m "feat(keyword-discovery): strict bank read + atomic insert + publi
 **Files:**
 - Modify: `scripts/discover-keywords.mjs`
 
-Sends one admin notification: keywords added (with volume + trend %), counts skipped, reserve candidates, and KE credits remaining (with a low-balance warning). Mirrors `generate-article.mjs`'s `sendTelegramMessage`.
+Sends one admin notification: keywords added (with volume + trend %), counts skipped, reserve candidates, and DataForSEO run cost. Mirrors `generate-article.mjs`'s `sendTelegramMessage`.
 
 - [ ] **Step 1: Add Telegram helper + summary builder**
 
@@ -774,7 +770,7 @@ async function sendTelegram(text) {
   if (!res.ok) log(`Telegram ${res.status}: ${(await res.text()).slice(0, 160)}`)
 }
 
-function summaryText({ added, selected, skippedCount, reserve, creditsRemaining }) {
+function summaryText({ added, selected, skippedCount, reserve, cost }) {
   const lines = [`🔎 Weekly keyword discovery — added ${added.length} of ${selected.length} top picks:`]
   for (const s of selected) {
     const mark = added.some(a => a.toLowerCase() === s.keyword.toLowerCase()) ? '•' : '— (dup, skipped)'
@@ -783,10 +779,7 @@ function summaryText({ added, selected, skippedCount, reserve, creditsRemaining 
   }
   lines.push('', `Filtered out ${skippedCount} candidates (dupes / off-niche / low volume).`)
   if (reserve.length) lines.push(`Reserve: ${reserve.slice(0, 5).join(' · ')}`)
-  if (creditsRemaining != null) {
-    lines.push(`KE credits remaining: ${creditsRemaining}`)
-    if (creditsRemaining < CREDIT_LOW_WATERMARK) lines.push('⚠️ Top up Keywords Everywhere soon.')
-  }
+  lines.push(`This run cost: $${cost.toFixed(2)} (DataForSEO).`)
   return lines.join('\n')
 }
 ```
@@ -810,7 +803,7 @@ git commit -m "feat(keyword-discovery): Telegram summary"
 **Files:**
 - Modify: `scripts/discover-keywords.mjs`
 
-Wires the pipeline: validate env → gather candidates → dedup vs bank+published (cheap, pre-KE, saves credits) → enrich via KE → `scoreAndSelect` → insert (or print) → Telegram (skipped in dry-run). On any KE error: alert + exit without touching the bank.
+Wires the pipeline: validate env → gather candidates → dedup vs bank+published (cheap, pre-DataForSEO) → enrich via DataForSEO → `scoreAndSelect` → insert (or print) → Telegram (skipped in dry-run). On any DataForSEO error: alert + exit without touching the bank.
 
 - [ ] **Step 1: Add `main()`**
 
@@ -819,9 +812,9 @@ Wires the pipeline: validate env → gather candidates → dedup vs bank+publish
 
 async function main() {
   log(`Starting keyword discovery${DRY_RUN ? ' (DRY RUN)' : ''}`)
-  if (!KE_API_KEY) { log('ERROR: Missing KE_API_KEY'); process.exit(1) }
+  if (!DFS_LOGIN || !DFS_PASSWORD) { log('ERROR: Missing DATAFORSEO_LOGIN or DATAFORSEO_PASSWORD'); process.exit(1) }
 
-  // Bank read is strict; a malformed bank must stop us before spending credits.
+  // Bank read is strict; a malformed bank must stop us before spending API budget.
   const bank = readBankStrict()
   const seen = new Set([
     ...bank.keywords.map(k => k.toLowerCase().trim()),
@@ -830,22 +823,22 @@ async function main() {
 
   let candidates = await gatherCandidates()
   log(`Gathered ${candidates.length} raw candidates`)
-  candidates = dedupeKeywords(candidates, seen)          // pre-KE dedup → fewer credits
+  candidates = dedupeKeywords(candidates, seen)          // pre-DataForSEO dedup → fewer API calls
   log(`${candidates.length} candidates after dedup vs bank+published`)
   if (!candidates.length) {
     if (!DRY_RUN) await sendTelegram('🔎 Weekly keyword discovery: no new candidates this week.')
     log('No candidates, exiting'); return
   }
 
-  let enriched, creditsRemaining
+  let enriched, totalCost
   try {
-    ({ enriched, creditsRemaining } = await enrichCandidates(candidates))
+    ({ enriched, totalCost } = await enrichCandidates(candidates))
   } catch (e) {
-    log(`KE error: ${e.message}`)
-    if (!DRY_RUN) await sendTelegram(`⚠️ Keyword discovery failed (Keywords Everywhere): ${e.message}`)
+    log(`DataForSEO error: ${e.message}`)
+    if (!DRY_RUN) await sendTelegram(`⚠️ Keyword discovery failed (DataForSEO): ${e.message}`)
     process.exit(1)                                       // bank untouched
   }
-  log(`Enriched ${enriched.length} candidates; KE credits left: ${creditsRemaining}`)
+  log(`Enriched ${enriched.length} candidates; cost this run: $${totalCost.toFixed(2)}`)
 
   const selected = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK })
   const skippedCount = enriched.length - selected.length
@@ -860,7 +853,7 @@ async function main() {
 
   const added = insertIntoBank(selected.map(s => s.keyword))
   log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
-  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, creditsRemaining }))
+  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, cost: totalCost }))
   log('Done')
 }
 
@@ -881,11 +874,10 @@ A real `data/article-keywords.json` only exists on the server. Create a throwawa
 ```bash
 mkdir -p /tmp/kwd-fixture/data
 printf '{"keywords":["existing dubai topic"],"index":0}' > /tmp/kwd-fixture/data/article-keywords.json
-# point the script at the fixture by symlinking data/ is intrusive; instead run with KE key + dry-run
-# from a copy is overkill — verify the network path on the SERVER in Task 12 instead.
-echo "Local dry-run requires KE_API_KEY; full dry-run is run on the server in Task 12."
+# Meaningful dry-run needs DataForSEO creds + real bank — verify on the SERVER in Task 12.
+echo "Local dry-run requires DATAFORSEO_LOGIN/PASSWORD; full dry-run is run on the server in Task 12."
 ```
-Note: the meaningful dry-run needs `KE_API_KEY` (server-only) and the real bank — it is executed on the server in Task 12 before the cron is enabled. Locally we rely on the green core tests + `node --check`.
+Note: the meaningful dry-run needs DataForSEO credentials (server-only) and the real bank — it is executed on the server in Task 12 before the cron is enabled. Locally we rely on the green core tests + `node --check`.
 
 - [ ] **Step 4: Commit**
 
@@ -902,12 +894,14 @@ git commit -m "feat(keyword-discovery): main() wiring + --dry-run"
 - Modify: `.env.example`
 - Modify: `CLAUDE.md` (real path `/Users/dzhambulat/Projects/Claude/CLAUDE.md` — `worldwise/CLAUDE.md` is a symlink to it; edit the real target)
 
-- [ ] **Step 1: Add `KE_API_KEY` to `.env.example`**
+- [ ] **Step 1: Add `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD` to `.env.example`**
 
 Append under the keys section:
 ```
-# Keywords Everywhere API key (weekly keyword-discovery cron, scripts/discover-keywords.mjs)
-KE_API_KEY=
+# DataForSEO API credentials (weekly keyword-discovery cron, scripts/discover-keywords.mjs)
+# Get from https://app.dataforseo.com/api-access
+DATAFORSEO_LOGIN=
+DATAFORSEO_PASSWORD=
 ```
 
 - [ ] **Step 2: Add the cron row to CLAUDE.md Scheduled-jobs table**
@@ -923,12 +917,12 @@ Under the auto-blog area of Architecture, add:
 ```markdown
 ### Keyword discovery (weekly)
 
-`scripts/discover-keywords.mjs` (cron, Sun 05:00 UTC) keeps the auto-blog keyword bank fresh. Pure core `scripts/keyword-discovery-core.mjs` (`node --test scripts/keyword-discovery-core.test.mjs`) handles scoring/filtering/normalization/dedup; the shell pulls candidates from Google autocomplete on `SEEDS`, enriches them with **Keywords Everywhere** `get_keyword_data` (volume + 12-month trend) across `TARGET_GEOS` (`uk`,`ae`,`in`, **normalized per geo** so India can't dominate), filters (Dubai-geo / niche / buyer-intent / `MIN_VOLUME` / dedup vs bank + `data/articles.json`), scores by `normVol × trendRise × intent`, and **inserts the top `N_PER_WEEK` at the current bank index** (strict-read + atomic-write, like `incrementKeywordIndex`). It sends a Telegram summary and auto-adds (no per-keyword approval — the per-article approval in `generate-article.mjs` still gates publishing). `--dry-run` prints the would-add list without writing or notifying. Needs `KE_API_KEY` in the server `.env.local`.
+`scripts/discover-keywords.mjs` (cron, Sun 05:00 UTC) keeps the auto-blog keyword bank fresh. Pure core `scripts/keyword-discovery-core.mjs` (`node --test scripts/keyword-discovery-core.test.mjs`) handles scoring/filtering/normalization/dedup; the shell pulls candidates from Google autocomplete on `SEEDS`, enriches them with **DataForSEO** `keywords_data/google_ads/search_volume/live` (volume + 12-month trend, Basic auth via `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD`) across `TARGET_GEOS` (`uk`,`ae`,`in`, location codes 2826/2784/2356, **normalized per geo** so India can't dominate), filters (Dubai-geo / niche / buyer-intent / `MIN_VOLUME` / dedup vs bank + `data/articles.json`), scores by `normVol × trendRise × intent`, and **inserts the top `N_PER_WEEK` at the current bank index** (strict-read + atomic-write, like `incrementKeywordIndex`). It sends a Telegram summary (including run cost in USD) and auto-adds (no per-keyword approval — the per-article approval in `generate-article.mjs` still gates publishing). `--dry-run` prints the would-add list without writing or notifying. Needs `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` in the server `.env.local`.
 ```
 
 Add to the env-vars list:
 ```
-- `KE_API_KEY` — Keywords Everywhere API key for the weekly keyword-discovery cron (`scripts/discover-keywords.mjs`)
+- `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` — DataForSEO API credentials (pay-as-you-go) for the weekly keyword-discovery cron (`scripts/discover-keywords.mjs`)
 ```
 
 - [ ] **Step 4: Commit**
@@ -942,17 +936,16 @@ git commit -m "docs(keyword-discovery): env example + CLAUDE.md scheduled job & 
 
 ### Task 12: Deploy + server dry-run + enable cron (ops)
 
-**Files:** none (server operations). Requires `KE_API_KEY` from the user (Keywords Everywhere → buy $15 pack → copy API key).
+**Files:** none (server operations). Requires DataForSEO credentials from the user: sign up at https://app.dataforseo.com/api-access, use the $1 free trial for initial validation, then add $50 deposit (lasts years at this call volume). Copy the API login + password.
 
 These steps run after the code is merged to `main`. Per repo workflow, code lands via branch → PR → squash-merge (direct push to `main` is blocked).
 
-- [ ] **Step 1: Put the API key on the server**
+- [ ] **Step 1: Put the DataForSEO credentials on the server**
 
 ```bash
-# append KE_API_KEY to the server .env.local (excluded from rsync, persists across deploys)
-grep -q '^KE_API_KEY=' /dev/null  # (edit on server)
+# append DATAFORSEO_LOGIN + DATAFORSEO_PASSWORD to server .env.local (excluded from rsync, persists)
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
-  'cd /var/www/worldwise && cp -p .env.local .env.local.bak.$(date +%Y%m%d_%H%M%S) && printf "KE_API_KEY=%s\n" "PASTE_KEY_HERE" >> .env.local && echo done'
+  'cd /var/www/worldwise && cp -p .env.local .env.local.bak.$(date +%Y%m%d_%H%M%S) && printf "DATAFORSEO_LOGIN=%s\nDATAFORSEO_PASSWORD=%s\n" "LOGIN_HERE" "PASSWORD_HERE" >> .env.local && echo done'
 ```
 
 - [ ] **Step 2: Deploy the scripts (rsync the two cron files; not part of the Next build)**
@@ -964,13 +957,13 @@ rsync -avz -e "ssh -i ~/.ssh/id_ed25519" \
   root@62.238.35.20:/var/www/worldwise/scripts/
 ```
 
-- [ ] **Step 3: Server dry-run (real KE + real bank, NO write/Telegram)**
+- [ ] **Step 3: Server dry-run (real DataForSEO + real bank, NO write/Telegram)**
 
 ```bash
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   'cd /var/www/worldwise && node --env-file=.env.local scripts/discover-keywords.mjs --dry-run'
 ```
-Expected: a "Would add N:" list of plausible Dubai buyer keywords with scores; KE credits printed; **no** change to `data/article-keywords.json`. Verify the bank is unchanged:
+Expected: a "Would add N:" list of plausible Dubai buyer keywords with scores; run cost printed; **no** change to `data/article-keywords.json`. Verify the bank is unchanged:
 ```bash
 ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 \
   'cd /var/www/worldwise && node -e "const b=require(\"./data/article-keywords.json\");console.log(\"bank size\",b.keywords.length,\"index\",b.index)"'
@@ -997,17 +990,17 @@ Expected: the new cron line is listed.
 ## Self-Review
 
 **Spec coverage:**
-- Source = Keywords Everywhere → Tasks 7, 12. ✓
+- Source = DataForSEO → Tasks 7, 12. ✓
 - Auto-add + Telegram summary, no per-keyword approval → Tasks 9, 10. ✓
 - Pipeline (discover → enrich → score → filter → dedup → insert) → Tasks 1–10. ✓
 - Dubai-geo / niche / intent / min-volume filters → Task 3. ✓
 - Dedup vs bank + published → Tasks 4, 8, 10. ✓
 - Per-geo normalization (India can't dominate) → Task 2. ✓
 - Insert at current index, strict-read + atomic-write → Task 8. ✓
-- Failure handling (KE error → alert, bank untouched) + credit watermark → Tasks 9, 10. ✓
+- Failure handling (DataForSEO error → alert, bank untouched) → Tasks 9, 10. ✓
 - `--dry-run` → Task 10; pure-core node:test → Tasks 1–5. ✓
-- Ops (KE_API_KEY, cron, log, docs) → Tasks 11, 12. ✓
-- Candidate source: spec led with KE Related/PASF + autocomplete fallback; plan uses autocomplete as the concrete candidate generator + KE for authoritative volume/trend (within the spec's envelope). KE Related/PASF can augment `gatherCandidates()` later — noted, not required for v1.
+- Ops (DATAFORSEO_LOGIN/PASSWORD, cron, log, docs) → Tasks 11, 12. ✓
+- Candidate source: autocomplete as the concrete candidate generator + DataForSEO for authoritative volume/trend.
 
 **Placeholder scan:** No TBD/TODO; all code complete; `PASTE_KEY_HERE` in Task 12 is an explicit user-supplied secret, not a code placeholder.
 
