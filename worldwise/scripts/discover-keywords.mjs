@@ -1,6 +1,6 @@
 // scripts/discover-keywords.mjs
 // Weekly keyword-discovery cron. Discovers hot/rising Dubai-property buyer queries
-// (Google autocomplete → Keywords Everywhere volume+trend) and tops up the auto-blog
+// (Google autocomplete → DataForSEO volume+trend) and tops up the auto-blog
 // keyword bank. See docs/superpowers/plans/2026-06-23-weekly-keyword-discovery.md.
 //
 // Run: node --env-file=.env.local scripts/discover-keywords.mjs [--dry-run]
@@ -26,12 +26,13 @@ const SEEDS = [
   'dubai property fees', 'dubai property for foreigners', 'dubai real estate roi',
 ]
 const TARGET_GEOS = ['uk', 'ae', 'in']     // UK + UAE + India; per-geo normalized
+const LOCATION_CODES = { uk: 2826, ae: 2784, in: 2356 }   // Google geo target IDs: UK, UAE, India
 const N_PER_WEEK = 5
 const MIN_VOLUME = 100
-const CANDIDATE_CAP = 200                    // cap unique candidates before KE enrichment (credit guard)
-const CREDIT_LOW_WATERMARK = 20000           // Telegram alert if KE credits drop below this
+const CANDIDATE_CAP = 200                    // cap unique candidates before DataForSEO enrichment
 
-const KE_API_KEY = process.env.KE_API_KEY
+const DFS_LOGIN = process.env.DATAFORSEO_LOGIN
+const DFS_PASSWORD = process.env.DATAFORSEO_PASSWORD
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TG_CHAT_ID = (process.env.TELEGRAM_CHAT_ID ?? '').split(',')[0].trim()
 
@@ -73,58 +74,53 @@ async function gatherCandidates() {
   return [...set].slice(0, CANDIDATE_CAP)
 }
 
-// ── Keywords Everywhere: volume + 12-month trend ─────────────────────────────
-const KE_URL = 'https://api.keywordseverywhere.com/v1/get_keyword_data'
+// ── DataForSEO: volume + 12-month trend ──────────────────────────────────────
+const DFS_URL = 'https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live'
 
-function chunk(arr, size) {
-  const out = []
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
-  return out
-}
-
-/** One geo, up to 100 kw/request. Returns { rows: [{keyword, vol, trend}], creditsRemaining }. */
+// One geo (≤1000 kw/request). Returns { rows: [{keyword, vol, trend}], cost }.
 async function fetchKeywordData(keywords, geo) {
+  const auth = Buffer.from(`${DFS_LOGIN}:${DFS_PASSWORD}`).toString('base64')
+  const res = await fetch(DFS_URL, {
+    method: 'POST',
+    headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([{
+      location_code: LOCATION_CODES[geo],
+      language_code: 'en',
+      search_partners: false,
+      keywords: keywords.slice(0, 1000),
+    }]),
+    signal: AbortSignal.timeout(60000),
+  })
+  if (!res.ok) throw new Error(`DataForSEO ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  const json = await res.json()
+  if (json.status_code !== 20000) throw new Error(`DataForSEO status ${json.status_code}: ${json.status_message}`)
+  const task = json.tasks?.[0]
+  if (task && task.status_code !== 20000) throw new Error(`DataForSEO task ${task.status_code}: ${task.status_message}`)
   const rows = []
-  let creditsRemaining = null
-  for (const batch of chunk(keywords, 100)) {
-    const body = new URLSearchParams()
-    body.set('dataSource', 'gkp')
-    body.set('country', geo)
-    body.set('currency', 'usd')
-    for (const kw of batch) body.append('kw[]', kw)
-    const res = await fetch(KE_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${KE_API_KEY}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body,
-      signal: AbortSignal.timeout(30000),
-    })
-    if (!res.ok) throw new Error(`KE ${res.status} (${geo}): ${(await res.text()).slice(0, 200)}`)
-    const json = await res.json()
-    for (const d of json.data ?? []) {
-      rows.push({ keyword: String(d.keyword).toLowerCase().trim(), vol: Number(d.vol) || 0, trend: d.trend ?? [] })
-    }
-    if (typeof json.credits === 'number') creditsRemaining = json.credits
+  for (const r of task?.result ?? []) {
+    if (!r?.keyword) continue
+    const trend = (r.monthly_searches ?? [])
+      .slice()
+      .sort((a, b) => (a.year - b.year) || (a.month - b.month))   // chronological for trendRiseFactor
+      .map(m => ({ value: Number(m.search_volume) || 0 }))
+    rows.push({ keyword: String(r.keyword).toLowerCase().trim(), vol: Number(r.search_volume) || 0, trend })
   }
-  return { rows, creditsRemaining }
+  return { rows, cost: Number(json.cost) || 0 }
 }
 
-/** Enrich candidates with per-geo {vol, trend} from KE across all TARGET_GEOS. */
+// Enrich candidates with per-geo {vol,trend} across TARGET_GEOS. Returns { enriched, totalCost }.
 async function enrichCandidates(candidates) {
   const byKw = new Map(candidates.map(k => [k, { keyword: k, perGeo: {} }]))
-  let creditsRemaining = null
+  let totalCost = 0
   for (const geo of TARGET_GEOS) {
-    const { rows, creditsRemaining: cr } = await fetchKeywordData(candidates, geo)
-    if (cr != null) creditsRemaining = cr
+    const { rows, cost } = await fetchKeywordData(candidates, geo)
+    totalCost += cost
     for (const r of rows) {
       const c = byKw.get(r.keyword)
       if (c) c.perGeo[geo] = { vol: r.vol, trend: r.trend }
     }
   }
-  return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), creditsRemaining }
+  return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), totalCost }
 }
 
 // ── Keyword bank + dedup sources ─────────────────────────────────────────────
@@ -176,7 +172,7 @@ async function sendTelegram(text) {
   if (!res.ok) log(`Telegram ${res.status}: ${(await res.text()).slice(0, 160)}`)
 }
 
-function summaryText({ added, selected, skippedCount, reserve, creditsRemaining }) {
+function summaryText({ added, selected, skippedCount, reserve, cost }) {
   const lines = [`🔎 Weekly keyword discovery — added ${added.length} of ${selected.length} top picks:`]
   for (const s of selected) {
     const mark = added.some(a => a.toLowerCase() === s.keyword.toLowerCase()) ? '•' : '— (dup, skipped)'
@@ -185,18 +181,15 @@ function summaryText({ added, selected, skippedCount, reserve, creditsRemaining 
   }
   lines.push('', `Filtered out ${skippedCount} candidates (dupes / off-niche / low volume).`)
   if (reserve.length) lines.push(`Reserve: ${reserve.slice(0, 5).join(' · ')}`)
-  if (creditsRemaining != null) {
-    lines.push(`KE credits remaining: ${creditsRemaining}`)
-    if (creditsRemaining < CREDIT_LOW_WATERMARK) lines.push('⚠️ Top up Keywords Everywhere soon.')
-  }
+  lines.push(`This run cost: $${cost.toFixed(2)} (DataForSEO).`)
   return lines.join('\n')
 }
 
 async function main() {
   log(`Starting keyword discovery${DRY_RUN ? ' (DRY RUN)' : ''}`)
-  if (!KE_API_KEY) { log('ERROR: Missing KE_API_KEY'); process.exit(1) }
+  if (!DFS_LOGIN || !DFS_PASSWORD) { log('ERROR: Missing DATAFORSEO_LOGIN or DATAFORSEO_PASSWORD'); process.exit(1) }
 
-  // Bank read is strict; a malformed bank must stop us before spending credits.
+  // Bank read is strict; a malformed bank must stop us before spending API budget.
   const bank = readBankStrict()
   const seen = new Set([
     ...bank.keywords.map(k => k.toLowerCase().trim()),
@@ -205,22 +198,22 @@ async function main() {
 
   let candidates = await gatherCandidates()
   log(`Gathered ${candidates.length} raw candidates`)
-  candidates = dedupeKeywords(candidates, seen)          // pre-KE dedup → fewer credits
+  candidates = dedupeKeywords(candidates, seen)          // pre-DataForSEO dedup → fewer API calls
   log(`${candidates.length} candidates after dedup vs bank+published`)
   if (!candidates.length) {
     if (!DRY_RUN) await sendTelegram('🔎 Weekly keyword discovery: no new candidates this week.')
     log('No candidates, exiting'); return
   }
 
-  let enriched, creditsRemaining
+  let enriched, totalCost
   try {
-    ({ enriched, creditsRemaining } = await enrichCandidates(candidates))
+    ({ enriched, totalCost } = await enrichCandidates(candidates))
   } catch (e) {
-    log(`KE error: ${e.message}`)
-    if (!DRY_RUN) await sendTelegram(`⚠️ Keyword discovery failed (Keywords Everywhere): ${e.message}`)
+    log(`DataForSEO error: ${e.message}`)
+    if (!DRY_RUN) await sendTelegram(`⚠️ Keyword discovery failed (DataForSEO): ${e.message}`)
     process.exit(1)                                       // bank untouched
   }
-  log(`Enriched ${enriched.length} candidates; KE credits left: ${creditsRemaining}`)
+  log(`Enriched ${enriched.length} candidates; cost this run: $${totalCost.toFixed(2)}`)
 
   const selected = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK })
   const skippedCount = enriched.length - selected.length
@@ -235,7 +228,7 @@ async function main() {
 
   const added = insertIntoBank(selected.map(s => s.keyword))
   log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
-  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, creditsRemaining }))
+  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, cost: totalCost }))
   log('Done')
 }
 
