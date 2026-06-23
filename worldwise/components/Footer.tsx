@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-navy-dark border-t border-white/10 py-14">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-10 mb-10">
+        <div className="grid md:grid-cols-5 gap-10 mb-10">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-3">
               <img src="/images/logo.png" alt="Worldwise" className="h-12 w-auto" />
@@ -45,6 +45,18 @@ export default function Footer() {
               <li><Link href="/properties?status=rent" className="hover:text-gold transition-colors">For Rent</Link></li>
               <li><Link href="/properties?type=villa" className="hover:text-gold transition-colors">Villas & Townhouses</Link></li>
               <li><Link href="/developers" className="hover:text-gold transition-colors">Developers</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-white/70 text-xs uppercase tracking-widest font-medium mb-4">
+              Buying Guides
+            </p>
+            <ul className="space-y-2.5 text-sm text-white/50">
+              <li><Link href="/invest/buy-apartment-in-dubai" className="hover:text-gold transition-colors">Buy an Apartment</Link></li>
+              <li><Link href="/invest/buy-villa-in-dubai" className="hover:text-gold transition-colors">Buy a Villa</Link></li>
+              <li><Link href="/invest/dubai-off-plan-payment-plans" className="hover:text-gold transition-colors">Off-Plan Payment Plans</Link></li>
+              <li><Link href="/invest/dubai-mortgage-for-non-residents" className="hover:text-gold transition-colors">Mortgage for Non-Residents</Link></li>
             </ul>
           </div>
 
