@@ -8,7 +8,6 @@ const DATA_DIR = path.join(ROOT, 'data')
 const DRAFT_PATH = path.join(DATA_DIR, 'article-draft.json')
 const TAG_INDEX_PATH = path.join(DATA_DIR, 'article-tag-index.json')
 const KEYWORDS_PATH = path.join(DATA_DIR, 'article-keywords.json')
-const MODE_PATH = path.join(DATA_DIR, 'article-mode.json')
 const BLOG_IMG_DIR = path.join(ROOT, 'public', 'images', 'blog')
 const IMAGE_MODEL = 'gemini-2.5-flash-image'
 const LOCAL_APP = 'http://localhost:3000'
@@ -83,17 +82,6 @@ function incrementTagIndex(current) {
   writeFileAtomic(TAG_INDEX_PATH, JSON.stringify({ index: (current + 1) % TAGS.length }))
 }
 
-function getMode() {
-  try {
-    if (!fs.existsSync(MODE_PATH)) return 'keyword'
-    return JSON.parse(fs.readFileSync(MODE_PATH, 'utf-8')).mode ?? 'keyword'
-  } catch { return 'keyword' }
-}
-
-function setMode(mode) {
-  writeFileAtomic(MODE_PATH, JSON.stringify({ mode }))
-}
-
 function getKeywords() {
   try {
     if (!fs.existsSync(KEYWORDS_PATH)) return { keywords: [], index: 0 }
@@ -116,7 +104,12 @@ async function generateArticle(tag, headlines, keyword) {
 
 A potential investor just searched Google for: "${keyword}"
 
-Write a 600–800 word SEO article that directly and thoroughly answers this question for international property investors.
+Write a thorough, genuinely useful 900–1300 word SEO article that directly answers this search for international investors buying in DUBAI. Open with a direct answer in the first paragraph, then go deep. Requirements:
+- Be specific and concrete — real numbers, AED thresholds, timeframes, step-by-step where relevant. No filler or generic "Dubai is a great market" padding.
+- Structure with ## h2 sections (### h3 where useful); include a markdown table when comparing options (payment plans, areas, visa tiers, etc.).
+- Add a "## Frequently Asked Questions" section with 3–4 concise Q&As.
+- Add 1–2 contextual internal links inline, using ONLY these exact paths and never inventing others: /properties, /golden-visa, /mortgage-calculator, /guide. Markdown syntax: [anchor text](/path).
+- Keep the focus on Dubai; if the query names another emirate, still answer but anchor the advice to Dubai, where the firm operates.
 
 Use these recent UAE market headlines as supporting context to make the article timely:
 ${headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')}
@@ -287,23 +280,19 @@ async function main() {
   if (!GEMINI_KEY) { log('ERROR: Missing GEMINI_API_KEY'); process.exit(1) }
   if (!TG_TOKEN || !TG_CHAT_ID) { log('ERROR: Missing Telegram config'); process.exit(1) }
 
-  const mode = getMode()
-  log(`Mode: ${mode}`)
-
-  let keyword = null
-  let kwIndex = -1
-
-  if (mode === 'keyword') {
-    const { keywords, index } = getKeywords()
-    if (index >= keywords.length) {
-      log('Keyword bank exhausted, notifying via Telegram')
-      await sendTelegramMessage('⚠️ Банк ключевых слов исчерпан. Добавьте новые запросы командой /add_keyword <запрос>')
-      process.exit(0)
-    }
-    keyword = keywords[index]
-    kwIndex = index
-    log(`Keyword [${index}]: "${keyword}"`)
+  // Keyword-only pipeline (news mode retired 2026-06-23): keyword-targeted
+  // articles rank and convert; generic news roundups did neither. Quality over
+  // cadence — when the bank is exhausted we skip the day (and nudge /add_keyword)
+  // rather than fall back to a low-value news summary.
+  const { keywords, index } = getKeywords()
+  if (index >= keywords.length) {
+    log('Keyword bank exhausted, notifying via Telegram')
+    await sendTelegramMessage('⚠️ Банк ключевых слов исчерпан. Добавьте новые запросы командой /add_keyword <запрос>')
+    process.exit(0)
   }
+  const keyword = keywords[index]
+  const kwIndex = index
+  log(`Keyword [${index}]: "${keyword}"`)
 
   const [feed1, feed2] = await Promise.all(RSS_FEEDS.map(fetchRss))
   const seen = new Set()
@@ -313,10 +302,8 @@ async function main() {
     return true
   }).slice(0, 5)
 
-  if (headlines.length < 3) {
-    log('Not enough RSS headlines (need ≥3), aborting')
-    process.exit(0)
-  }
+  // News headlines are optional supporting context for keyword articles — a flaky
+  // Google News RSS must not skip the day now that this is the sole pipeline.
   log(`Fetched ${headlines.length} headlines`)
 
   const tagIndex = getTagIndex()
@@ -362,12 +349,8 @@ async function main() {
   log('Telegram notification sent — waiting for approval')
 
   incrementTagIndex(tagIndex)
-  const newMode = mode === 'keyword' ? 'news' : 'keyword'
-  if (mode === 'keyword') {
-    incrementKeywordIndex(kwIndex)
-  }
-  setMode(newMode)
-  log(`Mode flipped to: ${newMode}`)
+  incrementKeywordIndex(kwIndex)
+  log(`Advanced keyword index to ${kwIndex + 1}`)
 }
 
 main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
