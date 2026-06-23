@@ -41,7 +41,7 @@ A standalone Node ESM cron script `scripts/discover-keywords.mjs`, mirroring exi
 ```
 SEEDS (niche terms)
   → KE Related Keywords + PASF            → candidate pool (discovery)
-  → KE Get Keyword Data (volume + 12-mo trend, per target geo, summed)
+  → KE Get Keyword Data (volume + 12-mo trend, per target geo, normalized per geo)
   → SCORE   (rising-trend × volume × buyer-intent)
   → FILTER  (niche + Dubai-geo + min volume + buyer-intent)
   → DEDUP   (vs bank keywords + already-published article slugs)
@@ -62,7 +62,7 @@ A candidate must pass ALL of:
 
 ## Scoring
 
-Rank survivors by a blend that favours **rising** trend and **volume**, e.g. `score = volume_normalized × trend_rise_factor × intent_weight`, where `trend_rise_factor` compares recent months vs earlier months of the 12-month KE trend array (a query trending UP scores higher than a flat high-volume one — "hottest", not just "biggest"). Take the top **N = 5/week** (tunable).
+Rank survivors by a blend that favours **rising** trend and **volume**, e.g. `score = volume_normalized × trend_rise_factor × intent_weight`, where `trend_rise_factor` compares recent months vs earlier months of the 12-month KE trend array (a query trending UP scores higher than a flat high-volume one — "hottest", not just "biggest"). **Volume is normalized per geo** (rank/percentile within each target country, then combined) — NOT summed — so the largest-volume market (India) surfaces its own hot topics without crowding out UK/UAE ones. Take the top **N = 5/week** (tunable).
 
 ## Writing to the bank
 
@@ -94,7 +94,7 @@ The user can manually drop a bad one or add a reserve via the existing `/add_key
 ## Configuration & environment
 
 - `KE_API_KEY` in the **server** `.env.local` (excluded from rsync, persists across deploys) + documented in `.env.example`.
-- Config constants in the script: `SEEDS[]`, `N_PER_WEEK` (5), `MIN_VOLUME` (100), `TARGET_GEOS` (default `['uk','in','ae','us']` — primary international buyer markets; more geos = more credits), `EMIRATE_DENYLIST[]`, `INTENT_DENYLIST[]`.
+- Config constants in the script: `SEEDS[]`, `N_PER_WEEK` (5), `MIN_VOLUME` (100), `TARGET_GEOS` (default `['uk','ae','in']` — UK + UAE + India, the primary Dubai-buyer markets; US dropped as a minor market; volumes are normalized per geo, not summed, so India can't dominate; more geos = more credits), `EMIRATE_DENYLIST[]`, `INTENT_DENYLIST[]`.
 - Reuses `GEMINI_API_KEY` (only if the optional relevance check is enabled) and `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` (already on the server).
 
 ## Ops
