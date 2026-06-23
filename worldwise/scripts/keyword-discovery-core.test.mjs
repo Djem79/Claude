@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { trendRiseFactor } from './keyword-discovery-core.mjs'
 import { normalizeVolumePerGeo } from './keyword-discovery-core.mjs'
 import { passesFilters, intentWeight } from './keyword-discovery-core.mjs'
+import { dedupeKeywords } from './keyword-discovery-core.mjs'
 
 const mk = (...vals) => vals.map((value, i) => ({ month: String(i), year: 2026, value }))
 
@@ -98,4 +99,15 @@ test('passesFilters: rejects below min volume', () => {
 test('intentWeight: buyer-intent tokens score higher', () => {
   assert.ok(intentWeight('how to get golden visa by buying property in dubai') > 1)
   assert.equal(intentWeight('dubai real estate news'), 1)
+})
+
+test('dedupeKeywords: removes against seen set (case-insensitive)', () => {
+  const seen = new Set(['dubai golden visa property'])
+  const out = dedupeKeywords(['Dubai Golden Visa Property', 'new dubai topic'], seen)
+  assert.deepEqual(out, ['new dubai topic'])
+})
+
+test('dedupeKeywords: removes in-list duplicates, keeps first casing', () => {
+  const out = dedupeKeywords(['Dubai ROI', 'dubai roi', 'jvc yield'], new Set())
+  assert.deepEqual(out, ['Dubai ROI', 'jvc yield'])
 })
