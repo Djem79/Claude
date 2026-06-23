@@ -371,6 +371,8 @@ Two article sources, merged by `lib/articles.ts`:
 
 `app/blog/[slug]/page.tsx` uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table). `generateStaticParams()` pre-renders static article slugs at build time; dynamic article routes are rendered on demand.
 
+Inline text in `p`/`ul`/`ol` blocks is rendered by `formatInline()`, which supports `**bold**`, `*italic*`, and **internal links only** — `[label](/path)`. **Invariant (same threat class as the JSON-LD / RSS `escapeXml` rules):** `escapeHtml` runs FIRST, then the link regex requires a leading `/`, so article copy (incl. untrusted AI articles) can never inject an offsite or `javascript:` href. This is how in-content cross-links work (e.g. the residence-visa article → `/golden-visa` + `/properties`); to add one, just write `[text](/path)` in the article `content`.
+
 ### Auto-blog pipeline
 
 Cron runs `scripts/generate-article.mjs` daily at 09:00 UTC (`0 9 * * *`). The script is a Node.js ESM module invoked with `node --env-file=.env.local scripts/generate-article.mjs`.

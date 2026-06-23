@@ -1,5 +1,13 @@
 # Lessons
 
+## 2026-06-23 — Grep the repo before asking "where does X live"
+
+**Context:** User pasted a "K.O Conveyancing" logo and said "replace Zhanna Rean with this logo." The unfamiliar brand made me assume it might be a separate site, so I asked two clarifying rounds (where is it → what platform). The user cut in: "стоп, стоп, наша команда на нашем сайте worldwise." "Zhanna Rean" was in `components/TeamSection.tsx` the whole time — a 2-second grep would have shown it.
+
+**The rule:** When the user references a named entity (a person, section label, brand, or string) and asks to change it, FIRST grep the current repo (`grep -rn 'Zhanna' app components lib`) before asking where it lives. Search collapses clarifying round-trips; only ask about location after the grep comes up empty.
+
+**How to apply:** ambiguity about *where* something is → grep first. Ambiguity about *what to do* (visual treatment, copy wording) → that's the legitimate question to ask. Here the only real question was the avatar treatment, not the location.
+
 ## 2026-06-08 — `title.template` does NOT brand og:title / twitter:title
 
 **Context:** Fixing doubled-brand page titles (`… | Worldwise Real Estate | Worldwise Real Estate Dubai`), I stripped the brand from the `title` variable in `generateMetadata`. But that same variable was reused for `openGraph.title` and `twitter.title` — so social-card titles went brandless. Caught only by the self code-review workflow, after the doc `<title>` looked correct.
