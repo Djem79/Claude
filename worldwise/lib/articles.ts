@@ -303,7 +303,7 @@ The pattern is consistent: proximity to the Metro, the beach, schools and the ma
 For an investor weighing Dubai in 2026, the picture is favourable but no longer a one-way bet. The sensible approach:
 
 - **Buy for income and the long term, not for a quick flip.** With price growth moderating, the easy speculative gains of past years are less reliable. A 7% yield held over several years is the more dependable return.
-- **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our [mortgage calculator](/mortgage-calculator) lets you model financed purchases before you commit.
+- **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our [mortgage calculator](/mortgage-calculator) lets you model financed purchases before you commit, and our [Dubai mortgage guide for non-residents](/invest/dubai-mortgage-for-non-residents) covers eligibility, deposits and rates.
 - **Choose a reputable developer in a high-demand location.** Location fundamentals and developer track record matter more than headline price-per-square-foot.
 
 ## The Bottom Line
