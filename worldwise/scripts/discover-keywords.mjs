@@ -9,12 +9,14 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { scoreAndSelect, dedupeKeywords } from './keyword-discovery-core.mjs'
+import { buildAddSuggestions, buildNegatives, formatClaudeChromePrompt } from './ads-feed-core.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const DATA_DIR = path.join(ROOT, 'data')
 const KEYWORDS_PATH = path.join(DATA_DIR, 'article-keywords.json')
 const ARTICLES_PATH = path.join(DATA_DIR, 'articles.json')
+const ADS_SUGGESTED_PATH = path.join(DATA_DIR, 'ads-suggested.json')
 
 const DRY_RUN = process.argv.includes('--dry-run')
 
@@ -34,6 +36,8 @@ const LOCATION_CODES = { uk: 2826, ae: 2784, in: 2356 }   // Google geo target I
 const N_PER_WEEK = 5
 const MIN_VOLUME = 100
 const CANDIDATE_CAP = 200                    // cap unique candidates before DataForSEO enrichment
+const ADS_N = 8                              // max keywords to suggest adding per run
+const ADS_MIN_NEG_VOL = 200                  // only negate waste terms with real volume
 
 const DFS_LOGIN = process.env.DATAFORSEO_LOGIN
 const DFS_PASSWORD = process.env.DATAFORSEO_PASSWORD
@@ -111,7 +115,13 @@ async function fetchKeywordData(keywords, geo) {
       .slice()
       .sort((a, b) => (a.year - b.year) || (a.month - b.month))   // chronological for trendRiseFactor
       .map(m => ({ value: Number(m.search_volume) || 0 }))
-    rows.push({ keyword: String(r.keyword).toLowerCase().trim(), vol: Number(r.search_volume) || 0, trend })
+    rows.push({
+      keyword: String(r.keyword).toLowerCase().trim(),
+      vol: Number(r.search_volume) || 0,
+      trend,
+      cpc: Number(r.cpc) || 0,
+      competition: r.competition ?? null,
+    })
   }
   return { rows, cost: Number(json.cost) || 0 }
 }
@@ -125,7 +135,7 @@ async function enrichCandidates(candidates) {
     totalCost += cost
     for (const r of rows) {
       const c = byKw.get(r.keyword)
-      if (c) c.perGeo[geo] = { vol: r.vol, trend: r.trend }
+      if (c) c.perGeo[geo] = { vol: r.vol, trend: r.trend, cpc: r.cpc, competition: r.competition }
     }
   }
   return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), totalCost }
@@ -155,6 +165,40 @@ function readPublishedSeen() {
     }
     return out
   } catch { return new Set() }
+}
+
+// ── Ads-suggested dedup store ─────────────────────────────────────────────────
+
+// ENOENT → return empty store (first run). Present-but-unparseable → THROW (never
+// silently wipe past suggestions). Coerce missing arrays to [].
+function readAdsSuggested() {
+  try {
+    const raw = fs.readFileSync(ADS_SUGGESTED_PATH, 'utf-8')
+    const data = JSON.parse(raw)
+    return {
+      keywords: Array.isArray(data.keywords) ? data.keywords : [],
+      negatives: Array.isArray(data.negatives) ? data.negatives : [],
+    }
+  } catch (e) {
+    if (e.code === 'ENOENT') return { keywords: [], negatives: [] }
+    throw e   // parse error → propagate, never overwrite
+  }
+}
+
+// Merge new items (case-insensitive dedup) into each array and atomic-write.
+function appendAdsSuggested(newKeywords, newNegatives) {
+  const store = readAdsSuggested()
+  const kwSet = new Set(store.keywords.map(k => k.toLowerCase().trim()))
+  const negSet = new Set(store.negatives.map(k => k.toLowerCase().trim()))
+  for (const k of newKeywords) {
+    const key = String(k).toLowerCase().trim()
+    if (!kwSet.has(key)) { kwSet.add(key); store.keywords.push(k) }
+  }
+  for (const k of newNegatives) {
+    const key = String(k).toLowerCase().trim()
+    if (!negSet.has(key)) { negSet.add(key); store.negatives.push(k) }
+  }
+  writeFileAtomic(ADS_SUGGESTED_PATH, JSON.stringify(store, null, 2))
 }
 
 /** Insert keywords at the current index (front of unused queue) + atomic write. */
@@ -228,16 +272,79 @@ async function main() {
   const reserve = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK + 5 })
     .slice(N_PER_WEEK).map(s => s.keyword)
 
+  // ── Ads feed (computed from the same enriched pool) ───────────────────────
+  const store = readAdsSuggested()
+  const seenKw  = new Set(store.keywords.map(k => k.toLowerCase().trim()))
+  const seenNeg = new Set(store.negatives.map(k => k.toLowerCase().trim()))
+  const adds = buildAddSuggestions(enriched, { minAdsVol: MIN_VOLUME, n: ADS_N, seen: seenKw })
+  const negs = buildNegatives(enriched, { minNegVol: ADS_MIN_NEG_VOL, seen: seenNeg })
+  const prompt = formatClaudeChromePrompt(adds, negs)
+
   if (DRY_RUN) {
     log(`Would add ${selected.length}:`)
     for (const s of selected) log(`  ${s.score.toFixed(2)}  ${s.keyword}  (vol ${s.maxVol}, rise ${s.rise.toFixed(2)})`)
+    log(`Ads feed (dry-run): ${adds.length} to add, ${negs.length} negatives`)
+    for (const a of adds) log(`  ${a.keyword}  bucket=${a.bucket}  match=${a.matchType}  vol=${a.adsVol}  cpc=${a.cpc}  comp=${a.competition}`)
+    if (negs.length) log(`  Negatives: ${negs.join(' · ')}`)
+    log('--- claude-chrome prompt ---')
+    log(prompt)
     return
   }
 
   const added = insertIntoBank(selected.map(s => s.keyword))
   log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
   await sendTelegram(summaryText({ added, selected, skippedCount, reserve, cost: totalCost }))
+
+  // ── Ads feed: persist + notify ────────────────────────────────────────────
+  try {
+    appendAdsSuggested(adds.map(a => a.keyword), negs)
+    const reviewMsg = adsFeedSummary(adds, negs)
+    await sendTelegram(reviewMsg)
+    // claude-chrome prompt: split into ≤3900-char chunks if needed
+    const CHUNK = 3900
+    if (prompt.length <= CHUNK) {
+      await sendTelegram(prompt)
+    } else {
+      const lines = prompt.split('\n')
+      let chunk = ''
+      for (const line of lines) {
+        const next = chunk ? chunk + '\n' + line : line
+        if (next.length > CHUNK) {
+          await sendTelegram(chunk)
+          chunk = line
+        } else {
+          chunk = next
+        }
+      }
+      if (chunk) await sendTelegram(chunk)
+    }
+  } catch (e) {
+    log(`Ads feed error (non-fatal): ${e.message}`)
+  }
+
   log('Done')
+}
+
+function adsFeedSummary(adds, negs) {
+  const lines = [`🎯 Ads feed — ${adds.length} keywords to add / ${negs.length} negatives`]
+  if (adds.length) {
+    const byBucket = {}
+    for (const a of adds) {
+      if (!byBucket[a.bucket]) byBucket[a.bucket] = []
+      byBucket[a.bucket].push(a)
+    }
+    for (const [bucket, items] of Object.entries(byBucket)) {
+      lines.push(`\n[${bucket}]`)
+      for (const item of items) {
+        lines.push(`• ${item.keyword}  vol=${item.adsVol}  cpc=${item.cpc.toFixed(2)}  comp=${item.competition ?? '—'}  match=${item.matchType}`)
+      }
+    }
+  }
+  if (negs.length) {
+    lines.push('\nNegatives:')
+    for (const n of negs) lines.push(`- ${n}`)
+  }
+  return lines.join('\n')
 }
 
 main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
