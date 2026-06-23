@@ -245,7 +245,7 @@ Your existing visa remains valid until its expiry date. At renewal, the property
 
 ## Our Recommendation
 
-For investors purchasing at AED 2M+, we recommend applying directly for the 10-year Golden Visa — the additional cost over the 2-year visa is modest, and the stability of a decade-long residency has significant practical and lifestyle value. For investors below AED 2M, the 2-year visa is a straightforward and affordable entry point that can be upgraded later as your portfolio grows.
+For investors purchasing at AED 2M+, we recommend applying directly for the [10-year Golden Visa](/golden-visa) — the additional cost over the 2-year visa is modest, and the stability of a decade-long residency has significant practical and lifestyle value. For investors below AED 2M, the 2-year visa is a straightforward and affordable entry point that can be upgraded later as your portfolio grows. Browse our [current Dubai property listings](/properties) to find homes that meet each visa threshold.
     `.trim(),
   },
   {
@@ -273,7 +273,7 @@ It is worth being clear-eyed: a market cannot compound double-digit gains foreve
 Several structural factors — not short-term hype — sit behind Dubai's resilience:
 
 - **No annual property tax, no income tax, no capital gains tax.** Net returns to a Dubai landlord are materially higher than in markets that tax rental income and sale profits. This is the single biggest reason yields look the way they do.
-- **The Golden Visa.** Long-term residency tied to property ownership (from AED 2 million) has turned real estate from a pure investment into a residency and lifestyle decision, broadening the buyer base. See our guide to UAE residence visas for the thresholds.
+- **The [Golden Visa](/golden-visa).** Long-term residency tied to property ownership (from AED 2 million) has turned real estate from a pure investment into a residency and lifestyle decision, broadening the buyer base. See our [guide to UAE residence visas](/blog/uae-property-residence-visa) for the thresholds.
 - **Population growth.** Crossing four million residents in 2026 creates genuine, recurring demand for housing — both to buy and to rent.
 - **Currency stability.** The AED is pegged to the US dollar at 3.67, removing local currency risk for dollar-denominated investors and providing a predictable base for everyone else.
 - **A regulated, escrow-protected off-plan market.** RERA requires developer funds to be held in escrow, which has kept investor confidence high even through periods of regional uncertainty.
@@ -303,7 +303,7 @@ The pattern is consistent: proximity to the Metro, the beach, schools and the ma
 For an investor weighing Dubai in 2026, the picture is favourable but no longer a one-way bet. The sensible approach:
 
 - **Buy for income and the long term, not for a quick flip.** With price growth moderating, the easy speculative gains of past years are less reliable. A 7% yield held over several years is the more dependable return.
-- **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our mortgage calculator lets you model financed purchases before you commit.
+- **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our [mortgage calculator](/mortgage-calculator) lets you model financed purchases before you commit.
 - **Choose a reputable developer in a high-demand location.** Location fundamentals and developer track record matter more than headline price-per-square-foot.
 
 ## The Bottom Line
