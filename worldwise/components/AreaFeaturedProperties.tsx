@@ -5,9 +5,11 @@ import PropertyCard from './PropertyCard'
 type Props = {
   areaName: string
   properties: Property[]
+  /** Optional custom heading. When omitted the default area-page wording is used. */
+  heading?: string
 }
 
-export default function AreaFeaturedProperties({ areaName, properties }: Props) {
+export default function AreaFeaturedProperties({ areaName, properties, heading }: Props) {
   if (properties.length === 0) {
     return (
       <section id="featured" className="py-20 bg-gray-50">
@@ -15,7 +17,7 @@ export default function AreaFeaturedProperties({ areaName, properties }: Props) 
           <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Listings
           </p>
-          <h2 className="section-title">Currently Sourcing {areaName} Inventory</h2>
+          <h2 className="section-title">{heading ?? `Currently Sourcing ${areaName} Inventory`}</h2>
           <p className="section-subtitle">
             We&apos;re between active listings in {areaName} right now. Browse the wider catalogue
             or contact us for off-market opportunities.
@@ -35,7 +37,7 @@ export default function AreaFeaturedProperties({ areaName, properties }: Props) 
           <p className="text-gold-accessible text-sm font-medium uppercase tracking-widest mb-2">
             Available Now
           </p>
-          <h2 className="section-title">Featured Properties in {areaName}</h2>
+          <h2 className="section-title">{heading ?? `Featured Properties in ${areaName}`}</h2>
           <p className="section-subtitle">
             Curated by our investment team. Updated weekly.
           </p>
