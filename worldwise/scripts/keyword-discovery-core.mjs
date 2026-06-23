@@ -97,8 +97,8 @@ export function dedupeKeywords(keywords, seenSet) {
 }
 
 const THEME_STOP = new Set(['dubai', 'uae', 'property', 'properties', 'real', 'estate', 'in', 'for',
-  'the', 'to', 'a', 'of', 'and', 'or', 'vs', 'my', 'your', 'best', 'how', 'what', 'is', 'are', 'can',
-  'i', 'with', 'on', 'buy', 'get'])
+  'the', 'to', 'a', 'an', 'of', 'and', 'or', 'vs', 'my', 'your', 'best', 'how', 'what', 'is', 'are', 'can',
+  'i', 'with', 'on', 'buy', 'buying', 'buys', 'get'])
 const singular = w => (w.endsWith('s') && w.length > 3 ? w.slice(0, -1) : w)
 
 /** Cluster key = first significant (non-generic, singularised) token. Caps near-duplicate themes. */

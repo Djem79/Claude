@@ -20,10 +20,10 @@ const KEYWORDS_PATH = path.join(DATA_DIR, 'article-keywords.json')
 const DRY_RUN = process.argv.includes('--dry-run')
 
 // ── Config (tunable) ─────────────────────────────────────────────────────────
+// dubizzle.com intentionally excluded — general classifieds (cars/jobs/gov) floods the gap with noise.
 const COMPETITORS = [
   'bayut.com',
   'propertyfinder.ae',
-  'dubizzle.com',
   'betterhomes.ae',
   'famproperties.com',
   'drivenproperties.com',
