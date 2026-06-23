@@ -126,3 +126,41 @@ async function enrichCandidates(candidates) {
   }
   return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), creditsRemaining }
 }
+
+// ── Keyword bank + dedup sources ─────────────────────────────────────────────
+
+// STRICT: throw on read/parse failure. The bank is the mutation target — never
+// persist an empty fallback (that would wipe it). Mirrors incrementKeywordIndex.
+function readBankStrict() {
+  const raw = fs.readFileSync(KEYWORDS_PATH, 'utf-8')   // ENOENT/parse error => throw
+  const data = JSON.parse(raw)
+  if (!Array.isArray(data.keywords) || typeof data.index !== 'number') {
+    throw new Error('keyword bank malformed')
+  }
+  return data
+}
+
+// FORGIVING: dedup source only (not a mutation target). Empty on any failure.
+function readPublishedSeen() {
+  try {
+    const arr = JSON.parse(fs.readFileSync(ARTICLES_PATH, 'utf-8'))
+    const out = new Set()
+    for (const a of Array.isArray(arr) ? arr : []) {
+      if (a?.title) out.add(String(a.title).toLowerCase().trim())
+      if (a?.slug) out.add(String(a.slug).replace(/-/g, ' ').toLowerCase().trim())
+    }
+    return out
+  } catch { return new Set() }
+}
+
+/** Insert keywords at the current index (front of unused queue) + atomic write. */
+function insertIntoBank(selectedKeywords) {
+  const bank = readBankStrict()
+  const seen = new Set(bank.keywords.map(k => k.toLowerCase().trim()))
+  const fresh = dedupeKeywords(selectedKeywords, seen)   // guard re-runs
+  if (fresh.length) {
+    bank.keywords.splice(bank.index, 0, ...fresh)
+    writeFileAtomic(KEYWORDS_PATH, JSON.stringify(bank, null, 2))
+  }
+  return fresh
+}
