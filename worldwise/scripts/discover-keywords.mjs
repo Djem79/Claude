@@ -20,10 +20,14 @@ const DRY_RUN = process.argv.includes('--dry-run')
 
 // ── Config (tunable) ─────────────────────────────────────────────────────────
 const SEEDS = [
-  'dubai property investment', 'buy property in dubai', 'dubai off plan',
-  'dubai golden visa property', 'dubai rental yield', 'dubai property residence visa',
-  'dubai off plan payment plan', 'best area to invest in dubai', 'dubai property mortgage',
-  'dubai property fees', 'dubai property for foreigners', 'dubai real estate roi',
+  'dubai off plan payment plan', 'buy property in dubai golden visa',
+  'dubai property residence visa', 'best area to invest in dubai',
+  'dubai apartment rental yield', 'dubai off plan vs ready',
+  'buy property in dubai as a foreigner', 'dubai property mortgage for expats',
+  'dubai property service charges', 'dubai real estate capital appreciation',
+  'damac off plan dubai', 'emaar off plan dubai',
+  'dubai marina apartment investment', 'jvc dubai property investment',
+  'business bay dubai property investment', 'dubai studio apartment investment',
 ]
 const TARGET_GEOS = ['uk', 'ae', 'in']     // UK + UAE + India; per-geo normalized
 const LOCATION_CODES = { uk: 2826, ae: 2784, in: 2356 }   // Google geo target IDs: UK, UAE, India
@@ -60,6 +64,10 @@ async function autocomplete(seed, geo) {
   }
 }
 
+// DataForSEO Google Ads rejects the WHOLE request if any keyword breaks its limits:
+// max 10 words and max 80 chars per phrase. Drop offending autocomplete suggestions here.
+const isQueryable = k => k.length > 0 && k.length <= 80 && k.split(/\s+/).length <= 10
+
 /** All unique candidate phrases from seeds × geos, capped. */
 async function gatherCandidates() {
   const set = new Set()
@@ -67,7 +75,7 @@ async function gatherCandidates() {
     for (const geo of TARGET_GEOS) {
       for (const s of await autocomplete(seed, geo)) {
         const k = String(s).toLowerCase().trim()
-        if (k) set.add(k)
+        if (isQueryable(k)) set.add(k)
       }
     }
   }
