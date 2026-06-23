@@ -72,3 +72,57 @@ async function gatherCandidates() {
   }
   return [...set].slice(0, CANDIDATE_CAP)
 }
+
+// ── Keywords Everywhere: volume + 12-month trend ─────────────────────────────
+const KE_URL = 'https://api.keywordseverywhere.com/v1/get_keyword_data'
+
+function chunk(arr, size) {
+  const out = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
+/** One geo, up to 100 kw/request. Returns { rows: [{keyword, vol, trend}], creditsRemaining }. */
+async function fetchKeywordData(keywords, geo) {
+  const rows = []
+  let creditsRemaining = null
+  for (const batch of chunk(keywords, 100)) {
+    const body = new URLSearchParams()
+    body.set('dataSource', 'gkp')
+    body.set('country', geo)
+    body.set('currency', 'usd')
+    for (const kw of batch) body.append('kw[]', kw)
+    const res = await fetch(KE_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${KE_API_KEY}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body,
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) throw new Error(`KE ${res.status} (${geo}): ${(await res.text()).slice(0, 200)}`)
+    const json = await res.json()
+    for (const d of json.data ?? []) {
+      rows.push({ keyword: String(d.keyword).toLowerCase().trim(), vol: Number(d.vol) || 0, trend: d.trend ?? [] })
+    }
+    if (typeof json.credits === 'number') creditsRemaining = json.credits
+  }
+  return { rows, creditsRemaining }
+}
+
+/** Enrich candidates with per-geo {vol, trend} from KE across all TARGET_GEOS. */
+async function enrichCandidates(candidates) {
+  const byKw = new Map(candidates.map(k => [k, { keyword: k, perGeo: {} }]))
+  let creditsRemaining = null
+  for (const geo of TARGET_GEOS) {
+    const { rows, creditsRemaining: cr } = await fetchKeywordData(candidates, geo)
+    if (cr != null) creditsRemaining = cr
+    for (const r of rows) {
+      const c = byKw.get(r.keyword)
+      if (c) c.perGeo[geo] = { vol: r.vol, trend: r.trend }
+    }
+  }
+  return { enriched: [...byKw.values()].filter(c => Object.keys(c.perGeo).length), creditsRemaining }
+}
