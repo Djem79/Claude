@@ -77,3 +77,16 @@ export function normalizeVolumePerGeo(candidates) {
     return { ...c, normVol, maxVol }
   })
 }
+
+/** Drop case-insensitive dupes vs seenSet and within the list. Returns surviving originals. */
+export function dedupeKeywords(keywords, seenSet) {
+  const seen = new Set([...seenSet].map(s => String(s).toLowerCase().trim()))
+  const out = []
+  for (const kw of keywords) {
+    const key = String(kw).toLowerCase().trim()
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    out.push(kw)
+  }
+  return out
+}
