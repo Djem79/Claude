@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { classifyPages, formatReport } from './gsc-content-review-core.mjs'
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const REPO_DIR = path.resolve(SCRIPT_DIR, '..')
@@ -512,6 +513,62 @@ async function safe(fn) {
   }
 }
 
+async function cmdContentReview(opts) {
+  const days = Number(opts.days) || 28
+  const dryRun = !!opts['dry-run']
+
+  // Current window: the last `days` days.
+  const { startDate: curStart, endDate: curEnd } = dateRange(days)
+
+  // Prior window: the window of equal length ending `days` ago.
+  const priorEnd = new Date()
+  priorEnd.setDate(priorEnd.getDate() - days)
+  const priorStart = new Date(priorEnd)
+  priorStart.setDate(priorStart.getDate() - days)
+  const priorStartDate = iso(priorStart)
+  const priorEndDate = iso(priorEnd)
+
+  const auth = getAuthedClient()
+  const wm = google.webmasters({ version: 'v3', auth })
+
+  async function fetchPages(startDate, endDate) {
+    const { data } = await wm.searchanalytics.query({
+      siteUrl: siteUrl(),
+      requestBody: {
+        startDate, endDate,
+        dimensions: ['page'],
+        rowLimit: 250,
+      },
+    })
+    return (data.rows || []).map(row => ({
+      page: row.keys[0],
+      clicks: row.clicks,
+      impressions: row.impressions,
+      ctr: row.ctr,
+      position: row.position,
+    }))
+  }
+
+  const current  = await fetchPages(curStart, curEnd)
+  const previous = await fetchPages(priorStartDate, priorEndDate)
+
+  const buckets = classifyPages(current, previous)
+  const report  = formatReport(buckets, { days })
+
+  if (dryRun) {
+    console.log(report)
+    return
+  }
+
+  try {
+    await sendTelegram(report)
+    console.log('✓ Content review sent to Telegram')
+  } catch (err) {
+    console.error(`Telegram send failed: ${err.message}`)
+    // exit 0 so cron doesn't escalate
+  }
+}
+
 // ─── dispatcher ─────────────────────────────────────────────────────────────
 
 function parseOpts(args, defaults = { days: 28, limit: 20 }) {
@@ -541,6 +598,7 @@ Commands:
   pages   [--days=N] [--limit=N]    Top pages by clicks
   sitemaps                          List submitted sitemaps and their status
   digest [--dry-run]                Send a weekly snapshot to Telegram (--dry-run prints to stdout)
+  content-review [--days=N] [--dry-run]  Monthly content-performance review → Telegram
 
 Run with --env-file=.env.local so OAuth secrets are loaded:
   node --env-file=.env.local scripts/gsc.mjs <command>
@@ -570,7 +628,8 @@ async function main() {
       case 'queries':  return await cmdQueries(parseOpts(rest))
       case 'pages':    return await cmdPages(parseOpts(rest))
       case 'sitemaps': return await cmdSitemaps()
-      case 'digest':   return await cmdDigest(parseOpts(rest))
+      case 'digest':         return await cmdDigest(parseOpts(rest))
+      case 'content-review': return await cmdContentReview(parseOpts(rest))
       default:
         console.error(`Unknown command: ${cmd}\n`)
         printHelp()
