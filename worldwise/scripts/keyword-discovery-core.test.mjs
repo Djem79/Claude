@@ -5,7 +5,7 @@ import { trendRiseFactor } from './keyword-discovery-core.mjs'
 import { normalizeVolumePerGeo } from './keyword-discovery-core.mjs'
 import { passesFilters, intentWeight } from './keyword-discovery-core.mjs'
 import { dedupeKeywords } from './keyword-discovery-core.mjs'
-import { scoreAndSelect } from './keyword-discovery-core.mjs'
+import { scoreAndSelect, themeKey } from './keyword-discovery-core.mjs'
 
 const mk = (...vals) => vals.map((value, i) => ({ month: String(i), year: 2026, value }))
 
@@ -24,9 +24,9 @@ test('trendRiseFactor: declining trend < 1', () => {
   assert.ok(f < 1, `expected <1, got ${f}`)
 })
 
-test('trendRiseFactor: clamps to [0.5, 3]', () => {
-  assert.equal(trendRiseFactor(mk(10,10,10,0,0,0,0,0,0,1000,1000,1000)), 3)
-  assert.equal(trendRiseFactor(mk(1000,1000,1000,0,0,0,0,0,0,1,1,1)), 0.5)
+test('trendRiseFactor: clamps to [0.6, 2]', () => {
+  assert.equal(trendRiseFactor(mk(10,10,10,0,0,0,0,0,0,1000,1000,1000)), 2)
+  assert.equal(trendRiseFactor(mk(1000,1000,1000,0,0,0,0,0,0,1,1,1)), 0.6)
 })
 
 test('trendRiseFactor: empty/short trend = 1', () => {
@@ -37,7 +37,7 @@ test('trendRiseFactor: empty/short trend = 1', () => {
 
 test('trendRiseFactor: zero baseline does not divide-by-zero', () => {
   const f = trendRiseFactor(mk(0,0,0,0,0,0,0,0,0,100,100,100))
-  assert.equal(f, 3)
+  assert.equal(f, 2)
 })
 
 test('normalizeVolumePerGeo: highest per-geo volume gets percentile 1', () => {
@@ -134,9 +134,35 @@ test('scoreAndSelect: filters, scores, returns top N', () => {
 })
 
 test('scoreAndSelect: respects N', () => {
-  const cands = Array.from({ length: 10 }, (_, i) => ({
-    keyword: `dubai investment topic ${i}`,
+  // distinct themes (area names) so the diversity cap doesn't limit below N
+  const areas = ['marina', 'downtown', 'jvc', 'meydan', 'arjan', 'sobha', 'palm', 'creek', 'jlt', 'furjan']
+  const cands = areas.map((a, i) => ({
+    keyword: `dubai ${a} apartment investment`,
     perGeo: { uk: { vol: 200 + i, trend: trend(100, 200) } },
   }))
   assert.equal(scoreAndSelect(cands, { minVolume: 100, n: 3 }).length, 3)
+})
+
+test('themeKey: groups price variants, separates distinct themes', () => {
+  assert.equal(themeKey('dubai property prices'), 'price')
+  assert.equal(themeKey('dubai property prices chart'), 'price')
+  assert.equal(themeKey('dubai property price index'), 'price')
+  assert.equal(themeKey('dubai property rates'), 'rate')
+  assert.equal(themeKey('buy property in dubai golden visa'), 'golden')
+})
+
+test('scoreAndSelect: diversity caps a dominant theme', () => {
+  const flat = v => Array.from({ length: 12 }, (_, i) => ({ month: String(i), year: 2026, value: v }))
+  const cands = [
+    { keyword: 'dubai property prices',       perGeo: { uk: { vol: 500, trend: flat(500) } } },
+    { keyword: 'dubai property prices chart',  perGeo: { uk: { vol: 480, trend: flat(480) } } },
+    { keyword: 'dubai property price index',   perGeo: { uk: { vol: 460, trend: flat(460) } } },
+    { keyword: 'dubai property prices drop',   perGeo: { uk: { vol: 440, trend: flat(440) } } },
+    { keyword: 'dubai golden visa property',   perGeo: { uk: { vol: 300, trend: flat(300) } } },
+    { keyword: 'dubai off plan payment plan',  perGeo: { uk: { vol: 280, trend: flat(280) } } },
+  ]
+  const out = scoreAndSelect(cands, { minVolume: 100, n: 5, maxPerTheme: 2 })
+  assert.ok(out.filter(o => o.keyword.includes('price')).length <= 2, 'price theme capped at 2')
+  assert.ok(out.some(o => o.keyword.includes('golden visa')), 'diverse theme included')
+  assert.ok(out.some(o => o.keyword.includes('off plan')), 'diverse theme included')
 })

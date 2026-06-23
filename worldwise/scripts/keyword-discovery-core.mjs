@@ -5,14 +5,19 @@
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n))
 const mean = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0)
 
-/** 12-month KE trend → rising multiplier in [0.5, 3]. Flat≈1, rising>1, falling<1. */
+/**
+ * 12-month trend → rising multiplier in [0.6, 2]. Flat≈1, rising>1, falling<1.
+ * Smoothed: a constant k (half the series' own average, min 5) is added to both
+ * sides so a near-zero early baseline can't blow the ratio up to the clamp — that
+ * artefact pinned every keyword to the max and killed discrimination between them.
+ */
 export function trendRiseFactor(trend) {
   if (!Array.isArray(trend) || trend.length < 6) return 1
   const vals = trend.map(t => Number(t?.value) || 0)
+  const k = Math.max(mean(vals) * 0.5, 5)
   const first = mean(vals.slice(0, 3))
   const last = mean(vals.slice(-3))
-  if (first <= 0) return last > 0 ? 3 : 1
-  return clamp(last / first, 0.5, 3)
+  return clamp((last + k) / (first + k), 0.6, 2)
 }
 
 /** Percentile rank of each value within a list, in [0,1]; ties share the higher rank. */
@@ -91,10 +96,23 @@ export function dedupeKeywords(keywords, seenSet) {
   return out
 }
 
-/** Full pure pipeline: normalize → filter → score → sort → top N. opts: { minVolume, n }. */
+const THEME_STOP = new Set(['dubai', 'uae', 'property', 'properties', 'real', 'estate', 'in', 'for',
+  'the', 'to', 'a', 'of', 'and', 'or', 'vs', 'my', 'your', 'best', 'how', 'what', 'is', 'are', 'can',
+  'i', 'with', 'on', 'buy', 'get'])
+const singular = w => (w.endsWith('s') && w.length > 3 ? w.slice(0, -1) : w)
+
+/** Cluster key = first significant (non-generic, singularised) token. Caps near-duplicate themes. */
+export function themeKey(keyword) {
+  const toks = String(keyword).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+  const sig = toks.filter(t => !THEME_STOP.has(t)).map(singular)
+  return sig[0] || toks[0] || ''
+}
+
+/** Full pure pipeline: normalize → filter → score → sort → diversify → top N. opts: { minVolume, n, maxPerTheme }. */
 export function scoreAndSelect(candidates, opts) {
   const minVolume = Number(opts?.minVolume) || 0
   const n = Number(opts?.n) || 5
+  const maxPerTheme = Number(opts?.maxPerTheme) || 2
   const normalized = normalizeVolumePerGeo(candidates)
   const scored = []
   for (const c of normalized) {
@@ -109,5 +127,16 @@ export function scoreAndSelect(candidates, opts) {
     scored.push({ keyword: c.keyword, score, normVol: c.normVol, rise, intent, maxVol: c.maxVol, perGeo: c.perGeo })
   }
   scored.sort((a, b) => b.score - a.score)
-  return scored.slice(0, n)
+  // Diversity: cap how many picks share a theme so one cluster can't fill the whole list.
+  const out = []
+  const themeCount = new Map()
+  for (const s of scored) {
+    const tk = themeKey(s.keyword)
+    const count = themeCount.get(tk) || 0
+    if (count >= maxPerTheme) continue
+    themeCount.set(tk, count + 1)
+    out.push(s)
+    if (out.length >= n) break
+  }
+  return out
 }
