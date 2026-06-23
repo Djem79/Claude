@@ -1,5 +1,17 @@
 # Lessons
 
+## 2026-06-24 — SEO/keyword data pipelines: live dry-run + budget tuning rounds
+
+**Context:** Built 3 DataForSEO-backed pipelines (keyword-discovery, ads-feed, competitor-gap). Every one's FIRST live output was noisy and needed 1–3 tuning rounds before trustworthy (discovery: trend-clamp saturation + theme dupes; competitor-gap: classifieds/navigational/rental/building-name flood).
+
+**The rule:** For any keyword/SEO data pipeline, build a `--dry-run` and run it on REAL data before enabling the cron; budget tuning rounds. Recurring noise classes + fixes: (1) "contains dubai" ≠ on-topic — require buyer/info-intent tokens; (2) short tokens matched as substrings hit inside words ('roi'→"detROIt") — word-bound them; (3) building-name suffixes ("X Residency"/"Residences") and classifieds domains (dubizzle = cars/jobs/gov) flood results — exclude; (4) morphological variants ("buy/buying apartment(s)") escape theme-dedup unless stop-words include 'buying'/'an'; (5) rental-search ≠ a sales/investor buyer (deny ` rent `, keep 'yield'). Keep the decision logic in a PURE core so tuning is fast and `node:test`'d.
+
+## 2026-06-24 — Verify third-party pricing/specs live, never from memory
+
+**Context:** I quoted Keywords Everywhere at "$15" from stale memory while designing the ads-feed provider. The user checked: it was $90/year — over budget — forcing a provider re-evaluation mid-build.
+
+**The rule:** Before designing around any paid third-party (pricing tiers, minimum deposit, API limits/response shapes), scrape/verify the CURRENT values (firecrawl/web) — never state prices or API shapes from memory. The same discipline (scraping DataForSEO docs first) correctly surfaced its keyword-length limit and endpoint shapes.
+
 ## 2026-06-23 — Grep the repo before asking "where does X live"
 
 **Context:** User pasted a "K.O Conveyancing" logo and said "replace Zhanna Rean with this logo." The unfamiliar brand made me assume it might be a separate site, so I asked two clarifying rounds (where is it → what platform). The user cut in: "стоп, стоп, наша команда на нашем сайте worldwise." "Zhanna Rean" was in `components/TeamSection.tsx` the whole time — a 2-second grep would have shown it.
