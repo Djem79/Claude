@@ -3,6 +3,7 @@ import { getProperties } from '@/lib/properties'
 import { getAllArticles } from '@/lib/articles'
 import { areaSlugs } from '@/lib/areas'
 import { developerSlugs } from '@/lib/developers'
+import { landingSlugs } from '@/lib/landings'
 
 export const revalidate = 3600
 
@@ -53,5 +54,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ]
 
-  return [...staticPages, ...areaPages, ...developerPages, ...propertyPages, ...blogPages]
+  const landingPages: MetadataRoute.Sitemap = landingSlugs.map(slug => ({
+    url: `${BASE}/invest/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.85,
+  }))
+
+  return [...staticPages, ...areaPages, ...developerPages, ...landingPages, ...propertyPages, ...blogPages]
 }
