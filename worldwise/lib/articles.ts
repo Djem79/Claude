@@ -312,6 +312,93 @@ The data through early Q2 2026 describes a market that is resilient rather than 
     `.trim(),
   },
   {
+    slug: 'dubai-london-singapore-property-investment-guide-2026',
+    tag: 'Investment Guide',
+    title: 'Dubai vs London vs Singapore: Where to Invest in Property in 2026',
+    excerpt:
+      'A clear comparison of Dubai, London and Singapore for property investors in 2026 — rental yields, taxes, foreign-ownership rules and stability — to help you decide where your capital works hardest.',
+    readTime: '7 min read',
+    content: `
+## Three Cities, Three Very Different Bets
+
+For international investors comparing global property markets, Dubai, London and Singapore are perennial shortlist cities. Each offers a genuinely different proposition — high yield, deep stability, or premium scarcity. Here is how they stack up in 2026.
+
+## Quick Comparison
+
+| Factor | Dubai | London | Singapore |
+|---|---|---|---|
+| Gross rental yield | ~6–8% | ~3–4% | ~2–3% |
+| Annual property tax | None | Council tax | Property tax (higher for non-owner-occupiers) |
+| Capital-gains tax | None | Yes | Generally none |
+| Foreign ownership | Freehold in designated zones, no restriction | Open | Restricted; extra stamp duty for foreigners |
+| Profile | High yield, faster-moving | Mature, stable, slower growth | Premium, tightly regulated |
+
+## Dubai: High Yield, No Tax
+
+Dubai's appeal for an income investor is hard to match: gross rental yields commonly run 6–8%, there is no annual property tax, no capital-gains tax, and foreigners can own freehold in designated zones with no nationality restriction. After several years of rapid growth, 2026 is a more balanced market — see our [2026 market outlook](/blog/dubai-real-estate-2026-navigating-market-shifts-for-investors) for where prices are heading. Well-connected districts like [Business Bay](/business-bay) and [Dubai Hills Estate](/dubai-hills) pair strong demand with reasonable entry prices.
+
+Budget for transaction costs of roughly 6–7% of the price — our [DLD fees guide](/blog/dld-fees-dubai-international-investors-guide) breaks them down.
+
+## London: Stability Over Yield
+
+London is the safe-haven play. A mature market, a transparent legal system and a deep international tenant pool make it a favourite for risk-averse capital. The trade-off is yield: gross returns of 3–4% are typical, and buyers face stamp duty, council tax and capital-gains tax on resale. London rewards patience and long-term capital preservation rather than cash flow.
+
+## Singapore: Premium and Tightly Regulated
+
+Singapore offers political stability, a strong economy and limited land — a recipe for long-term capital preservation. But the government actively cools speculation, and foreign buyers face substantial additional stamp duties. Yields are the lowest of the three (around 2–3%), so Singapore suits investors prioritising security and scarcity over income.
+
+## Which One Fits You?
+
+- **Income and faster growth, comfortable with a more active market** — Dubai.
+- **Capital preservation in a deep, stable market** — London.
+- **Premium security and scarcity, with yield secondary** — Singapore.
+
+Dubai stands out for investors who want yield and tax efficiency without giving up a transparent, regulated market. If that's you, browse our current [Dubai properties](/properties), model the numbers with our [mortgage calculator](/mortgage-calculator), or check whether a purchase qualifies you for a [Golden Visa](/golden-visa). Contact Worldwise Real Estate for a free consultation tailored to your goals.
+`.trim(),
+  },
+  {
+    slug: 'dubai-real-estate-2026-international-investors',
+    tag: 'Market Update',
+    title: 'Is Dubai Property a Good Investment in 2026? A Foreign Buyer\'s View',
+    excerpt:
+      "Is Dubai real estate still worth it in 2026? A straight answer for international buyers — yields, the cooling market, the move beyond 'luxury' labels, and where the real value is.",
+    readTime: '6 min read',
+    content: `
+## Is Dubai Property Still Worth It in 2026?
+
+For international investors weighing a Dubai purchase in 2026, the honest answer is yes — but for different reasons than two years ago. After a period of rapid growth, the market has cooled into something steadier, and that shift works in a buyer's favour. This is a recalibration, not a downturn: a healthier, more sustainable market with more room to negotiate.
+
+For where prices are actually heading, see our [2026 market outlook](/blog/dubai-real-estate-2026-navigating-market-shifts-for-investors). This guide is about the decision itself — whether to buy, and where the value is.
+
+## The Case for Buying Now
+
+A few things make 2026 a sound entry point for foreign buyers:
+
+- **Yields stay strong.** Gross rental yields of roughly 6–8% remain high by global-city standards — well above London or Singapore.
+- **No property, income or capital-gains tax.** The UAE's tax position lifts net returns above most comparable markets.
+- **Buyer leverage.** With growth moderating, buyers have more choice and negotiating room than at the peak.
+- **Residency.** A qualifying purchase can lead to long-term residency — see our [Golden Visa guide](/golden-visa).
+
+## Look Past the 'Luxury' Label
+
+"Luxury" has become one of the most overused words in Dubai real estate. The buyers who do best in 2026 look past the marketing and judge a property on what actually drives returns:
+
+- **Intrinsic value** — build quality, layout, amenities and realistic long-term appreciation.
+- **Location fundamentals** — infrastructure, connectivity and genuine tenant demand. Well-connected districts like [Business Bay](/business-bay), [Dubai Hills Estate](/dubai-hills) and [Emaar Beachfront](/emaar-beachfront) tend to pair demand with sensible pricing.
+- **Developer track record** — reliability and on-time delivery matter more than a glossy brochure.
+
+## How to Invest Wisely
+
+- **Buy on net yield, not gross.** Factor in service charges and any financing — model it with our [mortgage calculator](/mortgage-calculator).
+- **Budget every cost.** Transaction costs run ~6–7% of the price; our [DLD fees guide](/blog/dld-fees-dubai-international-investors-guide) covers them.
+- **Think multi-year.** Treat Dubai as an income-and-residency hold, not a quick flip.
+
+## The Verdict
+
+Dubai in 2026 is a more discerning, more buyer-friendly market — and for an international investor focused on yield, tax efficiency and long-term value, it remains one of the strongest cases globally. Browse our current [Dubai properties](/properties) or contact Worldwise Real Estate for a free, no-obligation consultation built around your goals.
+`.trim(),
+  },
+  {
     slug: 'noc-dubai-property-purchase-guide',
     tag: 'Legal Guide',
     title: 'Dubai Property NOC: What It Is, the Cost & How to Get One',
