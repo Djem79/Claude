@@ -378,49 +378,49 @@ The NOC is one step in a process that rewards preparation. If you are weighing a
     content: `
 ## A Market Moving From Boom to Balance
 
-Dubai property has had an extraordinary run since 2021, with prices in prime districts climbing well above pre-pandemic levels. By 2026 the pace has changed: growth is moderating from the double-digit surges of recent years toward something steadier. For international investors, that shift is not a warning sign — it is a return to a more normal, more navigable market.
+Dubai property has had a remarkable run since 2021, and prices in prime districts now sit well above their pre-pandemic levels. By 2026 the pace has changed. Growth is slowing from the double-digit jumps of recent years to something steadier, and for international investors that is good news rather than bad: it points to a healthier, more normal market for buyers.
 
-The headline of 2026 is balance. Supply is catching up with demand in several segments, new handovers are reaching the market, and buyers have more room to negotiate than they did at the peak. A slower rate of price growth changes the playbook, but the fundamentals that drew global capital to Dubai are still firmly in place.
+The word for 2026 is balance. Supply is catching up with demand in several segments, new handovers are reaching the market, and buyers can negotiate in a way they simply could not at the peak. Slower price growth changes how you play it, but the reasons global capital came to Dubai in the first place have not gone away.
 
-## What Is Actually Happening to Prices
+## What's Happening to Prices
 
-Price growth has cooled rather than reversed across most of the city. Established prime areas that ran hardest are flattening first, while more affordable, well-connected communities continue to see steady demand. Off-plan launches remain active, but buyers are increasingly selective about developer track record and location quality.
+Price growth has cooled rather than gone into reverse. The prime areas that ran hardest are flattening first, while more affordable, well-connected communities still see steady demand. Off-plan launches are still busy, though buyers are pickier now about a developer's track record and the quality of the location.
 
-The practical takeaway: the easy, speculative gains of 2022–2024 are less reliable, and 2026 rewards investors who buy for income and the long term rather than a quick flip. A moderating market also tends to be a better entry point — more choice, more negotiating leverage, and less pressure to overpay.
+What this means in practice: the quick speculative gains of 2022 to 2024 are harder to repeat, and 2026 favours investors buying for rental income and the long term over a fast flip. A calmer market is usually a better one to enter — you have more to choose from and less pressure to overpay.
 
 ## Why the Fundamentals Still Hold
 
-Several structural advantages underpin Dubai regardless of where prices sit in the cycle:
+A few structural advantages stay true wherever prices sit in the cycle:
 
-- **No property, income, capital-gains or inheritance tax.** This lifts net returns well above comparable purchases in London, Singapore or most of Europe.
-- **Strong rental yields.** Gross yields of roughly 6–8% remain common — high by global-city standards — which supports income-focused strategies even when capital growth slows.
-- **Population and demand growth.** Dubai's population continues to expand as the emirate attracts professionals, entrepreneurs and remote workers, sustaining rental demand.
-- **Residency through property.** A qualifying purchase can open the door to long-term residency — see our [Golden Visa guide](/golden-visa) for the AED 2M threshold and what it covers.
-- **Regulation and escrow protection.** RERA-regulated escrow accounts protect off-plan buyers if a project stalls, adding a layer of security many emerging markets lack.
+- **No property, income, capital-gains or inheritance tax.** This lifts net returns well above a comparable purchase in London, Singapore or most of Europe.
+- **Strong rental yields.** Gross yields of roughly 6–8% are still common, high by global-city standards, which keeps income strategies working even when capital growth slows.
+- **A growing population.** Dubai keeps attracting professionals, entrepreneurs and remote workers, and that demand underpins rents.
+- **Residency through property.** A qualifying purchase can open the door to long-term residency. Our [Golden Visa guide](/golden-visa) covers the AED 2M threshold and what it includes.
+- **Regulation and escrow protection.** RERA-regulated escrow accounts protect off-plan buyers if a project stalls, a safeguard many emerging markets lack.
 
 ## Where the Opportunities Are in 2026
 
-A balanced market shifts where the value sits:
+A balanced market changes where the value sits:
 
-- **Mid-market, high-yield communities.** Well-connected districts such as [Business Bay](/business-bay) and [Dubai Hills Estate](/dubai-hills) blend rental demand with more reasonable entry prices than the absolute prime end.
-- **Quality off-plan with flexible plans.** Post-handover payment plans let investors spread cost across construction and beyond — attractive when you are pacing capital rather than chasing a flip.
-- **Income over speculation.** With growth moderating, a dependable 6–8% gross yield held over several years is the more reliable return than betting on rapid appreciation.
+- **Mid-market, high-yield communities.** Well-connected districts such as [Business Bay](/business-bay) and [Dubai Hills Estate](/dubai-hills) pair real rental demand with entry prices below the absolute prime end.
+- **Quality off-plan with flexible terms.** Post-handover payment plans let you spread the cost across construction and beyond, which suits investors pacing their capital rather than chasing a flip.
+- **Income over speculation.** With growth slower, a dependable 6–8% gross yield held for several years is a steadier return than betting on rapid price rises.
 
 ## Risks to Weigh
 
-No market is one-directional, and a maturing Dubai has its own considerations:
+No market moves in one direction, and a maturing Dubai has its own things to watch:
 
-- **Segment-specific oversupply.** Some unit types and locations face more new supply than others; location and quality matter more than headline price-per-square-foot.
-- **Currency exposure.** The AED is pegged to the US dollar at 3.67, so EUR, GBP or INR buyers should factor exchange-rate movement into their horizon.
-- **Net, not gross, returns.** Service charges, management fees and any financing cost erode gross yield — model the real number before committing. Our [mortgage calculator](/mortgage-calculator) helps with financed purchases.
+- **Localised oversupply.** Some unit types and locations have more new supply coming than others. Location and build quality matter more than the headline price per square foot.
+- **Currency exposure.** The AED is pegged to the US dollar at 3.67, so buyers holding EUR, GBP or INR should account for exchange-rate movement over their horizon.
+- **Net versus gross.** Service charges, management fees and any financing cost eat into a gross yield, so model the real number first. Our [mortgage calculator](/mortgage-calculator) handles the financed case.
 
 ## How to Invest Wisely This Year
 
-The investors who do best in 2026 will treat Dubai property as a multi-year income and residency play rather than a short-term trade. That means choosing a reputable developer in a high-demand location, running the numbers on net yield, and budgeting for every transaction cost — including [DLD fees](/blog/dld-fees-dubai-international-investors-guide) — before you sign.
+The investors who do best in 2026 will treat Dubai property as a multi-year income and residency play, not a short-term trade. In practice that means picking a credible developer in a location people actually want to live in, working out the net yield before you commit, and budgeting for every transaction cost, [DLD fees](/blog/dld-fees-dubai-international-investors-guide) included, before you sign.
 
 ## The Bottom Line
 
-Dubai in 2026 is a more balanced, more buyer-friendly market than it has been in years. Growth is slower, but the tax advantages, strong yields, population momentum and regulatory protections that define the city remain intact. For a long-term investor, a steadier market is exactly the environment in which to buy well. Browse our current [Dubai properties](/properties) or contact Worldwise Real Estate for a free, no-obligation consultation tailored to where the market is today.
+Dubai in 2026 is more balanced and more buyer-friendly than it has been for years. Growth is slower, but the tax position, the yields, the population trend and the regulatory protections that define the city are all still here. For a long-term buyer, a steadier market is exactly when it pays to be active. Browse our current [Dubai properties](/properties), or contact Worldwise Real Estate for a free, no-obligation consultation built around where the market is right now.
 `.trim(),
   },
   {
