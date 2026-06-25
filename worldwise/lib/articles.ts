@@ -312,13 +312,162 @@ The data through early Q2 2026 describes a market that is resilient rather than 
     `.trim(),
   },
   {
-    slug: 'dld-fees-dubai-international-investors-guide',
+    slug: 'noc-dubai-property-purchase-guide',
     tag: 'Legal Guide',
-    title: 'DLD Fees in Dubai: A Complete Guide for International Property Investors',
+    title: 'Dubai Property NOC: What It Is, the Cost & How to Get One',
     excerpt:
-      'A clear breakdown of DLD fees in Dubai — the 4% transfer fee, admin and trustee charges, mortgage registration costs — and who pays what when you buy property.',
+      'A No Objection Certificate clears your Dubai property for transfer at the DLD. Here is what an NOC is, who pays, typical fees, the timeline, and how to avoid delays.',
+    readTime: '7 min read',
+    content: `
+## What Is a No Objection Certificate (NOC)?
+
+A No Objection Certificate (NOC) is an official document issued by a property's developer in Dubai confirming there are no outstanding dues or legal impediments to the sale of that specific unit. It clears the property for transfer of ownership and is a mandatory requirement of the Dubai Land Department (DLD) before any sale can be registered.
+
+For international investors, the NOC is one of the few steps that can quietly delay a purchase — so understanding it upfront protects your timeline.
+
+## Why Is an NOC Required?
+
+Most apartments and villas in Dubai sit within a larger development, so the developer keeps an ongoing relationship with each owner through service charges and maintenance. The NOC confirms that:
+
+- All financial obligations on the property — service charges, maintenance fees, utility bills — have been settled by the seller.
+- There are no legal disputes or claims on the unit from the developer.
+- The developer formally approves the transfer of ownership to the new buyer.
+
+Without an NOC, the DLD will not register the transfer, making it impossible to complete the purchase legally.
+
+## The NOC Process: Step by Step
+
+Obtaining an NOC is usually initiated by the seller or their agent, but every buyer should understand the flow:
+
+1. **Seller requests the NOC.** After the Sale and Purchase Agreement (SPA) is signed and the deposit is paid, the seller or their agent applies to the developer.
+2. **Developer reviews the account.** The developer checks that all service charges and dues are clear. Any arrears must be settled before issuance.
+3. **NOC fee is paid.** Developers charge a fee — typically a few hundred to a few thousand dirhams depending on the developer and unit. It is usually paid by the seller, though this is negotiable in the SPA.
+4. **NOC is issued.** Once conditions are met, the developer issues the certificate. It is generally valid for a short window (often 10–14 days), so the DLD transfer must happen within that period.
+5. **Submission to the DLD.** The NOC, SPA, title deed and ID documents are submitted to the DLD to complete the transfer.
+
+## Timelines and Common Delays
+
+Some developers issue an NOC within a few working days; others take longer, especially when there are outstanding payments. Build this buffer into your overall plan — see our guide to [how long buying property in Dubai takes](/blog/how-long-property-purchase-dubai) for the full transaction timeline.
+
+The most common hold-ups are:
+
+- **Unpaid dues.** Outstanding service charges are the number-one cause of delay. Confirm the account is clear as part of your due diligence.
+- **Developer responsiveness.** Some developers move faster than others; an experienced agent can help chase the request.
+- **Expired NOC.** If the DLD transfer slips past the validity window, a fresh NOC — and another fee — is needed.
+
+## NOC Fees vs. Other Buying Costs
+
+The NOC fee is a small line item next to the main government charges. The largest cost is the DLD transfer fee — read our full breakdown of [DLD fees and who pays what](/blog/dld-fees-dubai-international-investors-guide) so your budget covers every charge, not just the headline price.
+
+## Getting It Right in a Shifting Market
+
+As Dubai's market matures and buyers gain more negotiating room, a clean, delay-free transaction is a genuine advantage — see where prices are heading in our [2026 market outlook](/blog/dubai-real-estate-2026-navigating-market-shifts-for-investors). A clear understanding of the NOC keeps your purchase on schedule when timing matters most.
+
+## Plan Your Dubai Purchase With Confidence
+
+The NOC is one step in a process that rewards preparation. If you are weighing a purchase, browse our current [Dubai properties](/properties) or model the numbers with our [mortgage calculator](/mortgage-calculator), and contact Worldwise Real Estate for a free consultation — we handle the administrative detail, including the NOC, so your investment completes smoothly.
+`.trim(),
+  },
+  {
+    slug: 'dubai-real-estate-2026-navigating-market-shifts-for-investors',
+    tag: 'Market Update',
+    title: 'Dubai Real Estate in 2026: Where the Market Is Heading',
+    excerpt:
+      'After years of rapid growth, Dubai price gains are moderating. Here is what the 2026 market shift means for international investors — yields, risks and where the opportunities are.',
+    readTime: '7 min read',
+    content: `
+## A Market Moving From Boom to Balance
+
+Dubai property has had an extraordinary run since 2021, with prices in prime districts climbing well above pre-pandemic levels. By 2026 the pace has changed: growth is moderating from the double-digit surges of recent years toward something steadier. For international investors, that shift is not a warning sign — it is a return to a more normal, more navigable market.
+
+The headline of 2026 is balance. Supply is catching up with demand in several segments, new handovers are reaching the market, and buyers have more room to negotiate than they did at the peak. A slower rate of price growth changes the playbook, but the fundamentals that drew global capital to Dubai are still firmly in place.
+
+## What Is Actually Happening to Prices
+
+Price growth has cooled rather than reversed across most of the city. Established prime areas that ran hardest are flattening first, while more affordable, well-connected communities continue to see steady demand. Off-plan launches remain active, but buyers are increasingly selective about developer track record and location quality.
+
+The practical takeaway: the easy, speculative gains of 2022–2024 are less reliable, and 2026 rewards investors who buy for income and the long term rather than a quick flip. A moderating market also tends to be a better entry point — more choice, more negotiating leverage, and less pressure to overpay.
+
+## Why the Fundamentals Still Hold
+
+Several structural advantages underpin Dubai regardless of where prices sit in the cycle:
+
+- **No property, income, capital-gains or inheritance tax.** This lifts net returns well above comparable purchases in London, Singapore or most of Europe.
+- **Strong rental yields.** Gross yields of roughly 6–8% remain common — high by global-city standards — which supports income-focused strategies even when capital growth slows.
+- **Population and demand growth.** Dubai's population continues to expand as the emirate attracts professionals, entrepreneurs and remote workers, sustaining rental demand.
+- **Residency through property.** A qualifying purchase can open the door to long-term residency — see our [Golden Visa guide](/golden-visa) for the AED 2M threshold and what it covers.
+- **Regulation and escrow protection.** RERA-regulated escrow accounts protect off-plan buyers if a project stalls, adding a layer of security many emerging markets lack.
+
+## Where the Opportunities Are in 2026
+
+A balanced market shifts where the value sits:
+
+- **Mid-market, high-yield communities.** Well-connected districts such as [Business Bay](/business-bay) and [Dubai Hills Estate](/dubai-hills) blend rental demand with more reasonable entry prices than the absolute prime end.
+- **Quality off-plan with flexible plans.** Post-handover payment plans let investors spread cost across construction and beyond — attractive when you are pacing capital rather than chasing a flip.
+- **Income over speculation.** With growth moderating, a dependable 6–8% gross yield held over several years is the more reliable return than betting on rapid appreciation.
+
+## Risks to Weigh
+
+No market is one-directional, and a maturing Dubai has its own considerations:
+
+- **Segment-specific oversupply.** Some unit types and locations face more new supply than others; location and quality matter more than headline price-per-square-foot.
+- **Currency exposure.** The AED is pegged to the US dollar at 3.67, so EUR, GBP or INR buyers should factor exchange-rate movement into their horizon.
+- **Net, not gross, returns.** Service charges, management fees and any financing cost erode gross yield — model the real number before committing. Our [mortgage calculator](/mortgage-calculator) helps with financed purchases.
+
+## How to Invest Wisely This Year
+
+The investors who do best in 2026 will treat Dubai property as a multi-year income and residency play rather than a short-term trade. That means choosing a reputable developer in a high-demand location, running the numbers on net yield, and budgeting for every transaction cost — including [DLD fees](/blog/dld-fees-dubai-international-investors-guide) — before you sign.
+
+## The Bottom Line
+
+Dubai in 2026 is a more balanced, more buyer-friendly market than it has been in years. Growth is slower, but the tax advantages, strong yields, population momentum and regulatory protections that define the city remain intact. For a long-term investor, a steadier market is exactly the environment in which to buy well. Browse our current [Dubai properties](/properties) or contact Worldwise Real Estate for a free, no-obligation consultation tailored to where the market is today.
+`.trim(),
+  },
+  {
+    slug: 'how-long-property-purchase-dubai',
+    tag: 'Investment Guide',
+    title: 'How Long Does It Take to Buy Property in Dubai? (3–6 Weeks)',
+    excerpt:
+      'A ready-property purchase in Dubai typically takes 3–6 weeks from offer to title deed. Here is the full step-by-step timeline and what speeds it up or slows it down.',
     readTime: '6 min read',
     content: `
+## How Long Does Buying Property in Dubai Take?
+
+For international investors, a common first question is simple: how long does it actually take to buy property in Dubai? The reassuring answer is that Dubai's process is fast and well-regulated. A **ready (completed) property typically transfers in 3 to 6 weeks** from accepted offer to title deed, while off-plan purchases and mortgage-financed deals run longer.
+
+## The Typical Timeline, Stage by Stage
+
+1. **Property search and selection (1–4 weeks).** Identifying the right unit, viewing and deciding is usually the most variable stage. A focused shortlist from an experienced agent shortens it considerably — browse our current [Dubai properties](/properties) to start.
+2. **Offer and Memorandum of Understanding (1–3 days).** Once terms are agreed, buyer and seller sign an MOU (Form F) setting out the conditions, and the buyer pays a deposit — typically 10% of the price.
+3. **No Objection Certificate from the developer (3–7 days).** For units in master-planned communities, the developer issues an NOC confirming all dues are settled. Read our full [guide to the NOC](/blog/noc-dubai-property-purchase-guide) for what can delay this step.
+4. **Title transfer at the Dubai Land Department (1–3 days).** Both parties meet at the DLD or a registration trustee, the balance is paid, the [DLD transfer fees](/blog/dld-fees-dubai-international-investors-guide) are settled, and the title deed is issued in the buyer's name.
+
+## What Speeds It Up — or Slows It Down
+
+- **Cash vs. mortgage.** Cash buyers move fastest. A mortgage — especially for non-residents — adds valuation and approval steps that can extend the timeline by several weeks. Model the cost first with our [mortgage calculator](/mortgage-calculator).
+- **Off-plan vs. ready.** Ready property can transfer as soon as the steps above are complete. Off-plan ties the full transfer to construction milestones and the developer's payment plan, so ownership completes much later.
+- **Seller readiness.** How quickly the seller clears dues, provides documents and attends appointments has a direct effect on speed.
+- **Administrative timing.** Dubai's DLD is efficient, but public holidays and peak periods can add a few days.
+
+## Buying in a Maturing Market
+
+With price growth moderating in 2026, buyers generally have more time and leverage than they did at the market's peak — see our [2026 market outlook](/blog/dubai-real-estate-2026-navigating-market-shifts-for-investors). That can mean a more considered timeline and a stronger negotiating position, particularly on ready resale units.
+
+## Plan Your Purchase With Worldwise
+
+At Worldwise Real Estate we guide international investors through every stage — from selection to title transfer — for both cash and financed, off-plan and ready purchases. Contact us for a free, no-obligation consultation and we will map your timeline to your specific goals.
+`.trim(),
+  },
+  {
+    slug: 'dld-fees-dubai-international-investors-guide',
+    tag: 'Legal Guide',
+    title: 'DLD Fees in Dubai: The 4% Transfer Fee & All Buying Costs',
+    excerpt:
+      'How much are DLD fees in Dubai? The main charge is the 4% transfer fee — budget 6–7% of the price for all costs. Here is the full breakdown and who pays what.',
+    readTime: '6 min read',
+    content: `
+When you buy property in Dubai, the main government charge is the **DLD transfer fee of 4% of the purchase price**, plus a handful of fixed administrative and trustee fees. As a rule of thumb, budget roughly **6–7% of the price** for all transaction costs combined. Here is exactly what you pay, and who pays it.
+
 ## What Are DLD Fees?
 
 DLD fees are the charges levied by the Dubai Land Department — the government authority that registers all property ownership in Dubai — whenever a property changes hands. Paying these fees is what makes your ownership official and legally protected. Until the transaction is registered with the DLD and a title deed is issued in your name, you do not have enforceable ownership, regardless of any contract you have signed.
@@ -368,7 +517,7 @@ For an apartment purchased at AED 1,500,000 in cash, the DLD-related costs would
 - Title deed issuance: AED 250
 - DLD admin fee: AED 580
 
-That is approximately **AED 65,030** in DLD and trustee charges — close to 4.3% of the purchase price — before any agent commission (typically around 2% + VAT). A useful rule of thumb for cash buyers is to budget around 6–7% of the purchase price for all transaction costs combined.
+That is approximately **AED 65,030** in DLD and trustee charges — close to 4.3% of the purchase price — before any agent commission (typically around 2% + VAT). A useful rule of thumb for cash buyers is to budget around 6–7% of the purchase price for all transaction costs combined. For the wider context, see how these fees fit the [full Dubai buying timeline](/blog/how-long-property-purchase-dubai) and the [developer NOC](/blog/noc-dubai-property-purchase-guide) that must be cleared before transfer.
 
 ## Why DLD Registration Protects You
 
@@ -399,7 +548,7 @@ Generally no — DLD fees must be paid in cash at the time of transfer. Banks le
 
 ## In Summary
 
-DLD fees are predictable and transparent: a 4% transfer fee, modest fixed administrative and trustee charges, and — for financed purchases — a 0.25% mortgage registration fee. Budget roughly 6–7% of the purchase price for total transaction costs and you will not be caught out. Because the rules around who pays what are negotiable and amounts can change, it is always worth confirming the exact figures with a RERA-registered agent before you sign. If you are financing the purchase, our mortgage calculator will help you see the full cost picture, including registration fees, before you commit.
+DLD fees are predictable and transparent: a 4% transfer fee, modest fixed administrative and trustee charges, and — for financed purchases — a 0.25% mortgage registration fee. Budget roughly 6–7% of the purchase price for total transaction costs and you will not be caught out. Because the rules around who pays what are negotiable and amounts can change, it is always worth confirming the exact figures with a RERA-registered agent before you sign. If you are financing the purchase, our [mortgage calculator](/mortgage-calculator) will help you see the full cost picture, including registration fees, before you commit, and our [non-resident mortgage guide](/invest/dubai-mortgage-for-non-residents) covers eligibility and deposits.
     `.trim(),
   },
   {
