@@ -12,6 +12,8 @@
 
 **The rule:** Before designing around any paid third-party (pricing tiers, minimum deposit, API limits/response shapes), scrape/verify the CURRENT values (firecrawl/web) — never state prices or API shapes from memory. The same discipline (scraping DataForSEO docs first) correctly surfaced its keyword-length limit and endpoint shapes.
 
+**Repeat 2026-06-25 (access cost ≠ per-call price):** I called DataForSEO's Backlinks API "pay-as-you-go ~$0.02–0.05/call" and proposed an audit; the user's screenshot showed access actually needs a **$100/mo minimum commitment** (a separate subscription) — the per-request price only applies once you're in. So the per-unit number is NOT the cost of access. Before calling a paid feature "cheap"/"pay-as-you-go", check the **activation tier** (minimum commitment, separate subscription, gating) — and look for a trial / no-commit channel (here: a 14-day trial covered the one-off audit for ~$0.28).
+
 ## 2026-06-23 — Grep the repo before asking "where does X live"
 
 **Context:** User pasted a "K.O Conveyancing" logo and said "replace Zhanna Rean with this logo." The unfamiliar brand made me assume it might be a separate site, so I asked two clarifying rounds (where is it → what platform). The user cut in: "стоп, стоп, наша команда на нашем сайте worldwise." "Zhanna Rean" was in `components/TeamSection.tsx` the whole time — a 2-second grep would have shown it.
