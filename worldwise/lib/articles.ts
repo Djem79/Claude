@@ -170,7 +170,7 @@ If you are financing the purchase, the process has additional layers:
   {
     slug: 'uae-property-residence-visa',
     tag: 'Visa & Residency',
-    title: 'UAE Residence Visa by Buying Property: Rules & Minimum Investment (2026)',
+    title: 'Do You Get a Residence Visa If You Buy Property in the UAE? (2026)',
     excerpt:
       'Yes — buying UAE property can get you residency. The thresholds: AED 750,000 for a 2-year investor visa and AED 2 million for the 5-year Green Visa or 10-year Golden Visa. Full 2026 rules, eligibility and documents.',
     readTime: '5 min read',
@@ -242,6 +242,12 @@ Yes, multiple Dubai properties in your name can be combined. Properties in diffe
 
 **What if my property value drops below the threshold?**
 Your existing visa remains valid until its expiry date. At renewal, the property must still meet the threshold — a fresh valuation is required.
+
+**Is there a 3-year property visa in Dubai?**
+Dubai's property-linked residence visas are the 2-year investor visa (from AED 750,000) and the 5-year Green Visa or 10-year Golden Visa (from AED 2 million) — there is no separate 3-year property tier under the current rules. Visa terms are updated periodically, so confirm the validity that applies to your property value with the GDRFA before you apply.
+
+**Can I get a UAE residence visa from property in Abu Dhabi?**
+Yes. Abu Dhabi runs its own property-investor residence visas through the ICA, separate from Dubai's GDRFA, and the thresholds and terms are set by the Abu Dhabi authorities. If your property is in Abu Dhabi, apply through the ICA rather than in Dubai.
 
 ## Our Recommendation
 
