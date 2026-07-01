@@ -1,5 +1,5 @@
 import path from 'path'
-import { Property } from '@/types'
+import { Property, CardProperty } from '@/types'
 import { readJsonFile, mutateJsonFile } from '@/lib/json-store'
 import { sanitizeSlug, uniqueSlug } from '@/lib/slug'
 
@@ -148,6 +148,20 @@ export function getPropertyById(id: string): Property | null {
 
 export function getFeaturedProperties(): Property[] {
   return getProperties().filter(p => p.featured)
+}
+
+// Project to the card-display subset before passing a large array to a client
+// component ("use client" props are serialized into the RSC payload — the full
+// Property ships description/amenities/PF-internal fields the card never reads).
+// Only the first image is kept: PropertyCard renders images[0] alone.
+export function toCardProperty(p: Property): CardProperty {
+  return {
+    id: p.id, slug: p.slug, title: p.title, developer: p.developer, area: p.area,
+    type: p.type, status: p.status, priceAed: p.priceAed, pricePerSqft: p.pricePerSqft,
+    roi: p.roi, grossYield: p.grossYield, completionDate: p.completionDate,
+    paymentPlan: p.paymentPlan, bedrooms: p.bedrooms, shortDescription: p.shortDescription,
+    images: p.images.slice(0, 1), badge: p.badge, rented: p.rented,
+  }
 }
 
 // All catalog mutations run inside mutateJsonFile's synchronous critical

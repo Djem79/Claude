@@ -49,15 +49,20 @@ export default function PriceTag({
     }
   }, [])
 
-  const showSecondary = currency !== 'AED' && rates != null
-  const converted = showSecondary ? formatConverted(aed * rates![currency], currency) : null
+  // Reserve the secondary line as soon as the stored currency is known (before the
+  // /api/fx fetch resolves) — otherwise the line pops in when rates arrive, shifting
+  // everything below the price on every card (CLS for returning non-AED visitors).
+  const showSecondary = currency !== 'AED'
+  const converted = showSecondary && rates != null ? formatConverted(aed * rates[currency], currency) : null
 
   return (
     <span className={className}>
       {prefix}
       {formatAedCompact(aed)}
-      {converted && (
-        <span className="block text-xs text-gray-400 font-sans font-normal">≈ {converted}</span>
+      {showSecondary && (
+        <span className="block text-xs text-gray-400 font-sans font-normal">
+          {converted ? `≈ ${converted}` : ' '}
+        </span>
       )}
     </span>
   )

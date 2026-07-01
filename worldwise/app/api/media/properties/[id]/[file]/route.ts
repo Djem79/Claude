@@ -36,6 +36,8 @@ export async function GET(
   const type = TYPES[path.extname(file).toLowerCase()] ?? 'application/octet-stream'
   return new NextResponse(new Uint8Array(data), {
     status: 200,
-    headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=3600' },
+    // Gallery filenames are append-only (never overwritten in place) — matches the
+    // immutable rule for /images/properties/** in next.config.mjs headers().
+    headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=31536000, immutable' },
   })
 }

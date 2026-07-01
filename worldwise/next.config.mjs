@@ -39,6 +39,25 @@ const nextConfig = {
           },
         ],
       },
+      // Long-lived caching for public/ images (Next does NOT auto-cache public/
+      // assets, unlike /_next/static). Cloudflare respects these at the edge.
+      // Areas/developers/blog/logo images are occasionally replaced in place →
+      // 1 day + a week of stale-while-revalidate.
+      {
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
+      // Property gallery files are append-only (upload route always mints a new
+      // index, never overwrites a name) → safe to cache immutably. Declared AFTER
+      // the general /images rule so this value wins for the overlap.
+      {
+        source: '/images/properties/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
     ]
   },
   images: {
