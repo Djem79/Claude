@@ -23,20 +23,24 @@ export async function DELETE(
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
 
-  try {
-    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
-  } catch (e) {
-    console.error('[files/delete] fs error', e)
-    return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 })
-  }
-
+  // Remove the index entry FIRST, then unlink bytes: an orphaned byte file is harmless
+  // (unreferenced), whereas a listed attachment whose bytes are gone is a broken
+  // download. Matches the admin file-manager's documented safe order.
   const actor = { uid: session.uid, username: session.username, name: session.name }
   const updated = mutateLeadAttachments(
     params.id,
     cur => cur.filter(a => a.id !== params.fileId),
     actor
   )
-
   if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+
+  try {
+    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true })
+  } catch (e) {
+    // Index already updated — the attachment is gone from the CRM and the leftover
+    // bytes are unreferenced. Don't resurrect a deleted entry with a 500.
+    console.error('[files/delete] fs cleanup failed (orphaned bytes)', e)
+  }
+
   return NextResponse.json(updated)
 }

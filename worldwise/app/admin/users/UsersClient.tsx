@@ -172,7 +172,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                 value={addPassword}
                 onChange={e => setAddPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
             <div>
@@ -298,6 +298,7 @@ export default function UsersClient({ initialUsers, currentUsername }: {
                             placeholder="Leave blank to keep"
                             value={editPassword}
                             onChange={e => setEditPassword(e.target.value)}
+                            minLength={8}
                           />
                         </div>
                         <div>

@@ -39,8 +39,12 @@ export async function createUser(data: {
     if (users.some(u => u.username === data.username)) {
       throw new Error('Username already taken')
     }
+    // Collision-safe id (mirrors saveLead): two creates in the same millisecond must
+    // not share an id, or getUserById would resolve the second user as the first.
+    let id = Date.now()
+    while (users.some(u => u.id === String(id))) id++
     user = {
-      id: String(Date.now()),
+      id: String(id),
       name: data.name,
       username: data.username,
       passwordHash,

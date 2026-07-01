@@ -28,7 +28,7 @@ export async function POST(
   }
 
   const updated = mutateLeadAttachments(params.id, cur =>
-    cur.map(a => (a.id === params.fileId ? { ...a, sentLog: [...a.sentLog, entry] } : a))
+    cur.map(a => (a.id === params.fileId ? { ...a, sentLog: [...(a.sentLog ?? []), entry] } : a))
   )
 
   if (!updated) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSection } from '@/lib/auth'
 import { readStore, mutateStore, removeFileBytes } from '@/lib/file-storage'
-import { sanitizeStorageName } from '@/lib/file-storage-core'
+import { sanitizeStorageName, ALLOWED_EXT } from '@/lib/file-storage-core'
 
 export const runtime = 'nodejs'
 
@@ -25,7 +25,12 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
   // get "Отчёт.PDF.pdf" — and the extension can never be changed via rename.
   let name = sanitizeStorageName(body.name)
   if (!name.toLowerCase().endsWith(`.${file.ext.toLowerCase()}`)) {
-    name = `${name.replace(/\.[^.]*$/, '')}.${file.ext}`
+    // Only strip a trailing token that is itself a real extension (the file's own ext
+    // typed in another case, or a different allowed type) — NEVER an interior version
+    // dot like "Budget v2.3", which must keep its ".3". Then append the immutable ext.
+    const m = name.match(/\.([a-z0-9]+)$/i)
+    if (m && ALLOWED_EXT.has(m[1].toLowerCase())) name = name.slice(0, m.index)
+    name = `${name}.${file.ext}`
   }
 
   mutateStore(s => ({ ...s, files: s.files.map(f => (f.id === params.id ? { ...f, name } : f)) }))
