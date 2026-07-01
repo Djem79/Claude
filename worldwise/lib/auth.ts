@@ -42,7 +42,15 @@ export async function getSession(): Promise<Session | null> {
   if (!token) return null
   const payload = await verifySessionToken(token)
   if (!payload) return null
-  const user = getUserById(payload.uid)
+  // A transiently unreadable/corrupt users.json makes getUserById throw (strict read).
+  // Degrade to "no session" (→ redirect to login) rather than 500-ing every /admin page,
+  // including the login page itself, which shares this layout.
+  let user
+  try {
+    user = getUserById(payload.uid)
+  } catch {
+    return null
+  }
   if (!user || !user.active) return null
   // Use role/name/sections from the DB, not the (up to 7-day-old) token, so a demoted,
   // renamed, or section-restricted user can't keep stale privileges until expiry. See audit M1.

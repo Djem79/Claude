@@ -236,7 +236,11 @@ export default function PropertyForm({ property, draftId }: { property?: Propert
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Property Title *</label>
-          <input className={fieldClass} value={form.title} onChange={e => { set('title', e.target.value); set('slug', slugify(e.target.value)) }} required />
+          {/* Auto-derive the slug from the title only when CREATING. On an edit, the
+              slug is the property's live public URL — regenerating it here would send a
+              new slug in the PUT and 404 the old URL (defeating coercePropertyInput's
+              "never regenerate slug on PUT" guard). The slug field stays manually editable. */}
+          <input className={fieldClass} value={form.title} onChange={e => { set('title', e.target.value); if (!isEdit) set('slug', slugify(e.target.value)) }} required />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1.5">Slug (URL)</label>

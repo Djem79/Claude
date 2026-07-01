@@ -52,8 +52,11 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
   const [view, setView] = useState<'table' | 'kanban'>('table')
   const [mobileColumn, setMobileColumn] = useState<LeadStatus>('new')
 
+  // When a specific status filter is active, point the mobile kanban at that column
+  // (else 'new') — otherwise the single visible column would be empty and read as
+  // "the leads vanished".
   useEffect(() => {
-    setMobileColumn('new')
+    setMobileColumn(statusFilter === 'all' ? 'new' : statusFilter)
   }, [statusFilter])
 
   const sources = useMemo(() => {
@@ -349,8 +352,8 @@ export default function LeadsClient({ initialLeads, isOwner = false }: { initial
                                   <div className="pt-2">
                                     <p className="text-xs text-gray-400 font-medium mb-2">Activity Log</p>
                                     <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                                      {[...l.activityLog].reverse().map((entry: ActivityEntry, i: number) => (
-                                        <div key={i} className="flex gap-2 text-xs text-gray-500">
+                                      {[...l.activityLog].reverse().map((entry: ActivityEntry) => (
+                                        <div key={`${entry.at}-${entry.by}`} className="flex gap-2 text-xs text-gray-500">
                                           <span className="text-gray-300 shrink-0">{fmt(entry.at)}</span>
                                           <span className="font-medium text-navy shrink-0">{entry.byName}</span>
                                           <span>{entry.action}</span>

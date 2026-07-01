@@ -251,7 +251,7 @@ export default function FilesClient() {
       {!loading && view && (
         <div
           onDragOver={e => { if (view.mode === 'folder' && !busy) { e.preventDefault(); setDragOver(true) } }}
-          onDragLeave={() => setDragOver(false)}
+          onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false) }}
           onDrop={e => {
             e.preventDefault()
             setDragOver(false)
