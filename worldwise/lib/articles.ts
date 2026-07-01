@@ -94,7 +94,7 @@ The secondary market — also called resale — means buying a property that alr
 
 ## Who Can Buy?
 
-The UAE allows foreigners to purchase freehold property in designated zones (Dubai Marina, Downtown, Palm Jumeirah, JVC, Business Bay and dozens more). There are no restrictions on nationality, and you do not need a UAE residency visa to own property — though ownership of property worth AED 750,000+ makes you eligible to apply for a 2-year investor visa.
+The UAE allows foreigners to purchase freehold property in designated zones (Dubai Marina, Downtown, Palm Jumeirah, JVC, Business Bay and dozens more). There are no restrictions on nationality, and you do not need a UAE residency visa to own property — though ownership of property worth AED 750,000+ makes you eligible to apply for a [2-year investor visa](/blog/uae-property-residence-visa).
 
 ## Stage 1: Agree Terms and Sign the MOU
 
@@ -139,7 +139,7 @@ Transfer takes 1–2 hours. You leave with a new title deed in your name.
 
 If you are financing the purchase, the process has additional layers:
 
-1. **Pre-approval.** Get a mortgage pre-approval from a UAE bank before signing the MOU. Banks typically offer 75–80% LTV for non-residents on properties up to AED 5M.
+1. **Pre-approval.** Get a mortgage pre-approval from a UAE bank before signing the MOU. Banks typically offer 75–80% LTV for [non-residents](/invest/dubai-mortgage-for-non-residents) on properties up to AED 5M.
 2. **Property valuation.** The bank commissions an independent valuer (cost: AED 2,500–3,500). The bank lends against the lower of purchase price or valuation.
 3. **Liability letter.** If the seller has a mortgage, their bank issues a liability letter with the exact payoff amount. Your bank coordinates the clearance.
 4. **Mortgage registration.** After the DLD transfer, the mortgage is registered with DLD for a fee of 0.25% of the loan amount + AED 290.
@@ -300,7 +300,7 @@ Ready (secondary-market) property, by contrast, generates rental income from day
 
 ## Where the Demand Is Concentrated
 
-Established, well-connected communities continue to absorb the bulk of investor demand. Waterfront and lifestyle districts such as Dubai Marina, Palm Jumeirah and the Downtown corridor remain the anchors, while Business Bay and the Dubai Hills area attract buyers looking for newer stock at a relative discount to the prime waterfront. Each of our area guides breaks down the price and yield profile district by district.
+Established, well-connected communities continue to absorb the bulk of investor demand. Waterfront and lifestyle districts such as [Dubai Marina](/dubai-marina), [Palm Jumeirah](/palm-jumeirah) and the [Downtown](/downtown-dubai) corridor remain the anchors, while [Business Bay](/business-bay) and the [Dubai Hills](/dubai-hills) area attract buyers looking for newer stock at a relative discount to the prime waterfront. Each of our area guides breaks down the price and yield profile district by district.
 
 The pattern is consistent: proximity to the Metro, the beach, schools and the major business hubs drives rental demand, and rental demand is what protects both your yield and your resale value.
 
@@ -383,7 +383,7 @@ A few things make 2026 a sound entry point for foreign buyers:
 - **Yields stay strong.** Gross rental yields of roughly 6–8% remain high by global-city standards — well above London or Singapore.
 - **No property, income or capital-gains tax.** The UAE's tax position lifts net returns above most comparable markets.
 - **Buyer leverage.** With growth moderating, buyers have more choice and negotiating room than at the peak.
-- **Residency.** A qualifying purchase can lead to long-term residency — see our [Golden Visa guide](/golden-visa).
+- **Residency.** A qualifying purchase can lead to long-term residency — see our [Golden Visa guide](/golden-visa) and [full guide to UAE residence visas](/blog/uae-property-residence-visa).
 
 ## Look Past the 'Luxury' Label
 
@@ -464,9 +464,9 @@ The NOC is one step in a process that rewards preparation. If you are weighing a
   {
     slug: 'dubai-real-estate-2026-navigating-market-shifts-for-investors',
     tag: 'Market Update',
-    title: 'Dubai Real Estate in 2026: Where the Market Is Heading',
+    title: 'Dubai Real Estate Forecast 2026–2027: Where the Market Is Heading',
     excerpt:
-      'After years of rapid growth, Dubai price gains are moderating. Here is what the 2026 market shift means for international investors — yields, risks and where the opportunities are.',
+      'After years of rapid growth, Dubai price gains are moderating. Our 2026–2027 forecast for international investors — where prices are heading, yields, risks and where the opportunities are.',
     readTime: '7 min read',
     content: `
 ## A Market Moving From Boom to Balance
@@ -488,7 +488,7 @@ A few structural advantages stay true wherever prices sit in the cycle:
 - **No property, income, capital-gains or inheritance tax.** This lifts net returns well above a comparable purchase in London, Singapore or most of Europe.
 - **Strong rental yields.** Gross yields of roughly 6–8% are still common, high by global-city standards, which keeps income strategies working even when capital growth slows.
 - **A growing population.** Dubai keeps attracting professionals, entrepreneurs and remote workers, and that demand underpins rents.
-- **Residency through property.** A qualifying purchase can open the door to long-term residency. Our [Golden Visa guide](/golden-visa) covers the AED 2M threshold and what it includes.
+- **Residency through property.** A qualifying purchase can open the door to long-term residency. Our [Golden Visa guide](/golden-visa) covers the AED 2M threshold, and our [UAE residence visa guide](/blog/uae-property-residence-visa) covers the full range, including the 2-year visa from AED 750,000.
 - **Regulation and escrow protection.** RERA-regulated escrow accounts protect off-plan buyers if a project stalls, a safeguard many emerging markets lack.
 
 ## Where the Opportunities Are in 2026
@@ -537,7 +537,7 @@ For international investors, a common first question is simple: how long does it
 
 ## What Speeds It Up — or Slows It Down
 
-- **Cash vs. mortgage.** Cash buyers move fastest. A mortgage — especially for non-residents — adds valuation and approval steps that can extend the timeline by several weeks. Model the cost first with our [mortgage calculator](/mortgage-calculator).
+- **Cash vs. mortgage.** Cash buyers move fastest. A mortgage — especially for [non-residents](/invest/dubai-mortgage-for-non-residents) — adds valuation and approval steps that can extend the timeline by several weeks. Model the cost first with our [mortgage calculator](/mortgage-calculator).
 - **Off-plan vs. ready.** Ready property can transfer as soon as the steps above are complete. Off-plan ties the full transfer to construction milestones and the developer's payment plan, so ownership completes much later.
 - **Seller readiness.** How quickly the seller clears dues, provides documents and attends appointments has a direct effect on speed.
 - **Administrative timing.** Dubai's DLD is efficient, but public holidays and peak periods can add a few days.
