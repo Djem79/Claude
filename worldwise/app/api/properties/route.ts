@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProperties, createProperty, coercePropertyInput } from '@/lib/properties'
+import { getProperties, createProperty, coercePropertyInput, toCardProperty } from '@/lib/properties'
 import { revalidatePropertyPages } from '@/lib/revalidate'
 import { requireSection } from '@/lib/auth'
 import { Property } from '@/types'
 
+// Public, unauthenticated listing feed. The site itself renders via in-process
+// getProperties() — nothing in-repo consumes this route — so it serves only
+// external callers and must not dump the full store: the raw Property carries
+// PF-internal fields (pfListingId, permitNumber, …) and full descriptions.
+// Serve the same CardProperty projection the public listing grid uses, cached.
 export async function GET() {
-  return NextResponse.json(getProperties())
+  return NextResponse.json(getProperties().map(toCardProperty), {
+    headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' },
+  })
 }
 
 export async function POST(req: NextRequest) {

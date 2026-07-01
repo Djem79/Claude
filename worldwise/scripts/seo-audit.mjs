@@ -243,11 +243,13 @@ async function main() {
   console.log(text)
 }
 
-main().catch(err => {
+main().catch(async err => {
   // Last-resort: try to notify failure too, but never crash the cron silently.
+  // The send MUST be awaited — process.exit() kills the in-flight fetch, so the
+  // fire-and-forget version race-lost against teardown and no alert ever arrived.
   console.error('SEO audit failed:', err)
   if (!DRY) {
-    sendTelegram(`⚠️ SEO Audit crashed: ${err.message}`).catch(() => {})
+    await sendTelegram(`⚠️ SEO Audit crashed: ${err.message}`).catch(() => {})
   }
   process.exit(1)
 })
