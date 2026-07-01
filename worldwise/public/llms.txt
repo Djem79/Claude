@@ -1,8 +1,8 @@
 # Worldwise Real Estate
 
-> Dubai-based real estate investment agency. Off-plan, secondary market and rental properties in the UAE. Last updated: May 2026.
+> Dubai-based real estate investment agency. Off-plan, secondary market and rental properties in the UAE. Last updated: July 2026.
 
-Worldwise Real Estate is a RERA-certified agency helping international investors find and purchase properties in Dubai. We specialise in off-plan developments from top developers (Emaar, Sobha, Damac, Nakheel) and secondary market apartments, villas and townhouses across prime Dubai locations. Typical rental yields: 8–10% per year. UAE has 0% income tax and 0% capital gains tax.
+Worldwise Real Estate is a RERA-certified agency helping international investors find and purchase properties in Dubai. We specialise in off-plan developments from top developers (Emaar, Sobha, Damac, Nakheel) and secondary market apartments, villas and townhouses across prime Dubai locations. Typical gross rental yields: ~5–8% per year (area-dependent; higher in emerging mid-market communities). UAE has 0% income tax and 0% capital gains tax.
 
 ## Contact
 
@@ -18,14 +18,14 @@ Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 
 ## Key Areas Covered
 
-- Dubai Marina — avg AED 1,850/sqft, 7–8% ROI
-- Downtown Dubai — avg AED 2,200/sqft, 6–7% ROI
-- Palm Jumeirah — avg AED 2,800/sqft, 6–8% ROI
-- Business Bay — avg AED 1,600/sqft, 7–9% ROI
-- Dubai Hills Estate — avg AED 1,400/sqft, 6–7% ROI
-- JLT (Jumeirah Lake Towers) — avg AED 1,200/sqft, 7–9% ROI
-- Creek Harbour — avg AED 1,700/sqft, 7–8% ROI
-- Emaar Beachfront — avg AED 2,500/sqft, 7–8% ROI
+- Dubai Marina — avg AED 1,850/sqft, 5.5–6.5% ROI
+- Downtown Dubai — avg AED 2,200/sqft, 5–6% ROI
+- Palm Jumeirah — avg AED 2,800/sqft, 5–6% ROI
+- Business Bay — avg AED 1,600/sqft, 6–7% ROI
+- Dubai Hills Estate — avg AED 1,400/sqft, 5.5–6.5% ROI
+- JLT (Jumeirah Lake Towers) — avg AED 1,200/sqft, 7–8% ROI
+- Creek Harbour — avg AED 1,700/sqft, 5.5–6.5% ROI
+- Emaar Beachfront — avg AED 2,500/sqft, 6–7% ROI
 
 ## Property Types
 
@@ -36,7 +36,7 @@ Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 ## Why Dubai
 
 - 0% income tax, 0% capital gains tax
-- 8–10% average annual rental yield
+- ~5–8% average annual gross rental yield (area-dependent)
 - Golden Visa eligibility from AED 2M investment
 - RERA & DLD-regulated market (transparent, investor-friendly)
 - 50+ international investors served from 30+ countries

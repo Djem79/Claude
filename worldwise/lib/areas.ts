@@ -43,13 +43,13 @@ export const areas: Area[] = [
     coords: { lat: 25.0805, lng: 55.1403 },
     metrics: {
       avgPrice: 'AED 1,850/sqft',
-      roi: '6–7%',
+      roi: '5.5–6.5%',
       typicalSize: '650–1,400 sqft',
       handover: 'Mostly secondary; select off-plan 2026–2028',
     },
     whyInvest: [
       "Dubai Marina has been one of the city's most established investor districts for over a decade. The combination of waterfront views, walkable promenades, and direct access to Jumeirah Beach Residence keeps short-term rental occupancy among the highest in Dubai — typically 85–95% year-round.",
-      "Yields remain healthy even after years of price appreciation. Studios and one-bedrooms typically return around 6–7% gross on long-term leases, with substantially more on holiday-let platforms. Larger three-bedroom units perform strongly as family residences for relocating executives, particularly those working in JLT and Media City next door.",
+      "Yields remain healthy even after years of price appreciation. Studios and one-bedrooms typically return around 5.5–6.5% gross on long-term leases, with substantially more on holiday-let platforms. Larger three-bedroom units perform strongly as family residences for relocating executives, particularly those working in JLT and Media City next door.",
       "The supply pipeline is mature, which means new launches sit alongside resale stock with established service charges and rental track records — making due diligence faster than in less-tested districts. Marina towers from developers like Emaar, Damac and Select Group continue to trade actively in the secondary market.",
     ],
     whatsNearby: [
@@ -74,10 +74,10 @@ export const areas: Area[] = [
       },
       {
         q: 'What is the rental yield outlook for the next few years?',
-        a: 'With population growth continuing and limited new Marina supply, rental yields are expected to hold around the 6–7% range through 2027, with stronger performance on furnished and serviced units.',
+        a: 'With population growth continuing and limited new Marina supply, rental yields are expected to hold around the 5.5–6.5% range through 2027, with stronger performance on furnished and serviced units.',
       },
     ],
-    metaDescription: 'Buy investment property in Dubai Marina — average AED 1,850/sqft, 6–7% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Dubai Marina — average AED 1,850/sqft, 5.5–6.5% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
   },
   {
     slug: 'downtown-dubai',
@@ -94,7 +94,7 @@ export const areas: Area[] = [
     whyInvest: [
       "Downtown Dubai is the city's flagship district — home to Burj Khalifa, Dubai Mall, Dubai Opera and the Dubai Fountain. Capital values here have historically led the rest of the city in upcycles and held more value in correction phases, making it a foundational asset for long-term investors.",
       "The tenant pool skews towards senior executives, family offices and brand-conscious tenants who pay a premium for the address itself. That premium translates to consistently strong rental rates — one-bedroom units in The Address Residences or Burj Vista regularly secure AED 130,000–160,000 per year on long-term leases.",
-      "Yields are lower than Marina (5–6% vs 6–7%) because purchase prices are higher — Downtown is more a capital-growth and liquidity play than a yield play. The combination of brand strength, scarce supply, and proximity to the city's main attractions means resale liquidity is among the best in Dubai, with properties typically transacting within 60–90 days of going to market.",
+      "Yields are lower than Marina (5–6% vs 5.5–6.5%) because purchase prices are higher — Downtown is more a capital-growth and liquidity play than a yield play. The combination of brand strength, scarce supply, and proximity to the city's main attractions means resale liquidity is among the best in Dubai, with properties typically transacting within 60–90 days of going to market.",
     ],
     whatsNearby: [
       'Burj Khalifa and Dubai Mall — direct walking access from most towers',
@@ -171,17 +171,17 @@ export const areas: Area[] = [
     slug: 'business-bay',
     name: 'Business Bay',
     heroImage: '/images/areas/business-bay.jpg',
-    tagline: "Dubai's CBD next to Downtown — and the city's highest-yielding investment district.",
+    tagline: "Dubai's CBD next to Downtown — strong yields at a discount to the city centre.",
     coords: { lat: 25.1850, lng: 55.2650 },
     metrics: {
       avgPrice: 'AED 1,600/sqft',
-      roi: '7–8%',
+      roi: '6–7%',
       typicalSize: '500–1,200 sqft',
       handover: 'Heavy off-plan pipeline 2026–2029',
     },
     whyInvest: [
       "Business Bay is Dubai's central business district, sitting on the Dubai Water Canal directly adjacent to Downtown. It combines the proximity premium of the city centre with substantially lower entry prices — typically 25–30% cheaper per square foot than Downtown itself.",
-      "The combination of price point and location drives the highest gross yields in the city core: studios and one-bedrooms regularly clear 7–8% on long-term leases — ahead of Marina now that Marina prices have appreciated. Tenant demand is dominated by young professionals working in DIFC, Downtown and the canal-side hotels, who value short commutes over space.",
+      "The combination of price point and location drives some of the highest gross yields in the city core: studios and one-bedrooms regularly clear 6–7% on long-term leases — ahead of Marina and Downtown at a lower entry price. Tenant demand is dominated by young professionals working in DIFC, Downtown and the canal-side hotels, who value short commutes over space.",
       "The off-plan pipeline is the largest among Dubai's core districts — Damac, Omniyat, Binghatti and Sobha all have active launches. This creates a layered entry strategy: investors can buy during construction at favourable payment plans, hold through handover and ride the yield curve as the district matures.",
     ],
     whatsNearby: [
@@ -209,7 +209,7 @@ export const areas: Area[] = [
         a: 'Less so than Dubai Hills or Arabian Ranches. Business Bay is designed around professional tenants — limited schools and parks within the district itself, though families do live here for proximity to Downtown amenities.',
       },
     ],
-    metaDescription: 'Buy investment property in Business Bay — AED 1,600/sqft, 7–8% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Business Bay — AED 1,600/sqft, 6–7% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
   },
   {
     slug: 'dubai-hills',
@@ -219,14 +219,14 @@ export const areas: Area[] = [
     coords: { lat: 25.1050, lng: 55.2480 },
     metrics: {
       avgPrice: 'AED 1,400/sqft',
-      roi: '6–7%',
+      roi: '5.5–6.5%',
       typicalSize: '800–4,500 sqft',
       handover: 'Active off-plan villas and apartments 2026–2028',
     },
     whyInvest: [
       "Dubai Hills Estate is Emaar's flagship family-oriented masterplan — 11 million square metres anchored by an 18-hole championship golf course, parks, schools and the Dubai Hills Mall. Unlike older districts that grew organically, Dubai Hills was master-planned from day one with family residents in mind.",
       "The tenant and buyer profile is distinctive: long-stay families, often with school-age children, who place a premium on green space, walkability and access to international schools. This produces lower turnover than transient districts like Marina, and rental contracts of 2–3 years are common rather than annual.",
-      "Yields sit in a solid 6–7% range, in line with established waterfront districts, but capital growth has been among the strongest in Dubai — villa prices in Sidra, Maple and Golf Place have appreciated 40–60% since 2021. Apartments in Park Heights, Mulberry and Collective offer a more accessible entry point at AED 1.5–3.5M.",
+      "Yields sit in a solid 5.5–6.5% range, in line with established waterfront districts, but capital growth has been among the strongest in Dubai — villa prices in Sidra, Maple and Golf Place have appreciated 40–60% since 2021. Apartments in Park Heights, Mulberry and Collective offer a more accessible entry point at AED 1.5–3.5M.",
     ],
     whatsNearby: [
       'Dubai Hills Mall — 750+ shops, cinemas, F&B',
@@ -353,14 +353,14 @@ export const areas: Area[] = [
     coords: { lat: 25.1980, lng: 55.3530 },
     metrics: {
       avgPrice: 'AED 1,700/sqft',
-      roi: '6–7%',
+      roi: '5.5–6.5%',
       typicalSize: '600–2,200 sqft',
       handover: 'Active off-plan pipeline 2026–2030',
     },
     whyInvest: [
       "Dubai Creek Harbour is Emaar's most ambitious current masterplan: a 6 sq km waterfront city built around the planned Dubai Creek Tower, set to be the world's tallest. It's positioned as the next Downtown — same developer pedigree, similar walkable urbanism, but at earlier-cycle prices around AED 1,700/sqft against Downtown's AED 2,200+.",
       "Entry is dominated by off-plan, which suits investors who want the longest payment plans, lowest entry capital and longest runway to handover-to-rental conversion. Most launches sit on 50/50 or 60/40 plans with 1% monthly post-handover terms available on select towers.",
-      "The catch is timing — much of the masterplan still has 3–5 years of construction ahead. Yields are projected at around 6–7% for completed towers (Creek Beach, Creek Edge, Address Harbour Point are now handed over and renting), but each new tower carries delivery and infrastructure-pace risk that mature districts don't have.",
+      "The catch is timing — much of the masterplan still has 3–5 years of construction ahead. Yields are projected at around 5.5–6.5% for completed towers (Creek Beach, Creek Edge, Address Harbour Point are now handed over and renting), but each new tower carries delivery and infrastructure-pace risk that mature districts don't have.",
     ],
     whatsNearby: [
       "Direct access to Dubai-Al Ain Road and Ras Al Khor",
@@ -387,7 +387,7 @@ export const areas: Area[] = [
         a: 'Construction-delay risk (mitigated by Emaar’s delivery record), masterplan-pace risk (some amenity launches depend on adjacent phases completing) and exit-liquidity risk (resale activity is thinner for off-plan units than handed-over stock).',
       },
     ],
-    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 1,700/sqft, 6–7% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
+    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 1,700/sqft, 5.5–6.5% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
   },
   {
     slug: 'emaar-beachfront',
@@ -506,14 +506,14 @@ export const areas: Area[] = [
     coords: { lat: 25.0100, lng: 55.4200 },
     metrics: {
       avgPrice: 'AED 1,150/sqft',
-      roi: '6–7%',
+      roi: '5–6%',
       typicalSize: '3–4 BR townhouses / 2,000–3,500 sqft',
       handover: 'Off-plan, 2026–2028',
     },
     whyInvest: [
       "The Valley is one of Emaar's fastest-selling new towns — a family-focused community of townhouses and villas along the Dubai–Al Ain road. Backing from Emaar gives it the delivery credibility and resale liquidity that newer developers can't always match, which lowers off-plan risk.",
       "Its appeal is lifestyle and price. Town Centre retail, a Golden Beach, a sports village, schools and sprawling parkland target end-user families rather than speculators — the buyer base that underpins durable rental demand. Entry prices remain below comparable Emaar communities closer to the city, leaving room for capital growth as the master plan completes.",
-      "For investors, the combination of Emaar payment plans, a townhouse-heavy mix and a maturing location on a key growth corridor makes The Valley a balanced off-plan hold: moderate 6–7% yields with meaningful appreciation potential through handover.",
+      "For investors, the combination of Emaar payment plans, a townhouse-heavy mix and a maturing location on a key growth corridor makes The Valley a balanced off-plan hold: moderate 5–6% yields with meaningful appreciation potential through handover.",
     ],
     whatsNearby: [
       'Town Centre retail, dining and community market',
@@ -525,10 +525,10 @@ export const areas: Area[] = [
     faq: [
       { q: 'Who develops The Valley?', a: 'The Valley is an Emaar master community, which gives buyers strong delivery and resale confidence compared with less-established developers.' },
       { q: 'Is The Valley mainly off-plan?', a: 'Yes — most inventory is off-plan with handovers through 2026–2028 on Emaar staged payment plans. Early phases are already completing.' },
-      { q: 'What yields does The Valley offer?', a: 'As a townhouse-led family community it offers moderate gross yields around 6–7%, with the main upside in capital appreciation as the master plan matures.' },
+      { q: 'What yields does The Valley offer?', a: 'As a townhouse-led family community it offers moderate gross yields around 5–6%, with the main upside in capital appreciation as the master plan matures.' },
       { q: 'Is The Valley freehold?', a: 'Yes — it is a freehold community open to international buyers with full ownership.' },
     ],
-    metaDescription: 'Invest in The Valley by Emaar, Dubai — family townhouses and villas with 6–7% yields and strong growth potential. Browse listings with Worldwise Real Estate.',
+    metaDescription: 'Invest in The Valley by Emaar, Dubai — family townhouses and villas with 5–6% yields and strong growth potential. Browse listings with Worldwise Real Estate.',
   },
 ]
 

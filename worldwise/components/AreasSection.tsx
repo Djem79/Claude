@@ -2,31 +2,33 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { areas as areaData } from '@/lib/areas'
 
-type AreaCard = {
-  name: string
-  avgPrice: string
-  roi: string
-  img: string
-  slug: string
-  theme: 'Waterfront & Beachfront' | 'City & Business' | 'Family & Lifestyle'
-}
+type Theme = 'Waterfront & Beachfront' | 'City & Business' | 'Family & Lifestyle'
+type AreaCard = { name: string; avgPrice: string; roi: string; img: string; slug: string; theme: Theme }
 
-const slugByName = new Map(areaData.map(a => [a.name, a.slug]))
-
-const homepageAreas: AreaCard[] = [
-  { name: 'Dubai Marina',     avgPrice: 'AED 1,850/sqft', roi: '7–8%', img: '/images/areas/dubai-marina.jpg',     slug: slugByName.get('Dubai Marina')!,     theme: 'Waterfront & Beachfront' },
-  { name: 'Palm Jumeirah',    avgPrice: 'AED 2,800/sqft', roi: '6–8%', img: '/images/areas/palm-jumeirah.jpg',    slug: slugByName.get('Palm Jumeirah')!,    theme: 'Waterfront & Beachfront' },
-  { name: 'Emaar Beachfront', avgPrice: 'AED 2,500/sqft', roi: '7–8%', img: '/images/areas/emaar-beachfront.jpg', slug: slugByName.get('Emaar Beachfront')!, theme: 'Waterfront & Beachfront' },
-  { name: 'Creek Harbour',    avgPrice: 'AED 1,700/sqft', roi: '7–8%', img: '/images/areas/creek-harbour.jpg',    slug: slugByName.get('Creek Harbour')!,    theme: 'Waterfront & Beachfront' },
-  { name: 'Downtown Dubai',   avgPrice: 'AED 2,200/sqft', roi: '6–7%', img: '/images/areas/downtown-dubai.jpg',   slug: slugByName.get('Downtown Dubai')!,   theme: 'City & Business' },
-  { name: 'Business Bay',     avgPrice: 'AED 1,600/sqft', roi: '7–9%', img: '/images/areas/business-bay.jpg',     slug: slugByName.get('Business Bay')!,     theme: 'City & Business' },
-  { name: 'JLT',              avgPrice: 'AED 1,200/sqft', roi: '7–9%', img: '/images/areas/jlt.jpg',              slug: slugByName.get('JLT')!,              theme: 'City & Business' },
-  { name: 'MBR City',         avgPrice: 'AED 2,000/sqft', roi: '6–7%', img: '/images/areas/mbr-city.jpg',         slug: slugByName.get('MBR City')!,         theme: 'City & Business' },
-  { name: 'Dubai Hills',      avgPrice: 'AED 1,400/sqft', roi: '6–7%', img: '/images/areas/dubai-hills.jpg',      slug: slugByName.get('Dubai Hills')!,      theme: 'Family & Lifestyle' },
-  { name: 'Damac Hills',      avgPrice: 'AED 1,300/sqft', roi: '6–7%', img: '/images/areas/damac-hills.jpg',      slug: slugByName.get('Damac Hills')!,      theme: 'Family & Lifestyle' },
-  { name: 'Damac Hills 2',    avgPrice: 'AED 900/sqft',   roi: '7–9%', img: '/images/areas/damac-hills-2.jpg',    slug: slugByName.get('Damac Hills 2')!,    theme: 'Family & Lifestyle' },
-  { name: 'The Valley',       avgPrice: 'AED 1,150/sqft', roi: '6–7%', img: '/images/areas/the-valley.jpg',       slug: slugByName.get('The Valley')!,       theme: 'Family & Lifestyle' },
-]
+// Homepage-specific: display order + theme grouping ONLY. Price / ROI / image / slug
+// are DERIVED from lib/areas.ts (the single source of truth) so the homepage cards
+// can never drift from the landing pages — as the rental-yield figures had before
+// the 2026 yield review.
+const byName = new Map(areaData.map(a => [a.name, a]))
+const homepageAreas: AreaCard[] = (
+  [
+    ['Dubai Marina', 'Waterfront & Beachfront'],
+    ['Palm Jumeirah', 'Waterfront & Beachfront'],
+    ['Emaar Beachfront', 'Waterfront & Beachfront'],
+    ['Creek Harbour', 'Waterfront & Beachfront'],
+    ['Downtown Dubai', 'City & Business'],
+    ['Business Bay', 'City & Business'],
+    ['JLT', 'City & Business'],
+    ['MBR City', 'City & Business'],
+    ['Dubai Hills', 'Family & Lifestyle'],
+    ['Damac Hills', 'Family & Lifestyle'],
+    ['Damac Hills 2', 'Family & Lifestyle'],
+    ['The Valley', 'Family & Lifestyle'],
+  ] as [string, Theme][]
+).map(([name, theme]) => {
+  const a = byName.get(name)!
+  return { name, theme, slug: a.slug, avgPrice: a.metrics.avgPrice, roi: a.metrics.roi, img: a.heroImage }
+})
 
 const THEMES: AreaCard['theme'][] = ['Waterfront & Beachfront', 'City & Business', 'Family & Lifestyle']
 

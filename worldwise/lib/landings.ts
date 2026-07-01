@@ -77,10 +77,10 @@ export const landings: Landing[] = [
           'payment plans, reducing the upfront capital requirement significantly.',
         table: [
           ['Community', 'Typical price range', 'Avg. yield'],
-          ['Dubai Marina', 'AED 900K – AED 3M', '6–7%'],
+          ['Dubai Marina', 'AED 900K – AED 3M', '5.5–6.5%'],
           ['Downtown Dubai', 'AED 1.2M – AED 5M', '5–6%'],
           ['Business Bay', 'AED 700K – AED 2.5M', '6–7%'],
-          ['Dubai Hills', 'AED 800K – AED 2.8M', '6–8%'],
+          ['Dubai Hills', 'AED 800K – AED 2.8M', '5.5–6.5%'],
           ['Palm Jumeirah', 'AED 2M – AED 15M+', '5–6%'],
           ['JLT', 'AED 550K – AED 1.8M', '7–8%'],
         ],
