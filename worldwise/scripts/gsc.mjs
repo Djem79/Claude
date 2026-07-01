@@ -165,8 +165,15 @@ function siteUrl() {
   return process.env.GSC_SITE_URL || DEFAULT_SITE
 }
 
+// Search Console data lags ~2-3 days behind real time. Anchor every window's
+// end `GSC_LAG_DAYS` back so the freshest (still-empty) days never enter a
+// window — otherwise week-over-week/period comparisons systematically read the
+// current period low ("decaying" bias in content-review, deflated digests).
+const GSC_LAG_DAYS = 3
+
 function dateRange(days) {
   const end = new Date()
+  end.setDate(end.getDate() - GSC_LAG_DAYS)
   const start = new Date(end)
   start.setDate(start.getDate() - days)
   return { startDate: iso(start), endDate: iso(end) }
@@ -520,9 +527,10 @@ async function cmdContentReview(opts) {
   // Current window: the last `days` days.
   const { startDate: curStart, endDate: curEnd } = dateRange(days)
 
-  // Prior window: the window of equal length ending `days` ago.
+  // Prior window: the window of equal length ending `days` ago. Same lag anchor
+  // as dateRange so both windows compare fully-settled data.
   const priorEnd = new Date()
-  priorEnd.setDate(priorEnd.getDate() - days)
+  priorEnd.setDate(priorEnd.getDate() - GSC_LAG_DAYS - days)
   const priorStart = new Date(priorEnd)
   priorStart.setDate(priorStart.getDate() - days)
   const priorStartDate = iso(priorStart)

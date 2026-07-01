@@ -96,9 +96,12 @@ export function classifyPages(current, previous, opts) {
 
 const ORIGIN_RE = /^https?:\/\/[^/]+/
 
-/** Strip the origin from a full URL so only the path is shown. */
+/** Strip the origin from a full URL so only the path is shown. The report is
+ * sent with parse_mode HTML, and GSC page URLs are not fully trusted (crawled
+ * probe paths can carry < & >) — escape like formatDigest does in gsc.mjs. */
 function toPath(page) {
-  return String(page).replace(ORIGIN_RE, '') || '/'
+  const p = String(page).replace(ORIGIN_RE, '') || '/'
+  return p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 /** Format ctr (0–1 fraction) as a percent string with one decimal. */

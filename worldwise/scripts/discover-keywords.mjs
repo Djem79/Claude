@@ -272,31 +272,38 @@ async function main() {
   const reserve = scoreAndSelect(enriched, { minVolume: MIN_VOLUME, n: N_PER_WEEK + 5 })
     .slice(N_PER_WEEK).map(s => s.keyword)
 
-  // ── Ads feed (computed from the same enriched pool) ───────────────────────
-  const store = readAdsSuggested()
-  const seenKw  = new Set(store.keywords.map(k => k.toLowerCase().trim()))
-  const seenNeg = new Set(store.negatives.map(k => k.toLowerCase().trim()))
-  const adds = buildAddSuggestions(enriched, { minAdsVol: MIN_VOLUME, n: ADS_N, seen: seenKw })
-  const negs = buildNegatives(enriched, { minNegVol: ADS_MIN_NEG_VOL, seen: seenNeg })
-  const prompt = formatClaudeChromePrompt(adds, negs)
-
+  // ── Blog-keyword step FIRST — the primary output must not depend on the ads
+  // store. (readAdsSuggested throws on a corrupt ads-suggested.json by design;
+  // when it sat before insertIntoBank, that throw skipped the week's bank
+  // top-up too, contradicting the documented isolation invariant.)
   if (DRY_RUN) {
     log(`Would add ${selected.length}:`)
     for (const s of selected) log(`  ${s.score.toFixed(2)}  ${s.keyword}  (vol ${s.maxVol}, rise ${s.rise.toFixed(2)})`)
-    log(`Ads feed (dry-run): ${adds.length} to add, ${negs.length} negatives`)
-    for (const a of adds) log(`  ${a.keyword}  bucket=${a.bucket}  match=${a.matchType}  vol=${a.adsVol}  cpc=${a.cpc}  comp=${a.competition}`)
-    if (negs.length) log(`  Negatives: ${negs.join(' · ')}`)
-    log('--- claude-chrome prompt ---')
-    log(prompt)
-    return
+  } else {
+    const added = insertIntoBank(selected.map(s => s.keyword))
+    log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
+    await sendTelegram(summaryText({ added, selected, skippedCount, reserve, cost: totalCost }))
   }
 
-  const added = insertIntoBank(selected.map(s => s.keyword))
-  log(`Added ${added.length} keywords to the bank at index ${bank.index}`)
-  await sendTelegram(summaryText({ added, selected, skippedCount, reserve, cost: totalCost }))
-
-  // ── Ads feed: persist + notify ────────────────────────────────────────────
+  // ── Ads feed (computed from the same enriched pool) — fully isolated: any
+  // failure here (incl. reading the ads store) cannot affect the blog step.
   try {
+    const store = readAdsSuggested()
+    const seenKw  = new Set(store.keywords.map(k => k.toLowerCase().trim()))
+    const seenNeg = new Set(store.negatives.map(k => k.toLowerCase().trim()))
+    const adds = buildAddSuggestions(enriched, { minAdsVol: MIN_VOLUME, n: ADS_N, seen: seenKw })
+    const negs = buildNegatives(enriched, { minNegVol: ADS_MIN_NEG_VOL, seen: seenNeg })
+    const prompt = formatClaudeChromePrompt(adds, negs)
+
+    if (DRY_RUN) {
+      log(`Ads feed (dry-run): ${adds.length} to add, ${negs.length} negatives`)
+      for (const a of adds) log(`  ${a.keyword}  bucket=${a.bucket}  match=${a.matchType}  vol=${a.adsVol}  cpc=${a.cpc}  comp=${a.competition}`)
+      if (negs.length) log(`  Negatives: ${negs.join(' · ')}`)
+      log('--- claude-chrome prompt ---')
+      log(prompt)
+      return
+    }
+
     appendAdsSuggested(adds.map(a => a.keyword), negs)
     const reviewMsg = adsFeedSummary(adds, negs)
     await sendTelegram(reviewMsg)
