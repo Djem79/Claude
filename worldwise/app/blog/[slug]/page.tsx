@@ -55,7 +55,10 @@ const TAG_COLORS: Record<string, string> = {
 
 export default async function ArticlePage(props: Props) {
   const params = await props.params;
-  const article = getArticleBySlug(params.slug)
+  // One merge/read serves both the article lookup and the "related" list below —
+  // getArticleBySlug would re-run the whole dynamic+static merge a second time.
+  const allArticles = getAllArticles()
+  const article = allArticles.find(a => a.slug === params.slug)
   if (!article) notFound()
 
   // Static editorial articles carry no publishedAt — omit the date rather than
@@ -69,7 +72,7 @@ export default async function ArticlePage(props: Props) {
     : null
 
   // Same-tag articles first, newest-first order preserved from getAllArticles()
-  const others = getAllArticles().filter(a => a.slug !== article.slug)
+  const others = allArticles.filter(a => a.slug !== article.slug)
   const related = [
     ...others.filter(a => a.tag === article.tag),
     ...others.filter(a => a.tag !== article.tag),
@@ -194,11 +197,12 @@ function escapeHtml(text: string): string {
 // then apply our own bold/italic markup. See tasks/security-audit.md C1.
 function formatInline(text: string): string {
   return escapeHtml(text)
-    // Internal links only: [label](/path). The leading "/" requirement means article copy
-    // can never inject an offsite or javascript: href — escapeHtml has already run, so the
-    // captured groups are safe to interpolate into the anchor.
+    // Internal links only: [label](/path). Require a leading "/" that is NOT followed by
+    // another "/" — so "//evil.com" (protocol-relative → https://evil.com) and offsite or
+    // javascript: hrefs can never match. escapeHtml has already run, so the captured groups
+    // are safe to interpolate into the anchor.
     .replace(
-      /\[([^\]]+)\]\((\/[^)\s]+)\)/g,
+      /\[([^\]]+)\]\((\/(?!\/)[^)\s]+)\)/g,
       '<a href="$2" class="text-gold-accessible underline underline-offset-2 hover:opacity-80">$1</a>',
     )
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
