@@ -164,9 +164,11 @@ function escapeMarkdownV2(text: string): string {
   return text.replace(/[\\*_[\]()~`>#+\-=|{}.!]/g, '\\$&')
 }
 
-async function postToChannel(article: DynamicArticle) {
+// Returns false when the channel post did not go out — the callback answer must
+// reflect it (the admin's only other trace is a PM2 log line nobody tails).
+async function postToChannel(article: DynamicArticle): Promise<boolean> {
   const channelId = process.env.TELEGRAM_CHANNEL_ID
-  if (!channelId) return
+  if (!channelId) return true // channel posting not configured — nothing to fail
   const token = process.env.TELEGRAM_BOT_TOKEN!
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://worldwise.pro').replace(/\/$/, '')
   const emoji = TAG_EMOJI[article.tag] ?? '📄'
@@ -198,7 +200,7 @@ async function postToChannel(article: DynamicArticle) {
         fd.append('photo', new Blob([buf]), `${article.slug}.png`)
         const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: fd, signal: AbortSignal.timeout(15000) })
         if (!res.ok) console.error('[telegram-webhook] postToChannel sendPhoto failed', await res.text())
-        return
+        return res.ok
       }
       console.error('[telegram-webhook] postToChannel card fetch failed', imgRes.status)
     }
@@ -209,14 +211,18 @@ async function postToChannel(article: DynamicArticle) {
       signal: AbortSignal.timeout(10000),
     })
     if (!res.ok) console.error('[telegram-webhook] postToChannel failed', await res.text())
+    return res.ok
   } catch (e) {
     console.error('[telegram-webhook] postToChannel error', e)
+    return false
   }
 }
 
-async function postPlanToChannel(post: Record<string, unknown>) {
+// Returns false when the channel post did not go out (never throws) — the
+// callback answer must reflect the real outcome, not assume success.
+async function postPlanToChannel(post: Record<string, unknown>): Promise<boolean> {
   const channelId = process.env.TELEGRAM_CHANNEL_ID
-  if (!channelId) return
+  if (!channelId) return true // channel posting not configured — nothing to fail
   const token = process.env.TELEGRAM_BOT_TOKEN!
   const text = String(post.text ?? '')
 
@@ -233,7 +239,7 @@ async function postPlanToChannel(post: Record<string, unknown>) {
           method: 'POST', body: fd, signal: AbortSignal.timeout(15000),
         })
         if (!res.ok) console.error('[telegram-webhook] postPlanToChannel sendPhoto failed', await res.text())
-        return
+        return res.ok
       }
       console.error('[telegram-webhook] postPlanToChannel card fetch failed', imgRes.status)
     } catch (e) {
@@ -241,8 +247,8 @@ async function postPlanToChannel(post: Record<string, unknown>) {
     }
   }
 
-  // Wrapped like the image branch above — this function is called fire-and-forget,
-  // so an unobserved rejection here would crash the single PM2 process.
+  // Errors stay caught here (an unobserved rejection would crash the single PM2
+  // process) — the boolean carries the outcome to the caller instead.
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
@@ -251,8 +257,10 @@ async function postPlanToChannel(post: Record<string, unknown>) {
       signal: AbortSignal.timeout(10000),
     })
     if (!res.ok) console.error('[telegram-webhook] postPlanToChannel text failed', await res.text())
+    return res.ok
   } catch (e) {
     console.error('[telegram-webhook] postPlanToChannel text error', e)
+    return false
   }
 }
 
@@ -437,8 +445,15 @@ async function handleCallback(callback: TgCallback) {
   let answerText: string
   if (data === 'publish_article') {
     const published = publishDraft()
-    answerText = published ? '✅ Опубликовано' : '⚠️ Черновик не найден'
-    if (published) postToChannel(published)
+    if (published) {
+      // Await the channel post so the button answer reflects reality — the old
+      // fire-and-forget always answered "Опубликовано" even when the channel
+      // post failed (revoked admin rights, bad TELEGRAM_CHANNEL_ID, image error).
+      const channelOk = await postToChannel(published)
+      answerText = channelOk ? '✅ Опубликовано' : '✅ На сайте, но ⚠️ пост в канал не ушёл (см. логи)'
+    } else {
+      answerText = '⚠️ Черновик не найден'
+    }
   } else if (data === 'skip_article') {
     deleteDraft()
     answerText = '❌ Пропущено'
@@ -451,9 +466,10 @@ async function handleCallback(callback: TgCallback) {
       // draft missing or unreadable
     }
     if (planPost) {
-      // Fire-and-forget — never let a rejection escape unobserved.
-      postPlanToChannel(planPost).catch(e => console.error('[telegram-webhook] postPlanToChannel', e))
-      answerText = '✅ Опубликовано'
+      // Await so the button answer reflects the real outcome (same fix as
+      // publish_article above; postPlanToChannel never throws).
+      const ok = await postPlanToChannel(planPost)
+      answerText = ok ? '✅ Опубликовано' : '⚠️ Пост в канал не ушёл (см. логи)'
     } else {
       answerText = '⚠️ Черновик не найден'
     }
