@@ -7,7 +7,7 @@ import SocialProofStrip from '@/components/SocialProofStrip'
 import PropertyCard from '@/components/PropertyCard'
 import GoldenVisaClient from './GoldenVisaClient'
 import { getProperties } from '@/lib/properties'
-import { qualifiesForGoldenVisa, GOLDEN_VISA_AED } from '@/lib/golden-visa'
+import { propertyQualifiesForGoldenVisa, GOLDEN_VISA_AED } from '@/lib/golden-visa'
 import JsonLd from '@/components/JsonLd'
 
 const BASE = 'https://worldwise.pro'
@@ -110,7 +110,7 @@ const FAQ = [
 ]
 
 export default function GoldenVisaPage() {
-  const qualifying = getProperties().filter(p => qualifiesForGoldenVisa(p.priceAed))
+  const qualifying = getProperties().filter(propertyQualifiesForGoldenVisa)
   const listings = qualifying.slice(0, LISTING_LIMIT)
 
   const breadcrumbJsonLd = {

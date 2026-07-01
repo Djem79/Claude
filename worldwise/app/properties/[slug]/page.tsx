@@ -15,7 +15,7 @@ import BrochureGate from '@/components/BrochureGate'
 import FloorPlanGate from '@/components/FloorPlanGate'
 import { waPropertyMessage, PHONE_TEL } from '@/lib/whatsapp'
 import WhatsAppCta from './WhatsAppCta'
-import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
+import { propertyQualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
 import { estimateMonthly } from '@/lib/mortgage'
 import JsonLd from '@/components/JsonLd'
@@ -37,6 +37,9 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const url = `https://worldwise.pro/properties/${p.slug}`
   const img = p.images[0] ?? '/images/areas/dubai-marina.jpg'
   const title = `${p.title} by ${p.developer} — ${formatAedCompact(p.priceAed)}`
+  // title.template never brands openGraph/twitter titles (see tasks/lessons.md
+  // 2026-06-08) — social cards need the brand appended explicitly.
+  const ogTitle = `${title} | Worldwise Real Estate`
   const description = `${p.shortDescription} Located in ${p.area}, Dubai.${p.roi ? ` Est. ROI ${p.roi}%.` : ''}${p.completionDate ? ` Handover ${p.completionDate}.` : ''} RERA-certified listing.`
   return {
     // absolute: property titles are long free text — the layout's
@@ -45,7 +48,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url,
       type: 'website',
@@ -53,7 +56,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description,
       images: [img],
     },
@@ -62,13 +65,16 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
 export default async function PropertyPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const property = getPropertyBySlug(params.slug)
+  // One read serves both the page's property and the "similar" list —
+  // getPropertyBySlug would re-read + re-parse the whole catalog a second time.
+  const all = getProperties()
+  const property = all.find(p => p.slug === params.slug)
   if (!property) notFound()
 
   // "Similar" = same area/developer first, then ranked by closest price so the
   // suggestions sit in the same budget. Backfill with the nearest-priced of the
   // remaining listings if there aren't 3 contextual matches.
-  const others = getProperties().filter(p => p.id !== property.id)
+  const others = all.filter(p => p.id !== property.id)
   const byPriceCloseness = (a: typeof others[number], b: typeof others[number]) =>
     Math.abs(a.priceAed - property.priceAed) - Math.abs(b.priceAed - property.priceAed)
   const contextual = others
@@ -183,7 +189,7 @@ export default async function PropertyPage(props: { params: Promise<{ slug: stri
                   <span className="badge bg-navy text-gold">{property.status}</span>
                   {property.rented && <span className="badge bg-gray-800/80 text-white">Rented</span>}
                   {property.badge && <span className="badge bg-gold/10 text-gold-accessible">{property.badge}</span>}
-                  {qualifiesForGoldenVisa(property.priceAed) && <span className="badge bg-gold text-navy">Golden Visa</span>}
+                  {propertyQualifiesForGoldenVisa(property) && <span className="badge bg-gold text-navy">Golden Visa</span>}
                 </div>
                 <div className="flex items-start justify-between gap-4">
                   {/* min-w-0 lets the long title wrap/shrink inside the flex row instead of

@@ -2,10 +2,10 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Property } from '@/types'
+import { CardProperty } from '@/types'
 import { waLink, waPropertyMessage } from '@/lib/whatsapp'
 import { track } from '@/lib/analytics'
-import { qualifiesForGoldenVisa } from '@/lib/golden-visa'
+import { propertyQualifiesForGoldenVisa } from '@/lib/golden-visa'
 import PriceTag from '@/components/PriceTag'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -20,7 +20,9 @@ const STATUS_LABELS: Record<string, string> = {
   rent: 'For Rent',
 }
 
-export default function PropertyCard({ property }: { property: Property }) {
+// CardProperty is the display subset — callers holding a full Property pass it
+// as-is (structurally assignable); /properties projects via toCardProperty().
+export default function PropertyCard({ property }: { property: CardProperty }) {
   // Guard: images can be empty (draft/import edge cases) — fall back to a generic area shot.
   const img = property.images[0] ?? '/images/areas/dubai-marina.jpg'
   return (
@@ -43,7 +45,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.badge && (
             <span className="badge bg-navy/80 text-gold">{property.badge}</span>
           )}
-          {qualifiesForGoldenVisa(property.priceAed) && (
+          {propertyQualifiesForGoldenVisa(property) && (
             <span className="badge bg-gold text-navy">Golden Visa</span>
           )}
         </div>
