@@ -16,16 +16,22 @@ All 148+ listings are available at https://worldwise.pro/properties
 
 Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 
-## Key Areas Covered
+## Key Areas Covered (dedicated guide pages)
 
-- Dubai Marina — avg AED 1,850/sqft, 5.5–6.5% ROI
-- Downtown Dubai — avg AED 2,200/sqft, 5–6% ROI
-- Palm Jumeirah — avg AED 2,800/sqft, 5–6% ROI
-- Business Bay — avg AED 1,600/sqft, 6–7% ROI
-- Dubai Hills Estate — avg AED 1,400/sqft, 5.5–6.5% ROI
-- JLT (Jumeirah Lake Towers) — avg AED 1,200/sqft, 7–8% ROI
-- Creek Harbour — avg AED 1,700/sqft, 5.5–6.5% ROI
-- Emaar Beachfront — avg AED 2,500/sqft, 6–7% ROI
+- Dubai Marina — avg AED 1,850/sqft, 5.5–6.5% gross yield — https://worldwise.pro/dubai-marina
+- Downtown Dubai — avg AED 2,200/sqft, 5–6% — https://worldwise.pro/downtown-dubai
+- Palm Jumeirah — avg AED 2,800/sqft, 5–6% — https://worldwise.pro/palm-jumeirah
+- Business Bay — avg AED 1,600/sqft, 6–7% — https://worldwise.pro/business-bay
+- Dubai Hills Estate — avg AED 1,400/sqft, 5.5–6.5% — https://worldwise.pro/dubai-hills
+- JLT (Jumeirah Lake Towers) — avg AED 1,200/sqft, 7–8% — https://worldwise.pro/jlt
+- MBR City — avg AED 2,000/sqft, 6–7% — https://worldwise.pro/mbr-city
+- Creek Harbour — avg AED 1,700/sqft, 5.5–6.5% — https://worldwise.pro/creek-harbour
+- Emaar Beachfront — avg AED 2,500/sqft, 6–7% — https://worldwise.pro/emaar-beachfront
+- Damac Hills — avg AED 1,300/sqft, 6–7% — https://worldwise.pro/damac-hills
+- Damac Hills 2 — avg AED 900/sqft, 7–9% — https://worldwise.pro/damac-hills-2
+- The Valley — avg AED 1,150/sqft, 5–6% — https://worldwise.pro/the-valley
+
+Full quarterly yield data: https://worldwise.pro/blog/dubai-rental-yields-report (citable with attribution)
 
 ## Property Types
 
@@ -33,17 +39,33 @@ Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 - Secondary market (ready to move in)
 - Rental properties
 
+## Key Tools & Landing Pages
+
+- Mortgage calculator (UAE non-resident financing): https://worldwise.pro/mortgage-calculator
+- Golden Visa via property (AED 2M+): https://worldwise.pro/golden-visa
+- Free Dubai investment guide (PDF): https://worldwise.pro/guide
+- Buy an apartment in Dubai: https://worldwise.pro/invest/buy-apartment-in-dubai
+- Buy a villa in Dubai: https://worldwise.pro/invest/buy-villa-in-dubai
+- Off-plan payment plans explained: https://worldwise.pro/invest/dubai-off-plan-payment-plans
+- Mortgages for non-residents: https://worldwise.pro/invest/dubai-mortgage-for-non-residents
+- Developer profiles (Emaar, Sobha, Damac, Nakheel and more): https://worldwise.pro/developers
+
 ## Why Dubai
 
 - 0% income tax, 0% capital gains tax
-- ~5–8% average annual gross rental yield (area-dependent)
-- Golden Visa eligibility from AED 2M investment
+- ~5–9% average annual gross rental yield (area-dependent)
+- Residence visa from any completed Dubai property (sole owners, April 2026 rules); 10-year Golden Visa from AED 2M
 - RERA & DLD-regulated market (transparent, investor-friendly)
-- 50+ international investors served from 30+ countries
+- 50+ international investors served
 
 ## Blog & Guides
 
 SEO articles and investment guides at https://worldwise.pro/blog
+Key references:
+- UAE property residence visa rules (April 2026 update): https://worldwise.pro/blog/uae-property-residence-visa
+- Abu Dhabi property investor visa: https://worldwise.pro/blog/abu-dhabi-property-investor-visa
+- Dubai rental yields report (quarterly): https://worldwise.pro/blog/dubai-rental-yields-report
+- DLD fees for international buyers: https://worldwise.pro/blog/dld-fees-dubai-international-investors-guide
 Topics: off-plan investment, Golden Visa, Dubai mortgage, area guides, market updates.
 
 ## Legal
