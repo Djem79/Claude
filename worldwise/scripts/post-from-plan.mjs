@@ -81,6 +81,18 @@ function cardUrl(slug, title, tag) {
   return `/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&tag=${encodeURIComponent(tag)}`
 }
 
+// Plain-text alert to the admin chat (not the channel) — used on failures so
+// they surface in Telegram, not only in a cron log nobody tails.
+async function notifyAdmin(text) {
+  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) throw new Error(`notifyAdmin ${res.status}`)
+}
+
 async function sendPollToChannel(post) {
   const body = {
     chat_id: TG_CHANNEL_ID,
@@ -166,13 +178,21 @@ async function main() {
 
   // Polls go straight to channel — no approval step needed. Send ALL of today's
   // polls (a single-post pick would strand the second one forever, since the
-  // date never matches again).
+  // date never matches again). Each poll is isolated in its own try/catch: an
+  // uncaught throw here would abort the whole run BEFORE markSent — and since
+  // todays() matches on p.date === today, a failed post can never be retried
+  // tomorrow. One malformed poll must not strand the rest of the day's posts.
   for (const { p, i } of todays().filter(({ p }) => p.type === 'poll')) {
     log(`Post: "${p.title}" (poll)`)
-    await sendPollToChannel({ ...p })
-    log('Poll sent to channel')
-    markSent(plan, i)
-    log('Marked as sent')
+    try {
+      await sendPollToChannel({ ...p })
+      log('Poll sent to channel')
+      markSent(plan, i)
+      log('Marked as sent')
+    } catch (e) {
+      log(`Poll "${p.title}" failed: ${e.message} — continuing with the rest`)
+      await notifyAdmin(`⚠️ Автопост: poll "${p.title}" (${p.date}) не отправился: ${e.message}. Пост остаётся в плане с sent:false — переназначь дату или поправь опции.`).catch(() => {})
+    }
   }
 
   const pending = todays()
@@ -218,4 +238,9 @@ async function main() {
   log('Marked as sent (prevents re-send on next cron run)')
 }
 
-main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
+main().catch(async e => {
+  // Await the alert — process.exit() kills in-flight fetches (seo-audit bug class).
+  log(`FATAL: ${e.message}`)
+  await notifyAdmin(`⚠️ Автопост упал: ${e.message}`).catch(() => {})
+  process.exit(1)
+})

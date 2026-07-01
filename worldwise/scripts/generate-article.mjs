@@ -345,12 +345,31 @@ async function main() {
   writeFileAtomic(DRAFT_PATH, JSON.stringify(article, null, 2))
   log('Draft saved')
 
-  await sendTelegram(article, keyword)
-  log('Telegram notification sent — waiting for approval')
+  try {
+    await sendTelegram(article, keyword)
+    log('Telegram notification sent — waiting for approval')
+  } catch (e) {
+    // The draft IS saved but the approval request never reached the operator —
+    // tomorrow's run overwrites article-draft.json, silently discarding today's
+    // article. Alert via the plain-text path (indices below still don't advance,
+    // so the same keyword self-heals on the next run).
+    log(`approval send failed: ${e.message}`)
+    await sendTelegramMessage(
+      `⚠️ Статья "${article.title}" сгенерирована, но запрос на одобрение не доставился (${e.message}). ` +
+      'Черновик в data/article-draft.json до завтрашнего прогона.'
+    ).catch(() => {})
+    throw e
+  }
 
   incrementTagIndex(tagIndex)
   incrementKeywordIndex(kwIndex)
   log(`Advanced keyword index to ${kwIndex + 1}`)
 }
 
-main().catch(e => { log(`FATAL: ${e.message}`); process.exit(1) })
+main().catch(async e => {
+  // Await the alert — process.exit() would kill an in-flight fetch (same bug
+  // class as the seo-audit crash alert).
+  log(`FATAL: ${e.message}`)
+  await sendTelegramMessage(`⚠️ Auto-blog run crashed: ${e.message}`).catch(() => {})
+  process.exit(1)
+})
