@@ -47,7 +47,12 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await submit({ name, phone, budget, propertyType, area })
+    const ok = await submit({ name, phone, budget, propertyType, area })
+    if (ok) {
+      // Clear fields so a reopen of this long-lived instance can't re-submit the
+      // previous lead's PII (same rule as LeadModal).
+      setName(''); setPhone(''); setBudget(''); setPropertyType(''); setArea('')
+    }
   }
 
   return (

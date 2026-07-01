@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Property } from '@/types'
+import { CardProperty } from '@/types'
 import PropertyCard from '@/components/PropertyCard'
 import CurrencySelect from '@/components/CurrencySelect'
 import { canonicalizeArea } from '@/lib/dubai-areas'
@@ -54,7 +54,7 @@ export default function PropertiesClient({
   initialType = 'all',
   initialStatus = 'all',
 }: {
-  properties: Property[]
+  properties: CardProperty[]
   initialArea?: string
   initialType?: string
   initialStatus?: string
@@ -65,7 +65,11 @@ export default function PropertiesClient({
   )
   const validTypes = ['all', 'apartment', 'villa', 'townhouse', 'penthouse']
   const validStatuses = ['all', 'off-plan', 'secondary', 'rent']
-  const [area, setArea] = useState(areas.includes(initialArea) ? initialArea : 'All Areas')
+  // Canonicalize the incoming ?area= too: area pages link with display names
+  // ("Dubai Hills") while the dropdown holds canonical vocabulary ("Dubai Hills
+  // Estate") — without this the deep-link filter silently resets to All Areas.
+  const canonInitialArea = canonicalizeArea(initialArea)
+  const [area, setArea] = useState(areas.includes(canonInitialArea) ? canonInitialArea : 'All Areas')
   const [status, setStatus] = useState(validStatuses.includes(initialStatus) ? initialStatus : 'all')
   const [type, setType] = useState(validTypes.includes(initialType) ? initialType : 'all')
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE)
