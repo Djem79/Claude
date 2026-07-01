@@ -280,7 +280,14 @@ function ArticleContent({ content }: { content: string }) {
                   {block.rows!.map((row, j) => (
                     <tr key={j} className={j % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                       {row.map((cell, k) => (
-                        <td key={k} className="px-4 py-3 text-gray-700 border-b border-gray-100">{cell}</td>
+                        <td
+                          key={k}
+                          className="px-4 py-3 text-gray-700 border-b border-gray-100"
+                          // Same safety contract as p/ul/ol: formatInline escapes HTML
+                          // FIRST, then applies bold/italic/internal-link markup — so
+                          // [label](/path) links work inside table cells too.
+                          dangerouslySetInnerHTML={{ __html: formatInline(cell) }}
+                        />
                       ))}
                     </tr>
                   ))}
