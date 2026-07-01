@@ -124,3 +124,31 @@ Property Tours — Premium · Property Tours — Rental · Investor Guides · Du
 ## Связанное
 - Стратегия: `2026-06-08-lead-generation-strategy.md` (§13.4–13.6 — контент-движок, ассеты, quick wins).
 - Бренд/палитра/промты обложек: там же, §13.3 и §13.5.
+
+---
+
+## G. Маппинг видео → статьи сайта (добавлено 2026-07-02)
+
+Вставлять в ОПИСАНИЕ каждого видео (первые 2 строки, до "показать ещё") ссылку на
+релевантную статью/страницу — это трафик + поведенческий сигнал + линк-консистентность
+для Google/AI. Формат строки:
+
+`Full guide: https://worldwise.pro/<path> · Listings: https://worldwise.pro/properties`
+
+| Видео (тема) | Ссылка в описание |
+| --- | --- |
+| #1 Top-5 areas by ROI | https://worldwise.pro/blog/dubai-rental-yields-report |
+| #2 Dubai Marina 3BR tour | https://worldwise.pro/dubai-marina |
+| #3 571K USD apartment | https://worldwise.pro/invest/buy-apartment-in-dubai |
+| #4 The Views rental 165k | https://worldwise.pro/properties |
+| #5–6 Dubai Hills 6.5M tours | https://worldwise.pro/dubai-hills |
+| #7 Urban Oasis / Missoni | https://worldwise.pro/business-bay |
+| #8 Off-plan vs secondary | https://worldwise.pro/blog/off-plan-vs-ready-property-dubai-guide (проверить точный slug в /blog) |
+| #9 FR-видео (5 quartiers) | https://worldwise.pro/blog/dubai-rental-yields-report |
+| Shorts «1,000 residents daily» | https://worldwise.pro/blog/uae-property-residence-visa |
+| Shorts про аренду/ready | https://worldwise.pro/properties |
+| Любое про визы/Golden Visa | https://worldwise.pro/golden-visa |
+| Любое про ипотеку/платежи | https://worldwise.pro/mortgage-calculator |
+
+Правило по умолчанию: видео-тур района → страница района; тур конкретного объекта →
+/properties; тема «сколько стоит/доходность» → yields report; визы → визовые статьи.

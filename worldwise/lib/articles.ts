@@ -11,6 +11,128 @@ export interface Article {
 
 export const articles: Article[] = [
   {
+    slug: 'abu-dhabi-property-investor-visa',
+    tag: 'Visa & Residency',
+    title: 'Abu Dhabi Property Investor Visa (2026): 2-Year Owner Visa and 10-Year Golden Visa Explained',
+    excerpt:
+      'Abu Dhabi has its own property-visa routes, and they differ from Dubai: a 2-year Real Estate Owner Visa with an income requirement instead of a fixed price floor, and a 10-year Golden Visa at AED 2 million that allows off-plan and mortgaged property.',
+    readTime: '6 min read',
+    content: `
+## The Short Answer
+
+Buying property in Abu Dhabi can qualify you for UAE residency through two routes, and neither works quite like Dubai's. **The 2-year Real Estate Owner Visa requires a fully built, wholly owned property plus proof of income (around AED 10,000/month) — with no fixed minimum property value published. The 10-year Golden Visa requires AED 2 million of property investment and, unlike the 2-year route, accepts off-plan and mortgaged property under specific conditions.** Applications go through Abu Dhabi's own channels (TAMM / ICP), not Dubai's Land Department.
+
+## 2-Year Real Estate Owner Visa (Abu Dhabi)
+
+**Property requirements:** the property must be fully built, habitable and wholly owned by the applicant. Off-plan units under construction do not qualify — you apply after handover, once the property is registered in your name.
+**Financial requirement:** a monthly income of at least AED 10,000 (or equivalent proof of financial solvency). This is the key difference from Dubai, which since April 2026 asks for no minimum value and no income proof for sole owners.
+**Family sponsorship:** the visa lets you sponsor your spouse, parents and children up to age 25 — with no age limit for unmarried daughters.
+
+Unlike Dubai's old rules, Abu Dhabi's official guidance does not publish a minimum property value for this route — eligibility rests on the property being complete and wholly yours, and on your income. In practice, most investor purchases in districts like Al Reem Island, Yas Island or Saadiyat comfortably clear any informal bar.
+
+## Is There a 3-Year Investor Visa in Abu Dhabi?
+
+No — this is one of the most-searched questions, and the answer is that **no 3-year property visa currently exists in Abu Dhabi or anywhere in the UAE.** The options today are the 2-year Real Estate Owner Visa and the 10-year Golden Visa. References to a 3-year property visa describe older schemes that have been discontinued. If you see a "3-year investor visa" advertised, check exactly which programme is meant before paying anyone.
+
+## 10-Year Golden Visa via Abu Dhabi Property
+
+**Minimum investment:** AED 2,000,000 in real estate.
+**Off-plan:** allowed — provided the developer is approved and you can show a purchase agreement plus evidence that at least AED 2 million has already been paid to the developer. This is more flexible than the 2-year route.
+**Mortgaged property:** allowed through national banks if your paid-in equity stays at or above AED 2 million. Example from the official guidance: on a AED 5 million property, the outstanding mortgage cannot exceed AED 3 million.
+**Where to apply:** through Abu Dhabi government channels (TAMM portal / ICP) — non-residents can be nominated via the Abu Dhabi Residents Office ecosystem.
+
+The Golden Visa is a 10-year renewable residency with no sponsor, unaffected by employment changes, and covers your family on the same validity.
+
+## Abu Dhabi vs Dubai: Which Route Is Easier?
+
+| Feature | Abu Dhabi | Dubai |
+|---------|-----------|-------|
+| 2-year visa minimum value | No published minimum | None for sole owners (since April 2026); AED 400K per co-owner |
+| 2-year visa income requirement | ~AED 10,000/month or solvency | None |
+| 2-year visa off-plan | No — completed only | No — Title Deed required |
+| Golden Visa threshold | AED 2M | AED 2M |
+| Golden Visa off-plan | Yes (approved developer, AED 2M paid) | Case-by-case (AED 2M paid) |
+| Applying authority | TAMM / ICP (Abu Dhabi) | DLD Taskeen / GDRFA (Dubai) |
+
+The practical takeaway: **for a straightforward completed-property purchase, Dubai's 2-year route is now the lowest-friction path in the UAE.** Abu Dhabi's strengths are at the Golden Visa tier, where its off-plan and mortgage rules are explicit and investor-friendly. Your property's emirate decides your route — Dubai property goes through Dubai, Abu Dhabi property through Abu Dhabi; the two systems don't mix.
+
+## Frequently Asked Questions
+
+**Does buying property in Abu Dhabi give me residency?**
+Yes. A fully built, wholly owned property plus proof of income qualifies you for the 2-year Real Estate Owner Visa, and AED 2 million of property investment qualifies you for the 10-year Golden Visa.
+
+**What is the minimum property value for an Abu Dhabi investor visa?**
+Abu Dhabi does not publish a fixed minimum for the 2-year Real Estate Owner Visa — the requirements are a completed, wholly owned property and a monthly income of around AED 10,000. The 10-year Golden Visa requires AED 2 million.
+
+**Can I get an Abu Dhabi Golden Visa with an off-plan property?**
+Yes — if the developer is approved and you have paid at least AED 2 million, documented by the purchase agreement and payment evidence.
+
+**Can I get an Abu Dhabi Golden Visa with a mortgage?**
+Yes, through national banks, as long as your paid-in equity is at least AED 2 million.
+
+**Does my Dubai property count toward an Abu Dhabi visa (or vice versa)?**
+No. Each emirate's authorities count property in their own emirate. Dubai property is handled by the DLD/GDRFA — see our [UAE property residence visa guide](/blog/uae-property-residence-visa) for Dubai's rules, which changed significantly in April 2026.
+
+## Our Recommendation
+
+If your goal is residency with the smallest property budget, Dubai's post-April-2026 2-year visa is currently the easiest entry in the UAE. If you are investing AED 2M+ and prefer Abu Dhabi's market — Saadiyat's cultural district, Yas Island's leisure economy, Al Reem's waterfront value — the [10-year Golden Visa](/golden-visa) route there is well-defined, including for off-plan purchases. We work with investors across both emirates: [browse current listings](/properties) or talk to us about matching a purchase to your visa plan.
+    `.trim(),
+  },
+  {
+    slug: 'dubai-rental-yields-report',
+    tag: 'Market Update',
+    title: 'Dubai Rental Yields Report — Q3 2026: 12 Districts Compared',
+    excerpt:
+      'Verified gross rental yields across 12 Dubai investment districts, from 5% in Downtown to 9% in Damac Hills 2. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
+    readTime: '5 min read',
+    content: `
+*Data last verified: 1 July 2026. This report is updated quarterly; yields are re-checked monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
+
+## Headline Numbers
+
+Dubai's gross rental yields remain among the highest of any global property market — the citywide range across the districts we track runs **from about 5% in the premium core to 9% in value-driven suburban communities.** For comparison, prime London and Singapore yields sit near 2–3.5%.
+
+Two patterns hold across 2026: affordable suburban communities out-yield the premium waterfront core, and smaller units out-yield larger ones within the same district.
+
+## Gross Rental Yields by District (Q3 2026)
+
+| District | Gross yield | Avg. price | Profile |
+|----------|-------------|-----------|---------|
+| [Damac Hills 2](/damac-hills-2) | 7–9% | AED 900/sqft | Value suburb, townhouses |
+| [JLT](/jlt) | 7–8% | AED 1,200/sqft | High-rise value next to Marina |
+| [Business Bay](/business-bay) | 6–7% | AED 1,600/sqft | Central business district |
+| [MBR City](/mbr-city) | 6–7% | AED 2,000/sqft | New premium inland district |
+| [Emaar Beachfront](/emaar-beachfront) | 6–7% | AED 2,500/sqft | New-build beachfront |
+| [Damac Hills](/damac-hills) | 6–7% | AED 1,300/sqft | Golf community, villas |
+| [Dubai Marina](/dubai-marina) | 5.5–6.5% | AED 1,850/sqft | Established waterfront |
+| [Dubai Hills](/dubai-hills) | 5.5–6.5% | AED 1,400/sqft | Family master community |
+| [Creek Harbour](/creek-harbour) | 5.5–6.5% | AED 1,700/sqft | Waterfront new-build |
+| [Downtown Dubai](/downtown-dubai) | 5–6% | AED 2,200/sqft | Premium core, Burj district |
+| [Palm Jumeirah](/palm-jumeirah) | 5–6% | AED 2,800/sqft | Trophy waterfront |
+| [The Valley](/the-valley) | 5–6% | AED 1,150/sqft | Emerging family suburb |
+
+Figures are gross yields on long-term leases for typical unit mixes in each district. Short-term (holiday-let) operation typically adds 1.5–3 percentage points before operating costs in tourist-facing districts like Dubai Marina and Palm Jumeirah.
+
+## How to Read These Numbers
+
+**Yield compresses as price appreciates.** Downtown and Palm Jumeirah yields look modest precisely because capital values there have run hardest — investors in the premium core are typically balancing rental income against stronger appreciation and trophy-asset liquidity.
+
+**The 7%+ club is a value play.** Damac Hills 2 and JLT deliver the city's strongest cash-on-cash returns because entry prices are the lowest per square foot relative to achievable rents. The trade-off is slower capital appreciation and, in newer suburbs, a shorter rental track record.
+
+**Net yields run roughly 1.5–2.5 points below gross** once service charges, management and vacancy are accounted for — service charges vary widely by tower and community, which is why we always model the specific building before a client commits.
+
+## Methodology
+
+Yields are compiled from asking-rent and transaction data across Dubai Land Department records and the major listing portals, cross-checked against published market reports from established brokerages, then reviewed monthly. District averages describe typical apartment/townhouse stock for that district; individual buildings can deviate meaningfully — our [property listings](/properties) show the gross yield per listing where we have verified it.
+
+**Citation:** you are welcome to reference this data as "Worldwise Real Estate, Dubai Rental Yields Report" with a link to this page. For per-building yield data or a custom cut, [contact us](/#contact).
+
+## What This Means for Your Strategy
+
+Income-first investors should start in the 6.5%+ band and pay attention to service charges; appreciation-first investors will find the premium core's 5–6% acceptable as a holding cost for exposure to Dubai's strongest capital-growth districts. For a full walk-through of buying costs on top of these returns, see our [DLD fees guide](/blog/dld-fees-dubai-international-investors-guide), and calculate financing scenarios with the [mortgage calculator](/mortgage-calculator).
+    `.trim(),
+  },
+  {
     slug: 'off-plan-investment-guide',
     tag: 'Investment Guide',
     title: "Off-Plan Property Investment in Dubai: A Beginner's Guide",
@@ -170,88 +292,85 @@ If you are financing the purchase, the process has additional layers:
   {
     slug: 'uae-property-residence-visa',
     tag: 'Visa & Residency',
-    title: 'Do You Get a Residence Visa If You Buy Property in the UAE? (2026)',
+    title: 'Do You Get a Residence Visa If You Buy Property in the UAE? (2026 Rules)',
     excerpt:
-      'Yes — buying UAE property can get you residency. The thresholds: AED 750,000 for a 2-year investor visa and AED 2 million for the 5-year Green Visa or 10-year Golden Visa. Full 2026 rules, eligibility and documents.',
-    readTime: '5 min read',
+      'Yes — and the rules just got easier. Since April 2026 Dubai has no minimum property value for the 2-year investor visa (sole owners); AED 400,000 per co-owner applies to joint ownership, and AED 2 million unlocks the 10-year Golden Visa.',
+    readTime: '6 min read',
     content: `
+*Updated 2 July 2026 — this guide reflects the April 2026 Dubai Land Department rule change that removed the old AED 750,000 minimum for the 2-year investor visa.*
+
 ## The Short Answer
 
-Yes — owning property in the UAE can qualify you for a UAE residence visa, but the rules depend on the value of the property and how it is financed. **The minimum property investment is AED 750,000 for a 2-year investor visa, and AED 2 million for the 5-year Green Visa or the 10-year Golden Visa.** There are three main visa categories linked to property ownership: the 2-year Investor Visa, the 5-year Green Visa and the 10-year Golden Visa.
+Yes — owning property in the UAE can qualify you for a UAE residence visa, and the entry bar is now lower than ever. **Since April 2026, a sole owner of any completed residential property in Dubai can apply for the 2-year investor visa regardless of the property's value.** For jointly owned property, each co-owner needs a registered share of at least AED 400,000. A property investment of AED 2 million or more qualifies for the 10-year Golden Visa.
 
-## 2-Year Property Investor Visa
+## 2-Year Property Investor Visa (Dubai)
 
-**Minimum property value:** AED 750,000
-**Eligibility:** Property must be fully paid (no mortgage balance above 50% of value). Off-plan units under construction usually do not qualify until handover.
+**Minimum property value:** none for a sole owner (the AED 750,000 minimum was removed in April 2026). For joint ownership, each co-owner's share must be worth at least AED 400,000.
+**Eligibility:** The property must be completed and registered with a Title Deed in your name — off-plan units under construction do not qualify until handover.
 
-This is the entry-level investor visa. It allows you to live in the UAE, sponsor your spouse and children, open a UAE bank account and obtain a UAE driving licence. It must be renewed every 2 years and requires a medical test and Emirates ID on first application.
+This is the entry-level investor visa, issued through the Dubai Land Department's Taskeen programme. It allows you to live in the UAE, sponsor your spouse and children, open a UAE bank account and obtain a UAE driving licence. It must be renewed every 2 years and requires a medical test and Emirates ID on first application.
 
 **Process:**
-1. Apply through the General Directorate of Residency and Foreigners Affairs (GDRFA) in Dubai, or ICA in Abu Dhabi.
-2. Submit title deed, passport copy, property valuation certificate (from a RERA-certified valuer), and passport-size photos.
+1. Apply through the Dubai Land Department (Taskeen investor-visa service) — the visa itself is issued via the GDRFA.
+2. Submit your passport, electronic Title Deed copy, personal photograph, Emirates ID and current visa (if you have them), and a Good Conduct Certificate issued in Dubai.
 3. Undergo a medical fitness test and biometrics.
 4. Receive your residence visa and Emirates ID.
 
-Processing time is typically 3–5 working days once all documents are submitted. Total cost including fees and typing: approximately AED 3,000–5,000.
+Processing takes a few working days once all documents are in. The official DLD fee for the 2-year investor visa is approximately AED 10,200, plus medical and Emirates ID costs.
 
-## 5-Year Green Visa
+## What About the 5-Year Green Visa?
 
-**Minimum property value:** AED 2,000,000
-**Key difference from 2-year:** The Green Visa does not require an employer or sponsor — you are self-sponsored. This makes it attractive for freelancers, remote workers and investors who do not plan to be employed in the UAE.
-
-The Green Visa also allows you to sponsor your spouse, children and parents, and it provides a 6-month grace period after the visa expires (versus 30 days for most other visa types).
-
-**Property conditions:** The property must be fully paid and valued at AED 2M or above. Multiple properties can be combined to reach the threshold if registered in the same individual's name.
+A common misconception: **property investment does not qualify for the UAE Green Visa.** The 5-year Green Visa is a self-sponsored residence for skilled employees, freelancers and business investors/partners — real-estate ownership is not one of its categories. If you are buying property for residency, your two routes are the 2-year investor visa and the 10-year Golden Visa.
 
 ## 10-Year Golden Visa
 
 **Minimum property value:** AED 2,000,000
-**Key difference from Green Visa:** The Golden Visa offers a 10-year renewable residency without the need for a sponsor, and it is not affected by job loss or business changes. It is the most prestigious tier and includes priority processing at government offices.
+**Key advantages:** a 10-year renewable residency with no sponsor, unaffected by job loss or business changes, with priority processing at government offices. Golden Visa holders can sponsor family on the same 10-year validity and domestic staff without the usual quota limits.
 
-Golden Visa holders can sponsor an unlimited number of domestic staff without the usual national quota restrictions, and their dependents receive the same 10-year validity.
+**Mortgaged properties:** allowed — the bank issues a no-objection letter confirming the amount paid, and your paid-in equity must meet or exceed AED 2,000,000.
 
-**Mortgage properties:** If the property is mortgaged, the bank must confirm that the equity (paid amount) meets or exceeds AED 2,000,000. The Dubai Land Department and ICA assess this case by case.
+**Off-plan properties:** eligibility depends on how much you have already paid to the developer and on developer approval — the AED 2M paid-in threshold still applies. Confirm your specific case before committing; we can check it for you.
 
-## Comparing the Three Visa Types
+## Comparing the Two Property Visa Routes
 
-| Feature | 2-Year Visa | 5-Year Green Visa | 10-Year Golden Visa |
-|---------|------------|-------------------|---------------------|
-| Min. property value | AED 750K | AED 2M | AED 2M |
-| Sponsor required | No | No | No |
-| Validity | 2 years | 5 years | 10 years |
-| Sponsor family | Yes | Yes (+ parents) | Yes (+ unlimited staff) |
-| Grace period on expiry | 30 days | 6 months | 6 months |
-| Off-plan eligible | After handover | After handover | After handover |
+| Feature | 2-Year Investor Visa | 10-Year Golden Visa |
+|---------|---------------------|---------------------|
+| Min. property value | None (sole owner); AED 400K per co-owner | AED 2M |
+| Property status | Completed, with Title Deed | Completed or off-plan (AED 2M paid) |
+| Mortgage allowed | Title Deed required; bank NOC where mortgaged | Yes, equity ≥ AED 2M + bank NOC |
+| Validity | 2 years | 10 years |
+| Sponsor family | Yes | Yes (+ domestic staff, no quota) |
+| Grace period on expiry | 30 days | 6 months |
 
 ## Frequently Asked Questions
 
 **Do I get a visa if I buy property in the UAE?**
-Yes. A property worth AED 750,000 or more qualifies you for a 2-year investor visa, and a property worth AED 2 million or more qualifies you for the 5-year Green Visa or the 10-year Golden Visa. The property must be fully paid (or have paid equity meeting the threshold if mortgaged).
+Yes. In Dubai, since April 2026 any completed residential property owned outright by one person qualifies for the 2-year investor visa — there is no minimum value. A property worth AED 2 million or more qualifies for the 10-year Golden Visa.
 
 **What is the minimum property investment for UAE residency?**
-AED 750,000 for the 2-year investor visa, and AED 2 million for both the 5-year Green Visa and the 10-year Golden Visa. Multiple properties registered in the same name can be combined to reach the AED 2 million threshold.
+For the Dubai 2-year investor visa: no minimum for sole owners since April 2026 (previously AED 750,000); AED 400,000 per co-owner for joint ownership. For the 10-year Golden Visa: AED 2 million, and multiple properties registered in the same name can be combined to reach it.
 
 **Can I get a visa on a jointly-owned property?**
-Each co-owner can apply for a visa based on their share of the property value, provided their individual share meets the minimum threshold.
+Yes. Each co-owner can apply, provided their registered share is worth at least AED 400,000 (2-year visa) or their combined qualifying equity meets AED 2 million (Golden Visa).
 
 **Does the visa grant the right to work?**
-The investor visa and Green Visa grant residence but not an automatic work permit. To work in the UAE you must obtain a work permit separately through an employer or by setting up a company.
+The investor visa grants residence but not an automatic work permit. To work in the UAE you must obtain a work permit separately through an employer or by setting up a company.
 
 **Can I include multiple properties?**
-Yes, multiple Dubai properties in your name can be combined. Properties in different emirates (Abu Dhabi, Sharjah) may be counted separately by their respective authorities.
+Yes, multiple Dubai properties in your name can be combined for the AED 2M Golden Visa threshold. Properties in different emirates (Abu Dhabi, Sharjah) are counted separately by their respective authorities.
 
 **What if my property value drops below the threshold?**
-Your existing visa remains valid until its expiry date. At renewal, the property must still meet the threshold — a fresh valuation is required.
+Your existing visa remains valid until its expiry date. At renewal, the property must still meet the applicable threshold — a fresh valuation may be required. For sole-owner 2-year visas issued under the 2026 rules, there is no value threshold to re-meet.
 
 **Is there a 3-year property visa in Dubai?**
-Dubai's property-linked residence visas are the 2-year investor visa (from AED 750,000) and the 5-year Green Visa or 10-year Golden Visa (from AED 2 million) — there is no separate 3-year property tier under the current rules. Visa terms are updated periodically, so confirm the validity that applies to your property value with the GDRFA before you apply.
+No. Dubai's property-linked residence visas today are the 2-year investor visa (no minimum for sole owners) and the 10-year Golden Visa (from AED 2 million) — there is no 3-year property tier under the current rules. The "3-year visa" many people search for is an older scheme that no longer exists.
 
 **Can I get a UAE residence visa from property in Abu Dhabi?**
-Yes. Abu Dhabi runs its own property-investor residence visas through the ICA, separate from Dubai's GDRFA, and the thresholds and terms are set by the Abu Dhabi authorities. If your property is in Abu Dhabi, apply through the ICA rather than in Dubai.
+Yes — Abu Dhabi runs its own routes: a 2-year Real Estate Owner Visa (completed, wholly owned property plus an income requirement) and the 10-year Golden Visa at AED 2 million with off-plan allowed. The rules differ from Dubai's in important ways — see our dedicated [Abu Dhabi property investor visa guide](/blog/abu-dhabi-property-investor-visa).
 
 ## Our Recommendation
 
-For investors purchasing at AED 2M+, we recommend applying directly for the [10-year Golden Visa](/golden-visa) — the additional cost over the 2-year visa is modest, and the stability of a decade-long residency has significant practical and lifestyle value. For investors below AED 2M, the 2-year visa is a straightforward and affordable entry point that can be upgraded later as your portfolio grows. Browse our [current Dubai property listings](/properties) to find homes that meet each visa threshold.
+For investors purchasing at AED 2M+, we recommend applying directly for the [10-year Golden Visa](/golden-visa) — the additional cost over the 2-year visa is modest, and the stability of a decade-long residency has significant practical and lifestyle value. Below AED 2M, the April 2026 rules make the 2-year visa dramatically more accessible: any completed Dubai property you own outright now qualifies. Browse our [current Dubai property listings](/properties) to find homes that fit your visa plans.
     `.trim(),
   },
   {
@@ -641,7 +760,7 @@ Generally no — DLD fees must be paid in cash at the time of transfer. Banks le
 
 ## In Summary
 
-DLD fees are predictable and transparent: a 4% transfer fee, modest fixed administrative and trustee charges, and — for financed purchases — a 0.25% mortgage registration fee. Budget roughly 6–7% of the purchase price for total transaction costs and you will not be caught out. Because the rules around who pays what are negotiable and amounts can change, it is always worth confirming the exact figures with a RERA-registered agent before you sign. If you are financing the purchase, our [mortgage calculator](/mortgage-calculator) will help you see the full cost picture, including registration fees, before you commit, and our [non-resident mortgage guide](/invest/dubai-mortgage-for-non-residents) covers eligibility and deposits.
+DLD fees are predictable and transparent: a 4% transfer fee, modest fixed administrative and trustee charges, and — for financed purchases — a 0.25% mortgage registration fee. Budget roughly 6–7% of the purchase price for total transaction costs and you will not be caught out. Because the rules around who pays what are negotiable and amounts can change, it is always worth confirming the exact figures with a RERA-registered agent before you sign. If you are financing the purchase, our [mortgage calculator](/mortgage-calculator) will help you see the full cost picture, including registration fees, before you commit, and our [non-resident mortgage guide](/invest/dubai-mortgage-for-non-residents) covers eligibility and deposits. To see what returns these costs buy you, check our [Dubai rental yields report](/blog/dubai-rental-yields-report) — district-by-district gross yields, updated quarterly.
     `.trim(),
   },
   {
