@@ -13,15 +13,16 @@ const SIZE = { width: 1080, height: 1350 }
 
 type Row = { district: string; price: string; roi: string; note?: string }
 
+// Keep ROI figures in sync with lib/areas.ts metrics.roi (2026 yield review).
 const ROWS: Row[] = [
-  { district: 'Dubai Marina',      price: 'AED 1,850', roi: '7–8%',  note: 'High liquidity' },
-  { district: 'Downtown Dubai',    price: 'AED 2,200', roi: '6–7%',  note: 'Prime address' },
-  { district: 'Palm Jumeirah',     price: 'AED 2,800', roi: '6–8%',  note: 'Iconic' },
-  { district: 'Business Bay',      price: 'AED 1,600', roi: '7–9%',  note: 'Yield favorite' },
-  { district: 'Dubai Hills Estate',price: 'AED 1,400', roi: '6–7%',  note: 'Family-grade' },
-  { district: 'JLT',               price: 'AED 1,200', roi: '7–9%',  note: 'Entry price' },
-  { district: 'Creek Harbour',     price: 'AED 1,700', roi: '7–8%',  note: 'Growth area' },
-  { district: 'Emaar Beachfront',  price: 'AED 2,500', roi: '7–8%',  note: 'Sea + Marina' },
+  { district: 'Dubai Marina',      price: 'AED 1,850', roi: '5.5–6.5%', note: 'High liquidity' },
+  { district: 'Downtown Dubai',    price: 'AED 2,200', roi: '5–6%',     note: 'Prime address' },
+  { district: 'Palm Jumeirah',     price: 'AED 2,800', roi: '5–6%',     note: 'Iconic' },
+  { district: 'Business Bay',      price: 'AED 1,600', roi: '6–7%',     note: 'Yield favorite' },
+  { district: 'Dubai Hills Estate',price: 'AED 1,400', roi: '5.5–6.5%', note: 'Family-grade' },
+  { district: 'JLT',               price: 'AED 1,200', roi: '7–8%',     note: 'Entry price' },
+  { district: 'Creek Harbour',     price: 'AED 1,700', roi: '5.5–6.5%', note: 'Growth area' },
+  { district: 'Emaar Beachfront',  price: 'AED 2,500', roi: '6–7%',     note: 'Sea + Marina' },
 ]
 
 async function loadFont(family: string, weight = 400): Promise<ArrayBuffer> {

@@ -20,7 +20,7 @@
  * Order matters: more-specific tokens (e.g. "Damac Hills 2") MUST precede
  * general ones ("Damac Hills") — first match wins. Properties in areas with no
  * researched figure (generic "Dubai"/"Jumeirah", non-Dubai, one-offs) are left
- * untouched — never fabricate a yield. Last reviewed: 2026-05-30.
+ * untouched — never fabricate a yield. Last reviewed: 2026-07-01.
  */
 const fs = require('fs')
 const path = require('path')
@@ -29,20 +29,20 @@ const APPLY = process.argv.includes('--apply')
 
 const AREAS = [
   // 8 landing-page districts (keep in sync with lib/areas.ts)
-  { name: 'Dubai Marina',     y: 6.5, t: ['Dubai Marina'] },
+  { name: 'Dubai Marina',     y: 6.0, t: ['Dubai Marina'] },
   { name: 'Downtown Dubai',   y: 5.5, t: ['Downtown Dubai'] },
   { name: 'Palm Jumeirah',    y: 5.5, t: ['Palm Jumeirah'] },
-  { name: 'Business Bay',     y: 7.5, t: ['Business Bay'] },
-  { name: 'Dubai Hills',      y: 6.5, t: ['Dubai Hills'] },
+  { name: 'Business Bay',     y: 6.5, t: ['Business Bay'] },
+  { name: 'Dubai Hills',      y: 6.0, t: ['Dubai Hills'] },
   { name: 'JLT',              y: 7.5, t: ['JLT', 'Jumeirah Lake Towers', 'Jumeirah Lakes Towers'] },
-  { name: 'Creek Harbour',    y: 6.5, t: ['Creek Harbour', 'Dubai Creek Harbour'] },
+  { name: 'Creek Harbour',    y: 6.0, t: ['Creek Harbour', 'Dubai Creek Harbour'] },
   { name: 'Emaar Beachfront', y: 6.5, t: ['Emaar Beachfront'] },
   // expansion (per-property only; no landing pages) — SPECIFIC BEFORE GENERAL
-  { name: 'Damac Hills 2',    y: 6.5, t: ['Damac Hills 2'] },
+  { name: 'Damac Hills 2',    y: 7.0, t: ['Damac Hills 2'] },
   { name: 'Damac Hills',      y: 6.0, t: ['Damac Hills'] },
   { name: 'MBR City/Sobha Hartland/Meydan', y: 6.5, t: ['Sobha Hartland', 'MBR City', 'Mohammed Bin Rashid', 'Meydan'] },
   { name: 'Dubailand/Arjan/Majan', y: 7.5, t: ['Dubailand', 'Arjan', 'Majan'] },
-  { name: 'The Valley',       y: 6.5, t: ['The Valley'] },
+  { name: 'The Valley',       y: 5.5, t: ['The Valley'] },
   { name: 'Expo City',        y: 7.0, t: ['Expo'] },
   { name: 'Dubai Investment Park', y: 8.0, t: ['Investment Park'] },
   { name: 'Dubai Harbour',    y: 6.0, t: ['Dubai Harbour'] },
