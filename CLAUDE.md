@@ -143,6 +143,8 @@ DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `st
 
 **Origin is locked to Cloudflare.** `ufw` allows ports 80/443 only from Cloudflare IP ranges (plus SSH on 22); direct requests to `62.238.35.20` are dropped. Refresh the CF ranges from `https://www.cloudflare.com/ips-v4` + `ips-v6` if Cloudflare changes them. Because the origin is not directly reachable, the **real visitor IP** is restored by nginx's `real_ip` module — see `/etc/nginx/conf.d/cloudflare-realip.conf` (`set_real_ip_from` CF ranges + `real_ip_header CF-Connecting-IP`). App code must read the client IP from `x-real-ip` (see `lib/ip.ts`), never `cf-connecting-ip` (spoofable).
 
+**Cloudflare edge-caches public HTML (Cache Rule, enabled 2026-07-02).** One rule: Eligible for cache with Edge TTL = respect origin, matching all paths EXCEPT `/admin*`, `/api*` and requests carrying the `ww_admin_session` cookie (exclusions live in the rule's expression — deliberately ONE rule, because with overlapping CF cache rules the LAST match wins). ISR's `s-maxage=60` governs freshness, so no cache purge is needed after deploys. `/properties` is `BYPASS` (reads `searchParams` server-side → Next marks it uncacheable) — expected, not a regression.
+
 SSL certificate is issued by Let's Encrypt via certbot, auto-renewed by the `certbot.timer` systemd unit. **Renewal uses the DNS-01 challenge** (`certbot-dns-cloudflare`) — *not* `--nginx`, which would fail since port 80 is firewalled to Cloudflare only. Cloudflare API token (scope `Zone:DNS:Edit` + `Zone:Zone:Read`) lives in `/root/.secrets/cloudflare.ini` (chmod 600); a deploy hook at `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh` reloads nginx after renewal. Test with `certbot renew --dry-run`.
 
 A full security & privacy audit (findings + remediation status) is in `worldwise/tasks/security-audit.md`; recurring operational lessons in `worldwise/tasks/lessons.md`.
@@ -305,7 +307,7 @@ A shared file manager for staff documents (`/admin/files`, `FilesClient.tsx`), g
 | `PUT /api/admin/users/[id]` | owner only | Update name/role/active/password/`sections` |
 | `DELETE /api/admin/users/[id]` | owner only | Delete user (cannot delete self) |
 | `POST /api/upload?kind=gallery\|qr` | section `properties` | Save images to `public/images/` |
-| `GET /api/properties` | none (public) | List properties (used by the site) |
+| `GET /api/properties` | none (public) | `CardProperty[]` projection (display subset, cached s-maxage=300). NOT used by the site itself — pages call `getProperties()` in-process; never return raw `Property` here (PF-internal fields) |
 | `GET /api/fx` | none (public) | AED→USD/EUR/GBP rates, cached daily (`revalidate 86400`) + fallback; used by `PriceTag` |
 | `POST /api/properties` | section `properties` | Create property |
 | `PUT/DELETE /api/properties/[id]` | section `properties` | Update / delete property |
@@ -348,7 +350,7 @@ A set of conversion/polish components layered on the public site. Most are share
 
 ### Investor metrics: `grossYield` + monthly yield review
 
-`Property` carries optional `roi`, `paymentPlan`, and **`grossYield?: number`** (gross rental yield %, shown as `📈 X% yield` on cards and a "Gross Yield" detail stat). Area-level yields live in `lib/areas.ts` `metrics.roi` and must stay consistent with the prose/FAQ/`metaDescription` (all four mention yields). **`lib/areas.ts` is the single source of truth for area yields** — `components/AreasSection.tsx` DERIVES `roi`/price/image from it (never hardcode; a hardcoded copy had silently drifted higher than the landing pages until the 2026-07-01 review). Three surfaces still **hand-duplicate** per-district yields and MUST be re-synced in the monthly yield review: `public/llms.txt`, `app/api/roi-table-image/route.tsx` (Telegram image), and the community tables in `lib/landings.ts`.
+`Property` carries optional `roi`, `paymentPlan`, and **`grossYield?: number`** (gross rental yield %, shown as `📈 X% yield` on cards and a "Gross Yield" detail stat). Area-level yields live in `lib/areas.ts` `metrics.roi` and must stay consistent with the prose/FAQ/`metaDescription` (all four mention yields). **`lib/areas.ts` is the single source of truth for area yields** — `components/AreasSection.tsx` DERIVES `roi`/price/image from it (never hardcode; a hardcoded copy had silently drifted higher than the landing pages until the 2026-07-01 review). Four surfaces still **hand-duplicate** per-district yields and MUST be re-synced in the monthly yield review: `public/llms.txt`, `app/api/roi-table-image/route.tsx` (Telegram image), the community tables in `lib/landings.ts`, and the **`dubai-rental-yields-report` article in `lib/articles.ts`** (the public citable quarterly report — update its table AND its "Data last verified" date line).
 
 `worldwise/scripts/seed-gross-yield.cjs` (server-only) seeds `grossYield` per property from researched per-district yields (tolerant area matching; **specific tokens before general**, e.g. "Damac Hills 2" before "Damac Hills"; never fabricate for unrecognised/generic areas). Run on the server: `node scripts/seed-gross-yield.cjs` (dry-run) → `--apply` → `npm run build && pm2 restart worldwise`. The script header documents the **monthly yield-review process** (re-verify yields vs E&V / DLD / Bayut, update `lib/areas.ts` + re-seed). A recurring monthly calendar reminder drives it.
 
@@ -374,7 +376,7 @@ Two article sources, merged by `lib/articles.ts`:
 
 `app/blog/[slug]/page.tsx` uses a custom `parseContent()` parser that converts the content string into typed blocks (h2, h3, p, ul, ol, table). `generateStaticParams()` pre-renders static article slugs at build time; dynamic article routes are rendered on demand.
 
-Inline text in `p`/`ul`/`ol` blocks is rendered by `formatInline()`, which supports `**bold**`, `*italic*`, and **internal links only** — `[label](/path)`. **Invariant (same threat class as the JSON-LD / RSS `escapeXml` rules):** `escapeHtml` runs FIRST, then the link regex requires a leading `/`, so article copy (incl. untrusted AI articles) can never inject an offsite or `javascript:` href. This is how in-content cross-links work (e.g. the residence-visa article → `/golden-visa` + `/properties`); to add one, just write `[text](/path)` in the article `content`.
+Inline text in `p`/`ul`/`ol` blocks **and table cells** is rendered by `formatInline()`, which supports `**bold**`, `*italic*`, and **internal links only** — `[label](/path)` (a leading `/` NOT followed by another `/` — protocol-relative `//host` is rejected). **Invariant (same threat class as the JSON-LD / RSS `escapeXml` rules):** `escapeHtml` runs FIRST, then the link regex requires a leading `/`, so article copy (incl. untrusted AI articles) can never inject an offsite or `javascript:` href. This is how in-content cross-links work (e.g. the residence-visa article → `/golden-visa` + `/properties`); to add one, just write `[text](/path)` in the article `content`.
 
 ### Auto-blog pipeline
 
