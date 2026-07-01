@@ -1,4 +1,4 @@
-import { getProperties } from '@/lib/properties'
+import { getProperties, toCardProperty } from '@/lib/properties'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
@@ -49,7 +49,7 @@ export default async function PropertiesPage(
             </p>
           </div>
           <PropertiesClient
-            properties={properties}
+            properties={properties.map(toCardProperty)}
             initialArea={searchParams.area ?? 'All Areas'}
             initialType={searchParams.type ?? 'all'}
             initialStatus={searchParams.status ?? 'all'}

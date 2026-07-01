@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Navigation({ transparent = false }: { transparent?: boolean }) {
   const [scrolled, setScrolled] = useState(false)
@@ -24,7 +25,9 @@ export default function Navigation({ transparent = false }: { transparent?: bool
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <img src="/images/logo.png" alt="Worldwise" className="h-10 w-auto" />
+          {/* Explicit square dimensions (source is 700×700) reserve the box pre-decode
+              (no CLS) and let next/image serve AVIF/WebP. Above the fold on every page. */}
+          <Image src="/images/logo.png" alt="Worldwise" width={40} height={40} priority className="h-10 w-10" />
           <span className="font-serif text-2xl text-white tracking-wide hidden sm:inline">WORLDWISE</span>
         </Link>
 

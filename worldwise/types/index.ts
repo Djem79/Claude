@@ -39,6 +39,19 @@ export interface Property {
   createdAt: string
 }
 
+// The subset of Property a listing card (PropertyCard) and the /properties filter
+// UI actually consume. The /properties page projects to this before handing the
+// array to the client component — the full Property carries description (up to
+// 8 KB), amenities, and PF-internal fields that would otherwise be serialized
+// into the RSC payload ×148 listings. A full Property is structurally assignable
+// wherever CardProperty is accepted.
+export type CardProperty = Pick<
+  Property,
+  | 'id' | 'slug' | 'title' | 'developer' | 'area' | 'type' | 'status'
+  | 'priceAed' | 'pricePerSqft' | 'roi' | 'grossYield' | 'completionDate'
+  | 'paymentPlan' | 'bedrooms' | 'shortDescription' | 'images' | 'badge' | 'rented'
+>
+
 export interface PropertyDraft {
   draftId: string            // numeric string; reused as the property id on publish
   fields: Partial<Property>  // AI-extracted, cleaned property fields

@@ -33,6 +33,8 @@ export async function GET(_req: NextRequest, props: { params: Promise<{ file: st
   const type = TYPES[path.extname(file).toLowerCase()] ?? 'application/octet-stream'
   return new NextResponse(new Uint8Array(data), {
     status: 200,
-    headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=3600' },
+    // QR files ARE replaced in place (re-upload keeps the same name; the form busts
+    // with ?t=) — 1 day matches the general /images rule in next.config.mjs.
+    headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=86400' },
   })
 }

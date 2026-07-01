@@ -55,6 +55,10 @@ function norm(s: string): string {
 // Normalized variant -> canonical name. Every target must exist in DUBAI_AREAS
 // (guarded by a unit test).
 const ALIAS_MAP: Record<string, string> = {
+  // Area landing pages (lib/areas.ts) use the short display names — map them to the
+  // canonical vocabulary so "/properties?area=Dubai+Hills" deep-links actually filter.
+  'dubai hills': 'Dubai Hills Estate',
+  'creek harbour': 'Dubai Creek Harbour',
   'jumeirah lake towers': 'JLT',
   'sport city': 'Dubai Sports City',
   'sports city': 'Dubai Sports City',
