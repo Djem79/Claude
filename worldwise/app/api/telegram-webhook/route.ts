@@ -6,6 +6,7 @@ import path from 'path'
 import crypto from 'crypto'
 import { saveLead, findLeadByPhone, updateLead, deleteLead } from '@/lib/leads'
 import { parseLeadText, parseLeadCommand } from '@/lib/lead-parse'
+import { fanOutPost, formatFanOutSummary } from '@/lib/social-post'
 
 /** Constant-time string comparison; false (not throw) on length mismatch or missing value. */
 function safeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
@@ -215,6 +216,20 @@ async function postToChannel(article: DynamicArticle): Promise<boolean> {
   } catch (e) {
     console.error('[telegram-webhook] postToChannel error', e)
     return false
+  }
+}
+
+// Fetch a locally-rendered card image (e.g. /api/blog-image?...) as a Buffer
+// for the VK/OK fan-out. Null on any failure — the fan-out degrades to a
+// text-only post rather than blocking publication.
+async function fetchLocalImage(imagePath: unknown): Promise<Buffer | null> {
+  if (typeof imagePath !== 'string' || !imagePath) return null
+  try {
+    const res = await fetch(`http://localhost:3000${imagePath}`, { signal: AbortSignal.timeout(15000) })
+    if (!res.ok) return null
+    return Buffer.from(await res.arrayBuffer())
+  } catch {
+    return null
   }
 }
 
@@ -469,7 +484,17 @@ async function handleCallback(callback: TgCallback) {
       // Await so the button answer reflects the real outcome (same fix as
       // publish_article above; postPlanToChannel never throws).
       const ok = await postPlanToChannel(planPost)
-      answerText = ok ? '✅ Опубликовано' : '⚠️ Пост в канал не ушёл (см. логи)'
+      if (ok) {
+        // Fan out the approved post to VK/OK (Russian-audience mirrors of the
+        // channel). Non-fatal by design: fanOutPost never throws, unconfigured
+        // networks are skipped, and the summary shows per-network outcomes so
+        // the button answer keeps reflecting reality (" · VK ✓ · OK ⚠️").
+        const image = await fetchLocalImage(planPost.image)
+        const social = formatFanOutSummary(await fanOutPost(String(planPost.text ?? ''), image))
+        answerText = `✅ Опубликовано${social}`
+      } else {
+        answerText = '⚠️ Пост в канал не ушёл (см. логи)'
+      }
     } else {
       answerText = '⚠️ Черновик не найден'
     }
