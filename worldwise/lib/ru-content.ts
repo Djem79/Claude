@@ -1,0 +1,258 @@
+// Технический русский раздел /ru — источник для автоимпорта в Дзен через RSS.
+// НЕ является частью публичного UX сайта: страницы noindex, не в навигации и
+// не в sitemap (сайт остаётся English-only по бренд-правилу; /ru существует
+// только чтобы у материалов Дзен-ленты были обязательные ЧПУ-URL).
+//
+// Материалы собираются из двух источников:
+//  1. ruArticles — статичные лонгриды (расширенные версии постов, формат Дзен-статьи);
+//  2. отправленные посты месячных контент-планов (data/content-plan-*.json,
+//     server-only) — формат Дзен-поста. Телеграмные CTA («→ напиши «СЛОВО»»)
+//     и служебный подвал заменяются ссылкой на канал.
+//
+// Чтение планов — forgiving (display-only, ENOENT/битый файл → пусто) и
+// НИКОГДА не пишет обратно (инвариант: forgiving-чтение не кормит мутации).
+
+import fs from 'fs'
+import path from 'path'
+import { escapeXml } from './rss'
+
+export interface RuMaterial {
+  slug: string
+  title: string
+  /** Готовый безопасный HTML (весь текст прогнан через escapeHtml). */
+  html: string
+  /** ISO-дата публикации (YYYY-MM-DD). */
+  date: string
+  /** Абсолютный URL обложки ≥700px или null. */
+  image: string | null
+  format: 'post' | 'article'
+}
+
+const SITE = 'https://worldwise.pro'
+const TG_LINK = 'https://t.me/worldwisellc'
+
+// Транслитерация для слагов — дубль карты из scripts/post-from-plan.mjs
+// (скрипт-.mjs не может импортировать .ts; менять — синхронно в обоих местах),
+// чтобы слаг материала совпадал со слагом карточки /api/blog-image.
+const CYR: Record<string, string> = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i',
+  й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't',
+  у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch', ъ: '', ы: 'y',
+  ь: '', э: 'e', ю: 'yu', я: 'ya',
+}
+
+export function ruSlug(raw: string): string {
+  return String(raw || '')
+    .toLowerCase()
+    .split('')
+    .map(c => (c in CYR ? CYR[c] : c))
+    .join('')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80)
+    .replace(/-+$/g, '')
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+/**
+ * Телеграм-пост → безопасный HTML для Дзена: телеграмный CTA и служебный
+ * подвал (сайт·телефон, хэштеги) заменяются одной ссылкой на канал.
+ */
+export function postTextToHtml(text: string): string {
+  const paragraphs = String(text).split(/\n\n+/)
+  const kept: string[] = []
+  for (const p of paragraphs) {
+    const t = p.trim()
+    if (!t) continue
+    if (t.startsWith('→ напиши')) continue // телеграмный CTA — не работает вне TG
+    if (t.startsWith('#') || /^worldwise\.pro/.test(t)) continue // хэштеги и подвал
+    kept.push(`<p>${escapeHtml(t).replace(/\n/g, '<br/>')}</p>`)
+  }
+  kept.push(
+    `<p>Больше цифр, разборов районов и кейсов — в телеграм-канале ` +
+    `«Смотрим Дубай»: <a href="${TG_LINK}">t.me/worldwisellc</a>. ` +
+    `Каталог объектов — на <a href="${SITE}">worldwise.pro</a>.</p>`,
+  )
+  return kept.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Статичные лонгриды (Дзен-статьи). Добавление статьи = новый элемент массива.
+// content — абзацы обычным текстом, разделённые пустой строкой; заголовки
+// разделов начинаются с "## ".
+
+interface RuArticleSource {
+  slug: string
+  title: string
+  date: string
+  content: string
+}
+
+const ruArticleSources: RuArticleSource[] = [
+  {
+    slug: 'pochemu-v-dubae-net-naloga-na-nedvizhimost',
+    title: 'Почему в Дубае нет налога на недвижимость — и на чём тогда зарабатывает город',
+    date: '2026-07-05',
+    content: `Для инвестора из России это звучит подозрительно: покупаешь квартиру в Дубае — и не платишь ни ежегодного налога на имущество, ни налога с дохода от аренды. Подвоха нет — есть другая экономическая модель. Разберём по полочкам.
+
+## Чего в Дубае действительно нет
+
+— Ежегодного налога на владение недвижимостью. Купили квартиру за миллион дирхамов или виллу за десять — государству вы не должны ничего просто за факт владения.
+
+— Налога на доход от аренды для физических лиц. Сдаёте квартиру за 90 000 дирхамов в год — все 90 000 ваши.
+
+— Налога на прирост капитала. Купили за миллион, продали за полтора — разница в 500 000 дирхамов не облагается ничем.
+
+— Налога на наследство в привычном нам виде.
+
+Для понимания масштаба: в Великобритании доход от аренды облагается по ставке до 45%, а прирост капитала при продаже жилья — до 28%. В Испании нерезидент отдаёт 24% с арендного дохода. В России — НДФЛ 13–15% плюс ежегодный налог на имущество.
+
+## На чём тогда зарабатывает Дубай
+
+1. Сбор DLD — 4% от суммы сделки при регистрации. Платится один раз при покупке. Это главный источник: только в июне 2026 года в Дубае прошло 13 766 сделок купли-продажи на 32,66 млрд дирхамов — и с каждой город получил свою комиссию.
+
+2. Housing fee — около 5% от годовой стоимости аренды. Важно: его платит арендатор, а не собственник, небольшими частями через коммунальные счета.
+
+3. Административные сборы — регистрация договоров аренды (Ejari), оформление виз, лицензии, услуги trustee-офисов при сделках.
+
+Философия простая: вместо того чтобы ежегодно собирать налоги с владельцев, город берёт небольшую комиссию с оборота — и делает рынок настолько привлекательным, что оборот бьёт рекорды. Низкие налоги здесь не льгота, а бизнес-модель.
+
+## Что это значит для инвестора
+
+Валовая доходность аренды в Дубае — 6–8% годовых, и налоговой надстройки над ней нет. Честности ради: расходы у собственника есть — service charge за обслуживание дома (в среднем 12–30 дирхамов за квадратный фут в год), страховка, комиссия управляющей компании, если сдаёте через неё. Но всё это операционные расходы, а не налоги.
+
+Один нюанс, о котором часто молчат: налоговое резидентство. Если вы остаётесь налоговым резидентом России, доход от зарубежной аренды по правилам РФ нужно декларировать. А вот при переезде и получении резидентства ОАЭ — например, через визу за покупку жилья, которая с апреля 2026 года доступна без минимального порога стоимости для единоличных владельцев, — арендный доход становится безналоговым полностью.
+
+Больше цифр, разборов районов и реальных кейсов — в нашем телеграм-канале «Смотрим Дубай»: ${TG_LINK}. Каталог проверенных объектов с ценами — на worldwise.pro.`,
+  },
+]
+
+function articleToHtml(content: string): string {
+  return content
+    .split(/\n\n+/)
+    .map(p => {
+      const t = p.trim()
+      if (!t) return ''
+      if (t.startsWith('## ')) return `<h2>${escapeHtml(t.slice(3))}</h2>`
+      return `<p>${escapeHtml(t).replace(/\n/g, '<br/>')}</p>`
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Посты месячных планов (server-only data/). Forgiving read, display-only.
+
+interface PlanPost {
+  date: string
+  type: string
+  title: string
+  tag: string | null
+  text: string
+  sent?: boolean
+}
+
+function loadPlanPosts(): RuMaterial[] {
+  const dataDir = path.join(process.cwd(), 'data')
+  let files: string[] = []
+  try {
+    files = fs.readdirSync(dataDir).filter(f => /^content-plan-.*\.json$/.test(f))
+  } catch {
+    return []
+  }
+  const out: RuMaterial[] = []
+  for (const file of files) {
+    let posts: PlanPost[] = []
+    try {
+      const parsed = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'))
+      posts = Array.isArray(parsed?.posts) ? parsed.posts : []
+    } catch {
+      continue
+    }
+    for (const p of posts) {
+      if (!p?.sent || p.type === 'poll' || p.type === 'announcement') continue
+      const slug = ruSlug(p.title) || `post-${p.date}`
+      // Карточка поста существует только если скрипт сохранил raw-фон.
+      const hasCard = fs.existsSync(
+        path.join(process.cwd(), 'public', 'images', 'blog', `${slug}-raw.png`),
+      )
+      const image = hasCard
+        ? `${SITE}/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(p.title)}&tag=${encodeURIComponent(p.tag ?? 'Market Update')}`
+        : null
+      out.push({
+        slug,
+        title: p.title,
+        html: postTextToHtml(p.text),
+        date: p.date,
+        image,
+        format: 'post',
+      })
+    }
+  }
+  return out
+}
+
+/** Все материалы раздела /ru, новые первыми, слаги уникальны. */
+export function getRuMaterials(): RuMaterial[] {
+  const articles: RuMaterial[] = ruArticleSources.map(a => ({
+    slug: a.slug,
+    title: a.title,
+    html: articleToHtml(a.content),
+    date: a.date,
+    image: null,
+    format: 'article' as const,
+  }))
+  const all = [...articles, ...loadPlanPosts()]
+  all.sort((a, b) => (a.date < b.date ? 1 : -1))
+  const seen = new Set<string>()
+  return all.filter(m => (seen.has(m.slug) ? false : (seen.add(m.slug), true)))
+}
+
+export function getRuMaterialBySlug(slug: string): RuMaterial | undefined {
+  return getRuMaterials().find(m => m.slug === slug)
+}
+
+// ---------------------------------------------------------------------------
+// Дзен-RSS (разметка по dzen.ru/help/ru/website/rss-modify.html).
+
+export function buildDzenRss(materials: RuMaterial[]): string {
+  const items = materials
+    .map(m => {
+      const link = `${SITE}/ru/${m.slug}`
+      const pubDate = new Date(`${m.date}T09:00:00+04:00`).toUTCString()
+      const contentHtml = m.image
+        ? `<figure><img src="${escapeXml(m.image)}"/></figure>\n${m.html}`
+        : m.html
+      const enclosure = m.image
+        ? `\n      <enclosure url="${escapeXml(m.image)}" type="image/png"/>`
+        : ''
+      return `    <item>
+      <guid>${escapeXml(link)}</guid>
+      <link>${escapeXml(link)}</link>
+      <title>${escapeXml(m.title)}</title>
+      <pubDate>${pubDate}</pubDate>
+      <category>format-${m.format}</category>${enclosure}
+      <content:encoded><![CDATA[${contentHtml.replace(/\]\]>/g, ']]&gt;')}]]></content:encoded>
+    </item>`
+    })
+    .join('\n')
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Смотрим Дубай</title>
+    <link>${SITE}/ru</link>
+    <description>Недвижимость и инвестиции в Дубае: цифры DLD, разборы районов, кейсы клиентов. Материалы канала «Смотрим Дубай».</description>
+    <language>ru</language>
+${items}
+  </channel>
+</rss>`
+}
