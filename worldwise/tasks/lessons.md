@@ -1,5 +1,11 @@
 # Lessons
 
+## 2026-07-05 — Идентификаторы брать из боевого конфига, не из .env.example
+
+**Context:** Заполняя описания VK/ОК/Дзена и заявку в TGStat, я взял юзернейм TG-канала из `.env.example` (`@WorldwisePro`) — а боевой канал называется `@worldwisellc` (серверный `.env.local`). Неправильная ссылка растиражировалась на 4 площадки + статью, юзер поймал уже после публикаций.
+
+**The rule:** Любой идентификатор, который уходит наружу (юзернеймы каналов, URL, телефоны, email), проверяй по БОЕВОМУ источнику: серверный `.env.local`, живой сайт, реальный аккаунт — `.env.example` и доки могут содержать заглушки. Одна ssh-проверка (`grep VAR /var/www/worldwise/.env.local`) дешевле каскада правок по всем площадкам.
+
 ## 2026-06-24 — SEO/keyword data pipelines: live dry-run + budget tuning rounds
 
 **Context:** Built 3 DataForSEO-backed pipelines (keyword-discovery, ads-feed, competitor-gap). Every one's FIRST live output was noisy and needed 1–3 tuning rounds before trustworthy (discovery: trend-clamp saturation + theme dupes; competitor-gap: classifieds/navigational/rental/building-name flood).
