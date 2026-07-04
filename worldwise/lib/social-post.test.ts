@@ -1,20 +1,19 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { okSignature, formatFanOutSummary, socialNetworksConfigured } from './social-post.ts'
+import { okSignature, okSessionSecret, formatFanOutSummary, socialNetworksConfigured } from './social-post.ts'
 
-test('okSignature: sorted params + md5(token+secret), access_token excluded', () => {
+test('okSignature: sorted params + session secret, access_token excluded', () => {
   const sig = okSignature(
     { application_key: 'CAAB', format: 'json', method: 'mediatopic.post' },
-    'tok123',
-    'sec456',
+    okSessionSecret('tok123', 'sec456'),
   )
   // Vector computed independently: md5('application_key=CAABformat=jsonmethod=mediatopic.post' + md5('tok123sec456'))
   assert.equal(sig, '84e72cd678699b1401ef84d625d3fdc9')
 })
 
 test('okSignature: param order does not matter', () => {
-  const a = okSignature({ b: '2', a: '1' }, 't', 's')
-  const b = okSignature({ a: '1', b: '2' }, 't', 's')
+  const a = okSignature({ b: '2', a: '1' }, okSessionSecret('t', 's'))
+  const b = okSignature({ a: '1', b: '2' }, okSessionSecret('t', 's'))
   assert.equal(a, b)
 })
 
@@ -38,6 +37,7 @@ test('socialNetworksConfigured: reflects env vars', () => {
     delete process.env.OK_ACCESS_TOKEN
     delete process.env.OK_APP_KEY
     delete process.env.OK_APP_SECRET
+    delete process.env.OK_SESSION_SECRET
     delete process.env.OK_GROUP_ID
     assert.deepEqual(socialNetworksConfigured(), [])
 

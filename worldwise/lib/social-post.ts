@@ -35,8 +35,13 @@ function okConfig() {
   const token = process.env.OK_ACCESS_TOKEN
   const appKey = process.env.OK_APP_KEY
   const appSecret = process.env.OK_APP_SECRET
+  // OK's "вечный session_key" comes with a precomputed Session_secret_key —
+  // when set, it is used directly and OK_APP_SECRET may be omitted.
+  const sessionSecret = process.env.OK_SESSION_SECRET
   const groupId = process.env.OK_GROUP_ID
-  return token && appKey && appSecret && groupId ? { token, appKey, appSecret, groupId } : null
+  return token && appKey && (appSecret || sessionSecret) && groupId
+    ? { token, appKey, appSecret, sessionSecret, groupId }
+    : null
 }
 
 export function socialNetworksConfigured(): SocialNetwork[] {
@@ -110,24 +115,32 @@ async function postToVk(text: string, image: Buffer | null): Promise<void> {
 
 const OK_API = 'https://api.ok.ru/fb.do'
 
+/** md5(access_token + application_secret_key) — the OAuth-token session secret. */
+export function okSessionSecret(accessToken: string, appSecret: string): string {
+  return createHash('md5').update(accessToken + appSecret).digest('hex')
+}
+
 /**
  * OK request signature: md5 of the alphabetically sorted `key=value` pairs
- * (WITHOUT access_token) concatenated with the session secret
- * md5(access_token + application_secret_key). Exported for unit tests.
+ * (WITHOUT access_token) concatenated with the session secret. For OAuth
+ * tokens the session secret is okSessionSecret(); permanent session keys ship
+ * with a ready-made Session_secret_key. Exported for unit tests.
  */
-export function okSignature(params: Record<string, string>, accessToken: string, appSecret: string): string {
-  const sessionSecret = createHash('md5').update(accessToken + appSecret).digest('hex')
+export function okSignature(params: Record<string, string>, sessionSecret: string): string {
   const sorted = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join('')
   return createHash('md5').update(sorted + sessionSecret).digest('hex')
 }
 
+interface OkAuth { token: string; appKey: string; appSecret?: string; sessionSecret?: string }
+
 async function okCall(
   method: string,
   params: Record<string, string>,
-  cfg: { token: string; appKey: string; appSecret: string },
+  cfg: OkAuth,
 ): Promise<unknown> {
   const base: Record<string, string> = { ...params, application_key: cfg.appKey, format: 'json', method }
-  const sig = okSignature(base, cfg.token, cfg.appSecret)
+  const sessionSecret = cfg.sessionSecret ?? okSessionSecret(cfg.token, cfg.appSecret ?? '')
+  const sig = okSignature(base, sessionSecret)
   const body = new URLSearchParams({ ...base, sig, access_token: cfg.token })
   const res = await fetch(OK_API, {
     method: 'POST',
@@ -143,7 +156,7 @@ async function okCall(
   return json
 }
 
-async function okUploadPhoto(image: Buffer, cfg: { token: string; appKey: string; appSecret: string; groupId: string }): Promise<string> {
+async function okUploadPhoto(image: Buffer, cfg: OkAuth & { groupId: string }): Promise<string> {
   const up = (await okCall('photosV2.getUploadUrl', { gid: cfg.groupId, count: '1' }, cfg)) as { upload_url: string; photo_ids: string[] }
   const fd = new FormData()
   fd.append('pic1', new Blob([new Uint8Array(image)], { type: 'image/png' }), 'post.png')
