@@ -5,7 +5,15 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const DATA_DIR = path.join(ROOT, 'data')
-const PLAN_PATH = path.join(DATA_DIR, 'content-plan-june-2026.json')
+// Plan files are monthly: content-plan-<month>-<year>.json, resolved by Dubai
+// wall clock. A missing/exhausted plan is alerted loudly in main() — the June
+// plan ran out on 2026-07-01 and the channel went silent for days unnoticed.
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december']
+function planPathFor(d) {
+  return path.join(DATA_DIR, `content-plan-${MONTHS[d.getUTCMonth()]}-${d.getUTCFullYear()}.json`)
+}
+const PLAN_PATH = planPathFor(new Date(Date.now() + 4 * 60 * 60 * 1000))
 const PLAN_DRAFT_PATH = path.join(DATA_DIR, 'plan-draft.json')
 const BLOG_IMG_DIR = path.join(ROOT, 'public', 'images', 'blog')
 const IMAGE_MODEL = 'gemini-2.5-flash-image'
@@ -167,7 +175,24 @@ async function main() {
   const today = todayStr()
   log(`Today (Dubai): ${today}`)
 
+  if (!fs.existsSync(PLAN_PATH)) {
+    log(`ERROR: plan file missing: ${PLAN_PATH}`)
+    await notifyAdmin(`⚠️ Автопост: нет контент-плана на текущий месяц (${path.basename(PLAN_PATH)}). Посты в канал не выходят — создай файл в data/.`).catch(() => {})
+    process.exit(1)
+  }
+
   const plan = loadPlan()
+
+  // Look ahead: once the plan has no unsent posts beyond today and next month's
+  // file doesn't exist yet, ping the admin daily so a plan can never run out
+  // silently again. markSent() only touches today's posts, so this is stable
+  // for the whole run.
+  const now = new Date(Date.now() + 4 * 60 * 60 * 1000)
+  const nextPlanPath = planPathFor(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)))
+  if (!plan.posts.some(p => !p.sent && p.date > today) && !fs.existsSync(nextPlanPath)) {
+    log(`WARNING: no unsent posts after ${today} and ${path.basename(nextPlanPath)} does not exist yet`)
+    await notifyAdmin(`⚠️ Автопост: план ${path.basename(PLAN_PATH)} заканчивается — после ${today} постов нет, а ${path.basename(nextPlanPath)} ещё не создан. Подготовь план на следующий месяц.`).catch(() => {})
+  }
   const todays = () =>
     plan.posts.map((p, i) => ({ p, i })).filter(({ p }) => p.date === today && !p.sent)
 

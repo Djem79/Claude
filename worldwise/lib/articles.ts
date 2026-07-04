@@ -216,7 +216,7 @@ The secondary market — also called resale — means buying a property that alr
 
 ## Who Can Buy?
 
-The UAE allows foreigners to purchase freehold property in designated zones (Dubai Marina, Downtown, Palm Jumeirah, JVC, Business Bay and dozens more). There are no restrictions on nationality, and you do not need a UAE residency visa to own property — though ownership of property worth AED 750,000+ makes you eligible to apply for a [2-year investor visa](/blog/uae-property-residence-visa).
+The UAE allows foreigners to purchase freehold property in designated zones (Dubai Marina, Downtown, Palm Jumeirah, JVC, Business Bay and dozens more). There are no restrictions on nationality, and you do not need a UAE residency visa to own property — though owning a completed home makes you eligible to apply for a [2-year investor visa](/blog/uae-property-residence-visa) (no minimum value for sole owners since April 2026).
 
 ## Stage 1: Agree Terms and Sign the MOU
 
@@ -607,7 +607,7 @@ A few structural advantages stay true wherever prices sit in the cycle:
 - **No property, income, capital-gains or inheritance tax.** This lifts net returns well above a comparable purchase in London, Singapore or most of Europe.
 - **Strong rental yields.** Gross yields of roughly 6–8% are still common, high by global-city standards, which keeps income strategies working even when capital growth slows.
 - **A growing population.** Dubai keeps attracting professionals, entrepreneurs and remote workers, and that demand underpins rents.
-- **Residency through property.** A qualifying purchase can open the door to long-term residency. Our [Golden Visa guide](/golden-visa) covers the AED 2M threshold, and our [UAE residence visa guide](/blog/uae-property-residence-visa) covers the full range, including the 2-year visa from AED 750,000.
+- **Residency through property.** A qualifying purchase can open the door to long-term residency. Our [Golden Visa guide](/golden-visa) covers the AED 2M threshold, and our [UAE residence visa guide](/blog/uae-property-residence-visa) covers the full range, including the 2-year visa with no minimum property value for sole owners since April 2026.
 - **Regulation and escrow protection.** RERA-regulated escrow accounts protect off-plan buyers if a project stalls, a safeguard many emerging markets lack.
 
 ## Where the Opportunities Are in 2026
