@@ -137,6 +137,8 @@ Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own l
 
 All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
+> **Autopost plan is monthly, server-only data.** `post-from-plan.mjs` reads `data/content-plan-<month>-<year>.json` (resolved by Dubai wall clock) — a new plan file must be authored and uploaded to the server before each month starts (the Russian-language channel «Смотрим Дубай»; June/July 2026 files show the format: 28–30 posts, weekly rhythm Mon=market_update, Tue=area_spotlight, Wed=guide, Thu=qa, Fri=case_study, Sat=viral, Sun=poll). The script Telegram-alerts when the current month's file is missing and when the plan tail is empty while next month's file doesn't exist yet (the June-2026 plan once ran out silently — channel was dark for 4 days). Area yields in posts must come from `lib/areas.ts`; market_update figures from current DLD reports, never invented.
+
 ## DNS & infrastructure
 
 DNS is managed via **Cloudflare** (nameservers: `ainsley.ns.cloudflare.com`, `sterling.ns.cloudflare.com`). A records for `worldwise.pro` and `www` point to `62.238.35.20` and are **Proxied** (orange cloud) — all visitor traffic flows through the Cloudflare edge, not directly to the origin. Cloudflare SSL/TLS mode is **Full (strict)**. Email MX records point to `mx1.hosting.reg.ru` / `mx2.hosting.reg.ru` (reg.ru hosting handles the mailbox for `dzhambulat@worldwise.pro`).
