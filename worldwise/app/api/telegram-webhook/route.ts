@@ -117,6 +117,9 @@ const LEAD_SOURCE_LABEL: Record<string, string> = {
   bayut: 'Bayut',
   instagram_dm: 'Instagram',
   whatsapp: 'WhatsApp',
+  vk: 'VK',
+  ok: 'OK',
+  dzen: 'Дзен',
   other: 'Other',
 }
 
@@ -130,6 +133,11 @@ function leadSourceKeyboard(id: string) {
       { text: 'Instagram', callback_data: `leadsrc:${id}:instagram_dm` },
       { text: 'WhatsApp', callback_data: `leadsrc:${id}:whatsapp` },
       { text: 'Other', callback_data: `leadsrc:${id}:other` },
+    ],
+    [
+      { text: 'VK', callback_data: `leadsrc:${id}:vk` },
+      { text: 'OK', callback_data: `leadsrc:${id}:ok` },
+      { text: 'Дзен', callback_data: `leadsrc:${id}:dzen` },
     ],
     [{ text: '🗑 Удалить', callback_data: `leaddel:${id}` }],
   ]
