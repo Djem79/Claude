@@ -502,7 +502,7 @@ The featured-properties grid on the area page matches `Property.area` **tolerant
 - `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + /golden-visa + /guide + 8 area landing pages + all property and article slugs)
 - `next.config.mjs` — `images.formats: ['image/avif','image/webp']` (AVIF for smaller LCP); old Tilda `/tpost/*` and `/tproduct/*` URLs 301-redirect to `/blog` / `/properties` (two high-traffic posts to topically-matched articles)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
-- `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList`
+- `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList` + `FAQPage`; search-pattern titles/meta and the data-driven FAQ come from the pure `lib/property-seo.ts` (node:test'd — questions exist only when their source field does, golden-visa flag passed in from the call site)
 - `app/mortgage-calculator/page.tsx` — JSON-LD `WebApplication` + `FAQPage` (5 questions)
 - `public/llms.txt` — plain-text site summary for AI crawlers
 
