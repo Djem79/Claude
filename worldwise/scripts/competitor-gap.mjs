@@ -9,7 +9,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { selectGap, formatGapReport } from './competitor-gap-core.mjs'
+import { selectGap, formatGapReport, splitByConfirmation, formatRelevantPages } from './competitor-gap-core.mjs'
 import { dedupeKeywords } from './keyword-discovery-core.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -30,6 +30,9 @@ const COMPETITORS = [
   'metropolitan.realestate',
 ]
 const OUR_DOMAIN = 'worldwise.pro'
+// Big-three for the monthly "traffic-magnet pages" section (relevant_pages is
+// per-domain paid — keep the panel small; report-only, no feed).
+const BIG3 = ['bayut.com', 'propertyfinder.ae', 'betterhomes.ae']
 const GEO = 2784            // UAE
 const LANG = 'en'
 const PER_DOMAIN_LIMIT = 1000
@@ -129,6 +132,42 @@ async function fetchRankedKeywords(domain) {
   return { rows, cost: Number(json.cost) || 0 }
 }
 
+const DFS_PAGES_URL = 'https://api.dataforseo.com/v3/dataforseo_labs/google/relevant_pages/live'
+
+/**
+ * Fetch a domain's top traffic pages from DataForSEO Labs relevant_pages.
+ * Returns { rows: [{page, etv, keywords}], cost }. Throws on API error.
+ */
+async function fetchRelevantPages(domain) {
+  const auth = Buffer.from(`${DFS_LOGIN}:${DFS_PASSWORD}`).toString('base64')
+  const res = await fetch(DFS_PAGES_URL, {
+    method: 'POST',
+    headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([{
+      target: domain,
+      location_code: GEO,
+      language_code: LANG,
+      limit: 10,
+      order_by: ['metrics.organic.etv,desc'],
+    }]),
+    signal: AbortSignal.timeout(60000),
+  })
+  if (!res.ok) throw new Error(`DataForSEO ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  const json = await res.json()
+  if (json.status_code !== 20000) throw new Error(`DataForSEO status ${json.status_code}: ${json.status_message}`)
+  const task = json.tasks?.[0]
+  if (task && task.status_code !== 20000) {
+    throw new Error(`DataForSEO task status ${task.status_code}: ${task.status_message}`)
+  }
+  const items = task?.result?.[0]?.items ?? []
+  const rows = items.map(it => ({
+    page: it?.page_address ?? '?',
+    etv: Number(it?.metrics?.organic?.etv) || 0,
+    keywords: Number(it?.metrics?.organic?.count) || 0,
+  }))
+  return { rows, cost: Number(json.cost) || 0 }
+}
+
 // ── Telegram (mirrors discover-keywords.mjs, with 3900-char chunking) ────────
 async function sendTelegram(text) {
   if (!TG_TOKEN || !TG_CHAT_ID) { log('Telegram not configured, skipping'); return }
@@ -217,8 +256,25 @@ async function main() {
     maxPerTheme: MAX_PER_THEME,
   })
 
-  const report = formatGapReport(items)
-  const feedList = items.slice(0, GAP_FEED_M).map(it => it.keyword)
+  // Bank feed prefers double-confirmed keywords (ranked by ≥2 competitors —
+  // demand verified twice), then falls back to single-source picks.
+  const { double, single } = splitByConfirmation(items)
+  const feedList = [...double, ...single].slice(0, GAP_FEED_M).map(it => it.keyword)
+
+  // ── 4b. Traffic-magnet pages of the big three (report-only) ──────────────
+  const pagesByDomain = {}
+  for (const domain of BIG3) {
+    try {
+      const { rows, cost } = await fetchRelevantPages(domain)
+      pagesByDomain[domain] = rows
+      totalCost += cost
+      log(`${domain}: ${rows.length} relevant pages (cost: $${cost.toFixed(4)})`)
+    } catch (e) {
+      log(`relevant_pages failed for ${domain} (non-fatal): ${e.message}`)
+    }
+  }
+  const pagesSection = formatRelevantPages(pagesByDomain)
+  const report = formatGapReport(items) + (pagesSection ? `\n\n${pagesSection}` : '')
 
   // ── 5. DRY RUN: print, write/send nothing ────────────────────────────────
   if (DRY_RUN) {

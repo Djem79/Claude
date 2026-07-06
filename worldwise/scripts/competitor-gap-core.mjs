@@ -210,7 +210,11 @@ export function selectGap(competitorRows, ourSet, opts) {
 export function formatGapReport(items) {
   if (!items.length) return 'No new competitor-gap keywords this month.'
 
-  const lines = [`🔍 Competitor gap — ${items.length} opportunities:`]
+  const doubleCount = items.filter(it => (it.sources?.length ?? 0) >= 2).length
+  const header = doubleCount
+    ? `🔍 Competitor gap — ${items.length} opportunities (×2 = подтверждены двумя+ конкурентами: ${doubleCount}):`
+    : `🔍 Competitor gap — ${items.length} opportunities:`
+  const lines = [header]
 
   for (const item of items) {
     const vol = item.search_volume ?? 'n/a'
@@ -220,8 +224,44 @@ export function formatGapReport(items) {
       .slice(0, 3)
       .map(s => `${s.domain} #${s.rank}`)
       .join(', ')
-    lines.push(`• ${item.keyword} — vol ${vol}, KD ${kd}, ${cpc} — ranked by: ${srcList}`)
+    const mark = (item.sources?.length ?? 0) >= 2 ? '×2 ' : ''
+    lines.push(`• ${mark}${item.keyword} — vol ${vol}, KD ${kd}, ${cpc} — ranked by: ${srcList}`)
   }
 
+  return lines.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// 6. Intersection + relevant pages (monthly upgrade, 2026-07-06)
+// ---------------------------------------------------------------------------
+
+/**
+ * Split gap items into double-confirmed (ranked top-20 by ≥2 competitor
+ * domains — demand verified twice) vs single-source. The bank feed prefers
+ * double-confirmed keywords.
+ */
+export function splitByConfirmation(items) {
+  const double = [], single = []
+  for (const it of items) ((it.sources?.length ?? 0) >= 2 ? double : single).push(it)
+  return { double, single }
+}
+
+/**
+ * Format the "competitor traffic-magnet pages" report section.
+ * byDomain: { [domain]: [{ page, etv, keywords }] } sorted by ETV desc.
+ * Answers "what PAGES should we build" — page types that demonstrably earn traffic.
+ */
+export function formatRelevantPages(byDomain) {
+  const domains = Object.keys(byDomain).filter(d => byDomain[d]?.length)
+  if (!domains.length) return ''
+
+  const lines = ['📄 Страницы-магниты конкурентов (топ по трафику, UAE):']
+  for (const domain of domains) {
+    lines.push(`\n${domain}:`)
+    for (const p of byDomain[domain].slice(0, 5)) {
+      const etv = Math.round(p.etv ?? 0)
+      lines.push(`• ${p.page} — ~${etv} визитов/мес, ${p.keywords ?? 0} ключей`)
+    }
+  }
   return lines.join('\n')
 }
