@@ -24,7 +24,7 @@ const DRY_RUN = process.argv.includes('--dry-run')
 const COMPETITORS = [
   'bayut.com',
   'propertyfinder.ae',
-  'betterhomes.ae',
+  'bhomes.com', // Betterhomes — the real domain (betterhomes.ae is an empty shell; backlink audit 2026-06-25)
   'famproperties.com',
   'drivenproperties.com',
   'metropolitan.realestate',
@@ -32,7 +32,7 @@ const COMPETITORS = [
 const OUR_DOMAIN = 'worldwise.pro'
 // Big-three for the monthly "traffic-magnet pages" section (relevant_pages is
 // per-domain paid — keep the panel small; report-only, no feed).
-const BIG3 = ['bayut.com', 'propertyfinder.ae', 'betterhomes.ae']
+const BIG3 = ['bayut.com', 'propertyfinder.ae', 'bhomes.com']
 const GEO = 2784            // UAE
 const LANG = 'en'
 const PER_DOMAIN_LIMIT = 1000
