@@ -4,9 +4,10 @@ const nextConfig = {
     // Next 16 buffers request bodies (proxy.ts matches all routes) with a 10MB
     // default cap — larger bodies are silently TRUNCATED, so multipart uploads
     // (developer-PDF import, /admin/files, lead attachments) die with
-    // "Failed to parse body as FormData". 50mb mirrors nginx client_max_body_size
-    // 50M — nginx stays the outer limit, Next must never truncate below it.
-    proxyClientMaxBodySize: '50mb',
+    // "Failed to parse body as FormData". 100mb mirrors nginx client_max_body_size
+    // 100M; the true outer limit is Cloudflare's 100MB upload cap (free plan) —
+    // developer PDFs >100MB must be compressed, no config can admit them.
+    proxyClientMaxBodySize: '100mb',
   },
   async headers() {
     return [
