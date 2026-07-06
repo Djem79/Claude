@@ -1,6 +1,7 @@
 'use client'
 
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
@@ -11,7 +12,15 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 // on "Accept All". This is what stops paid leads from being mis-attributed to Direct and
 // fixes the GA4 conversion undercount. The cookie banner still governs actual cookies.
 export default function Analytics() {
+  const pathname = usePathname()
   if (!GA_ID) return null
+
+  // Back-office is not the site: staff sessions in /admin polluted GA4's small
+  // consented sample (admin pages showed up in the top-10 report). A direct
+  // /admin load never injects gtag at all. Known edge: a public→/admin SPA
+  // navigation keeps an already-loaded gtag for that session — acceptable,
+  // staff open /admin directly.
+  if (pathname?.startsWith('/admin')) return null
 
   return (
     <>
