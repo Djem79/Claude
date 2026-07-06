@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Next 16 buffers request bodies (proxy.ts matches all routes) with a 10MB
+    // default cap — larger bodies are silently TRUNCATED, so multipart uploads
+    // (developer-PDF import, /admin/files, lead attachments) die with
+    // "Failed to parse body as FormData". 50mb mirrors nginx client_max_body_size
+    // 50M — nginx stays the outer limit, Next must never truncate below it.
+    proxyClientMaxBodySize: '50mb',
+  },
   async headers() {
     return [
       {
