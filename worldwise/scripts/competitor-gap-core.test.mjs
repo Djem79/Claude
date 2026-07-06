@@ -10,6 +10,8 @@ import {
   scoreGap,
   selectGap,
   formatGapReport,
+  splitByConfirmation,
+  formatRelevantPages,
 } from './competitor-gap-core.mjs'
 
 // ---------------------------------------------------------------------------
@@ -336,4 +338,46 @@ test('formatGapReport: handles null/undefined vol and KD gracefully', () => {
   const msg = formatGapReport(items)
   assert.ok(msg.includes('golden visa dubai property'), 'keyword present')
   assert.ok(msg.includes('n/a'), 'n/a for nulls')
+})
+
+// ---------------------------------------------------------------------------
+// splitByConfirmation / formatRelevantPages (2026-07-06 upgrade)
+// ---------------------------------------------------------------------------
+
+test('splitByConfirmation: >=2 sources go to double, order preserved', () => {
+  const items = [
+    { keyword: 'a', sources: [{ domain: 'x' }, { domain: 'y' }] },
+    { keyword: 'b', sources: [{ domain: 'x' }] },
+    { keyword: 'c', sources: [{ domain: 'x' }, { domain: 'y' }, { domain: 'z' }] },
+    { keyword: 'd', sources: [] },
+    { keyword: 'e' },
+  ]
+  const { double, single } = splitByConfirmation(items)
+  assert.deepEqual(double.map(i => i.keyword), ['a', 'c'])
+  assert.deepEqual(single.map(i => i.keyword), ['b', 'd', 'e'])
+})
+
+test('formatGapReport: marks double-confirmed with ×2 and counts them in header', () => {
+  const items = [
+    { keyword: 'kw two', search_volume: 500, keyword_difficulty: 10, cpc: 1, sources: [{ domain: 'x.com', rank: 3 }, { domain: 'y.com', rank: 8 }] },
+    { keyword: 'kw one', search_volume: 300, keyword_difficulty: 20, cpc: 1, sources: [{ domain: 'x.com', rank: 5 }] },
+  ]
+  const msg = formatGapReport(items)
+  assert.ok(msg.includes('подтверждены двумя+ конкурентами: 1'), 'header counts doubles')
+  assert.ok(msg.includes('• ×2 kw two'), 'double item marked')
+  assert.ok(msg.includes('• kw one'), 'single item unmarked')
+  assert.ok(!msg.includes('×2 kw one'), 'single item has no marker')
+})
+
+test('formatRelevantPages: sections per domain, caps at 5 rows, empty input → empty string', () => {
+  const byDomain = {
+    'bayut.com': Array.from({ length: 7 }, (_, i) => ({ page: `/p${i}`, etv: 1000 - i, keywords: 10 + i })),
+    'empty.com': [],
+  }
+  const msg = formatRelevantPages(byDomain)
+  assert.ok(msg.includes('bayut.com'), 'domain header present')
+  assert.ok(msg.includes('/p0') && msg.includes('/p4'), 'top rows present')
+  assert.ok(!msg.includes('/p5'), 'capped at 5')
+  assert.ok(!msg.includes('empty.com'), 'empty domain omitted')
+  assert.equal(formatRelevantPages({}), '')
 })
