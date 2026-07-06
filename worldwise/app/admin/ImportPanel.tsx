@@ -24,7 +24,7 @@ export default function ImportPanel({ initialDrafts }: { initialDrafts: Property
       const fd = new FormData()
       fd.append('file', file)
       const res = await fetch('/api/admin/import', { method: 'POST', body: fd })
-      if (!res.ok) setError((await res.json().catch(() => ({}))).error || 'Import failed')
+      if (!res.ok) setError((await res.json().catch(() => ({}))).error || `Import failed (HTTP ${res.status})`)
       else await refresh()
     } catch {
       setError('Network error. Please try again.')
