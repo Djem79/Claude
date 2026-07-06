@@ -16,13 +16,13 @@ import FloorPlanGate from '@/components/FloorPlanGate'
 import { waPropertyMessage, PHONE_TEL } from '@/lib/whatsapp'
 import WhatsAppCta from './WhatsAppCta'
 import { propertyQualifiesForGoldenVisa } from '@/lib/golden-visa'
+import { propertyTitleTag, propertyMetaDescription, buildPropertyFaq } from '@/lib/property-seo'
 import PriceTag from '@/components/PriceTag'
 import { estimateMonthly } from '@/lib/mortgage'
 import JsonLd from '@/components/JsonLd'
 import PropertyLocation from '@/components/PropertyLocation'
 import { areas, propertyMatchesArea } from '@/lib/areas'
 import { resolvePropertyCoords } from '@/lib/property-coords'
-import { formatAedCompact } from '@/lib/format'
 
 export const revalidate = 60
 
@@ -36,11 +36,13 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   if (!p) return {}
   const url = `https://worldwise.pro/properties/${p.slug}`
   const img = p.images[0] ?? '/images/areas/dubai-marina.jpg'
-  const title = `${p.title} by ${p.developer} — ${formatAedCompact(p.priceAed)}`
+  // Title mirrors project-name search patterns ("<project> price / payment
+  // plan") — see lib/property-seo.ts; year refreshes on ISR renders.
+  const title = propertyTitleTag(p, new Date().getFullYear())
   // title.template never brands openGraph/twitter titles (see tasks/lessons.md
   // 2026-06-08) — social cards need the brand appended explicitly.
   const ogTitle = `${title} | Worldwise Real Estate`
-  const description = `${p.shortDescription} Located in ${p.area}, Dubai.${p.roi ? ` Est. ROI ${p.roi}%.` : ''}${p.completionDate ? ` Handover ${p.completionDate}.` : ''} RERA-certified listing.`
+  const description = propertyMetaDescription(p)
   return {
     // absolute: property titles are long free text — the layout's
     // "| Worldwise" template suffix would push them past SERP truncation
@@ -168,10 +170,26 @@ export default async function PropertyPage(props: { params: Promise<{ slug: stri
       : {}),
   }
 
+  // Data-driven FAQ: questions exist only when their source field does; the
+  // section (and FAQPage JSON-LD) renders from 2+ questions so it never looks thin.
+  const faq = buildPropertyFaq(property, { goldenVisa: propertyQualifiesForGoldenVisa(property) })
+  const faqLd = faq.length >= 2
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null
+
   return (
     <>
       <JsonLd data={breadcrumbLd} />
       <JsonLd data={listingLd} />
+      {faqLd && <JsonLd data={faqLd} />}
       <Navigation />
       <main className="pt-16">
         {/* Gallery */}
@@ -330,6 +348,26 @@ export default async function PropertyPage(props: { params: Promise<{ slug: stri
               </div>
             </div>
           </div>
+
+          {/* FAQ — mirrors landing-page accordion markup (native details/summary, no JS) */}
+          {faq.length >= 2 && (
+            <div className="mt-16 pt-12 border-t border-gray-100">
+              <h2 className="font-serif text-3xl text-navy mb-8">Frequently Asked Questions</h2>
+              <div className="space-y-3 max-w-3xl">
+                {faq.map((item, i) => (
+                  <details key={i} className="group border border-gray-200 rounded-sm bg-white open:shadow-sm">
+                    <summary className="cursor-pointer list-none px-5 py-4 flex justify-between items-center gap-4 hover:bg-gray-50 transition-colors">
+                      <span className="font-serif text-navy text-lg leading-snug">{item.q}</span>
+                      <span className="text-gold-accessible text-2xl leading-none group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div className="px-5 pb-5 -mt-1">
+                      <p className="text-gray-600 leading-relaxed">{item.a}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Similar properties */}
           {similar.length > 0 && (
