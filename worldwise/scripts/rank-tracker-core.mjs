@@ -103,6 +103,14 @@ export function formatRankReport({ tracked, results, deltas, cost, firstRun }) {
     `AI Overview на выдаче: ${aiKws.length} ключей`,
   ]
 
+  // AI Overview sitting over the keywords we actually rank for — these are the
+  // positions being devalued (clicks bleed to the AI answer). The actionable cut.
+  const aiRanked = inTop20.filter(([, r]) => r.aiOverview).sort((a, b) => a[1].pos - b[1].pos)
+  if (aiRanked.length) {
+    lines.push('', `🤖 AI Overview на наших топ-20 (${aiRanked.length}):`)
+    for (const [kw, r] of aiRanked.slice(0, 10)) lines.push(`• #${r.pos} ${kw}`)
+  }
+
   if (firstRun) {
     lines.push('', '📌 Первый прогон — базовая линия записана, дельты появятся со следующей недели.')
     if (inTop20.length) {
