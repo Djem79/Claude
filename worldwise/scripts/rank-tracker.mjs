@@ -203,8 +203,12 @@ async function main() {
 
   // Merge over previous positions: errored keywords keep last week's baseline
   // instead of losing it (they were omitted from `results`).
+  // Persist aiOverview + top-3 outrankers too, so "which commercial terms are
+  // AI-Overview'd / who outranks us" is queryable later (not thrown away each run).
   const positions = { ...(state?.positions ?? {}) }
-  for (const [kw, r] of Object.entries(results)) positions[kw] = { pos: r.pos ?? null, url: r.url ?? null }
+  for (const [kw, r] of Object.entries(results)) {
+    positions[kw] = { pos: r.pos ?? null, url: r.url ?? null, aiOverview: r.aiOverview ?? false, above: r.above ?? [] }
+  }
   writeFileAtomic(STATE_PATH, JSON.stringify({ updatedAt: new Date().toISOString(), positions }, null, 2))
   log(`State written: ${Object.keys(positions).length} keywords`)
 

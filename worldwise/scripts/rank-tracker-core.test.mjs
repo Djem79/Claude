@@ -94,6 +94,24 @@ test('report: first run prints baseline, no deltas section', () => {
   assert.match(txt, /\$0\.31/)
 })
 
+test('report: AI Overview section lists only ranked (top-20) keywords carrying an AIO', () => {
+  const txt = formatRankReport({
+    tracked: 3,
+    results: {
+      hit: { pos: 6, above: [], aiOverview: true },     // ranked + AIO → listed
+      noai: { pos: 8, above: [], aiOverview: false },    // ranked, no AIO → not listed
+      deep: { pos: null, above: [], aiOverview: true },  // AIO but not ranked → not listed
+    },
+    deltas: { up: [], down: [], entered: [], dropped: [] },
+    cost: 0.3,
+    firstRun: false,
+  })
+  assert.match(txt, /🤖 AI Overview на наших топ-20 \(1\)/)
+  assert.match(txt, /#6 hit/)
+  assert.doesNotMatch(txt, /noai/)
+  assert.doesNotMatch(txt, /deep/)
+})
+
 test('report: movers with outrankers on the down side', () => {
   const txt = formatRankReport({
     tracked: 2,
