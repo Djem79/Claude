@@ -25,10 +25,17 @@ const HTTP_TIMEOUT = 10000
 // ---------------------------------------------------------------------------
 // Config
 
-function vkConfig() {
+// VK needs TWO tokens because its permissions are mirrored (verified in battle
+// 2026-07-08): the community key posts the wall but can't upload photos
+// ([27] group auth), while the user token uploads photos but VK denies it the
+// whole wall.* family ([15/1134] non-standalone app). So: photos via `token`
+// (user), wall.post via `wallToken` (community key, falls back to `token` for
+// legacy single-token setups). Exported for unit tests.
+export function vkConfig() {
   const token = process.env.VK_ACCESS_TOKEN
   const groupId = process.env.VK_GROUP_ID
-  return token && groupId ? { token, groupId } : null
+  if (!token || !groupId) return null
+  return { token, wallToken: process.env.VK_WALL_TOKEN || token, groupId }
 }
 
 function okConfig() {
@@ -107,7 +114,7 @@ async function postToVk(text: string, image: Buffer | null): Promise<void> {
     message: text,
   }
   if (attachments) params.attachments = attachments
-  await vkCall('wall.post', params, cfg.token)
+  await vkCall('wall.post', params, cfg.wallToken)
 }
 
 // ---------------------------------------------------------------------------

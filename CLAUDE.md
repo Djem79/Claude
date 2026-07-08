@@ -524,7 +524,7 @@ See `.env.example`. Key vars:
 - `SESSION_SECRET` — high-entropy key that signs/verifies session tokens; must differ from `ADMIN_PASSWORD`. Rotating it logs out all admins. Generate with `openssl rand -base64 48`
 - `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` — lead notifications and auto-blog approvals; comma-separated for multiple recipients. The first ID is the admin who can use `/add_keyword`.
 - `WEBHOOK_SECRET` — validates `X-Telegram-Bot-Api-Secret-Token` header on `POST /api/telegram-webhook`
-- `VK_ACCESS_TOKEN` / `VK_GROUP_ID`, `OK_ACCESS_TOKEN` / `OK_APP_KEY` / `OK_APP_SECRET` / `OK_GROUP_ID` — optional Russian social fan-out (VK/Odnoklassniki mirrors of approved channel posts); unset = network skipped
+- `VK_ACCESS_TOKEN` / `VK_WALL_TOKEN` / `VK_GROUP_ID`, `OK_ACCESS_TOKEN` / `OK_APP_KEY` / `OK_APP_SECRET` / `OK_GROUP_ID` — optional Russian social fan-out (VK/Odnoklassniki mirrors of approved channel posts); unset = network skipped. VK is a two-token hybrid (permissions mirrored, verified 2026-07-08): the user token (`VK_ACCESS_TOKEN`) uploads photos but is denied `wall.*` ([15/1134] non-standalone app), the community key (`VK_WALL_TOKEN`) posts the wall but can't upload photos ([27]); `VK_WALL_TOKEN` unset → wall.post falls back to the user token
 - `GEMINI_API_KEY` — Gemini 2.0 Flash API key used by `scripts/generate-article.mjs`
 - `OCI_FEED_USER` / `OCI_FEED_PASS` — Basic Auth for the Google Ads offline-conversion feed (`/api/google-ads-oci`); feed answers 401 until both are set
 - `SMTP_HOST/PORT/USER/PASS` + `NOTIFY_EMAIL` — optional email notifications via nodemailer
