@@ -31,7 +31,13 @@ export default async function PropertiesPage(
   }
 ) {
   const searchParams = await props.searchParams;
-  const properties = getProperties()
+  // Newest listings first: createProperty() appends to the END of the store,
+  // so raw file order shows the freshest stock at the bottom of the page.
+  // localeCompare on ISO-8601 strings sorts chronologically; missing createdAt
+  // (none expected, but the field is set only by createProperty) sinks to the end.
+  const properties = getProperties().sort((a, b) =>
+    (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
+  )
   return (
     <>
       <Navigation />
