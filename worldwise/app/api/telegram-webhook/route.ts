@@ -492,6 +492,11 @@ async function handleCallback(callback: TgCallback) {
       // Await so the button answer reflects the real outcome (same fix as
       // publish_article above; postPlanToChannel never throws).
       const ok = await postPlanToChannel(planPost)
+      // The preview is a photo message, so we can't edit destination statuses
+      // into its text — send a separate persistent message instead: the
+      // callback-answer toast vanishes in seconds and left no trace of where
+      // the post actually landed (a VK outage went unnoticed for days).
+      const title = String(planPost.text ?? '').split('\n')[0].slice(0, 60)
       if (ok) {
         // Fan out the approved post to VK/OK (Russian-audience mirrors of the
         // channel). Non-fatal by design: fanOutPost never throws, unconfigured
@@ -500,8 +505,10 @@ async function handleCallback(callback: TgCallback) {
         const image = await fetchLocalImage(planPost.image)
         const social = formatFanOutSummary(await fanOutPost(String(planPost.text ?? ''), image))
         answerText = `✅ Опубликовано${social}`
+        await sendMessage(chatId, `📮 «${title}» → Канал ✓${social}`)
       } else {
         answerText = '⚠️ Пост в канал не ушёл (см. логи)'
+        await sendMessage(chatId, `📮 «${title}» → Канал ⚠️ не ушёл (см. логи)`)
       }
     } else {
       answerText = '⚠️ Черновик не найден'
