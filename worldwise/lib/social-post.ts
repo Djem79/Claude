@@ -195,16 +195,20 @@ async function postToOk(text: string, image: Buffer | null): Promise<void> {
  * reports its own outcome. Empty array = nothing configured.
  */
 export async function fanOutPost(text: string, image: Buffer | null): Promise<SocialResult[]> {
+  // Failures are console.error'd HERE, not only carried in the result — the
+  // callback-answer toast that shows the summary is ephemeral, and a silent
+  // wall.post error once cost days of missing VK posts with zero log trail.
+  const fail = (network: SocialNetwork) => (e: unknown): SocialResult => {
+    const error = String(e instanceof Error ? e.message : e)
+    console.error(`[social-post] ${network} post failed:`, error)
+    return { network, ok: false, error }
+  }
   const jobs: Array<Promise<SocialResult>> = []
   if (vkConfig()) {
-    jobs.push(postToVk(text, image)
-      .then((): SocialResult => ({ network: 'vk', ok: true }))
-      .catch((e): SocialResult => ({ network: 'vk', ok: false, error: String(e instanceof Error ? e.message : e) })))
+    jobs.push(postToVk(text, image).then((): SocialResult => ({ network: 'vk', ok: true })).catch(fail('vk')))
   }
   if (okConfig()) {
-    jobs.push(postToOk(text, image)
-      .then((): SocialResult => ({ network: 'ok', ok: true }))
-      .catch((e): SocialResult => ({ network: 'ok', ok: false, error: String(e instanceof Error ? e.message : e) })))
+    jobs.push(postToOk(text, image).then((): SocialResult => ({ network: 'ok', ok: true })).catch(fail('ok')))
   }
   return Promise.all(jobs)
 }
@@ -212,10 +216,16 @@ export async function fanOutPost(text: string, image: Buffer | null): Promise<So
 const NETWORK_LABEL: Record<SocialNetwork, string> = { vk: 'VK', ok: 'OK' }
 
 /**
- * Short suffix for the Telegram callback answer, e.g. " · VK ✓ · OK ⚠️".
+ * Short suffix for the Telegram callback answer and the persistent status
+ * message, e.g. " · VK ✓ · OK ⚠️ (mediatopic.post: [102] ...)". Failures carry
+ * the error (truncated) — a bare ⚠️ told the admin nothing actionable.
  * Empty string when no networks are configured (the common pre-setup state).
  */
 export function formatFanOutSummary(results: SocialResult[]): string {
   if (results.length === 0) return ''
-  return results.map(r => ` · ${NETWORK_LABEL[r.network]} ${r.ok ? '✓' : '⚠️'}`).join('')
+  return results.map(r => {
+    if (r.ok) return ` · ${NETWORK_LABEL[r.network]} ✓`
+    const why = r.error ? ` (${r.error.length > 60 ? `${r.error.slice(0, 60)}…` : r.error})` : ''
+    return ` · ${NETWORK_LABEL[r.network]} ⚠️${why}`
+  }).join('')
 }

@@ -21,12 +21,21 @@ test('formatFanOutSummary: empty when nothing configured', () => {
   assert.equal(formatFanOutSummary([]), '')
 })
 
-test('formatFanOutSummary: marks success and failure per network', () => {
+test('formatFanOutSummary: marks success and failure per network, failure carries the error', () => {
   const s = formatFanOutSummary([
     { network: 'vk', ok: true },
     { network: 'ok', ok: false, error: 'boom' },
   ])
-  assert.equal(s, ' · VK ✓ · OK ⚠️')
+  assert.equal(s, ' · VK ✓ · OK ⚠️ (boom)')
+})
+
+test('formatFanOutSummary: failure without error text stays bare', () => {
+  assert.equal(formatFanOutSummary([{ network: 'vk', ok: false }]), ' · VK ⚠️')
+})
+
+test('formatFanOutSummary: long errors are truncated with an ellipsis', () => {
+  const s = formatFanOutSummary([{ network: 'vk', ok: false, error: 'x'.repeat(200) }])
+  assert.equal(s, ` · VK ⚠️ (${'x'.repeat(60)}…)`)
 })
 
 test('socialNetworksConfigured: reflects env vars', () => {
