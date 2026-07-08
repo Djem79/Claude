@@ -1,6 +1,23 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { okSignature, okSessionSecret, formatFanOutSummary, socialNetworksConfigured } from './social-post.ts'
+import { okSignature, okSessionSecret, formatFanOutSummary, socialNetworksConfigured, vkConfig } from './social-post.ts'
+
+test('vkConfig: wall.post uses VK_WALL_TOKEN when set, falls back to VK_ACCESS_TOKEN', () => {
+  const saved = { ...process.env }
+  try {
+    process.env.VK_ACCESS_TOKEN = 'user-token'
+    process.env.VK_GROUP_ID = '123'
+    delete process.env.VK_WALL_TOKEN
+    assert.equal(vkConfig()?.wallToken, 'user-token') // legacy single-token setups keep working
+
+    process.env.VK_WALL_TOKEN = 'community-key'
+    const cfg = vkConfig()
+    assert.equal(cfg?.token, 'user-token')      // photo upload path
+    assert.equal(cfg?.wallToken, 'community-key') // wall.post path
+  } finally {
+    process.env = saved
+  }
+})
 
 test('okSignature: sorted params + session secret, access_token excluded', () => {
   const sig = okSignature(
