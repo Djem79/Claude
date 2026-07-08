@@ -526,9 +526,9 @@ Dubai in 2026 is a more discerning, more buyer-friendly market — and for an in
   {
     slug: 'noc-dubai-property-purchase-guide',
     tag: 'Legal Guide',
-    title: 'Dubai Property NOC: What It Is, the Cost & How to Get One',
+    title: 'NOC in Dubai (2026): Fees, Who Pays & Why Transfers Stall',
     excerpt:
-      'A No Objection Certificate clears your Dubai property for transfer at the DLD. Here is what an NOC is, who pays, typical fees, the timeline, and how to avoid delays.',
+      'The developer NOC clears a Dubai property for DLD transfer. Typical fees, who actually pays, the 10–14 day validity window, and the delays that catch foreign buyers.',
     readTime: '7 min read',
     content: `
 ## What Is a No Objection Certificate (NOC)?
