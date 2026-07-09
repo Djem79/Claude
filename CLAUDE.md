@@ -135,6 +135,8 @@ Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own l
 | `0 6 1 * *` | `scripts/competitor-gap.mjs` | `/var/log/worldwise-competitor-gap.log` | Monthly competitor keyword-gap (DataForSEO Labs) → Telegram report + top-5 into the autoblog bank |
 | `30 5 * * 2` (Tue) | `scripts/rank-tracker.mjs` | `/var/log/worldwise-rank-tracker.log` | Weekly exact Google-UAE positions for ~100 tracked keywords (DataForSEO SERP advanced) → Telegram movers digest (see *Rank tracker* under Architecture) |
 | `0 7 1 * *` | `scripts/gsc.mjs content-review` | `/var/log/worldwise-content-review.log` | Monthly GSC content-performance review (winners / decaying / striking-distance / low-CTR) → Telegram |
+| `40 6 1 * *` | `scripts/backlink-monitor.mjs` | `/var/log/worldwise-backlink-monitor.log` | Monthly backlink-profile snapshot (DataForSEO Backlinks) — new/lost referring domains → Telegram (see *Backlink & AI-visibility monitors* under Architecture) |
+| `30 5 * * 3` (Wed) | `scripts/ai-visibility.mjs` | `/var/log/worldwise-ai-visibility.log` | Weekly AI-visibility/GEO check (DataForSEO LLM Responses, ChatGPT + web search) — is worldwise.pro mentioned/cited, which competitors are → Telegram (see *Backlink & AI-visibility monitors* under Architecture) |
 
 All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
@@ -424,6 +426,13 @@ The same weekly run also emits a **Google Ads feed** (via pure `scripts/ads-feed
 ### Rank tracker (weekly)
 
 `scripts/rank-tracker.mjs` (cron, Tue 05:30 UTC) tracks exact Google-UAE positions for ~100 keywords: curated `CORE_TERMS` (commercial + per-area, aspirational targets GSC can't see) merged with GSC top queries by impressions (28d; GSC client deliberately duplicated from `gsc.mjs` — the CLI has no exports, same precedent as the geocode gate). Each keyword hits DataForSEO `serp/google/organic/live/advanced` (depth 20 — **advanced is required for `ai_overview` detection**; ~$0.30/run). Pure core `scripts/rank-tracker-core.mjs` (`node --test scripts/rank-tracker-core.test.mjs`): `mergeTrackedKeywords`, `parseSerp` (our position + top-3 outrankers + AI Overview flag), `computeDeltas` (movers at |Δ| ≥ 3; **fetch-errored keywords are omitted from `current`, never counted as "dropped"**), `formatRankReport` (RU digest). State in server-only `data/rank-tracker-state.json` — STRICT read (corrupt → throw, never reset the baseline; errored keywords keep last week's position via merge). GSC failure is non-fatal (falls back to CORE_TERMS only). `--dry-run` = first 5 keywords, print report, no state write, no Telegram.
+
+### Backlink & AI-visibility monitors
+
+Two DataForSEO-backed monitors mirroring the rank-tracker pattern (pure core + `node:test`, STRICT state read, atomic write, `--dry-run`, RU Telegram digest). Both also take **`--sandbox`** (hits `sandbox.dataforseo.com`, free dummy data, never touches real state — integration-test a schema change without spending).
+
+- **`scripts/backlink-monitor.mjs`** (cron, 1st of month 06:40 UTC, ≈$0.09/run) — `backlinks/summary/live` + `backlinks/referring_domains/live` (limit 1000, `rank_scale: one_hundred` for Ahrefs-comparable 0–100 numbers) for worldwise.pro. Core `backlink-monitor-core.mjs`: `summarizeProfile`, `buildDomainsState` (per-domain dofollow = `referring_pages > referring_pages_nofollow` — the API has no boolean), `computeDomainDeltas` (new/lost vs state), `formatBacklinkReport`. State `data/backlink-monitor-state.json`. This is the KPI feed for the link-building campaign (docs/marketing/2026-06-25-backlink-gap-analysis.md).
+- **`scripts/ai-visibility.mjs`** (cron, Wed 05:30 UTC, ≈$0.13/run) — 12 `PROMPTS` (investor questions; `brand-probe` is flagged `probe: true` and excluded from the mention-share metric) → `ai_optimization/chat_gpt/llm_responses/live` (`gpt-4o`, `web_search: true`, one task per call, up to 120s each). Core `ai-visibility-core.mjs`: `extractAnswer` (text from `items[type=message].sections[type=text]`, citations from `annotations[].url`), `detectMention` (brand regex + our-domain citation, no substring false positives), `detectBrands`/`tallyBrands` (COMPETITORS list), `computeVisibilityDeltas` (errored prompts omitted — never "lost"), `formatAiReport`. State `data/ai-visibility-state.json`. Renaming a prompt `key` resets that prompt's baseline. Actual charge is always read from `tasks[0].cost` (base $0.0006 + provider tokens `money_spent`).
 
 ### Analytics
 
