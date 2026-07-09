@@ -107,6 +107,29 @@ in DLD + fees, with no annual property tax or capital-gains tax.
 
 All contacts captured 2026-06-25 from each site's public pages.
 
+---
+
+## Wave 2 targets (added 2026-07-09, contacts verified on the outlets' own pages)
+
+Status of wave 1: investdubaitoday **published without the bio link** (unlinked mention — editor
+unresponsive, likely a no-external-links policy); arabianbusiness + economymiddleeast pitched, no
+reply → send the follow-up above (new angle, not "checking in"). Wave 2 pool from the 480-domain
+gap CSV (`media_pr` category):
+
+| Outlet | Contact | Route | Fit | Angle tweak |
+|---|---|---|---|---|
+| **remtimes.com** (REM Times, UAE RE trade) | **megha@plan3media.com** (For Editorial) · editor: remtimes@plan3media.com | **"Become a Contributor"** program — expert byline | **High — best next target** | Thought-leadership piece under the MD's byline (their contributor format), not a press release |
+| **propertynewsint.com** (Property News Intl) | **Editorial@blendsmediagroup.com** · partnerships: Mehdi.k@blendsmediagroup.com | Editorial data-story pitch | **High** | Exclusive ranked yield table + DLD-based methodology, international-investor framing |
+| **thenationalnews.com** (The National) | **newstips@thenationalnews.com** (name a property-desk reporter: Katy Gillett, Sarmad Khan, Alexander Christou) | Quoted-source / exclusive data only — no guest posts | High value, hard | Tie to their 2026 "market cooling / buyer's market" narrative: "prices dip — where do yields hold up by district?" Lead with DLD grounding, expect a methodology question |
+| estatemagazine.ae | Contact form at `/contact-page/` ("get featured") | Form submission, ready-made article | Medium (content-farm vibes, easy backlink) | End-buyer framing: "which Dubai district pays your mortgage" |
+| uaenews247.com | uaenews247@gmail.com | Finished press release, near-guaranteed pickup | Low (PR-wire) | Send the release with the table embedded + one-line boilerplate |
+
+Sequencing: REM Times (contributor byline) → PNI (data story) → UAE News 247 (free pickup) →
+Estate Magazine (form) → The National only with genuinely exclusive data.
+
+> Lesson from wave 1: a guest piece can go live without the link — **always verify the href in the
+> published HTML**, and state upfront that the author-bio link is the condition of a contributed piece.
+
 ## Before sending
 
 - Fill `[Your name]` (managing director) and `[First name]` (the editor — for the named PR editor, check Arabian Business's `/masthead`).
