@@ -64,18 +64,20 @@ def load_env():
 
 
 def telegram_send(text):
+    # First chat ID only (the admin's bot DM) — mail alerts must not hit the
+    # group chat that may follow in the comma-separated TELEGRAM_CHAT_ID.
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_ID", "").split(",") if c.strip()]
     if not token or not chat_ids:
         print("mail-watch: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID not set, alert skipped")
         return
-    for chat_id in chat_ids:
-        data = urllib.parse.urlencode({"chat_id": chat_id, "text": text}).encode()
-        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
-        try:
-            urllib.request.urlopen(req, timeout=30).read()
-        except Exception as e:  # alert failure is loggable but must not crash the run
-            print(f"mail-watch: telegram send failed for {chat_id}: {e}")
+    chat_id = chat_ids[0]
+    data = urllib.parse.urlencode({"chat_id": chat_id, "text": text}).encode()
+    req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
+    try:
+        urllib.request.urlopen(req, timeout=30).read()
+    except Exception as e:  # alert failure is loggable but must not crash the run
+        print(f"mail-watch: telegram send failed for {chat_id}: {e}")
 
 
 def read_state():
