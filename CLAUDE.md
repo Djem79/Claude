@@ -137,6 +137,7 @@ Six cron entries run on the Hetzner VPS (root crontab). Each writes to its own l
 | `0 7 1 * *` | `scripts/gsc.mjs content-review` | `/var/log/worldwise-content-review.log` | Monthly GSC content-performance review (winners / decaying / striking-distance / low-CTR) → Telegram |
 | `40 6 1 * *` | `scripts/backlink-monitor.mjs` | `/var/log/worldwise-backlink-monitor.log` | Monthly backlink-profile snapshot (DataForSEO Backlinks) — new/lost referring domains → Telegram (see *Backlink & AI-visibility monitors* under Architecture) |
 | `30 5 * * 3` (Wed) | `scripts/ai-visibility.mjs` | `/var/log/worldwise-ai-visibility.log` | Weekly AI-visibility/GEO check (DataForSEO LLM Responses, ChatGPT + web search) — is worldwise.pro mentioned/cited, which competitors are → Telegram (see *Backlink & AI-visibility monitors* under Architecture) |
+| `23 */2 * * *` | `scripts/mail-watch.py` | `/var/log/worldwise-mail-watch.log` | Mail watch every 2h (python3+imaplib, stdlib-only — Node has no IMAP client, data layer stays dep-free): monitors info@ + dzhambulat@ (reg.ru IMAP; `INFO_IMAP_PASSWORD`/`DZH_IMAP_PASSWORD` in server `.env.local`, missing password = account skipped) for link-building platform senders (Qwoted/HARO/SOS/Featured/expat/HiDubai) → Telegram alert. State `data/mail-watch-state.json` (strict read: corrupt → alert+exit, never silent reset; UIDVALIDITY change → rebaseline). `--dry-run` / `--test` |
 
 All scripts are committed under `worldwise/scripts/`. View any log with `ssh -i ~/.ssh/id_ed25519 root@62.238.35.20 "tail -50 /var/log/<logfile>"`.
 
