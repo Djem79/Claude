@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import AdvisorCard from '@/components/AdvisorCard'
 import { getArticleBySlug, getAllArticles } from '@/lib/articles'
+import { faqPageJsonLd } from '@/lib/blog-faq'
 import JsonLd from '@/components/JsonLd'
 import type { Metadata } from 'next'
 
@@ -98,9 +99,14 @@ export default async function ArticlePage(props: Props) {
     url: `https://worldwise.pro/blog/${article.slug}`,
   }
 
+  // FAQPage rich result — built from the article's own "Frequently Asked
+  // Questions" section when it has one. Null (no block emitted) otherwise.
+  const faqLd = faqPageJsonLd(article.content)
+
   return (
     <>
       <JsonLd data={jsonLd} />
+      {faqLd && <JsonLd data={faqLd} />}
       <Navigation />
       <main>
         {/* Header */}
@@ -116,7 +122,7 @@ export default async function ArticlePage(props: Props) {
               {article.title}
             </h1>
             <p className="text-white/60 text-sm">
-              {[dateDisplay, article.readTime].filter(Boolean).join(' · ')}
+              {['By Worldwise Real Estate', dateDisplay, article.readTime].filter(Boolean).join(' · ')}
             </p>
             {'image' in article && article.image && (
               // eslint-disable-next-line @next/next/no-img-element
