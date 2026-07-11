@@ -21,6 +21,13 @@ const URLS = ['/', '/properties', '/blog', '/mortgage-calculator', '/sitemap.xml
 const SSL_WARN_DAYS = 14
 const AUTO_BLOG_WARN_DAYS = 7
 
+// Pages that are in the sitemap but intentionally NOT linked from anywhere on
+// the site — ads/SEO landings surfaced only via Google/direct link. Excluded
+// from the orphan check so they don't alert every week. (See CLAUDE.md: both
+// are "intentionally not linked in the nav".)
+const ORPHAN_ALLOWLIST = new Set(['/golden-visa', '/guide'])
+const ORPHAN_CRAWL_CONCURRENCY = 8
+
 // --- helpers ----------------------------------------------------------------
 
 async function httpGet(urlPath, { method = 'GET' } = {}) {
@@ -154,6 +161,77 @@ async function checkHomepageJsonLd() {
   }
 }
 
+// --- 7b. orphan pages (in sitemap, but no other page links to them) ---------
+
+// Same-origin href → clean pathname (no query/hash/trailing slash), or null for
+// external/invalid. `&amp;` is unescaped first so HTML-encoded query links match.
+function normalizePath(href) {
+  try {
+    const u = new URL(href.replace(/&amp;/g, '&'), SITE)
+    if (u.hostname !== HOST) return null
+    return u.pathname.replace(/\/+$/, '') || '/'
+  } catch {
+    return null
+  }
+}
+
+async function checkOrphans() {
+  // 1. Page universe = every URL in the sitemap.
+  let universe
+  try {
+    const { text } = await httpGet('/sitemap.xml')
+    universe = new Set(
+      [...text.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => normalizePath(m[1])).filter(Boolean),
+    )
+  } catch (e) {
+    return { ok: false, summary: `sitemap fetch error: ${e.message}` }
+  }
+  if (universe.size === 0) return { ok: false, summary: 'sitemap had no URLs' }
+
+  // 2. Crawl every page; count how many *distinct* pages link to each URL.
+  const inbound = new Map([...universe].map(p => [p, 0]))
+  let fetchFailures = 0
+  const queue = [...universe]
+
+  async function worker() {
+    while (queue.length) {
+      const from = queue.shift()
+      try {
+        const { text } = await httpGet(from)
+        const seen = new Set()
+        for (const m of text.matchAll(/href=["']([^"'#]+)["']/g)) {
+          const to = normalizePath(m[1])
+          if (!to || to === from || seen.has(to)) continue // ignore self-links + dupes within a page
+          seen.add(to)
+          if (universe.has(to)) inbound.set(to, inbound.get(to) + 1)
+        }
+      } catch {
+        fetchFailures++
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: ORPHAN_CRAWL_CONCURRENCY }, worker))
+
+  // 3. Orphan = 0 inbound links, excluding the homepage (the entry point) and
+  //    the intentional ads-landing allowlist.
+  const orphans = [...universe]
+    .filter(p => p !== '/' && !ORPHAN_ALLOWLIST.has(p) && inbound.get(p) === 0)
+    .sort()
+
+  // A failed fetch means that page's outbound links were missed, so a target it
+  // linked to can look orphaned. Surface the count so a spike isn't mistaken for
+  // real orphans.
+  const note = fetchFailures ? `, ${fetchFailures} fetch fail(s)` : ''
+  if (orphans.length === 0) {
+    return { ok: true, summary: `0 orphans / ${universe.size} pages${note}` }
+  }
+  const sample = orphans.slice(0, 6).join(', ')
+  return {
+    ok: false,
+    summary: `${orphans.length} orphan(s)${note}: ${sample}${orphans.length > 6 ? ' …' : ''}`,
+  }
+}
+
 // --- 7. auto-blog freshness (reads data/articles.json) ----------------------
 
 function checkAutoBlog() {
@@ -227,6 +305,7 @@ async function main() {
     { label: 'sitemap',     result: await checkSitemap() },
     { label: 'title/meta',  result: await checkHomepageMeta() },
     { label: 'JSON-LD',     result: await checkHomepageJsonLd() },
+    { label: 'orphans',     result: await checkOrphans() },
     { label: 'auto-blog',   result: checkAutoBlog() },
   ]
 

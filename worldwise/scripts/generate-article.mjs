@@ -98,8 +98,20 @@ function incrementKeywordIndex(currentIndex) {
   writeFileAtomic(KEYWORDS_PATH, JSON.stringify(data, null, 2))
 }
 
-async function generateArticle(tag, headlines, keyword) {
-  const prompt = keyword
+// E-E-A-T signals every published article should carry. Checked after
+// generation so a draft that lacks them triggers a corrective retry — 76% of the
+// pre-2026-06 back catalogue shipped with no FAQ section and no internal links,
+// which is exactly what this gate now prevents going forward.
+function missingEeatSignals(content) {
+  const c = String(content || '')
+  const missing = []
+  if (!/#{2,4}\s*Frequently Asked Questions/i.test(c)) missing.push('FAQ')
+  if (!/\]\(\/[a-z]/i.test(c)) missing.push('internal link')
+  return missing
+}
+
+async function generateArticle(tag, headlines, keyword, extraInstruction = '') {
+  const basePrompt = keyword
     ? `Today's date is ${CURRENT_DATE}. The current year is ${CURRENT_YEAR}. Write the article for ${CURRENT_YEAR}. When you mention "this year", "current", or recent market activity, it MUST refer to ${CURRENT_YEAR}. Never present an earlier year as the present — only cite past years for explicit historical comparison grounded in the headlines below.
 
 A potential investor just searched Google for: "${keyword}"
@@ -140,6 +152,10 @@ Return ONLY a valid JSON object with these exact fields (no markdown wrapper):
   "content": "Full article in markdown: use ## for h2 headings, ### for h3, - for bullet lists, plain paragraphs otherwise. End with a paragraph inviting readers to contact Worldwise Real Estate for a free consultation.",
   "imagePrompt": "One vivid sentence describing a photo that visually represents THIS article's specific subject — e.g. a visa/residency article → residency documents & investor lifestyle; an area spotlight → that exact neighbourhood; a mortgage/finance article → keys, contracts or financial imagery; a market update → skyline/cityscape. Cinematic, golden-hour, professional editorial, Dubai real-estate context. MUST NOT contain any text, watermark, logo, or a specific identifiable building."
 }`
+
+  // A corrective note from a rejected previous attempt goes first, where it is
+  // most salient to the model.
+  const prompt = extraInstruction ? `${extraInstruction}\n\n${basePrompt}` : basePrompt
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
@@ -310,17 +326,33 @@ async function main() {
   const tag = TAGS[tagIndex]
   log(`Tag: ${tag}`)
 
+  // Up to 3 attempts. An API error retries as before; a successful draft that
+  // fails the E-E-A-T gate (no FAQ / no internal link) retries with a corrective
+  // instruction. On the final attempt we accept whatever we have — manual
+  // approval still gates publishing, and blocking the day outright is worse.
   let article
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  let repairNote = ''
+  const MAX_ATTEMPTS = 3
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      article = await generateArticle(tag, headlines, keyword)
+      article = await generateArticle(tag, headlines, keyword, repairNote)
       article.publishedAt = new Date().toISOString()
       article.source = 'ai-generated'
-      log(`Article generated: "${article.title}"`)
-      break
+      const missing = missingEeatSignals(article.content)
+      if (missing.length === 0) {
+        log(`Article generated: "${article.title}"`)
+        break
+      }
+      if (attempt === MAX_ATTEMPTS) {
+        log(`Accepting after ${attempt} attempts despite missing: ${missing.join(', ')} (approval still gates)`)
+        break
+      }
+      log(`Attempt ${attempt}: missing E-E-A-T signal(s): ${missing.join(', ')} — regenerating`)
+      repairNote = `IMPORTANT — the previous draft was rejected for missing: ${missing.join(', ')}. This version MUST include a "## Frequently Asked Questions" section with 3-4 Q&As AND at least one inline internal link in markdown [anchor](/path) form using one of /properties, /golden-visa, /mortgage-calculator, /guide.`
+      await new Promise(r => setTimeout(r, 2000))
     } catch (e) {
       log(`Gemini attempt ${attempt} failed: ${e.message}`)
-      if (attempt === 2) { log('Both attempts failed, exiting'); process.exit(0) }
+      if (attempt === MAX_ATTEMPTS) { log('All attempts failed, exiting'); process.exit(0) }
       await new Promise(r => setTimeout(r, 5000))
     }
   }
