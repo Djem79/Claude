@@ -120,7 +120,7 @@ Write a thorough, genuinely useful 900–1300 word SEO article that directly ans
 - Be specific and concrete — real numbers, AED thresholds, timeframes, step-by-step where relevant. No filler or generic "Dubai is a great market" padding.
 - Structure with ## h2 sections (### h3 where useful); include a markdown table when comparing options (payment plans, areas, visa tiers, etc.).
 - Add a "## Frequently Asked Questions" section with 3–4 concise Q&As.
-- Add 1–2 contextual internal links inline, using ONLY these exact paths and never inventing others: /properties, /golden-visa, /mortgage-calculator, /guide. Markdown syntax: [anchor text](/path).
+- Add 1–2 contextual internal links inline, using ONLY these exact paths and never inventing others: /properties, /golden-visa, /mortgage-calculator, /guide, /invest/dubai-mortgage-for-non-residents (use this last one when the article touches mortgages, financing, LTV, or non-resident bank loans). Markdown syntax: [anchor text](/path).
 - Keep the focus on Dubai; if the query names another emirate, still answer but anchor the advice to Dubai, where the firm operates.
 
 Use these recent UAE market headlines as supporting context to make the article timely:

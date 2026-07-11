@@ -47,6 +47,8 @@ const CORE_TERMS = [
   'best areas to invest in dubai',
   'dubai property for international investors',
   'mortgage calculator dubai',
+  'dubai mortgage for non residents',
+  'can non residents get a mortgage in dubai',
   'uae property residence visa',
   'dubai marina apartments for sale',
   'downtown dubai apartments for sale',
