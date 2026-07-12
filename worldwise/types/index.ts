@@ -97,6 +97,12 @@ export interface Lead {
   area?: string
   message?: string
   source: string
+  /**
+   * The honeypot was filled, but the payload still looked human (valid name+phone) —
+   * almost always browser autofill, not a bot. Kept and flagged rather than discarded:
+   * silently dropping these lost real clients (see POST /api/leads).
+   */
+  suspectedSpam?: boolean
   pfLeadId?: string   // Property Finder lead id (dedup + provenance for portal webhook leads)
   propertySlug?: string
   propertyTitle?: string
