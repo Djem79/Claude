@@ -26,7 +26,13 @@ export function leadText(lead: Lead, baseUrl: string) {
   const paidTag = isPaidLead(lead)
     ? `⚡️ PAID LEAD — ${lead.utm_source ?? 'ads'}${lead.utm_campaign ? ` / ${lead.utm_campaign}` : ''}${lead.gclid ? ' (gclid)' : ''}`
     : null
+  // Honeypot tripped but the payload looked human — almost always browser autofill.
+  // Surfaced instead of silently dropped: treat as a real lead unless it's obvious junk.
+  const spamTag = lead.suspectedSpam
+    ? '⚠️ HONEYPOT TRIPPED (likely autofill — verify, do NOT ignore)'
+    : null
   const lines = [
+    spamTag,
     paidTag,
     `🔔 New Lead: ${lead.name}`,
     `📞 ${lead.phone}`,

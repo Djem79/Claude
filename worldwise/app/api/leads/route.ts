@@ -43,19 +43,40 @@ export async function POST(req: NextRequest) {
   }
   const { name, phone, email, budget, propertyType, area, message, source, propertySlug, propertyTitle, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, attributionCapturedAt, _hp } = body
 
-  // Honeypot — filled by bots, empty for real users. Response built per request:
-  // a module-level Response's body stream is consumable once — the second hit
-  // would 500 and reveal the honeypot.
-  if (_hp) return NextResponse.json({ ok: true }, { status: 201 })
+  // Honeypot — a filled hidden field is supposed to mean "bot". It ALSO gets filled
+  // for real people by browser autofill / password managers, and the old code answered
+  // a fake 201 and threw the submission away — unlogged, while the visitor saw
+  // "thanks, we'll be in touch". GA4 caught it: 2 successful /guide submits (the
+  // event only fires on a 2xx) with ZERO matching leads in the CRM, ever.
+  //
+  // A discarded lead is a lost client, so we never discard one that looks human:
+  // a payload that passes the same name/phone validation as a normal lead is stored
+  // (flagged `suspectedSpam`) and notified. Only a payload with no usable contact
+  // data is dropped — and now it is logged, so this failure mode is never invisible
+  // again. Bots still get the same 201 either way, so the trap is not revealed.
+  const trippedHoneypot = Boolean(_hp)
+  const honeypotIp = trippedHoneypot ? getClientIp(req) : ''
 
   if (!name || !phone) {
+    if (trippedHoneypot) {
+      console.warn(`[leads] honeypot: dropped (no usable name/phone) source=${String(source)} ip=${honeypotIp}`)
+      return NextResponse.json({ ok: true }, { status: 201 })
+    }
     return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 })
   }
 
   // Phone must have at least 7 digits
   const digits = String(phone).replace(/\D/g, '')
   if (digits.length < 7 || digits.length > 15) {
+    if (trippedHoneypot) {
+      console.warn(`[leads] honeypot: dropped (invalid phone) source=${String(source)} ip=${honeypotIp}`)
+      return NextResponse.json({ ok: true }, { status: 201 })
+    }
     return NextResponse.json({ error: 'Invalid phone number' }, { status: 400 })
+  }
+
+  if (trippedHoneypot) {
+    console.warn(`[leads] honeypot tripped but payload looks HUMAN (likely autofill) — saving as suspectedSpam. source=${String(source)} ip=${honeypotIp}`)
   }
 
   // Rate limit counted only after passing validation (so typos don't consume quota)
@@ -82,6 +103,8 @@ export async function POST(req: NextRequest) {
     area: cap(area, 80),
     message: cap(message, 2000),
     source: cap(source, 60) ?? 'unknown',
+    // Flagged, never dropped — a false-positive honeypot hit is a real client.
+    suspectedSpam: trippedHoneypot || undefined,
     propertySlug: cap(propertySlug, 160),
     propertyTitle: cap(propertyTitle, 200),
     // Marketing attribution — whitelisted utm_*/click-ids from the form body (lib/utm.ts)
