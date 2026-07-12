@@ -2,6 +2,7 @@
 
 import Script from 'next/script'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
@@ -13,14 +14,25 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 // fixes the GA4 conversion undercount. The cookie banner still governs actual cookies.
 export default function Analytics() {
   const pathname = usePathname()
-  if (!GA_ID) return null
+  const isAdmin = !!pathname?.startsWith('/admin')
 
-  // Back-office is not the site: staff sessions in /admin polluted GA4's small
-  // consented sample (admin pages showed up in the top-10 report). A direct
-  // /admin load never injects gtag at all. Known edge: a public→/admin SPA
-  // navigation keeps an already-loaded gtag for that session — acceptable,
-  // staff open /admin directly.
-  if (pathname?.startsWith('/admin')) return null
+  // Back-office is not the site. Not rendering the scripts on /admin is NOT enough:
+  // gtag stays loaded from the public page the staffer navigated FROM, so it kept
+  // reporting admin activity for the rest of the session. That edge was assumed
+  // harmless ("staff open /admin directly") — the data says otherwise: 35% of all
+  // page views (849/2434) and 48 of 59 `form_start` events were staff working in
+  // the CRM, which made the visitor funnel unreadable.
+  //
+  // `ga-disable-<ID>` is Google's official kill switch: an ALREADY-loaded gtag
+  // sends nothing while it is true. Flipped back off when the staffer returns to a
+  // public page, so real visits still count.
+  useEffect(() => {
+    if (!GA_ID || typeof window === 'undefined') return
+    ;(window as unknown as Record<string, boolean>)[`ga-disable-${GA_ID}`] = isAdmin
+  }, [isAdmin])
+
+  if (!GA_ID) return null
+  if (isAdmin) return null
 
   return (
     <>

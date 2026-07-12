@@ -437,7 +437,9 @@ Two DataForSEO-backed monitors mirroring the rank-tracker pattern (pure core + `
 
 ### Analytics
 
-`components/Analytics.tsx` — consent-aware GA4 loader. Renders `<Script>` tags only after the user accepts cookies. Listens for the `ww_consent_accepted` custom event dispatched by `CookieBanner.tsx` (also checks `localStorage` on mount for returning visitors). Mounted in `app/layout.tsx`.
+`components/Analytics.tsx` — GA4 loader running **Consent Mode v2**: gtag loads for EVERY visitor but starts fully `denied` (cookieless pings only); `CookieBanner` upgrades to `granted` on "Accept All". So GA4 sees all traffic, not just the visitors who accept cookies. Mounted in `app/layout.tsx`.
+
+**LOAD-BEARING: the `/admin` kill switch.** Not rendering the scripts on `/admin` is NOT enough — gtag stays loaded from the public page a staffer navigated FROM, so it keeps reporting CRM work for the rest of the session. That edge was once assumed harmless ("staff open /admin directly"); the data proved otherwise — **35% of page views (849/2434) and 48 of 59 `form_start` events were staff activity**, which made the visitor funnel unreadable and nearly triggered a fix for a non-existent "93% form abandonment". The component therefore sets Google's official `window['ga-disable-<GA_ID>'] = true` on `/admin` (an already-loaded gtag then sends nothing) and flips it back to `false` on public pages. Verified in a real browser: public → `false` + gtag live; `/admin/login` → `true`. Never "simplify" this back to a bare early `return null`.
 
 `lib/analytics.ts` — thin `track(event, params?)` helper that calls `window.gtag()` when available. Import this in any client component that needs to fire a GA4 event. Do not call `window.gtag` directly.
 
@@ -483,6 +485,23 @@ node --env-file=.env.local scripts/gsc.mjs content-review [--days=N] [--dry-run]
 The digest needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` on the server (already present, used by lead notifications) plus the three `GSC_*` vars — these were copied to server `.env.local` during initial setup (the file is excluded from rsync, so it persists across deploys).
 
 If the refresh token expires (`invalid_grant`), re-run `auth` locally and re-copy `GSC_REFRESH_TOKEN` to server `.env.local`. Tokens can be revoked at any time via `myaccount.google.com/permissions` (the consent screen is named `Worldwise GSC CLI`).
+
+### GA4 CLI (on-site behaviour — the click→lead gap)
+
+`scripts/ga4.mjs` reads the **GA4 Data API**. It exists because GSC ends at the click and the CRM starts at the lead — what a visitor does *in between* was invisible, so every CRO decision was a guess.
+
+**Auth:** the SAME OAuth Desktop client as `gsc.mjs` (`GSC_OAUTH_CLIENT_ID`/`SECRET`, GCP project `worldwise-497520`) but a **separate refresh token** (`GA4_REFRESH_TOKEN`, scope `analytics.readonly`) — the working GSC token is never touched. Requires the *Google Analytics Data API* to be enabled once in that GCP project. `GA4_PROPERTY_ID` is the **numeric** property id (537120333), not the `G-XXXXXXX` measurement id. No new npm dependency — `googleapis` (already used by `gsc.mjs`) ships `analyticsdata`.
+
+```bash
+node --env-file=.env.local scripts/ga4.mjs auth                  # one-time OAuth
+node --env-file=.env.local scripts/ga4.mjs overview [--days=N]   # users / sessions / engagement
+node --env-file=.env.local scripts/ga4.mjs funnel   [--days=N]   # sessions → property_view → form/WhatsApp
+node --env-file=.env.local scripts/ga4.mjs sources  [--days=N]   # channel breakdown
+node --env-file=.env.local scripts/ga4.mjs pages    [--days=N]   # landing pages + engagement
+node --env-file=.env.local scripts/ga4.mjs events   [--days=N]   # raw event counts
+```
+
+**Read GA4 numbers as a floor, not gospel:** non-consenting visitors send cookieless pings, and Google's behavioural modelling needs traffic thresholds we don't meet — so the true visitor count is higher. Cloudflare (the site is proxied) is the only unbiased count of *visits*; GA4's unique value is *behaviour*. **Always sanity-check a metric against `pagePath` before acting on it** — that is how the admin pollution above was caught.
 
 ### Commercial landing pages
 
@@ -542,3 +561,4 @@ See `.env.example`. Key vars:
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); GA loads only after cookie consent
 - `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_EMAIL` — contact details in `FloatingCTA` and `Footer`
 - `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` — DataForSEO API credentials (pay-as-you-go) for the weekly keyword-discovery cron (`scripts/discover-keywords.mjs`); get from https://app.dataforseo.com/api-access
+- `GA4_PROPERTY_ID` / `GA4_REFRESH_TOKEN` — GA4 Data API (`scripts/ga4.mjs`). Property id is **numeric** (537120333), not `G-XXXXXXX`. The token is minted by `ga4.mjs auth` (scope `analytics.readonly`) and is deliberately separate from `GSC_REFRESH_TOKEN`; the OAuth client is shared with GSC.
