@@ -4,6 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Working in parallel with another Claude session?** Read [`AGENTS.md`](AGENTS.md) first — it covers the coordination contract (who's lead, before-you-touch checks, push/deploy discipline, and the hard rules from past multi-session regressions).
 
+## Mailbox duty (do this without being asked)
+
+While a session is open, the two business mailboxes are **your** job — the user must never have to remind you to look.
+
+- **At the START of every session: check the mail first**, before anything else. Report what's there (or "тихо"), then get on with the task.
+- **While the session runs: re-check every ~4 hours.** Check the clock (`date`) on long sessions; don't wait to be told.
+- **Between sessions**, `scripts/mail-watch.py` (server cron, every 2h) covers it and alerts the **user** in Telegram — the user relays anything that needs you. You have no inbox and cannot receive push notifications; that is exactly why the in-session cadence above is on you.
+
+**How:** `python3` + `imaplib` against `mail.hosting.reg.ru:993` for `info@worldwise.pro` and `dzhambulat@worldwise.pro`; passwords in `~/Documents/worldwise-credentials/` (`info-worldwise-imap.txt`, `DZH-worldwise-imap.txt`). `curl` swallows IMAP literals — don't use it. Sending works (SMTP SSL `:465` + `imaplib.append("Sent", …)`), but only ever send with the user's explicit sign-off.
+
+> **Do NOT widen `mail-watch.py`'s `RELEVANT_DOMAINS`.** It watches only the link-building platforms (Qwoted / HARO / Source of Sources / Featured / expat.com / HiDubai) **by design** — it exists so we can answer PR and media requests fast. Everything else in the inbox (tax.gov.ae, wasl.ae, DLD, Dubai Chamber, developers, Property Finder ops) is handled by the human team, and alerting on it would bury the signal. Proposed once and rejected by the user (2026-07-12) — don't re-propose it.
+
 ## Before starting any task
 
 Before writing a single line of code, state in one sentence how you will verify the work is correct — for example: "I'll run `npm run build`, open `/mortgage-calculator` in the browser and confirm the monthly payment updates when sliders change." Only then proceed. This applies to every task, including small edits.
