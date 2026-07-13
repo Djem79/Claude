@@ -21,7 +21,12 @@ const ADS_SUGGESTED_PATH = path.join(DATA_DIR, 'ads-suggested.json')
 const DRY_RUN = process.argv.includes('--dry-run')
 
 // ── Config (tunable) ─────────────────────────────────────────────────────────
-const SEEDS = [
+// A static 16-seed set exhausted its autocomplete neighbourhood in ~3 weeks
+// (runs of 28.06/05.07/12.07 each added 0 keywords: the surviving long-tail
+// completions all fall under MIN_VOLUME). Every seed must contain a niche
+// token ("dubai" does it) so its completions pass the passesFilters gate.
+const SEED_POOL = [
+  // original head-term seeds
   'dubai off plan payment plan', 'buy property in dubai golden visa',
   'dubai property residence visa', 'best area to invest in dubai',
   'dubai apartment rental yield', 'dubai off plan vs ready',
@@ -30,7 +35,30 @@ const SEEDS = [
   'damac off plan dubai', 'emaar off plan dubai',
   'dubai marina apartment investment', 'jvc dubai property investment',
   'business bay dubai property investment', 'dubai studio apartment investment',
+  // districts beyond marina/jvc/business bay
+  'downtown dubai apartment investment', 'palm jumeirah property investment',
+  'dubai hills estate apartment investment', 'dubai creek harbour property investment',
+  'dubai south property investment', 'meydan dubai property investment',
+  'buy apartment jbr dubai', 'dubai townhouse investment',
+  // themes the original set never probed
+  'dubai villa investment', 'freehold property dubai',
+  'dubai property prices forecast', 'is dubai property a good investment',
+  'dubai buy to let', 'dubai rental income tax',
+  'dubai off plan handover', 'dubai property down payment',
+  'dubai property buying fees', 'dubai mortgage rates',
+  'first time buyer dubai property', 'short term rental dubai investment',
+  'dubai vs london property investment', 'sobha off plan dubai',
+  'binghatti off plan dubai', 'golden visa dubai property requirements',
 ]
+// Rotating window: each weekly run probes a different 16-seed slice of the pool
+// (stateless — derived from the epoch week, wraps around the pool).
+const SEEDS_PER_RUN = 16
+const EPOCH_WEEK = Math.floor(Date.now() / (7 * 24 * 3600 * 1000))
+const SEED_OFFSET = (EPOCH_WEEK * SEEDS_PER_RUN) % SEED_POOL.length
+const SEEDS = Array.from(
+  { length: SEEDS_PER_RUN },
+  (_, i) => SEED_POOL[(SEED_OFFSET + i) % SEED_POOL.length],
+)
 const TARGET_GEOS = ['uk', 'ae', 'in']     // UK + UAE + India; per-geo normalized
 const LOCATION_CODES = { uk: 2826, ae: 2784, in: 2356 }   // Google geo target IDs: UK, UAE, India
 const N_PER_WEEK = 5
@@ -74,6 +102,7 @@ const isQueryable = k => k.length > 0 && k.length <= 80 && k.split(/\s+/).length
 
 /** All unique candidate phrases from seeds × geos, capped. */
 async function gatherCandidates() {
+  log(`Seed window: ${SEEDS_PER_RUN} of ${SEED_POOL.length} seeds (offset ${SEED_OFFSET})`)
   const set = new Set()
   for (const seed of SEEDS) {
     for (const geo of TARGET_GEOS) {
@@ -304,6 +333,9 @@ async function main() {
       return
     }
 
+    // Visible in the cron log too, not only in Telegram — an all-zero Ads feed
+    // was previously indistinguishable from a silently skipped block.
+    log(`Ads feed: ${adds.length} to add, ${negs.length} negatives`)
     appendAdsSuggested(adds.map(a => a.keyword), negs)
     const reviewMsg = adsFeedSummary(adds, negs)
     await sendTelegram(reviewMsg)
