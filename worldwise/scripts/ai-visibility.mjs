@@ -164,7 +164,10 @@ async function main() {
         brands: detectBrands(answer, COMPETITORS),
       }
       if (p.probe) probeSnippet = answer.text.replace(/\s+/g, ' ').trim().slice(0, 220) || null
-      log(`"${p.key}": mentioned=${mentioned} cited=${cited} brands=[${results[p.key].brands.join(', ')}]`)
+      // Cited URLs go to the log only (not state/report) — they answer "who wins
+      // this prompt and with what page" without a paid re-probe (see 2026-07-15).
+      const citedPages = answer.citations.slice(0, 10).map(u => u.split('?')[0])
+      log(`"${p.key}": mentioned=${mentioned} cited=${cited} brands=[${results[p.key].brands.join(', ')}] citations=[${citedPages.join(' ')}]`)
     } catch (e) {
       errors++
       log(`LLM fetch failed for "${p.key}": ${e.message}`)

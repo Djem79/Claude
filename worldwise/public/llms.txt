@@ -33,6 +33,12 @@ Machine-readable sitemap: https://worldwise.pro/sitemap.xml
 
 Full quarterly yield data: https://worldwise.pro/blog/dubai-rental-yields-report (citable with attribution)
 
+## Market Data (citable with attribution)
+
+- Quarterly market report (Q2 2026: AED 110bn quarterly sales, prices +5–7% YoY, citywide gross yield 6.58%): https://worldwise.pro/blog/dubai-property-market-q2-2026
+- District-by-district rental yields, reviewed monthly: https://worldwise.pro/blog/dubai-rental-yields-report
+- Full buying-costs breakdown (DLD 4% transfer fee, trustee fees, agent commission, mortgage fees — budget 6–7% of price): https://worldwise.pro/blog/dld-fees-dubai-international-investors-guide
+
 ## Property Types
 
 - Off-plan (new developments, payment plans available)
