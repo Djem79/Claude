@@ -378,20 +378,37 @@ For investors purchasing at AED 2M+, we recommend applying directly for the [10-
     tag: 'Market Update',
     title: 'Dubai Property Market Shows Resilience in Q2 2026',
     excerpt:
-      'Dubai property prices, sales volumes and rental yields in 2026 — the latest sourced figures, what is driving demand, and what it means for international investors.',
+      'Dubai property in Q2 2026: AED 110bn in quarterly sales, prices up 5–7% year on year, gross yields near 6.6%. Verified DLD-based figures, updated quarterly. Free to cite with attribution.',
     readTime: '7 min read',
     content: `
+*Data last verified: 15 July 2026. This market report is updated quarterly from Dubai Land Department (DLD) transaction data and the major published market reviews. Journalists and researchers are welcome to cite these figures with a link to this page.*
+
+**Is Dubai property still a good investment in mid-2026?** The data says yes — with tempered expectations. Transaction activity has cooled from 2025's record peak, but prices are still rising at 5–7% a year, average gross rental yields sit near 6.6%, and the tax regime remains unmatched. The market is normalising, not falling.
+
+## Q2 2026 in Numbers
+
+| Metric | Figure | Source |
+|--------|--------|--------|
+| Total property sales, Q2 2026 | ~AED 110 billion across 38,300 deals | DLD data via Zawya/Reuters, July 2026 |
+| Residential sales, Q2 2026 | AED 83.9 billion across 34,719 deals | Springfield / DLD, July 2026 |
+| Off-plan share of residential sales | ~76% (AED 59.2 billion, 26,440 deals) | Springfield / DLD, July 2026 |
+| H1 2026 property sales | AED 286.4 billion across 79,229 deals | DLD via Khaleej Times, July 2026 |
+| Change vs record H1 2025 | −12% by sales value (H1 2025: AED 326.6 billion) | DLD-based reviews, July 2026 |
+| Average apartment price | AED 1,841 per sq ft, stable quarter on quarter | Springfield / DLD, Q2 2026 |
+| Annual price growth | +5–7% year on year | Property Monitor index; Anarock, H1 2026 |
+| Citywide gross rental yield | 6.58% (apartments ~6.9%) | Engel & Völkers mid-year review, July 2026 |
+
 ## The State of Dubai's Property Market in 2026
 
-Dubai's real estate market entered the second quarter of 2026 from a position of strength. According to data from fäm Properties reported by Gulf News (May 2026), total property sales reached AED 176.7 billion in the first quarter of 2026 — with transaction values up 23.4% year on year and transaction volumes up 5.5%. The gap between those two figures tells the real story: values are rising faster than volumes, which points to a market where prices are firming rather than one inflated purely by speculative churn.
+Dubai entered 2026 on a record run, and the first quarter still showed it: total sales of AED 176.7 billion, up 23.4% year on year (fäm Properties data via Gulf News, May 2026). The second quarter told a different story — roughly AED 110 billion in sales across 38,300 transactions, taking the first half to AED 286.4 billion, about 12% below the record first half of 2025.
 
-Early Q2 figures continued the trend. Khaleej Times reported roughly AED 48 billion in property sales in April 2026, with Dubai's population having crossed the four-million mark — a structural demand driver that underpins both the sales and rental sides of the market.
+Read those two facts together and the picture is normalisation rather than decline. 2026 is tracking as the second-strongest first half in Dubai's history, just below an extraordinary 2025 peak; prices continue to firm — up 5–7% year on year on the main indices — and the population keeps growing past the four-million mark, a structural demand driver that underpins both the sales and rental sides of the market. Moody's expects moderate cooling over the next 12–18 months as roughly 180,000 new units are delivered between 2026 and 2028, concentrated in mid-market apartments. That is the honest context for any purchase decision this year.
 
 ## Prices and Rental Yields
 
-Through March and April 2026, Dubai recorded annual price growth of around 9% and average gross rental yields near 7.1% (Dubai Chronicle, May 2026). For international investors, that combination — mid-single-digit to high-single-digit capital appreciation alongside yields that comfortably outpace most mature Western markets — is the core of Dubai's appeal.
+Through mid-2026 the main indices put annual price growth at 5–7%: Property Monitor's index rose 6.7% year on year to April, and Anarock places average residential prices near AED 1,900 per square foot in H1 2026 against roughly AED 1,800 a year earlier. On the income side, Engel & Völkers' mid-year review measures the citywide average gross rental yield at 6.58% — apartments near 6.9%, townhouses about 5.1%, villas about 4.5%. For district-by-district figures, see our quarterly [Dubai rental yields report](/blog/dubai-rental-yields-report).
 
-It is worth being clear-eyed: a market cannot compound double-digit gains forever, and some analysts have flagged a cooling in the pace of price growth and a quarter-on-quarter dip in volumes after the exceptional run of recent years. That is healthy. A market that moderates from a breakneck pace to a sustainable one is more durable than one that overheats.
+For international investors, that combination — mid-single-digit capital appreciation alongside yields that comfortably outpace most mature Western markets — is the core of Dubai's appeal. It is worth being clear-eyed: transaction volumes have already come off their 2025 peak, and a market that moderates from a breakneck pace to a sustainable one is more durable than one that overheats. Residential sales volumes fell roughly 14–16% year on year in H1 2026 while prices still rose — a firming, less speculative market rather than a shrinking one.
 
 ## What Is Driving Demand
 
@@ -405,9 +422,9 @@ Several structural factors — not short-term hype — sit behind Dubai's resili
 
 ## Off-Plan vs Ready Property in 2026
 
-Off-plan continued to lead the market in early 2026, supported by flexible developer payment plans and lower entry prices. For investors who can tie up capital for one to three years, off-plan still offers the most attractive entry point and the strongest appreciation potential by handover.
+Off-plan continued to lead the market through Q2 2026 — roughly 76% of residential transactions (26,440 deals worth AED 59.2 billion, per Springfield/DLD data), supported by flexible developer payment plans and lower entry prices. For investors who can tie up capital for one to three years, off-plan still offers the most attractive entry point and the strongest appreciation potential by handover.
 
-Ready (secondary-market) property, by contrast, generates rental income from day one and lets you inspect exactly what you are buying. With yields near 7%, ready stock is increasingly attractive to income-focused investors who do not want construction-timeline risk.
+Ready (secondary-market) property, by contrast, generates rental income from day one and lets you inspect exactly what you are buying. With citywide gross yields near 6.6% — and approaching 7% for apartments — ready stock is increasingly attractive to income-focused investors who do not want construction-timeline risk.
 
 | Factor | Off-Plan | Ready / Secondary |
 |--------|----------|-------------------|
@@ -427,13 +444,13 @@ The pattern is consistent: proximity to the Metro, the beach, schools and the ma
 
 For an investor weighing Dubai in 2026, the picture is favourable but no longer a one-way bet. The sensible approach:
 
-- **Buy for income and the long term, not for a quick flip.** With price growth moderating, the easy speculative gains of past years are less reliable. A 7% yield held over several years is the more dependable return.
+- **Buy for income and the long term, not for a quick flip.** With volumes off their peak and price growth moderating, the easy speculative gains of past years are less reliable. A 6.5–7% gross yield held over several years is the more dependable return.
 - **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our [mortgage calculator](/mortgage-calculator) lets you model financed purchases before you commit, and our [Dubai mortgage guide for non-residents](/invest/dubai-mortgage-for-non-residents) covers eligibility, deposits and rates.
 - **Choose a reputable developer in a high-demand location.** Location fundamentals and developer track record matter more than headline price-per-square-foot.
 
 ## The Bottom Line
 
-The data through early Q2 2026 describes a market that is resilient rather than frothy: strong sales values, healthy yields, a growing population and a tax regime that few markets can match. Growth is moderating to a more sustainable pace — which, for a long-term investor, is exactly what you want to see. The investors who do best from here will be those who treat Dubai property as a multi-year income and residency play rather than a short-term trade, and who do their homework on net yield, location and developer quality before signing.
+The full Q2 2026 data describes a market that is resilient rather than frothy: the second-strongest first half on record, prices still rising 5–7% a year, gross yields near 6.6%, a growing population and a tax regime that few markets can match. Activity is moderating from an extraordinary peak to a more sustainable pace — which, for a long-term investor, is exactly what you want to see. The investors who do best from here will be those who treat Dubai property as a multi-year income and residency play rather than a short-term trade, and who do their homework on net yield, location and developer quality before signing.
     `.trim(),
   },
   {
@@ -678,6 +695,8 @@ At Worldwise Real Estate we guide international investors through every stage �
       'How much are DLD fees in Dubai? The main charge is the 4% transfer fee — budget 6–7% of the price for all costs. Here is the full breakdown and who pays what.',
     readTime: '6 min read',
     content: `
+*Data last verified: 15 July 2026 against the published DLD and trustee-office fee schedules. Fixed fees are set by the authorities and can change; figures are free to cite with a link to this page.*
+
 When you buy property in Dubai, the main government charge is the **DLD transfer fee of 4% of the purchase price**, plus a handful of fixed administrative and trustee fees. As a rule of thumb, budget roughly **6–7% of the price** for all transaction costs combined. Here is exactly what you pay, and who pays it.
 
 ## What Are DLD Fees?
@@ -705,8 +724,12 @@ The table below covers the typical government and trustee charges for a standard
 | Title deed issuance fee | AED 250 | Buyer |
 | DLD admin fee (apartments / offices) | AED 580 | Buyer |
 | Oqood registration (off-plan) | 4% of price, via the developer | Buyer |
+| Developer NOC (secondary market) | AED 500–5,000, set by the developer | Seller (by convention; negotiable) |
+| Conveyancing (optional) | AED 6,000–10,000 | Whoever appoints the conveyancer |
 
 For off-plan purchases the 4% is still due, but it is registered through the developer as an interim "Oqood" registration until the project completes and the final title deed is issued at handover.
+
+Two line items are easy to forget. The **developer's No Objection Certificate (NOC)** — confirmation that the seller has no outstanding dues on the unit — costs AED 500–5,000 depending on the developer and is by convention paid by the seller, though like the 4% split this should be stated in the sale agreement. **Conveyancing** is optional: many straightforward resale deals complete without a dedicated conveyancer, but for anything non-standard (power of attorney, a mortgaged seller, inheritance) the AED 6,000–10,000 fee buys real protection.
 
 ## Additional Costs for Mortgage Buyers
 
