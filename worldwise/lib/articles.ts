@@ -86,7 +86,9 @@ If your goal is residency with the smallest property budget, Dubai's post-April-
       'Verified gross rental yields across 12 Dubai investment districts, from 5% in Downtown to 9% in Damac Hills 2. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
     readTime: '5 min read',
     content: `
-*Data last verified: 1 July 2026. This report is updated quarterly; yields are re-checked monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
+*Data last verified: 1 July 2026. Yields are reviewed monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
+
+**The best gross rental yields in Dubai in 2026 are in Damac Hills 2 (7–9%) and JLT (7–8%).** Across the 12 districts we track, gross yields range from about 5% in the premium core — Downtown Dubai and Palm Jumeirah — to 9% in value-driven suburbs, with most established districts earning 5.5–7%.
 
 ## Headline Numbers
 
@@ -383,7 +385,9 @@ For investors purchasing at AED 2M+, we recommend applying directly for the [10-
     content: `
 *Data last verified: 15 July 2026. This market report is updated quarterly from Dubai Land Department (DLD) transaction data and the major published market reviews. Journalists and researchers are welcome to cite these figures with a link to this page.*
 
-**Is Dubai property still a good investment in mid-2026?** The data says yes — with tempered expectations. Transaction activity has cooled from 2025's record peak, but prices are still rising at 5–7% a year, average gross rental yields sit near 6.6%, and the tax regime remains unmatched. The market is normalising, not falling.
+## Is Dubai Property Still a Good Investment in 2026?
+
+**Yes — with tempered expectations.** Transaction activity has cooled from 2025's record peak, but prices are still rising at 5–7% a year, average gross rental yields sit near 6.6%, and the tax regime — no property tax, no income tax on rent, no capital gains tax — remains unmatched among major markets. The market is normalising, not falling.
 
 ## Q2 2026 in Numbers
 
