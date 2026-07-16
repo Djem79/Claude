@@ -515,6 +515,42 @@ node --env-file=.env.local scripts/ga4.mjs events   [--days=N]   # raw event cou
 
 **Read GA4 numbers as a floor, not gospel:** non-consenting visitors send cookieless pings, and Google's behavioural modelling needs traffic thresholds we don't meet — so the true visitor count is higher. Cloudflare (the site is proxied) is the only unbiased count of *visits*; GA4's unique value is *behaviour*. **Always sanity-check a metric against `pagePath` before acting on it** — that is how the admin pollution above was caught.
 
+### YouTube CLI (channel automation)
+
+`scripts/youtube.mjs` manages the @worldwiserealestate channel via the YouTube Data API — bulk description updates (the P2 GEO pass, `docs/marketing/2026-07-16-youtube-geo-audit.md`) and video uploads with scheduling. It exists because **Google refuses sign-in inside CDP-automated browsers** («browser may not be secure»), so YouTube Studio can NOT be driven via chrome-devtools/playwright — the API is the only automatable path.
+
+**Auth:** same OAuth Desktop client as GSC/GA4 but a third refresh token (`YT_REFRESH_TOKEN`, scope `youtube.force-ssl`, local `.env.local`). The channel is a **brand account**: during consent pick the «Worldwise Real Estate» row, NOT the personal profile — a personal-account token passes `list` but gets 403 on writes to channel videos (this happened; re-auth fixed it).
+
+```bash
+node --env-file=.env.local scripts/youtube.mjs auth                # one-time OAuth (pick the BRAND channel)
+node --env-file=.env.local scripts/youtube.mjs list                # channel sanity check (name + videos)
+node --env-file=.env.local scripts/youtube.mjs apply --file=<driver.json> [--wave=N] [--dry-run]
+node --env-file=.env.local scripts/youtube.mjs upload --meta=<meta.json>
+```
+
+- `apply` replaces ONLY `snippet.description`, sending the rest of the fetched snippet back unchanged (the API replaces the whole snippet — dropping fields would wipe tags); it refuses driver items without `new_description` (would wipe) and verifies each update by readback.
+- `upload` supports `publishAt` scheduling (video stays private until then) and the `containsSyntheticMedia` disclosure flag — REQUIRED for videos with photoreal AI footage (Veo).
+- **Quota is the binding constraint:** 10,000 units/day; `videos.update` = 50, `videos.insert` = 1600 → max ~6 uploads/day. Resets midnight Pacific (11:00 Dubai).
+- Video production pipeline (HTML `render(t)` → playwright frame dump → ffmpeg) and templates live OUTSIDE the repo in `~/Documents/worldwise-thumbnails/pilot-shorts/`; the shorts content plan is `docs/marketing/2026-07-16-youtube-shorts-month-plan.md` (cadence ≤3/week, live team shooting from August 2026).
+
+### YouTube CLI (channel automation)
+
+`scripts/youtube.mjs` manages the @worldwiserealestate channel via the YouTube Data API — bulk description updates (the P2 GEO pass, `docs/marketing/2026-07-16-youtube-geo-audit.md`) and video uploads with scheduling. It exists because **Google refuses sign-in inside CDP-automated browsers** («browser may not be secure»), so YouTube Studio can NOT be driven via chrome-devtools/playwright — the API is the only automatable path.
+
+**Auth:** same OAuth Desktop client as GSC/GA4 but a third refresh token (`YT_REFRESH_TOKEN`, scope `youtube.force-ssl`, local `.env.local`). The channel is a **brand account**: during consent pick the «Worldwise Real Estate» row, NOT the personal profile — a personal-account token passes `list` but gets 403 on writes to channel videos (this happened; re-auth fixed it).
+
+```bash
+node --env-file=.env.local scripts/youtube.mjs auth                # one-time OAuth (pick the BRAND channel)
+node --env-file=.env.local scripts/youtube.mjs list                # channel sanity check (name + videos)
+node --env-file=.env.local scripts/youtube.mjs apply --file=<driver.json> [--wave=N] [--dry-run]
+node --env-file=.env.local scripts/youtube.mjs upload --meta=<meta.json>
+```
+
+- `apply` replaces ONLY `snippet.description`, sending the rest of the fetched snippet back unchanged (the API replaces the whole snippet — dropping fields would wipe tags); it refuses driver items without `new_description` (would wipe) and verifies each update by readback.
+- `upload` supports `publishAt` scheduling (video stays private until then) and the `containsSyntheticMedia` disclosure flag — REQUIRED for videos with photoreal AI footage (Veo).
+- **Quota is the binding constraint:** 10,000 units/day; `videos.update` = 50, `videos.insert` = 1600 → max ~6 uploads/day. Resets midnight Pacific (11:00 Dubai).
+- Video production pipeline (HTML `render(t)` → playwright frame dump → ffmpeg) and templates live OUTSIDE the repo in `~/Documents/worldwise-thumbnails/pilot-shorts/`; the shorts content plan is `docs/marketing/2026-07-16-youtube-shorts-month-plan.md` (cadence ≤3/week, live team shooting from August 2026).
+
 ### Commercial landing pages
 
 `/invest/[slug]` serves SEO and paid-ads landing pages targeting high-intent buyer queries (e.g. "buy apartment in Dubai"). All content lives in `lib/landings.ts` — the single source of truth. Adding a new page = appending one entry to the `landings` array (no new route file needed).
