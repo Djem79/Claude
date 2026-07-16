@@ -50,6 +50,14 @@ ruvector.db
 
 # Personal Claude Code hooks (machine-local workflow)
 .claude/hooks/
+# Machine-local Claude Code permissions
+.claude/settings.local.json
 
 # Playwright MCP scratch output (screenshots/snapshots/console logs)
 .playwright-mcp/
+
+# ruflo / claude-flow plugin runtime state (daemon pid/state, metrics) —
+# regenerated in the background, never source
+**/.claude-flow/
+**/proven-config.json
+**/.proven-config-version
