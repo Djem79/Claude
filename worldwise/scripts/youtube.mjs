@@ -205,6 +205,40 @@ async function cmdApply(args) {
   if (failed) process.exit(1)
 }
 
+
+// ─── upload ─────────────────────────────────────────────────────────────────
+
+async function cmdUpload(args) {
+  const fileArg = args.find((a) => a.startsWith('--meta='))?.slice(7)
+  if (!fileArg) fail('Usage: upload --meta=<meta.json>  (array of {file,title,description,tags,privacy,publishAt,synthetic})')
+  const items = JSON.parse(readFileSync(fileArg, 'utf8'))
+  const yt = google.youtube({ version: 'v3', auth: getAuthedClient() })
+
+  // Match the channel's existing category so uploads look native.
+  const ref = await yt.videos.list({ part: 'snippet', id: 'cC3quSoZtio' })
+  const categoryId = ref.data.items?.[0]?.snippet?.categoryId ?? '22'
+
+  const { createReadStream } = await import('node:fs')
+  for (const it of items) {
+    const status = { selfDeclaredMadeForKids: false }
+    if (it.publishAt) { status.privacyStatus = 'private'; status.publishAt = it.publishAt }
+    else status.privacyStatus = it.privacy ?? 'public'
+    if (it.synthetic) status.containsSyntheticMedia = true
+    const res = await yt.videos.insert({
+      part: 'snippet,status',
+      requestBody: {
+        snippet: { title: it.title, description: it.description, tags: it.tags ?? [], categoryId },
+        status,
+      },
+      media: { body: createReadStream(it.file) },
+    })
+    const v = res.data
+    console.log(`UPLOADED ${v.id} — ${v.snippet.title}`)
+    console.log(`  privacy=${v.status.privacyStatus} publishAt=${v.status.publishAt ?? '-'} synthetic=${v.status.containsSyntheticMedia ?? '-'}`)
+    console.log(`  https://youtube.com/shorts/${v.id}`)
+  }
+}
+
 // ─── main ───────────────────────────────────────────────────────────────────
 
 const [cmd, ...rest] = process.argv.slice(2)
@@ -212,9 +246,10 @@ switch (cmd) {
   case 'auth': await cmdAuth(); break
   case 'list': await cmdList(); break
   case 'apply': await cmdApply(rest); break
+  case 'upload': await cmdUpload(rest); break
   default:
     console.log(`Usage (from worldwise/):
   node --env-file=.env.local scripts/youtube.mjs auth
   node --env-file=.env.local scripts/youtube.mjs list
-  node --env-file=.env.local scripts/youtube.mjs apply --file=<driver.json> [--wave=N] [--dry-run]`)
+  node --env-file=.env.local scripts/youtube.mjs apply --file=<driver.json> [--wave=N] [--dry-run]\n  node --env-file=.env.local scripts/youtube.mjs upload --meta=<meta.json>`)
 }
