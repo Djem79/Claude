@@ -840,6 +840,9 @@ Whichever you choose, Dubai's tax advantages apply: no annual property tax, no i
 
 ## Frequently Asked Questions
 
+**What is freehold property in Dubai?**
+Freehold property in Dubai is real estate you own outright and indefinitely — the unit itself and a share of the land it stands on — with your name on a Title Deed issued by the Dubai Land Department. A freehold owner can sell, rent out, mortgage or pass on the property without any time limit, and foreign nationals can buy freehold in Dubai's designated freehold zones such as Dubai Marina, Downtown, Palm Jumeirah and Business Bay.
+
 **Can foreigners buy freehold property in Dubai?**
 Yes. Since 2002, foreign nationals can buy freehold property in designated freehold zones with no nationality restriction and no need for a residency visa. These zones cover most of Dubai's prime investor communities.
 
