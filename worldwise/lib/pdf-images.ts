@@ -56,6 +56,28 @@ async function imageDims(resizer: string | null, file: string): Promise<{ w: num
   } catch { return null }
 }
 
+// Read the colorspace via ImageMagick identify (e.g. "sRGB", "CMYK", "Gray").
+// Returns null on failure. Used to detect print-CMYK rasters (see colourFixArgs).
+async function imageColorspace(resizer: string | null, file: string): Promise<string | null> {
+  if (!resizer) return null
+  const [bin, pre] = resizer === 'magick' ? ['magick', ['identify']] : ['identify', []]
+  try {
+    const { stdout } = await execFileP(bin as string, [...(pre as string[]), '-format', '%[colorspace]', file], { timeout: PROC_TIMEOUT_MS })
+    return stdout.trim() || null
+  } catch { return null }
+}
+
+// ImageMagick args that normalise a source raster's colour to sRGB before resize.
+// Developer brochures are print artwork: their embedded rasters are CMYK JPEGs, which
+// `pdfimages -all` dumps as a raw stream WITHOUT applying Adobe's APP14 inversion — so
+// the pixels stay inverted and the browser renders a negative (verified 2026-07-20 on a
+// real brochure). A plain `-colorspace sRGB` does NOT fix it (ImageMagick reads the
+// inverted values as-is); CMYK must be `-negate`d first, then converted. Non-CMYK
+// sources just normalise to sRGB (no-op for sRGB, harmless for Gray).
+function colourFixArgs(colorspace: string | null): string[] {
+  return colorspace === 'CMYK' ? ['-negate', '-colorspace', 'sRGB'] : ['-colorspace', 'sRGB']
+}
+
 // Bounded-concurrency async map (no deps).
 async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T, i: number) => Promise<R>): Promise<R[]> {
   const results: R[] = new Array(items.length)
@@ -114,8 +136,10 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
     const resizer = await findResizer()
 
     const thumbnail = (files: string[]) => mapLimit(files, RESIZE_CONCURRENCY, async (f, i) => {
+      const src = path.join(tmpDir, f)
       const thumbPath = path.join(tmpDir, `thumb-${path.basename(f)}-${i}.jpg`)
-      await execFileP(resizer as string, [path.join(tmpDir, f), '-thumbnail', '320x320', '-background', 'white', '-flatten', '-strip', '-quality', '70', thumbPath], { timeout: PROC_TIMEOUT_MS })
+      const cs = await imageColorspace(resizer, src)
+      await execFileP(resizer as string, [src, ...colourFixArgs(cs), '-thumbnail', '320x320', '-background', 'white', '-flatten', '-strip', '-quality', '70', thumbPath], { timeout: PROC_TIMEOUT_MS })
       return { b64: fs.readFileSync(thumbPath).toString('base64'), mime: 'image/jpeg' }
     })
 
@@ -178,7 +202,8 @@ export async function extractImagesFromPdf(pdfBuf: Buffer, id: string): Promise<
       if (resizer) {
         const name = `${targetIdx}.jpg`
         try {
-          await execFileP(resizer, [src, '-resize', `${MAX_DIM}x${MAX_DIM}>`, '-strip', '-quality', '82', path.join(publicDir, name)], { timeout: PROC_TIMEOUT_MS })
+          const cs = await imageColorspace(resizer, src)
+          await execFileP(resizer, [src, ...colourFixArgs(cs), '-resize', `${MAX_DIM}x${MAX_DIM}>`, '-strip', '-quality', '82', path.join(publicDir, name)], { timeout: PROC_TIMEOUT_MS })
           return `/images/properties/${id}/${name}`
         } catch (e) { console.error('[pdf-images] resize failed, copying original', e) }
       }
