@@ -25,6 +25,8 @@ export interface RuMaterial {
   date: string
   /** Абсолютный URL обложки ≥700px или null. */
   image: string | null
+  /** Тег карточки (только у постов планов; у статей null). */
+  tag: string | null
   format: 'post' | 'article'
 }
 
@@ -454,15 +456,17 @@ function loadPlanPosts(): RuMaterial[] {
       const hasCard = fs.existsSync(
         path.join(process.cwd(), 'public', 'images', 'blog', `${slug}-raw.png`),
       )
-      const image = hasCard
-        ? `${SITE}/api/blog-image?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(p.title)}&tag=${encodeURIComponent(p.tag ?? 'Market Update')}`
-        : null
+      // ЧПУ-URL без query-параметров (/ru/og/<slug>.png) — загрузчик Дзена
+      // не скачивает картинки по URL с параметрами (пост 2026-07-20 ушёл
+      // в Дзен без изображения). Рендер тот же, что у /api/blog-image.
+      const image = hasCard ? `${SITE}/ru/og/${slug}.png` : null
       out.push({
         slug,
         title: p.title,
         html: postTextToHtml(p.text),
         date: p.date,
         image,
+        tag: p.tag ?? null,
         format: 'post',
       })
     }
@@ -478,6 +482,7 @@ export function getRuMaterials(): RuMaterial[] {
     html: articleToHtml(a.content),
     date: a.date,
     image: null,
+    tag: null,
     format: 'article' as const,
   }))
   const all = [...articles, ...loadPlanPosts()]
