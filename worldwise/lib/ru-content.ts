@@ -498,6 +498,30 @@ export function getRuMaterialBySlug(slug: string): RuMaterial | undefined {
 // ---------------------------------------------------------------------------
 // Дзен-RSS (разметка по dzen.ru/help/ru/website/rss-modify.html).
 
+/**
+ * Первый абзац материала как plain-text анонс для <description> Дзен-карточки.
+ * m.html уже прогнан через escapeHtml — сущности возвращаются в текст, чтобы
+ * последующий escapeXml не дал двойного экранирования (&amp;amp;). Теги (<br>,
+ * <a>) снимаются, пробелы схлопываются, обрезка до ~300 знаков по границе слова.
+ */
+export function firstParagraphText(html: string): string {
+  const m = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i)
+  if (!m) return ''
+  const text = m[1]
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&') // &amp; декодируется последним
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (text.length <= 300) return text
+  const cut = text.slice(0, 300)
+  const lastSpace = cut.lastIndexOf(' ')
+  return `${(lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`
+}
+
 export function buildDzenRss(materials: RuMaterial[]): string {
   const items = materials
     .map(m => {
@@ -513,6 +537,7 @@ export function buildDzenRss(materials: RuMaterial[]): string {
       <guid>${escapeXml(link)}</guid>
       <link>${escapeXml(link)}</link>
       <title>${escapeXml(m.title)}</title>
+      <description>${escapeXml(firstParagraphText(m.html))}</description>
       <pubDate>${pubDate}</pubDate>
       <category>format-${m.format}</category>${enclosure}
       <content:encoded><![CDATA[${contentHtml.replace(/\]\]>/g, ']]&gt;')}]]></content:encoded>
