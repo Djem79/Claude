@@ -14,6 +14,10 @@ While a session is open, the two business mailboxes are **your** job — the use
 
 **How:** `python3` + `imaplib` against `mail.hosting.reg.ru:993` for `info@worldwise.pro` and `dzhambulat@worldwise.pro`; passwords in `~/Documents/worldwise-credentials/` (`info-worldwise-imap.txt`, `DZH-worldwise-imap.txt`). `curl` swallows IMAP literals — don't use it. Sending works (SMTP SSL `:465` + `imaplib.append("Sent", …)`), but only ever send with the user's explicit sign-off.
 
+**Three mailboxes, not two.** The user's personal `tdm.979@gmail.com` is checked in the same pass, via the Gmail connector (`apply_sensitive_thread_label` with `TRASH` — plain `label_*` cannot trash). There: report anything that matters (traffic fines, bank, flights, GSC alerts), bin obvious spam/phishing and marketing blasts, leave transactional and personal mail alone.
+
+**Clear the platform digests as you read them.** HARO / SOS / Featured / Qwoted digests land on `info@` several times a day. Read each one, look for a request that fits **our** angle — Dubai / UAE / Middle East / international real estate / foreign buyers / expat / golden visa. Plain "real estate" is not a match: ~90% of these are US-market questions (FHA loans, Michigan realtors) we have nothing to say about. No fit → Trash it silently; fit → bring it with a draft pitch. Anything older than ~7 days has a dead deadline. **Never bulk-delete by sender:** personal notifications ("read your pitch", journalist replies) and real correspondence stay — notably HiDubai, whose thread carries the Claim approval, despite the platform sounding like a newsletter source.
+
 > **Do NOT widen `mail-watch.py`'s `RELEVANT_DOMAINS`.** It watches only the link-building platforms (Qwoted / HARO / Source of Sources / Featured / expat.com / HiDubai) **by design** — it exists so we can answer PR and media requests fast. Everything else in the inbox (tax.gov.ae, wasl.ae, DLD, Dubai Chamber, developers, Property Finder ops) is handled by the human team, and alerting on it would bury the signal. Proposed once and rejected by the user (2026-07-12) — don't re-propose it.
 
 ### Agent health (same cadence as the mail)
