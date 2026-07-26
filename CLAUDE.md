@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Working in parallel with another Claude session?** Read [`AGENTS.md`](AGENTS.md) first — it covers the coordination contract (who's lead, before-you-touch checks, push/deploy discipline, and the hard rules from past multi-session regressions).
 
-## Mailbox duty (do this without being asked)
+## Session duty: mailbox + agents (do this without being asked)
 
 While a session is open, the two business mailboxes are **your** job — the user must never have to remind you to look.
 
@@ -15,6 +15,18 @@ While a session is open, the two business mailboxes are **your** job — the use
 **How:** `python3` + `imaplib` against `mail.hosting.reg.ru:993` for `info@worldwise.pro` and `dzhambulat@worldwise.pro`; passwords in `~/Documents/worldwise-credentials/` (`info-worldwise-imap.txt`, `DZH-worldwise-imap.txt`). `curl` swallows IMAP literals — don't use it. Sending works (SMTP SSL `:465` + `imaplib.append("Sent", …)`), but only ever send with the user's explicit sign-off.
 
 > **Do NOT widen `mail-watch.py`'s `RELEVANT_DOMAINS`.** It watches only the link-building platforms (Qwoted / HARO / Source of Sources / Featured / expat.com / HiDubai) **by design** — it exists so we can answer PR and media requests fast. Everything else in the inbox (tax.gov.ae, wasl.ae, DLD, Dubai Chamber, developers, Property Finder ops) is handled by the human team, and alerting on it would bury the signal. Proposed once and rejected by the user (2026-07-12) — don't re-propose it.
+
+### Agent health (same cadence as the mail)
+
+~13 unattended cron agents run the marketing machine; nobody watches them but you. **Check them together with the mail** — at session start and on the ~4h re-check:
+
+```bash
+python3 scripts/agents-health.py     # runs LOCALLY, one SSH hop, no deploy needed
+```
+
+It derives each agent's expected cadence **from the server crontab itself**, so adding or re-scheduling a cron needs no edit here. It flags: stale or missing logs, repeated errors (collapsed and stamped with the log's age, so last week's known incident doesn't read as news), PM2 state, the monthly content-plan tail (the June-2026 "plan ran out silently, channel dark for 4 days" class of bug), and a generated article draft still waiting for Telegram approval. Exit code 1 when anything needs attention.
+
+Report what it found in one line ("агенты чисто" is a valid result) — the user should never have to ask. **Known-expected WARN:** `backlink-monitor` has no log until its first cron fire on **2026-08-01** (the cron was added 2026-07-09, after that month's 1st; its state file was seeded by a manual run). The WARN is the reminder — clear it by confirming the 1 Aug run, don't silence it.
 
 ## Before starting any task
 
