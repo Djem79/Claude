@@ -103,12 +103,35 @@ export async function POST(req: NextRequest) {
     ? 0
     : Math.max(...existing.map(f => parseInt(f.split('.')[0], 10))) + 1
 
+  // Claim each index with O_EXCL ('wx'): the write fails instead of clobbering if
+  // another request already took that name. Without it, two concurrent uploads for
+  // the same property (double-click, network retry, two admin tabs) both compute the
+  // same nextIdx from the same directory listing and silently overwrite each other's
+  // photos — a data loss that is impossible to diagnose after the fact.
+  // On collision, re-read the directory: a sibling request may have claimed several
+  // indices, and a stale counter would just collide again on the next iteration.
+  const nextFreeIndex = () => {
+    const files = fs.readdirSync(dir).filter(f => /^\d+\./.test(f))
+    return files.length === 0 ? 0 : Math.max(...files.map(f => parseInt(f.split('.')[0], 10))) + 1
+  }
+
   const saved: string[] = []
   for (const { mime, buf } of validated) {
-    const name = `${nextIdx}${extFor(mime)}`
-    fs.writeFileSync(path.join(dir, name), buf)
-    saved.push(`/images/properties/${propertyId}/${name}`)
-    nextIdx++
+    const ext = extFor(mime)
+    for (;;) {
+      const name = `${nextIdx}${ext}`
+      try {
+        fs.writeFileSync(path.join(dir, name), buf, { flag: 'wx' })
+        saved.push(`/images/properties/${propertyId}/${name}`)
+        nextIdx++
+        break
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e
+        // Index taken by a concurrent request — resync and retry. Terminates because
+        // nextIdx is strictly increasing and the directory holds finitely many files.
+        nextIdx = Math.max(nextIdx + 1, nextFreeIndex())
+      }
+    }
   }
 
   return NextResponse.json({ paths: saved })

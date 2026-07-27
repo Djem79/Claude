@@ -30,6 +30,8 @@ const SERP_DEPTH = 20
 const KEYWORD_CAP = 100
 const GSC_DAYS = 28
 const GSC_ROW_LIMIT = 250
+// Keep in sync with GSC_LAG_DAYS in scripts/gsc.mjs — see fetchGscTopQueries().
+const GSC_LAG_DAYS = 3
 const REQUEST_GAP_MS = 250
 
 // Always-tracked commercial terms — aspirational targets GSC can't surface
@@ -101,7 +103,14 @@ async function fetchGscTopQueries() {
   const client = new google.auth.OAuth2(GSC_OAUTH_CLIENT_ID, GSC_OAUTH_CLIENT_SECRET)
   client.setCredentials({ refresh_token: GSC_REFRESH_TOKEN })
   const wm = google.webmasters({ version: 'v3', auth: client })
+  // Search Console lags ~2-3 days. Anchor the window end back by GSC_LAG_DAYS, the
+  // same way gsc.mjs dateRange() does — otherwise the freshest (still-empty) days
+  // sit inside the window and deflate impressions, so long-tail queries that only
+  // picked up traffic in the last few days lose their shot at the top-N cut.
+  // The GSC client here is a deliberate duplicate of gsc.mjs (that CLI exports
+  // nothing); this constant is part of what must stay in sync between them.
   const end = new Date()
+  end.setDate(end.getDate() - GSC_LAG_DAYS)
   const start = new Date(end.getTime() - GSC_DAYS * 86400_000)
   const iso = d => d.toISOString().slice(0, 10)
   const { data } = await wm.searchanalytics.query({
