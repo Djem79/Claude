@@ -179,7 +179,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="btn-outline flex-1"
+                    className="btn-outline-gold-light flex-1"
                   >
                     ← Back
                   </button>
@@ -220,7 +220,7 @@ export default function QualifyingModal({ isOpen, onClose, source }: Props) {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="btn-outline flex-1"
+                      className="btn-outline-gold-light flex-1"
                     >
                       ← Back
                     </button>

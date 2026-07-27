@@ -17,7 +17,12 @@ export async function POST(
   const attachment = (lead.attachments ?? []).find(a => a.id === params.fileId)
   if (!attachment) return NextResponse.json({ error: 'File not found' }, { status: 404 })
 
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
   const via = body.via === 'email' ? 'email' : 'whatsapp'
 
   const entry: SentEntry = {

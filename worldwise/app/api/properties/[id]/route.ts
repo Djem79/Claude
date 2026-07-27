@@ -4,8 +4,14 @@ import { revalidatePropertyPages } from '@/lib/revalidate'
 import { requireSection } from '@/lib/auth'
 import { Property } from '@/types'
 
+// Section-gated: this returns the RAW Property, including PF-integration fields
+// (pfListingId/pfListingStatus/pfLocationId/pfPublishedAt) that never appear in
+// public UI — the sibling list route projects to CardProperty for exactly that
+// reason. No client calls this GET (only PUT/DELETE are used), so gating is safe
+// (audit 2026-07-27).
 export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  if (!(await requireSection('properties'))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const property = getPropertyById(params.id)
   if (!property) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(property)

@@ -18,7 +18,12 @@ export default function FloatingCTA() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex flex-col gap-3 items-end">
+      {/* `bottom` clears the cookie banner while it shows (audit 2026-07-27) — see
+          CookieBanner, which publishes --ww-consent-offset as its measured height. */}
+      <div
+        className="fixed right-6 z-40 hidden md:flex flex-col gap-3 items-end"
+        style={{ bottom: 'calc(1.5rem + var(--ww-consent-offset, 0px))' }}
+      >
         {/* WhatsApp */}
         <a
           href={waLink("Hi Worldwise, I'm interested in Dubai property.")}

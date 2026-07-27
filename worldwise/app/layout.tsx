@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     template: '%s | Worldwise',
   },
   description:
-    'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. 50+ investors from 30+ countries. Free consultation.',
+    'Buy off-plan and ready properties in Dubai with 8-10% total ROI (rental income plus capital growth). RERA-certified agency. 50+ investors from 30+ countries. Free consultation.',
   openGraph: {
     title: 'Dubai Real Estate Investment | Worldwise',
-    description: 'Buy off-plan and ready properties in Dubai with 8-10% annual yield. RERA-certified agency. Free consultation.',
+    description: 'Buy off-plan and ready properties in Dubai with 8-10% total ROI (rental income plus capital growth). RERA-certified agency. Free consultation.',
     url: 'https://worldwise.pro',
     siteName: 'Worldwise Real Estate',
     type: 'website',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Dubai Real Estate Investment | Worldwise',
-    description: 'Buy off-plan and ready properties in Dubai with 8-10% annual yield.',
+    description: 'Buy off-plan and ready properties in Dubai with 8-10% total ROI — rental income plus capital growth.',
     images: ['/opengraph-image'],
   },
   alternates: {
@@ -64,7 +64,7 @@ const orgJsonLd = {
   url: 'https://worldwise.pro',
   logo: 'https://worldwise.pro/images/logo.png',
   description:
-    'Dubai-based real estate investment agency specialising in off-plan and secondary market properties. RERA-certified. 8-10% annual yield. 0% income tax.',
+    'Dubai-based real estate investment agency specialising in off-plan and secondary market properties. RERA-certified. 8-10% total ROI (rental income plus capital growth); gross rental yields of 5-9% by district. 0% income tax.',
   telephone: '+971506960435',
   email: 'info@worldwise.pro',
   address: {

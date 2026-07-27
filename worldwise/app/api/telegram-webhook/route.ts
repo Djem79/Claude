@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-articles'
-import { writeFileAtomic } from '@/lib/atomic-write'
+import { mutateJsonFile } from '@/lib/json-store'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
@@ -394,15 +394,24 @@ async function handleTextMessage(message: TgMessage & { text: string; chat: { id
       await sendMessage(message.chat.id, '❌ Usage: /add_keyword <search query>')
       return
     }
+    // LOAD-BEARING: strict read + mutate in one critical section. The previous
+    // forgiving `try { read } catch { start fresh }` here would persist an empty
+    // bank over a present-but-corrupt file — wiping every keyword discovery and
+    // competitor-gap ever added and resetting `index` to 0 (the exact "forgiving
+    // read feeds a mutation" bug CLAUDE.md records as already shipped twice).
     const keywordsPath = path.join(process.cwd(), 'data', 'article-keywords.json')
-    let data: { keywords: string[]; index: number } = { keywords: [], index: 0 }
+    let data: { keywords: string[]; index: number }
     try {
-      data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+      data = mutateJsonFile<{ keywords: string[]; index: number }>(
+        keywordsPath,
+        { keywords: [], index: 0 },
+        cur => ({ ...cur, keywords: [...cur.keywords, query] })
+      )
     } catch (e) {
-      console.error('[telegram-webhook] Failed to read keywords file, starting fresh', e)
+      console.error('[telegram-webhook] keyword bank unreadable, refusing to overwrite', e)
+      await sendMessage(message.chat.id, '⚠️ Банк ключевых слов недоступен — ничего не записано. Нужен разбор на сервере.')
+      return
     }
-    data.keywords.push(query)
-    writeFileAtomic(keywordsPath, JSON.stringify(data, null, 2))
     await sendMessage(message.chat.id, `✅ Добавлено: "${query}"\nВсего в банке: ${data.keywords.length} запросов`)
     return
   }

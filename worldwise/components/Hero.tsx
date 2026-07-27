@@ -29,7 +29,7 @@ export default function Hero() {
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white leading-tight">
             UAE Real Estate
             <br />
-            <span className="text-gold">8–10% Yield.</span>
+            <span className="text-gold">8–10% ROI.</span>
             <br />
             0% Tax.
           </h1>

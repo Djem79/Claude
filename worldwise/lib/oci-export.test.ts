@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildOciCsv, formatDubaiTime, OCI_ACTIONS } from './oci-export.ts'
+import { buildOciCsv, csvSafe, formatDubaiTime, OCI_ACTIONS } from './oci-export.ts'
 
 // Fixed "now" for deterministic tests: 2026-06-10 12:00 UTC
 const NOW = new Date('2026-06-10T12:00:00.000Z')
@@ -148,4 +148,27 @@ test('strips commas from a hostile gclid so CSV columns cannot shift', () => {
 
 test('OCI_ACTIONS names are the exact Google Ads conversion action names', () => {
   assert.deepEqual(OCI_ACTIONS, { lead: 'CRM Lead', qualified: 'CRM Qualified', deal: 'CRM Deal' })
+})
+
+// Regression (audit 2026-07-27): gclid arrives from a visitor-controlled URL param
+// through the PUBLIC POST /api/leads, and the CRM opens this CSV in Excel/Sheets.
+test('csvSafe neutralises spreadsheet formula triggers', () => {
+  assert.equal(csvSafe('=HYPERLINK("http://evil","click")'), "'=HYPERLINK(\"http://evil\",\"click\")")
+  assert.equal(csvSafe('+1+1'), "'+1+1")
+  assert.equal(csvSafe('-2+3'), "'-2+3")
+  assert.equal(csvSafe('@SUM(A1)'), "'@SUM(A1)")
+  assert.equal(csvSafe('\tTAB'), "'\tTAB")
+  // Real gclids are untouched.
+  assert.equal(csvSafe('Cj0KCQjw_scGBhCkARIsAHs'), 'Cj0KCQjw_scGBhCkARIsAHs')
+  assert.equal(csvSafe(''), '')
+})
+
+test('a formula-shaped gclid cannot start a CSV cell', () => {
+  const now = new Date('2026-07-01T00:00:00.000Z')
+  const { csv } = buildOciCsv(
+    [{ gclid: '=cmd|calc', createdAt: '2026-06-30T10:00:00.000Z', status: 'new' }],
+    now
+  )
+  const row = csv.trim().split('\n').at(-1)!
+  assert.ok(row.startsWith("'=cmd|calc,"), `row must be text-escaped, got: ${row}`)
 })

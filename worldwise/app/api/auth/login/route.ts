@@ -37,8 +37,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
   }
 
-  const { username, password } = await req.json()
-  if (!username || !password) {
+  let parsed: { username?: unknown; password?: unknown }
+  try {
+    parsed = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const { username, password } = parsed
+  // Credentials must be strings — a non-string body value (array, object) must never
+  // reach the user lookup or bcrypt comparison.
+  if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
     return NextResponse.json({ error: 'Username and password required' }, { status: 400 })
   }
 
