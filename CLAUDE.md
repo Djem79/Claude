@@ -114,7 +114,7 @@ node --test --experimental-strip-types lib/slug.test.ts # one file
 
 These constraints are non-negotiable — violating them causes data loss or security issues:
 
-- **Never touch `data/` locally.** All files in `data/` exist only on the server — this includes `leads.json`, `users.json`, `properties.json`, `articles.json`, `article-draft.json`, `article-mode.json`, `article-keywords.json`, and `article-tag-index.json`. Never create, edit, or rsync them from local — they hold live business and state data.
+- **Never touch `data/` locally.** All files in `data/` exist only on the server — this includes `leads.json`, `users.json`, `properties.json`, `articles.json`, `article-draft.json`, `article-keywords.json`, `article-tag-index.json` (and the legacy, no-longer-read `article-mode.json`). Never create, edit, or rsync them from local — they hold live business and state data.
 - **Never add a database.** The JSON file approach is intentional — simple, zero-dependency, backed up automatically. A database would require a migration and breaks the single-PM2-instance assumption.
 - **Never run multiple PM2 instances.** The file-based data layer has no locking. Two processes writing simultaneously will corrupt JSON.
 - **Never change the session token payload structure** (`SessionPayload` in `lib/session.ts`) without invalidating all existing sessions first — the HMAC signs the exact payload shape.
@@ -188,9 +188,9 @@ A full security & privacy audit (findings + remediation status) is in `worldwise
 **Live and complete:**
 
 - Public site: homepage, `/properties` listing, `/properties/[slug]` detail pages
-- Area landing pages: 8 flat-URL SSG pages (`/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/creek-harbour`, `/emaar-beachfront`) — content in `lib/areas.ts`
+- Area landing pages: 12 flat-URL SSG pages (`/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/mbr-city`, `/creek-harbour`, `/emaar-beachfront`, `/damac-hills`, `/damac-hills-2`, `/the-valley`) — content in `lib/areas.ts`
 - Blog: `/blog` listing + `/blog/[slug]` — static editorial articles in `lib/articles.ts` + AI-generated articles from `data/articles.json`
-- Auto-blog pipeline: Gemini-powered article generator runs daily at 09:00 UTC, alternates keyword/news mode, Telegram approval flow
+- Auto-blog pipeline: Gemini-powered article generator runs daily at 09:00 UTC (keyword-only since 2026-06-23), Telegram approval flow
 - Analytics: GA4 (consent-aware) with conversion event tracking on all lead forms and CTAs
 - Tools: `/mortgage-calculator` — dedicated SEO/ads landing page with full calculator
 - Admin CRM: `/admin` (stats + properties), `/admin/leads` (full CRM), `/admin/users` (owner-only)
@@ -264,7 +264,6 @@ All JSON files live in `data/` on the server only — never committed to git, ne
 | `data/users.json` | `lib/users.ts` | `AdminUser[]` |
 | `data/articles.json` | `lib/dynamic-articles.ts` | `DynamicArticle[]` (published AI articles) |
 | `data/article-draft.json` | `lib/dynamic-articles.ts` | `DynamicArticle \| null` (pending Telegram approval) |
-| `data/article-mode.json` | `scripts/generate-article.mjs` | `{ mode: "keyword" \| "news" }` |
 | `data/article-keywords.json` | `scripts/generate-article.mjs` | `{ keywords: string[], index: number }` |
 | `data/article-tag-index.json` | `lib/dynamic-articles.ts` + script | `{ index: number }` (round-robin tag rotation) |
 
@@ -282,12 +281,11 @@ Single PM2 instance only — concurrent writes from multiple processes would cor
 
 `proxy.ts` (Next 16; ex-`middleware.ts`, now Node runtime) guards `/admin/:path*` by verifying the signed token from the `ww_admin_session` cookie. `/admin/users` additionally requires `role === 'owner'`. The proxy does **not** enforce per-section access (the token deliberately carries no `sections` — see below); that happens in the page/API handlers.
 
-Every mutating API handler also calls `isAuthenticated()` / `getSession()` / `requireSection()` from `lib/auth.ts` — defence-in-depth since the proxy does not run on API routes. `getSession()` additionally rejects requests whose `Origin` header mismatches the host (CSRF, proxy-aware).
+Every mutating API handler also calls `getSession()` / `requireSection()` from `lib/auth.ts` — defence-in-depth since the proxy does not run on API routes. `getSession()` additionally rejects requests whose `Origin` header mismatches the host (CSRF, proxy-aware).
 
 `lib/auth.ts` exports (all `async`, HMAC verification):
 
 - `getSession()` → `Session | null` — `SessionPayload` enriched with `sections: AdminSection[]` read **fresh from the DB** (not the token), so demotion/section-revocation applies instantly. Use when you need the user identity (e.g. activity log).
-- `isAuthenticated()` → `boolean` — simple "is there a valid session" check.
 - `requireSection(section)` → `Session | null` — returns the session if it can access `section` (owner always passes), else `null`. API handlers return **403** on `null`.
 
 ### Per-section access control (managers)
@@ -416,10 +414,14 @@ Inline text in `p`/`ul`/`ol` blocks **and table cells** is rendered by `formatIn
 
 Cron runs `scripts/generate-article.mjs` daily at 09:00 UTC (`0 9 * * *`). The script is a Node.js ESM module invoked with `node --env-file=.env.local scripts/generate-article.mjs`.
 
-**Mode alternation:** `data/article-mode.json` holds `{ mode: "keyword" | "news" }`. Each successful generation flips the mode. On Gemini failure the mode is NOT flipped — the next run retries the same mode.
-
-- **keyword mode** — picks the next query from `data/article-keywords.json` (`keywords[index]`), fetches Google News RSS for supporting context, prompts Gemini to write a 600–800 word SEO article answering that specific investor search query, increments `index`.
-- **news mode** — fetches Google News RSS, prompts Gemini to summarise recent UAE property headlines.
+**Keyword-only since 2026-06-23.** The script picks the next query from
+`data/article-keywords.json` (`keywords[index]`), fetches Google News RSS for supporting
+context, prompts Gemini to write a 600–800 word SEO article answering that specific
+investor search query, and increments `index`. The old news-roundup mode was retired
+(keyword articles rank and convert; generic roundups did neither) — when the bank is
+exhausted the script skips the day and nudges `/add_keyword` rather than fall back to a
+low-value summary. `data/article-mode.json` is a **leftover file, no longer read by any
+code** — don't wire new logic to it.
 
 **Keyword bank exhaustion:** when `index >= keywords.length`, the script sends a Telegram notification and exits without generating an article or flipping the mode.
 
@@ -580,7 +582,7 @@ node --env-file=.env.local scripts/youtube.mjs upload --meta=<meta.json>
 
 ### Area landing pages
 
-8 flat-URL SSG pages target Dubai districts: `/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/creek-harbour`, `/emaar-beachfront`. All content (metrics, copy, FAQ) lives in `lib/areas.ts` — the single source of truth, edited via PR like `lib/articles.ts`.
+12 flat-URL SSG pages target Dubai districts: `/dubai-marina`, `/downtown-dubai`, `/palm-jumeirah`, `/business-bay`, `/dubai-hills`, `/jlt`, `/mbr-city`, `/creek-harbour`, `/emaar-beachfront`, `/damac-hills`, `/damac-hills-2`, `/the-valley`. All content (metrics, copy, FAQ) lives in `lib/areas.ts` — the single source of truth, edited via PR like `lib/articles.ts`.
 
 Route `app/[area]/page.tsx` is a server component (handles `generateStaticParams` + `generateMetadata` + JSON-LD). It composes a client wrapper `app/[area]/AreaPageClient.tsx` that owns the `LeadModal` state. Adding a new district = adding one entry to `areas` in `lib/areas.ts` (no new route file needed) plus ensuring `public/images/areas/<slug>.jpg` exists. `generateStaticParams` whitelists `areaSlugs`; any other slug on this route returns 404.
 
@@ -592,7 +594,7 @@ The featured-properties grid on the area page matches `Property.area` **tolerant
 
 - `app/robots.ts` — blocks `/admin` and `/api`
 - `app/blog/rss.xml/route.ts` — RSS 2.0 feed of the blog (`revalidate 3600`), built by the pure `lib/rss.ts` (node:test'd). **`escapeXml` is load-bearing** — AI article titles/excerpts are untrusted (same threat class as the JSON-LD invariant); never interpolate raw strings into the feed. The feed drives the Zapier→LinkedIn Company Page autopost; discovery `<link rel="alternate">` lives in `app/layout.tsx` `alternates.types`.
-- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + /golden-visa + /guide + 8 area landing pages + all property and article slugs)
+- `app/sitemap.ts` — dynamic sitemap (homepage + /blog + /mortgage-calculator + /properties + /golden-visa + /guide + 12 area landing pages + all property and article slugs)
 - `next.config.mjs` — `images.formats: ['image/avif','image/webp']` (AVIF for smaller LCP); old Tilda `/tpost/*` and `/tproduct/*` URLs 301-redirect to `/blog` / `/properties` (two high-traffic posts to topically-matched articles)
 - `app/layout.tsx` — `metadataBase`, default `og:image`, `twitter:card: summary_large_image`, JSON-LD `RealEstateAgent`
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList` + `FAQPage`; search-pattern titles/meta and the data-driven FAQ come from the pure `lib/property-seo.ts` (node:test'd — questions exist only when their source field does, golden-visa flag passed in from the call site)

@@ -17,7 +17,7 @@ const config: Config = {
         gold: {
           DEFAULT: '#C9A84C',
           light: '#D4B96A',
-          dark: '#A8882E',
+          dark: '#8A6D1F', // must match --gold-dark in globals.css (WCAG AA on light bg)
         },
       },
       fontFamily: {
