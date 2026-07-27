@@ -118,7 +118,8 @@ async function main() {
 
   const { result: domainsRaw, cost: c2 } = await fetchReferringDomains()
   const items = domainsRaw?.items ?? []
-  if ((domainsRaw?.total_count ?? 0) > DOMAIN_LIMIT) {
+  const truncated = (domainsRaw?.total_count ?? 0) > DOMAIN_LIMIT
+  if (truncated) {
     log(`NOTE: total_count ${domainsRaw.total_count} exceeds limit ${DOMAIN_LIMIT} — list truncated`)
   }
   const currentDomains = buildDomainsState(items)
@@ -135,6 +136,7 @@ async function main() {
     totalDomains: Object.keys(currentDomains).length,
     cost,
     firstRun: state === null,
+    truncated,
   })
 
   if (DRY_RUN || SANDBOX) {

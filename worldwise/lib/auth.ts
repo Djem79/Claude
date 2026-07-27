@@ -62,10 +62,6 @@ export async function getSession(): Promise<Session | null> {
   }
 }
 
-export async function isAuthenticated(): Promise<boolean> {
-  return (await getSession()) !== null
-}
-
 /**
  * For API route handlers: returns the session if it can access `section`, else null.
  * Owner always passes. Caller returns 403 on null.

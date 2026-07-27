@@ -74,7 +74,7 @@ function deltaSuffix(cur, prev) {
 /**
  * Telegram digest (RU, back-office style like the rank-tracker report).
  */
-export function formatBacklinkReport({ summary, prevSummary, added, lost, totalDomains, cost, firstRun }) {
+export function formatBacklinkReport({ summary, prevSummary, added, lost, totalDomains, cost, firstRun, truncated = false }) {
   const p = firstRun ? null : prevSummary
   const lines = [
     '🔗 Бэклинк-монитор — worldwise.pro',
@@ -96,6 +96,13 @@ export function formatBacklinkReport({ summary, prevSummary, added, lost, totalD
     if (lost.length) {
       lines.push('', `❌ Потерянные домены (${lost.length}):`)
       for (const d of lost.slice(0, 15)) lines.push(`• ${d.domain} — был rank ${d.rank}`)
+      // Список доменов запрашивается с limit и сортировкой по rank. Когда доменов
+      // больше лимита, домен у границы может выпасть из выборки просто из-за
+      // сдвига других — это НЕ утрата ссылки. Без оговорки такой отчёт читается
+      // как реальная потеря (аудит 2026-07-27).
+      if (truncated) {
+        lines.push('⚠️ Список доменов усечён лимитом — часть «потерь» может быть выпадением из выборки, а не утратой ссылки.')
+      }
     }
     if (!added.length && !lost.length) lines.push('', 'Состав реф. доменов без изменений.')
   }

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -125,12 +126,18 @@ export default async function ArticlePage(props: Props) {
               {['By Worldwise Real Estate', dateDisplay, article.readTime].filter(Boolean).join(' · ')}
             </p>
             {'image' in article && article.image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              (<img
+              // next/image (not a raw <img>) so the largest element on the page gets
+              // AVIF/WebP + priority, same as the /blog listing renders this very
+              // field. The value is always the local /api/blog-image route, which
+              // next.config.mjs allows via images.localPatterns.
+              <Image
                 src={article.image}
                 alt={article.title}
+                width={1200}
+                height={630}
+                priority
                 className="w-full rounded-sm mt-8 aspect-[1200/630] object-cover"
-              />)
+              />
             )}
           </div>
         </section>
