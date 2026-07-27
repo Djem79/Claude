@@ -27,14 +27,21 @@ export async function POST(req: NextRequest) {
   if (session?.role !== 'owner') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
-  const { name, username, password, role, sections } = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const { name, username, password, role, sections } = body
   if (!name || !username || !password || !role) {
     return NextResponse.json({ error: 'All fields required' }, { status: 400 })
   }
   if (role !== 'owner' && role !== 'manager') {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }
-  if (String(password).length < 8) {
+  // Must be a real string — a non-string body value would otherwise reach bcrypt as-is.
+  if (typeof password !== 'string' || password.length < 8) {
     return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
   }
   // Owner always has every section; managers get the validated subset.

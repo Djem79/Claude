@@ -57,7 +57,7 @@ const faqJsonLd = {
       name: 'Can non-residents get a mortgage in the UAE?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. UAE banks offer mortgages to non-residents on freehold properties in designated zones. Non-residents can borrow up to 75–80% of the property value (LTV), depending on the property price and bank policy. A minimum down payment of 20–25% is required.',
+        text: 'Yes. UAE banks offer mortgages to non-residents on freehold properties in designated zones. Non-residents can borrow up to 75% of the property value (LTV); UAE residents up to 80%. That means a minimum down payment of 25% for non-residents, 20% for residents.',
       },
     },
     {
@@ -98,7 +98,7 @@ const faqJsonLd = {
 const FAQ_ITEMS = [
   {
     q: 'Can non-residents get a mortgage in the UAE?',
-    a: 'Yes. UAE banks offer mortgages to non-residents on freehold properties in designated zones (Dubai Marina, Downtown, Palm Jumeirah, Business Bay and many more). Non-residents can borrow up to 75–80% of the property value, with a minimum down payment of 20–25% depending on the bank.',
+    a: 'Yes. UAE banks offer mortgages to non-residents on freehold properties in designated zones (Dubai Marina, Downtown, Palm Jumeirah, Business Bay and many more). Non-residents can borrow up to 75% of the property value, with a minimum down payment of 25%. UAE residents can borrow up to 80%.',
   },
   {
     q: 'What is the minimum down payment for a mortgage in Dubai?',
@@ -157,7 +157,7 @@ export default function MortgageCalculatorPage() {
                 },
                 {
                   title: 'LTV limits set by the Central Bank',
-                  text: 'The UAE Central Bank caps LTV at 80% for residents and non-residents on properties up to AED 5M. Above AED 5M the cap drops to 70% for residents, 65% for non-residents. This means minimum down payment of 20–35% depending on price and residency.',
+                  text: 'The UAE Central Bank caps LTV at 80% for residents and 75% for non-residents on properties up to AED 5M — a minimum down payment of 20% and 25% respectively. Above AED 5M the caps drop to 70% for residents and 65% for non-residents, so budget a 30–35% deposit at that level.',
                 },
                 {
                   title: 'Fixed vs. variable rates',

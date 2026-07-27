@@ -263,7 +263,7 @@ Transfer takes 1–2 hours. You leave with a new title deed in your name.
 
 If you are financing the purchase, the process has additional layers:
 
-1. **Pre-approval.** Get a mortgage pre-approval from a UAE bank before signing the MOU. Banks typically offer 75–80% LTV for [non-residents](/invest/dubai-mortgage-for-non-residents) on properties up to AED 5M.
+1. **Pre-approval.** Get a mortgage pre-approval from a UAE bank before signing the MOU. Banks typically offer up to 75% LTV for [non-residents](/invest/dubai-mortgage-for-non-residents) (80% for UAE residents) on properties up to AED 5M.
 2. **Property valuation.** The bank commissions an independent valuer (cost: AED 2,500–3,500). The bank lends against the lower of purchase price or valuation.
 3. **Liability letter.** If the seller has a mortgage, their bank issues a liability letter with the exact payoff amount. Your bank coordinates the clearance.
 4. **Mortgage registration.** After the DLD transfer, the mortgage is registered with DLD for a fee of 0.25% of the loan amount + AED 290.

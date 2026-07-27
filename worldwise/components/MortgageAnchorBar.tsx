@@ -17,7 +17,12 @@ export default function MortgageAnchorBar({
   const [open, setOpen] = useState(false)
   return (
     <>
-      <div className="hidden md:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-30 items-center gap-4 bg-navy/95 backdrop-blur border border-gold/25 shadow-xl rounded-full pl-6 pr-2 py-2 text-white">
+      <div
+        className="hidden md:flex fixed left-1/2 -translate-x-1/2 z-30 items-center gap-4 bg-navy/95 backdrop-blur border border-gold/25 shadow-xl rounded-full pl-6 pr-2 py-2 text-white"
+        // Clears the cookie banner while it shows (audit 2026-07-27) — CookieBanner
+        // publishes --ww-consent-offset as its measured height.
+        style={{ bottom: 'calc(1.5rem + var(--ww-consent-offset, 0px))' }}
+      >
         <p className="text-sm whitespace-nowrap">
           Own this from <span className="font-serif text-gold text-lg">{monthlyLabel}</span>/mo
           <span className="text-white/45"> · 25% down · 4.5% · 25 yrs</span>

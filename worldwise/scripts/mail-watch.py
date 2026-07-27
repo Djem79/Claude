@@ -63,21 +63,51 @@ def load_env():
                 os.environ.setdefault(k.strip(), v.strip())
 
 
+# Telegram rejects messages over 4096 chars. Chunk below that with headroom, the
+# same way competitor-gap.mjs does — a backlog after downtime easily exceeds it.
+TG_CHUNK = 3900
+
+
+def chunk_lines(lines, limit=TG_CHUNK):
+    """Group lines into messages under `limit` chars, never splitting a line."""
+    chunks, cur, cur_len = [], [], 0
+    for line in lines:
+        add = len(line) + 1
+        if cur and cur_len + add > limit:
+            chunks.append("\n".join(cur))
+            cur, cur_len = [], 0
+        cur.append(line)
+        cur_len += add
+    if cur:
+        chunks.append("\n".join(cur))
+    return chunks
+
+
 def telegram_send(text):
+    """Send one alert. Returns True only if EVERY chunk was delivered.
+
+    LOAD-BEARING (audit 2026-07-27): the return value gates the state cursor in
+    main(). Previously this swallowed the error and the cursor advanced anyway,
+    so a failed send meant those emails were never re-checked — and this is the
+    only channel that catches PR/link-building requests between sessions.
+    """
     # First chat ID only (the admin's bot DM) — mail alerts must not hit the
     # group chat that may follow in the comma-separated TELEGRAM_CHAT_ID.
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_ID", "").split(",") if c.strip()]
     if not token or not chat_ids:
         print("mail-watch: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID not set, alert skipped")
-        return
+        return False
     chat_id = chat_ids[0]
-    data = urllib.parse.urlencode({"chat_id": chat_id, "text": text}).encode()
-    req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
-    try:
-        urllib.request.urlopen(req, timeout=30).read()
-    except Exception as e:  # alert failure is loggable but must not crash the run
-        print(f"mail-watch: telegram send failed for {chat_id}: {e}")
+    for part in chunk_lines(text.split("\n")):
+        data = urllib.parse.urlencode({"chat_id": chat_id, "text": part}).encode()
+        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
+        try:
+            urllib.request.urlopen(req, timeout=30).read()
+        except Exception as e:  # alert failure must not crash the run — but must be reported
+            print(f"mail-watch: telegram send failed for {chat_id}: {type(e).__name__}: {e}")
+            return False
+    return True
 
 
 def read_state():
@@ -167,6 +197,7 @@ def main():
         new_state["accounts"][user] = entry
         all_relevant.extend((user, *r) for r in relevant)
 
+    delivered = True
     if all_relevant:
         lines = [f"📬 Вахта: {len(all_relevant)} письмо(а) по площадкам:"]
         for acct, frm, subj, date in all_relevant:
@@ -176,12 +207,19 @@ def main():
         if dry_run:
             print("mail-watch: DRY RUN, would send:\n" + text)
         else:
-            telegram_send(text)
+            delivered = telegram_send(text)
     else:
         print("mail-watch: тихо")
 
-    if not dry_run:
-        write_state(new_state)
+    # Advance the cursor ONLY when the alert actually reached Telegram. Otherwise
+    # keep the old state so the next run re-reports these emails instead of
+    # skipping past them forever (audit 2026-07-27).
+    if dry_run:
+        return
+    if not delivered:
+        print("mail-watch: alert NOT delivered — cursor left untouched, will retry next run")
+        sys.exit(1)
+    write_state(new_state)
 
 
 if __name__ == "__main__":

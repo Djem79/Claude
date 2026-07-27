@@ -24,8 +24,14 @@ export default function MobileCtaBar({
   return (
     <>
       <div
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 flex flex-col gap-1 bg-white/95 backdrop-blur border-t border-gray-200 px-3 py-2.5"
-        style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))' }}
+        className="md:hidden fixed inset-x-0 z-40 flex flex-col gap-1 bg-white/95 backdrop-blur border-t border-gray-200 px-3 py-2.5"
+        // `bottom` clears the cookie banner while it is on screen — it is fixed to the
+        // same edge with a higher z-index and used to swallow these taps entirely
+        // (audit 2026-07-27). CookieBanner publishes its measured height.
+        style={{
+          bottom: 'var(--ww-consent-offset, 0px)',
+          paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))',
+        }}
       >
         {monthlyNote && (
           <p className="text-[11px] text-gray-500 text-center leading-tight">{monthlyNote}</p>

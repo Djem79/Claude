@@ -22,7 +22,7 @@ export default function AreaFeaturedProperties({ areaName, properties, heading }
             We&apos;re between active listings in {areaName} right now. Browse the wider catalogue
             or contact us for off-market opportunities.
           </p>
-          <Link href="/properties" className="btn-outline inline-block mt-6">
+          <Link href="/properties" className="btn-outline-gold-light inline-block mt-6">
             Browse all properties
           </Link>
         </div>
@@ -52,7 +52,7 @@ export default function AreaFeaturedProperties({ areaName, properties, heading }
         <div className="text-center mt-10">
           <Link
             href={`/properties?area=${encodeURIComponent(areaName)}`}
-            className="btn-outline inline-block"
+            className="btn-outline-gold-light inline-block"
           >
             View all in {areaName}
           </Link>

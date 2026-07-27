@@ -26,6 +26,11 @@ export const OCI_ACTIONS = {
   deal: 'CRM Deal',
 } as const
 
+/** Prefix a leading formula trigger so spreadsheets treat the cell as text. */
+export function csvSafe(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+}
+
 const WINDOW_MS = 90 * 24 * 3600 * 1000 // Google's gclid click window
 const DUBAI_OFFSET_MS = 4 * 3600 * 1000 // Asia/Dubai is fixed +04:00, no DST
 
@@ -61,7 +66,11 @@ export function buildOciCsv(
 
   for (const l of leads) {
     // gclid is URL-safe by spec; strip commas defensively so columns can't shift.
-    const gclid = (l.gclid ?? '').trim().replace(/,/g, '')
+    // It is NOT trusted input: it arrives from a visitor-controlled URL param via
+    // the public POST /api/leads, so neutralise spreadsheet formulas too — the CRM
+    // "Export Google Ads" button opens this file in Excel/Sheets (audit 2026-07-27,
+    // same class as the CSV escape already applied in LeadsClient.tsx).
+    const gclid = csvSafe((l.gclid ?? '').trim().replace(/,/g, ''))
     if (!gclid) continue
     const created = new Date(l.createdAt).getTime()
     if (!Number.isFinite(created) || created < minCreated || created > now.getTime()) continue

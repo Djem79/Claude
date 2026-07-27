@@ -18,7 +18,13 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
   const target = getUserById(params.id)
   if (!target) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const { name, role, active, password, sections } = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const { name, role, active, password, sections } = body
   const patch: Parameters<typeof updateUser>[1] = {}
   if (name !== undefined) patch.name = String(name).slice(0, 120)
   if (role !== undefined) {
@@ -31,7 +37,9 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
   // stored verbatim, and must not slip past the strict `=== false` deactivation guards.
   if (typeof active === 'boolean') patch.active = active
   if (password) {
-    if (String(password).length < 8) {
+    // Must be a real string — a non-string body value (number, object) would otherwise
+    // reach bcrypt as-is; the length check alone doesn't guarantee the type.
+    if (typeof password !== 'string' || password.length < 8) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
     }
     patch.password = password

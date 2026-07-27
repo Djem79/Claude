@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 const COOKIE_KEY = 'ww_cookie_consent'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
+  const boxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // localStorage can throw in Safari Private Mode / when storage is disabled —
@@ -19,6 +20,30 @@ export default function CookieBanner() {
       setVisible(true)
     }
   }, [])
+
+  // LOAD-BEARING (audit 2026-07-27): the banner shares the bottom edge with every
+  // conversion CTA (MobileCtaBar, FloatingCTA, MortgageAnchorBar) and outranks them
+  // on z-index — a first-time visitor on /properties/[slug] literally could not tap
+  // "Enquire" until dismissing it (verified in a real browser via elementFromPoint).
+  // Fix: publish the banner's measured height as --ww-consent-offset; those three
+  // components add it to their `bottom` so they sit ABOVE the banner while it shows.
+  // Measured, not hardcoded — the banner wraps to ~2x height on narrow screens.
+  useEffect(() => {
+    const root = document.documentElement
+    const el = boxRef.current
+    if (!visible || !el) {
+      root.style.removeProperty('--ww-consent-offset')
+      return
+    }
+    const publish = () => root.style.setProperty('--ww-consent-offset', `${el.offsetHeight}px`)
+    publish()
+    const ro = new ResizeObserver(publish)
+    ro.observe(el)
+    return () => {
+      ro.disconnect()
+      root.style.removeProperty('--ww-consent-offset')
+    }
+  }, [visible])
 
   // Consent Mode v2: flip gtag's consent state. Accept → granted (cookies on);
   // Decline → explicit denied so the cookieless tags fire now instead of waiting
@@ -50,7 +75,7 @@ export default function CookieBanner() {
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] bg-navy-dark/95 backdrop-blur-md border-t border-gold/30 shadow-2xl">
+    <div ref={boxRef} className="fixed bottom-0 left-0 right-0 z-[60] bg-navy-dark/95 backdrop-blur-md border-t border-gold/30 shadow-2xl">
       <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
         <div className="flex-1 text-sm text-white/80 leading-relaxed">
           <p>
