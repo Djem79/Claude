@@ -4,3 +4,6 @@
 
 # graphify knowledge-graph output (local only)
 graphify-out/
+
+# Python bytecode (scripts/*.test.py)
+__pycache__/
