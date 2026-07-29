@@ -20,14 +20,26 @@ Alerts only on RELEVANT_DOMAINS senders. State in data/mail-watch-state.json
 STRICT state read: missing file -> baseline pass (no alerts, record current
 max UID); corrupt file -> Telegram error + exit 1, never silently reset.
 
+Two alert tiers (added 2026-07-29 after a BBC request sat unread for two days
+and its deadline passed): platform mail from a watched domain is listed as
+before, but a message whose BODY matches FIT_RE — our angle: Dubai / UAE /
+Middle East / expat / golden visa / international property buyers — is promoted
+to a "ФИТ" block carrying the matched quote and the deadline line. ~90% of these
+digests are US-market queries (FHA loans, Ohio landlords) we cannot answer, so
+the body scan is what separates one actionable request per week from seventy
+notifications. Deliberately NOT a widening of RELEVANT_DOMAINS (rejected
+2026-07-12) — it narrows the noise inside the same platforms.
+
 Flags: --dry-run (print, no state write, no Telegram), --test (send one test
 Telegram message and exit).
 """
 import imaplib
 import json
 import os
+import re
 import sys
 import email
+import html
 import urllib.request
 import urllib.parse
 from email.header import decode_header, make_header
@@ -50,6 +62,128 @@ RELEVANT_DOMAINS = (
     "expat.com",
     "hidubai.com",
 )
+
+
+# Our angle. Generic words are deliberately absent: "relocation", "overseas" and
+# "foreign" on their own matched US corporate-relocation queries and an overseas
+# hiking piece in the 27-29 July digests, so they only count when bound to
+# property/buyer vocabulary.
+FIT_PATTERNS = (
+    r"\bdubai\b",
+    r"\bu\.?a\.?e\b",
+    r"\bunited arab emirates\b",
+    r"\bemirati?s?\b",
+    r"\babu dhabi\b",
+    r"\bsharjah\b",
+    r"\bras al khaimah\b",
+    r"\bmiddle east\b",
+    r"\bpersian gulf\b",
+    r"\bgcc\b",
+    r"\bexpat(riate)?s?\b",
+    r"\bgolden visa\b",
+    r"\b(international|foreign|overseas|non-?resident|cross-?border)\s+"
+    r"(\w+\s+){0,2}(propert|real estate|buyer|investor|investment|home\b|house\b|mortgage)",
+    r"\b(buy|buying|purchas\w+|own|owning|invest\w*)\s+(\w+\s+){0,3}(abroad|overseas)\b",
+    r"\bsecond home\s+(abroad|overseas)\b",
+)
+FIT_RE = re.compile("|".join(FIT_PATTERNS), re.I)
+
+DEADLINE_RE = re.compile(
+    r"(?:submit by|deadline|respond by|responses? due)\s*:?\s*[^\n]{3,60}"
+    r"|\d{1,2}:\d{2}\s*(?:am|pm)\s*(?:et|pt|est|pst|cst|gmt|msk)\s*[-–]\s*\d{1,2}\s+\w+",
+    re.I,
+)
+
+CONTEXT_LINES = 2   # lines of context kept around a match, each side
+MAX_FITS = 3        # quotes per email — a digest can carry several matches
+QUOTE_CHARS = 320
+SHORT_LINE = 160    # below this the matched line alone reads as a fragment
+LEAD_CHARS = 120    # text kept before the match when centring a long line
+DEADLINE_WINDOW = 12  # lines around the match searched for a deadline line
+
+
+def strip_html(raw):
+    raw = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw, flags=re.S | re.I)
+    return html.unescape(re.sub(r"<[^>]+>", "\n", raw))
+
+
+def body_text(msg):
+    """Plain text of a message. text/plain preferred, HTML stripped as fallback."""
+    plain, htm = [], []
+    for part in msg.walk():
+        ctype = part.get_content_type()
+        if ctype not in ("text/plain", "text/html"):
+            continue
+        try:
+            payload = part.get_payload(decode=True)
+        except Exception:
+            continue
+        if not payload:
+            continue
+        text = payload.decode(part.get_content_charset() or "utf-8", "replace")
+        (plain if ctype == "text/plain" else htm).append(text)
+    if plain:
+        return "\n".join(plain)
+    return strip_html("\n".join(htm))
+
+
+def quote_for(lines, i):
+    """Quote that always contains the matched words.
+
+    A digest paragraph can be 600 chars with "Middle East" at the very end, so a
+    plain head-slice would show a quote with nothing matching in it and read as a
+    false alarm. Long lines are centred on the match; short ones borrow their
+    neighbours, which is where a one-line request keeps its meaning.
+    """
+    line = lines[i]
+    if len(line) <= SHORT_LINE:
+        return " ".join(lines[max(0, i - CONTEXT_LINES): i + CONTEXT_LINES + 1])[:QUOTE_CHARS]
+    start = max(0, FIT_RE.search(line).start() - LEAD_CHARS)
+    return ("…" if start else "") + line[start:start + QUOTE_CHARS]
+
+
+def nearest_deadline(lines, i):
+    """Deadline line closest to the match, ties going to the one above it.
+
+    A Qwoted round-up holds several requests, each with its own "Submit By"; the
+    first one inside the window usually belongs to a different request, so
+    distance decides. Ties prefer the earlier line because these digests print
+    the deadline above the request text.
+    """
+    best, best_dist = None, None
+    lo, hi = max(0, i - DEADLINE_WINDOW), min(len(lines), i + DEADLINE_WINDOW + 1)
+    for j in range(lo, hi):
+        found = DEADLINE_RE.search(lines[j])
+        if not found:
+            continue
+        dist = abs(j - i)
+        if best_dist is None or dist < best_dist:
+            best, best_dist = found.group(0).strip(), dist
+    return best
+
+
+def find_fits(text, max_hits=MAX_FITS):
+    """Quotes from `text` that match our angle, each with a deadline if nearby.
+
+    Returns a list of {"quote", "deadline"} dicts. Dedup keys on the MATCHED line,
+    not on the quote: a digest repeats the same request in its plain and HTML
+    parts, and the surrounding context differs between the two, so a quote-based
+    key would report it twice.
+    """
+    lines = [re.sub(r"\s+", " ", l).strip() for l in text.splitlines()]
+    lines = [l for l in lines if l]
+    hits, seen = [], set()
+    for i, line in enumerate(lines):
+        if not FIT_RE.search(line):
+            continue
+        key = line.lower()[:80]
+        if key in seen:
+            continue
+        seen.add(key)
+        hits.append({"quote": quote_for(lines, i), "deadline": nearest_deadline(lines, i)})
+        if len(hits) >= max_hits:
+            break
+    return hits
 
 
 def load_env():
@@ -131,8 +265,20 @@ def decode(value):
         return value or ""
 
 
+def fetch_fits(M, uid):
+    """Body scan for one message. Never fatal: a failed fetch just means no quote."""
+    try:
+        typ, data = M.uid("fetch", str(uid), "(BODY.PEEK[])")
+        if not data or data[0] is None:
+            return []
+        return find_fits(body_text(email.message_from_bytes(data[0][1])))
+    except Exception as e:
+        print(f"mail-watch: body fetch failed for UID {uid}: {type(e).__name__}: {e}")
+        return []
+
+
 def check_account(user, password, prev, dry_run):
-    """Returns (new_state_entry, relevant list of (frm, subj, date))."""
+    """Returns (new_state_entry, relevant list of {from, subject, date, fits})."""
     M = imaplib.IMAP4_SSL(IMAP_HOST, 993)
     M.login(user, password)
     typ, data = M.select("INBOX", readonly=True)
@@ -158,9 +304,39 @@ def check_account(user, password, prev, dry_run):
             msg = email.message_from_bytes(msg_data[0][1])
             frm = decode(msg.get("From"))
             if any(d in frm.lower() for d in RELEVANT_DOMAINS):
-                relevant.append((frm, decode(msg.get("Subject")), msg.get("Date", "")))
+                relevant.append({
+                    "from": frm,
+                    "subject": decode(msg.get("Subject")),
+                    "date": msg.get("Date", ""),
+                    "fits": fetch_fits(M, u),
+                })
     M.logout()
     return {"last_uid": max_uid, "uidvalidity": uidvalidity}, relevant
+
+
+def format_alert(items):
+    """Telegram text for the run: fits first (with quote + deadline), rest listed."""
+    fits = [i for i in items if i.get("fits")]
+    rest = [i for i in items if not i.get("fits")]
+    lines = []
+    if fits:
+        lines.append(f"🔥 ФИТ: {len(fits)} письмо(а) под наш профиль — ответить сегодня")
+        for item in fits:
+            box = item["account"].split("@")[0]
+            lines.append(f"\n• [{box}] {item['from']}\n  {item['subject']}")
+            for hit in item["fits"]:
+                if hit["deadline"]:
+                    lines.append(f"  ⏰ {hit['deadline']}")
+                lines.append(f"  «{hit['quote']}»")
+    if rest:
+        if fits:
+            lines.append(f"\n📬 Остальное ({len(rest)}) — без совпадений:")
+        else:
+            lines.append(f"📬 Вахта: {len(rest)} письмо(а) по площадкам:")
+        for item in rest:
+            box = item["account"].split("@")[0]
+            lines.append(f"• [{box}] {item['from']}\n  {item['subject']}")
+    return "\n".join(lines)
 
 
 def main():
@@ -195,15 +371,13 @@ def main():
                 new_state["accounts"][user] = prev  # keep old cursor, retry next run
             continue
         new_state["accounts"][user] = entry
-        all_relevant.extend((user, *r) for r in relevant)
+        for item in relevant:
+            item["account"] = user
+        all_relevant.extend(relevant)
 
     delivered = True
     if all_relevant:
-        lines = [f"📬 Вахта: {len(all_relevant)} письмо(а) по площадкам:"]
-        for acct, frm, subj, date in all_relevant:
-            box = acct.split("@")[0]
-            lines.append(f"• [{box}] {frm}\n  {subj}")
-        text = "\n".join(lines)
+        text = format_alert(all_relevant)
         if dry_run:
             print("mail-watch: DRY RUN, would send:\n" + text)
         else:
