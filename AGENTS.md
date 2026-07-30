@@ -120,6 +120,22 @@ discipline catches the surprises.
 
 ---
 
+## Standing participant: the server Claude instance (since 2026-07-29)
+
+Besides ad-hoc Mac sessions, a **permanent Claude Code instance runs on the
+production VPS** (user `claude`, tmux `claude-main`, reachable by the human via
+Telegram bot `@worldwise_claude_bot`). It works this same repo from its own
+clone at `/home/claude/Claude` (deploy key, read-write) and follows this
+contract like any other session: branches → PRs, never a direct push to
+`main`. It has **no sudo and no `data/` read access** and does not deploy —
+its production role is read-only ops (mail triage over IMAP/Gmail, cron-log
+health checks) driven by the human's Telegram requests. Its standing orders
+live in `/home/claude/CLAUDE.md` on the server (edited from a Mac session via
+scp). If you see recent branches authored by `Claude Server
+<claude-server@worldwise.pro>` — that's who it is; coordinate per this file.
+
+---
+
 ## Current open work (as of 2026-05-24)
 
 If you're a session picking up work here, the lead session has these threads
