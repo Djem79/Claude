@@ -111,13 +111,23 @@ LEAD_CHARS = 120    # text kept before the match when centring a long line
 DEADLINE_WINDOW = 12  # lines around the match searched for a deadline line
 
 
+TAG_RE = re.compile(r"</?[a-zA-Z][^>]*>")  # markup, not a stray "<" in prose
+
+
 def strip_html(raw):
     raw = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw, flags=re.S | re.I)
     return html.unescape(re.sub(r"<[^>]+>", "\n", raw))
 
 
 def body_text(msg):
-    """Plain text of a message. text/plain preferred, HTML stripped as fallback."""
+    """Plain text of a message. text/plain preferred, HTML stripped as fallback.
+
+    The plain part is not automatically plain: Qwoted's reporter-message mails
+    embed real <a href> tags in it (live mail 2026-07-31), and trusting it
+    verbatim put a 500-char tracking URL into the alert quote where the request
+    should have been. So markup is stripped wherever it appears — TAG_RE, not a
+    bare "<", decides, or prose like "units < AED 2M" would lose its tail.
+    """
     plain, htm = [], []
     for part in msg.walk():
         ctype = part.get_content_type()
@@ -132,7 +142,8 @@ def body_text(msg):
         text = payload.decode(part.get_content_charset() or "utf-8", "replace")
         (plain if ctype == "text/plain" else htm).append(text)
     if plain:
-        return "\n".join(plain)
+        text = "\n".join(plain)
+        return strip_html(text) if TAG_RE.search(text) else text
     return strip_html("\n".join(htm))
 
 
@@ -146,7 +157,15 @@ def quote_for(lines, i):
     """
     line = lines[i]
     if len(line) <= SHORT_LINE:
-        return " ".join(lines[max(0, i - CONTEXT_LINES): i + CONTEXT_LINES + 1])[:QUOTE_CHARS]
+        # Centre the window on the match too. Slicing the joined block from its
+        # start looks safe only while the neighbours are short: the WSJ alert of
+        # 2026-07-31 borrowed a 400-char line above and the cut landed before the
+        # matching words, so the quote showed boilerplate and read as noise.
+        before = lines[max(0, i - CONTEXT_LINES): i]
+        window = " ".join(before + lines[i: i + CONTEXT_LINES + 1])
+        pos = sum(len(l) + 1 for l in before) + FIT_RE.search(line).start()
+        start = max(0, pos - LEAD_CHARS)
+        return ("…" if start else "") + window[start:start + QUOTE_CHARS]
     start = max(0, FIT_RE.search(line).start() - LEAD_CHARS)
     return ("…" if start else "") + line[start:start + QUOTE_CHARS]
 
@@ -394,6 +413,11 @@ def main():
             print("mail-watch: DRY RUN, would send:\n" + text)
         else:
             delivered = telegram_send(text)
+            if delivered:
+                # A receipt, so a delivered ФИТ is not indistinguishable from a
+                # crash: the WSJ alert of 2026-07-31 left no trace here and the
+                # empty log tail was the only hint that anything had been sent.
+                print(f"mail-watch: 🔥 ФИТ отправлен ({len(fits)} из {len(all_relevant)} писем)")
     elif all_relevant:
         # Log-only tier — no push without a fit (see module docstring).
         print(f"mail-watch: {len(all_relevant)} письмо(а) без совпадений, в Telegram не ушло:")

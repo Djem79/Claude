@@ -73,6 +73,22 @@ class FindFits(unittest.TestCase):
         self.assertIn("Middle East", quote)
         self.assertLessEqual(len(quote), mw.QUOTE_CHARS + 1)
 
+    def test_short_line_quote_contains_the_match(self):
+        """Neighbour-borrowing must not push the match past the cut.
+
+        Live case 2026-07-31: the matched line was short, but the line above it
+        was a 500-char tracking URL, so slicing the joined block from its start
+        produced a quote ending inside the href — the match never appeared.
+        """
+        text = "\n".join([
+            "Congratulations, you have a message " + "x" * 400,
+            "saw your thoughts on Dubai",
+            "read the rest on Qwoted",
+        ])
+        quote = mw.find_fits(text)[0]["quote"]
+        self.assertIn("Dubai", quote)
+        self.assertLessEqual(len(quote), mw.QUOTE_CHARS + 1)
+
     def test_no_deadline_is_none_not_crash(self):
         self.assertIsNone(mw.find_fits("Sources in Dubai wanted")[0]["deadline"])
 
@@ -109,6 +125,26 @@ class BodyText(unittest.TestCase):
 
     def test_html_entities_decoded(self):
         self.assertIn("Sotheby's", mw.strip_html("<p>Sotheby&#39;s</p>"))
+
+    def test_plain_part_carrying_markup_is_stripped(self):
+        """Qwoted's text/plain part embeds real <a href> tags (live mail, 2026-07-31).
+
+        Preferring plain then trusting it blindly put the tracking URL into the
+        alert quote instead of the request, so the ФИТ read as noise.
+        """
+        msg = EmailMessage()
+        msg.set_content('You got a message, <a href="http://url1940.qwoted.com/ls/click?upn=u001.Ta">'
+                        "read it</a> about Dubai")
+        text = mw.body_text(msg)
+        self.assertNotIn("<a href", text)
+        self.assertNotIn("url1940", text)
+        self.assertIn("Dubai", text)
+
+    def test_clean_plain_text_is_left_alone(self):
+        """A bare '<' in prose must not be eaten by the stripper."""
+        msg = EmailMessage()
+        msg.set_content("Units < AED 2M in Dubai still yield > 7%")
+        self.assertIn("< AED 2M", mw.body_text(msg))
 
 
 class FormatAlert(unittest.TestCase):
