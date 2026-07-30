@@ -32,6 +32,9 @@ Golden Visa, транзакционные издержки DLD.
 **Мертво/скип:** Help a B2B Writer (→ MentionMatch, категории real estate нет), PressPlugs
 (£29/мес, только UK-пул), ResponseSource (£625+/год/категория, UK-энтерпрайз), SourceBottle (ANZ).
 
+> **Настройка входящего потока** (теги Qwoted, категории HARO, дедупликация ящиков) вынесена в
+> [`2026-07-30-media-feed-tuning.md`](2026-07-30-media-feed-tuning.md) — читать вместе с этим файлом.
+
 ## Профиль эксперта (готовые тексты, EN)
 
 **Титул:** Dzhambulat Tkhazaplizhev — Managing Director, Worldwise Real Estate (Dubai)
