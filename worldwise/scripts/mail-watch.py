@@ -21,14 +21,23 @@ STRICT state read: missing file -> baseline pass (no alerts, record current
 max UID); corrupt file -> Telegram error + exit 1, never silently reset.
 
 Two alert tiers (added 2026-07-29 after a BBC request sat unread for two days
-and its deadline passed): platform mail from a watched domain is listed as
-before, but a message whose BODY matches FIT_RE — our angle: Dubai / UAE /
-Middle East / expat / golden visa / international property buyers — is promoted
-to a "ФИТ" block carrying the matched quote and the deadline line. ~90% of these
-digests are US-market queries (FHA loans, Ohio landlords) we cannot answer, so
-the body scan is what separates one actionable request per week from seventy
+and its deadline passed): a message whose BODY matches FIT_RE — our angle:
+Dubai / UAE / Middle East / expat / golden visa / international property buyers
+— is promoted to a "ФИТ" block carrying the matched quote and the deadline line;
+everything else from a watched domain is listed under it for context. ~90% of
+these digests are US-market queries (FHA loans, Ohio landlords) we cannot answer,
+so the body scan is what separates one actionable request per week from seventy
 notifications. Deliberately NOT a widening of RELEVANT_DOMAINS (rejected
 2026-07-12) — it narrows the noise inside the same platforms.
+
+**Telegram fires ONLY when there is at least one ФИТ** (2026-07-30, at the
+user's request): a run whose platform mail matched nothing is written to the log
+and nothing else. Pushing "📬 Вахта: 2 письма" several times a day for digests
+with nothing in them trained the user to ignore the alert, which defeats the
+point of having one. The no-fit tier still reaches a human — the session pass
+re-reads both mailboxes and triages every digest by hand — so a FIT_RE false
+negative costs a delay, not the request. That is also why a silent run still
+advances the state cursor: the log line, not Telegram, is the record.
 
 Flags: --dry-run (print, no state write, no Telegram), --test (send one test
 Telegram message and exit).
@@ -376,12 +385,21 @@ def main():
         all_relevant.extend(relevant)
 
     delivered = True
-    if all_relevant:
+    fits = [i for i in all_relevant if i.get("fits")]
+    if fits:
+        # The no-fit items ride along inside the same message: we are already
+        # interrupting for the fit, so listing them costs no extra notification.
         text = format_alert(all_relevant)
         if dry_run:
             print("mail-watch: DRY RUN, would send:\n" + text)
         else:
             delivered = telegram_send(text)
+    elif all_relevant:
+        # Log-only tier — no push without a fit (see module docstring).
+        print(f"mail-watch: {len(all_relevant)} письмо(а) без совпадений, в Telegram не ушло:")
+        for item in all_relevant:
+            box = item["account"].split("@")[0]
+            print(f"mail-watch:   [{box}] {item['from']} | {item['subject']}")
     else:
         print("mail-watch: тихо")
 
