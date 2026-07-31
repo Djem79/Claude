@@ -171,3 +171,43 @@ questions matching Dubai real estate or property investment?» → резуль�
 
 SOS не трогали: приходит один раз (через тот же Gmail-форвард), дубля нет, настроек у
 площадки не существует.
+
+## 8. ⭐ Настоящий рычаг Qwoted — «Tailor my alerts» (найден 31.07 ночью)
+
+Правка тегов профиля (раздел 7) объём писем НЕ уменьшила: письмо, пришедшее уже после неё,
+снова сослалось на `Because you follow #ResidentialRealEstate` — тег, которого на профиле
+никогда не было. **Поток алертов управляется отдельным слоем, не связанным с Expertise:**
+
+**Где:** `app.qwoted.com` → аватар (или Opportunities → «My Settings») →
+`/users/<slug>/user_tailor_alerts`, вкладка **«Tailor my alerts»**. Соседние вкладки —
+`Alerts`, `Searches`, `Billing`.
+
+### Что там было
+
+- **Notification Frequency** — ползунок 1–5, стоял на **4** (между «Balanced» и
+  «All Possibilities / No max»). Это и есть кран.
+- **Hashtags** с тремя вкладками — `Following` (алертить), `Muted` (не алертить, но если
+  совпал и подписанный тег — письмо придёт), `Blocked` (не алертить никогда, даже при
+  совпадении других тегов). В `Following` лежали ровно те теги из «Because you follow»:
+  `TaxPlanning`, `MortgageLending`, `MortgageLoans`, `RealEstateTransactions`,
+  `ResidentialRealEstate`, `RealEstateAgency`, `RealEstateDevelopment`, `InvestmentAnalyst`,
+  `Accountants`, `Immigration`. На профиле их не было ни одного.
+
+### Что сделано
+
+- Частота → **Balanced (max 15/день)**. ⚠️ **«Best Matches Only» (max 5/день) ставить нельзя:**
+  Qwoted тут же авто-мьютит ВСЕ теги с пометкой «Exceeds notification frequency», `Following`
+  пустеет полностью — вместо фильтрации получаем тишину. Проверено и откачено той же ночью.
+- Девять американских тегов → **Mute**, не Block: заблокированный тег убивает письмо целиком,
+  даже если запрос дубайский и просто помечен заодно ипотечным тегом.
+- Подписаны 23 наших (все объёма Very Low/Low, поэтому под лимит частоты не попадают):
+  `Dubai` `DubaiRealEstate` `DubaiProperty` `UAE` `UnitedArabEmirates` `AbuDhabi` `MiddleEast`
+  `GCC` `InternationalRealEstate` `GlobalRealEstate` `OverseasProperty` `OffPlanDubai`
+  `Goldenvisa` `GoldenVisaDubai` `Expat` `Relocation` `RentalYields` `PropertyInvestment`
+  `ForeignInvestment` `LuxuryRealEstate` `ResidencyByInvestment` `HNWI` `Immigration`.
+
+Теги здесь добавляются через поле «Search and add hashtags…» — список тот же закрытый, но
+**строки таблицы разделены табами**, а не пробелами (это ломает наивный парсинг при
+автоматизации). У каждой строки три кнопки: `Follow` / `Mute` / `Block`.
+
+> Открытый вопрос из раздела 7 закрыт: теги в письмах приходили не из профиля, а отсюда.
