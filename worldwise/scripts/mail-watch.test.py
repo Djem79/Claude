@@ -147,6 +147,38 @@ class BodyText(unittest.TestCase):
         self.assertIn("< AED 2M", mw.body_text(msg))
 
 
+class StripLinks(unittest.TestCase):
+    """Addresses must not decide fit — live false alarm, 2026-07-31."""
+
+    def test_senders_own_domain_is_not_a_fit(self):
+        """expat.com's transactional mail fired a 🔥 ФИТ on the word in its domain."""
+        body = ("Hello,\nYou need to confirm your email address in order to complete your "
+                "business registration. To do so, click on the link below:\n"
+                "https://et2.expat.com/f/a/Xg0lWbhQntrp6agWuAurgg~~/AAGzbhA~/pAcBp\n"
+                "Thank you for registering your business on expat.com")
+        self.assertEqual(mw.find_fits(body), [])
+
+    def test_tracking_url_carrying_our_words_is_not_a_fit(self):
+        body = "Click https://mail.example.com/ls/click?upn=dubai-uae-golden-visa-report to read"
+        self.assertEqual(mw.find_fits(body), [])
+
+    def test_reporter_email_address_is_not_a_fit(self):
+        body = "Reach me any time at judy.dutton@dubai-desk.com"
+        self.assertEqual(mw.find_fits(body), [])
+
+    def test_prose_beside_a_link_still_matches_without_the_url(self):
+        body = ("Saw your very interesting thoughts on Dubai\n"
+                "Read the rest at https://app.qwoted.com/inbox/12345")
+        fits = mw.find_fits(body)
+        self.assertEqual(len(fits), 1)
+        self.assertIn("Dubai", fits[0]["quote"])
+        self.assertNotIn("qwoted.com", fits[0]["quote"])
+
+    def test_dotted_uae_survives_the_stripper(self):
+        """A closed TLD list, so 'U.A.E.' is not mistaken for a domain."""
+        self.assertEqual(len(mw.find_fits("Seeking sources based in the U.A.E. for a feature")), 1)
+
+
 class FormatAlert(unittest.TestCase):
     def make(self, subject, fits=None, account="info@worldwise.pro"):
         return {"account": account, "from": "Qwoted <notifications@qwoted.com>",
