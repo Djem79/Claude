@@ -113,6 +113,34 @@ DEADLINE_WINDOW = 12  # lines around the match searched for a deadline line
 
 TAG_RE = re.compile(r"</?[a-zA-Z][^>]*>")  # markup, not a stray "<" in prose
 
+# Addresses are not prose. A tracking URL is opaque text that happens to contain
+# our vocabulary, and a sender's own domain says nothing about what a journalist
+# asked — expat.com's "Email Validation" mail fired a 🔥 ФИТ on 2026-07-31 purely
+# because "expat" is in "expat.com" (twice, so the alert even looked corroborated).
+# The TLD list is closed on purpose: a greedy "any dotted token" rule would eat
+# "U.A.E.", which FIT_PATTERNS matches on.
+LINK_RES = (
+    re.compile(r"<?https?://\S+", re.I),
+    re.compile(r"\bwww\.\S+", re.I),
+    re.compile(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+", re.I),
+    re.compile(r"\b[\w-]+(?:\.[\w-]+)*\.(?:com|net|org|io|ae|ru|co|uk|us|me|pro"
+               r"|info|biz|news|app|dev|gov|edu|club|link|email)\b", re.I),
+)
+
+
+def strip_links(text):
+    """Text with URLs, e-mail addresses and bare domains removed.
+
+    Applied before the fit scan AND before quoting, so a match can only come
+    from something a human wrote. The trade-off is deliberate: a request whose
+    ONLY mention of us is inside a link (".. see Dubai.ae ..") stops matching —
+    acceptable, since a real request repeats its subject in prose, while every
+    mail from a watched platform carries that platform's domain in its footer.
+    """
+    for rx in LINK_RES:
+        text = rx.sub(" ", text)
+    return text
+
 
 def strip_html(raw):
     raw = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw, flags=re.S | re.I)
@@ -198,7 +226,7 @@ def find_fits(text, max_hits=MAX_FITS):
     parts, and the surrounding context differs between the two, so a quote-based
     key would report it twice.
     """
-    lines = [re.sub(r"\s+", " ", l).strip() for l in text.splitlines()]
+    lines = [re.sub(r"\s+", " ", strip_links(l)).strip() for l in text.splitlines()]
     lines = [l for l in lines if l]
     hits, seen = [], set()
     for i, line in enumerate(lines):
