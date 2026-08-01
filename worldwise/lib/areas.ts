@@ -42,7 +42,7 @@ export const areas: Area[] = [
     tagline: "Dubai's iconic waterfront skyline — and one of the city's deepest rental markets.",
     coords: { lat: 25.0805, lng: 55.1403 },
     metrics: {
-      avgPrice: 'AED 1,850/sqft',
+      avgPrice: 'AED 2,300/sqft',
       roi: '5.5–6.5%',
       typicalSize: '650–1,400 sqft',
       handover: 'Mostly secondary; select off-plan 2026–2028',
@@ -77,7 +77,7 @@ export const areas: Area[] = [
         a: 'With population growth continuing and limited new Marina supply, rental yields are expected to hold around the 5.5–6.5% range through 2027, with stronger performance on furnished and serviced units.',
       },
     ],
-    metaDescription: 'Buy investment property in Dubai Marina — average AED 1,850/sqft, 5.5–6.5% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Dubai Marina — average AED 2,300/sqft, 5.5–6.5% rental yields. Browse current listings and get expert guidance from Worldwise Real Estate.',
   },
   {
     slug: 'downtown-dubai',
@@ -86,7 +86,7 @@ export const areas: Area[] = [
     tagline: 'Live next to Burj Khalifa — the most prestigious address in the city.',
     coords: { lat: 25.1950, lng: 55.2744 },
     metrics: {
-      avgPrice: 'AED 2,200/sqft',
+      avgPrice: 'AED 3,350/sqft',
       roi: '5–6%',
       typicalSize: '700–1,800 sqft',
       handover: 'Mature secondary + select Emaar off-plan 2026–2027',
@@ -121,7 +121,7 @@ export const areas: Area[] = [
         a: 'Downtown service charges typically run AED 18–28/sqft per year. Address Residences and Burj Khalifa itself sit at the higher end; older Old Town low-rise buildings are at the lower end.',
       },
     ],
-    metaDescription: 'Buy property in Downtown Dubai — AED 2,200/sqft average, 5–6% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property in Downtown Dubai — AED 3,350/sqft average, 5–6% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
   },
   {
     slug: 'palm-jumeirah',
@@ -130,15 +130,15 @@ export const areas: Area[] = [
     tagline: "Dubai's signature waterfront island — beachfront living with global brand recognition.",
     coords: { lat: 25.1124, lng: 55.1390 },
     metrics: {
-      avgPrice: 'AED 2,800/sqft',
-      roi: '5–6%',
+      avgPrice: 'AED 4,150/sqft',
+      roi: '4–5%',
       typicalSize: '800–4,500 sqft',
       handover: 'Mature secondary + premium off-plan towers 2026–2028',
     },
     whyInvest: [
       "Palm Jumeirah is one of the most recognisable real estate addresses in the world. The combination of private beach access, restricted island supply and brand association with luxury hospitality (Atlantis, One&Only, Waldorf Astoria) gives properties here a global tenant and buyer pool that very few Dubai districts can match.",
       "The market splits into three distinct segments: trunk apartments (typically AED 2.0–4.0M for one and two-bedrooms with marina or skyline views), frond villas (AED 15–50M for beachfront family homes) and ultra-luxury penthouses at branded residences (AED 40M and above). Each segment has its own demand profile but all benefit from the Palm address premium.",
-      "Yields vary widely by tower and unit. Trunk apartments typically run around 5–6% on long-term leases, with substantially higher returns on short-term lets — a furnished Palm trunk apartment can generate AED 350,000+ in gross holiday-let revenue per year. Frond villas trade on capital appreciation rather than yield.",
+      "Yields vary widely by tower and unit. Trunk apartments typically run around 4–5% on long-term leases, with substantially higher returns on short-term lets — a furnished Palm trunk apartment can generate AED 350,000+ in gross holiday-let revenue per year. Frond villas trade on capital appreciation rather than yield.",
     ],
     whatsNearby: [
       'Private residents-only and public beaches on the island',
@@ -174,7 +174,7 @@ export const areas: Area[] = [
     tagline: "Dubai's CBD next to Downtown — strong yields at a discount to the city centre.",
     coords: { lat: 25.1850, lng: 55.2650 },
     metrics: {
-      avgPrice: 'AED 1,600/sqft',
+      avgPrice: 'AED 2,400/sqft',
       roi: '6–7%',
       typicalSize: '500–1,200 sqft',
       handover: 'Heavy off-plan pipeline 2026–2029',
@@ -209,7 +209,7 @@ export const areas: Area[] = [
         a: 'Less so than Dubai Hills or Arabian Ranches. Business Bay is designed around professional tenants — limited schools and parks within the district itself, though families do live here for proximity to Downtown amenities.',
       },
     ],
-    metaDescription: 'Buy investment property in Business Bay — AED 1,600/sqft, 6–7% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Business Bay — AED 2,400/sqft, 6–7% yields, biggest off-plan pipeline in central Dubai. Worldwise Real Estate.',
   },
   {
     slug: 'dubai-hills',
@@ -218,7 +218,7 @@ export const areas: Area[] = [
     tagline: "Dubai's green-belt family district — schools, golf, and one of Emaar's flagship masterplans.",
     coords: { lat: 25.1050, lng: 55.2480 },
     metrics: {
-      avgPrice: 'AED 1,400/sqft',
+      avgPrice: 'AED 2,500/sqft',
       roi: '5.5–6.5%',
       typicalSize: '800–4,500 sqft',
       handover: 'Active off-plan villas and apartments 2026–2028',
@@ -253,7 +253,7 @@ export const areas: Area[] = [
         a: 'Active but slower-moving than Marina or Business Bay — properties typically rent within 30–60 days, and tenants stay longer. Vacancy risk is lower; void periods between tenants are correspondingly shorter.',
       },
     ],
-    metaDescription: 'Buy investment property in Dubai Hills — AED 1,400/sqft, family-oriented Emaar masterplan with golf, schools and parks. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in Dubai Hills — AED 2,500/sqft, family-oriented Emaar masterplan with golf, schools and parks. Worldwise Real Estate.',
   },
   {
     slug: 'jlt',
@@ -263,13 +263,13 @@ export const areas: Area[] = [
     tagline: 'Marina-adjacent and metro-served — the highest-yielding established district in Dubai.',
     coords: { lat: 25.0693, lng: 55.1440 },
     metrics: {
-      avgPrice: 'AED 1,200/sqft',
-      roi: '7–8%',
+      avgPrice: 'AED 2,000/sqft',
+      roi: '6.5–7.5%',
       typicalSize: '500–1,400 sqft',
       handover: 'Primarily secondary; select off-plan 2026–2027',
     },
     whyInvest: [
-      "Jumeirah Lake Towers (JLT) sits directly across Sheikh Zayed Road from Dubai Marina, offering many of the same advantages — metro access, lakeside promenades, dense F&B — at substantially lower entry prices. The price-per-square-foot gap to Marina has historically been 30–40%, while yields run around a point higher.",
+      "Jumeirah Lake Towers (JLT) sits directly across Sheikh Zayed Road from Dubai Marina, offering many of the same advantages — metro access, lakeside promenades, dense F&B — at substantially lower entry prices. JLT still trades at a discount to Marina per square foot, while yields run around a point higher.",
       "JLT is also home to DMCC, the free zone that hosts over 25,000 companies in the precious metals, commodities and tech sectors. This creates a built-in professional tenant base who work in JLT and want to live within walking distance, supporting consistent demand for studios and one-bedrooms.",
       "Most of the supply is mature — the district was largely completed by 2015 — which means investors can buy with full visibility on service charges, rental history and building reputations. New off-plan launches are rare but high-quality (e.g. Sobha and Damac tower additions).",
     ],
@@ -298,7 +298,7 @@ export const areas: Area[] = [
         a: "Generally lower than Marina — AED 12–18/sqft per year for most towers, which combined with lower purchase prices is the main driver of JLT’s yield premium.",
       },
     ],
-    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 1,200/sqft, 7–8% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
+    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 2,000/sqft, 6.5–7.5% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
   },
   {
     slug: 'mbr-city',
@@ -308,7 +308,7 @@ export const areas: Area[] = [
     tagline: "Canal-side central Dubai between Downtown and Meydan — the city's strongest capital-appreciation play.",
     coords: { lat: 25.1700, lng: 55.3000 },
     metrics: {
-      avgPrice: 'AED 2,000/sqft',
+      avgPrice: 'AED 2,050/sqft',
       roi: '6–7%',
       typicalSize: '700–1,500 sqft',
       handover: 'Active off-plan pipeline 2026–2028 (Sobha-led)',
@@ -343,7 +343,7 @@ export const areas: Area[] = [
         a: 'Very — it borders Downtown, Business Bay and Meydan, with Al Khail and Ras Al Khor roads putting DIFC and Dubai Mall about 10 minutes away and the airport around 15.',
       },
     ],
-    metaDescription: 'Buy investment property in MBR City (Sobha Hartland) — AED 2,000/sqft, 6–7% yields and central-Dubai capital growth. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in MBR City (Sobha Hartland) — AED 2,050/sqft, 6–7% yields and central-Dubai capital growth. Worldwise Real Estate.',
   },
   {
     slug: 'creek-harbour',
@@ -352,13 +352,13 @@ export const areas: Area[] = [
     tagline: "Emaar's next Downtown — a master-planned waterfront city around the future Dubai Creek Tower.",
     coords: { lat: 25.1980, lng: 55.3530 },
     metrics: {
-      avgPrice: 'AED 1,700/sqft',
+      avgPrice: 'AED 2,650/sqft',
       roi: '5.5–6.5%',
       typicalSize: '600–2,200 sqft',
       handover: 'Active off-plan pipeline 2026–2030',
     },
     whyInvest: [
-      "Dubai Creek Harbour is Emaar's most ambitious current masterplan: a 6 sq km waterfront city built around the planned Dubai Creek Tower, set to be the world's tallest. It's positioned as the next Downtown — same developer pedigree, similar walkable urbanism, but at earlier-cycle prices around AED 1,700/sqft against Downtown's AED 2,200+.",
+      "Dubai Creek Harbour is Emaar's most ambitious current masterplan: a 6 sq km waterfront city built around the planned Dubai Creek Tower, set to be the world's tallest. It's positioned as the next Downtown — same developer pedigree, similar walkable urbanism, but at earlier-cycle prices around AED 2,650/sqft against Downtown's AED 3,350+.",
       "Entry is dominated by off-plan, which suits investors who want the longest payment plans, lowest entry capital and longest runway to handover-to-rental conversion. Most launches sit on 50/50 or 60/40 plans with 1% monthly post-handover terms available on select towers.",
       "The catch is timing — much of the masterplan still has 3–5 years of construction ahead. Yields are projected at around 5.5–6.5% for completed towers (Creek Beach, Creek Edge, Address Harbour Point are now handed over and renting), but each new tower carries delivery and infrastructure-pace risk that mature districts don't have.",
     ],
@@ -387,7 +387,7 @@ export const areas: Area[] = [
         a: 'Construction-delay risk (mitigated by Emaar’s delivery record), masterplan-pace risk (some amenity launches depend on adjacent phases completing) and exit-liquidity risk (resale activity is thinner for off-plan units than handed-over stock).',
       },
     ],
-    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 1,700/sqft, 5.5–6.5% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
+    metaDescription: 'Buy property in Dubai Creek Harbour — Emaar masterplan, AED 2,650/sqft, 5.5–6.5% projected yields, future Dubai Creek Tower. Worldwise Real Estate.',
   },
   {
     slug: 'emaar-beachfront',
@@ -396,15 +396,15 @@ export const areas: Area[] = [
     tagline: 'Private island living next to Dubai Marina — beachfront residences with global resale appeal.',
     coords: { lat: 25.0950, lng: 55.1430 },
     metrics: {
-      avgPrice: 'AED 2,500/sqft',
-      roi: '6–7%',
+      avgPrice: 'AED 3,400/sqft',
+      roi: '5.5–6.5%',
       typicalSize: '700–3,500 sqft',
       handover: 'Multiple towers handing over 2026–2028',
     },
     whyInvest: [
       "Emaar Beachfront is a gated island development in Dubai Harbour, sitting between Dubai Marina and Palm Jumeirah. Every tower has direct beach access, marina views or both — the entire masterplan is designed around 1.5 km of private beach and a 1,400-berth super-yacht harbour next door.",
       "The combination of Emaar developer pedigree, private beach access and waterfront positioning gives properties here a strong global resale story. The buyer mix includes a high proportion of overseas investors from the UK, Russia, India and China who pay premium prices for the brand association — particularly on penthouses and beachfront-line apartments.",
-      "Long-let yields are estimated at around 6–7% for mid-tower one and two-bedroom units, with short-term let returns substantially higher given the beach access — premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory.",
+      "Long-let yields are estimated at around 5.5–6.5% for mid-tower one and two-bedroom units, with short-term let returns substantially higher given the beach access — premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory.",
     ],
     whatsNearby: [
       'Private 1.5 km beach exclusive to residents',
@@ -431,7 +431,7 @@ export const areas: Area[] = [
         a: 'Emaar Beachfront service charges run AED 18–28/sqft per year, with beach maintenance and pool/gym facilities included. Premium towers like Address Beach Resort are at the higher end.',
       },
     ],
-    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 2,500/sqft, 6–7% yields. Premium investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 3,400/sqft, 5.5–6.5% yields. Premium investment guidance from Worldwise Real Estate.',
   },
   {
     slug: 'damac-hills',
@@ -441,14 +441,14 @@ export const areas: Area[] = [
     tagline: "An established golf community of villas and apartments wrapped in parks and lagoons.",
     coords: { lat: 25.0250, lng: 55.2480 },
     metrics: {
-      avgPrice: 'AED 1,300/sqft',
-      roi: '6–7%',
+      avgPrice: 'AED 1,930/sqft',
+      roi: '5–6%',
       typicalSize: '1–6 BR / 700–6,000 sqft',
       handover: 'Ready, plus select off-plan 2026–2027',
     },
     whyInvest: [
       "Damac Hills is one of Dubai's most established master communities — a green, gated district built around the Trump International Golf Club Dubai. Its mix of branded villas, townhouses and mid-rise apartments has a proven resale and rental track record, which makes it a lower-risk entry point for first-time Dubai investors.",
-      "Families drive demand here. Sweeping parks, a skate park, stables, lakes and community retail keep occupancy high and tenant turnover low, supporting steady 6–7% gross yields on apartments and reliable long-term leases on villas. Green, low-density communities have consistently outperformed on tenant retention since 2021.",
+      "Families drive demand here. Sweeping parks, a skate park, stables, lakes and community retail keep occupancy high and tenant turnover low, supporting steady 5–6% gross yields on apartments and reliable long-term leases on villas. Green, low-density communities have consistently outperformed on tenant retention since 2021.",
       "Because the community is largely handed over, buyers can inspect real service charges, finished units and live rental data before committing — and still access off-plan inventory in newer clusters at attractive entry prices and payment plans.",
     ],
     whatsNearby: [
@@ -460,11 +460,11 @@ export const areas: Area[] = [
     ],
     faq: [
       { q: 'Is Damac Hills a freehold area?', a: 'Yes — Damac Hills is a designated freehold community, so non-UAE nationals can buy apartments, townhouses and villas with full ownership.' },
-      { q: 'What returns can I expect in Damac Hills?', a: 'Apartments typically return around 6–7% gross on long-term leases; villas yield slightly less but offer stronger capital appreciation as a family-home segment.' },
+      { q: 'What returns can I expect in Damac Hills?', a: 'Apartments typically return around 5–6% gross on long-term leases; villas yield slightly less but offer stronger capital appreciation as a family-home segment.' },
       { q: 'Is Damac Hills the same as Damac Hills 2?', a: 'No. Damac Hills is the original golf-course community closer to the city; Damac Hills 2 (formerly Akoya) is a separate, more affordable community further out. We track them as distinct areas.' },
       { q: 'Is it a good area for families?', a: "Yes — low-density layout, schools, nurseries, parks and sports facilities make it one of Dubai's most family-oriented gated communities." },
     ],
-    metaDescription: 'Invest in Damac Hills, Dubai — an established golf community of villas and apartments. ~AED 1,300/sqft, 6–7% yields. Browse listings with Worldwise Real Estate.',
+    metaDescription: 'Invest in Damac Hills, Dubai — an established golf community of villas and apartments. ~AED 1,930/sqft, 5–6% yields. Browse listings with Worldwise Real Estate.',
   },
   {
     slug: 'damac-hills-2',
@@ -473,13 +473,13 @@ export const areas: Area[] = [
     tagline: "A value-led master community built around water features, sports and green amenities.",
     coords: { lat: 24.9100, lng: 55.2700 },
     metrics: {
-      avgPrice: 'AED 900/sqft',
-      roi: '7–9%',
+      avgPrice: 'AED 1,070/sqft',
+      roi: '5.5–6.5%',
       typicalSize: '1–5 BR / 600–3,500 sqft',
       handover: 'Ready, plus off-plan 2026–2027',
     },
     whyInvest: [
-      "Damac Hills 2 (formerly Akoya) is one of Dubai's most affordable freehold master communities, which is exactly what makes it a strong income play. Lower entry prices push gross rental yields into the 7–9% range — among the highest for townhouse and apartment stock in Dubai.",
+      "Damac Hills 2 (formerly Akoya) is one of Dubai's most affordable freehold master communities, which is exactly what makes it a strong income play. Lower entry prices keep gross rental yields around 5.5–6.5% — among the strongest for villa and townhouse stock in Dubai, where most established communities sit closer to 4–5%.",
       "The community is themed around amenities: a wave pool and lazy river, sports fields, a paintball arena, fishing lake and extensive green spaces. That experiential, family-first positioning keeps long-term tenant demand resilient even as the wider area matures and new infrastructure arrives.",
       "It suits investors who prioritise cash flow over prestige addresses. Affordable villas and townhouses rent quickly to families priced out of central Dubai, and the developer's staged payment plans let buyers enter off-plan with modest upfront capital.",
     ],
@@ -491,12 +491,12 @@ export const areas: Area[] = [
       'Close to the Emaar South / Al Maktoum Airport growth corridor',
     ],
     faq: [
-      { q: 'Why are yields higher in Damac Hills 2?', a: 'Lower purchase prices relative to rents push gross yields to roughly 7–9% — higher than most central Dubai districts, which is the main reason investors choose it.' },
+      { q: 'Why are yields higher in Damac Hills 2?', a: 'Lower purchase prices relative to rents keep gross yields around 5.5–6.5% — the top of the Dubai villa market, where established communities typically return 4–5%, which is the main reason investors choose it.' },
       { q: 'Is Damac Hills 2 freehold?', a: 'Yes — it is a designated freehold community open to foreign buyers with full ownership.' },
       { q: 'How far is it from the city?', a: 'Around 30–40 minutes to Downtown and Dubai Marina via Emirates Road; it trades distance for affordability and amenities.' },
       { q: 'What property types are available?', a: 'Mainly townhouses and villas, plus a growing number of apartments in newer clusters — typically 1 to 5 bedrooms.' },
     ],
-    metaDescription: 'Invest in Damac Hills 2 (Akoya), Dubai — affordable freehold homes with 7–9% rental yields. Browse current listings with Worldwise Real Estate.',
+    metaDescription: 'Invest in Damac Hills 2 (Akoya), Dubai — affordable freehold homes with 5.5–6.5% rental yields. Browse current listings with Worldwise Real Estate.',
   },
   {
     slug: 'the-valley',
@@ -505,15 +505,15 @@ export const areas: Area[] = [
     tagline: "Emaar's master-planned town of townhouses and villas on the Dubai–Al Ain corridor.",
     coords: { lat: 25.0100, lng: 55.4200 },
     metrics: {
-      avgPrice: 'AED 1,150/sqft',
-      roi: '5–6%',
+      avgPrice: 'AED 1,850/sqft',
+      roi: '4.5–5.5%',
       typicalSize: '3–4 BR townhouses / 2,000–3,500 sqft',
       handover: 'Off-plan, 2026–2028',
     },
     whyInvest: [
       "The Valley is one of Emaar's fastest-selling new towns — a family-focused community of townhouses and villas along the Dubai–Al Ain road. Backing from Emaar gives it the delivery credibility and resale liquidity that newer developers can't always match, which lowers off-plan risk.",
       "Its appeal is lifestyle and price. Town Centre retail, a Golden Beach, a sports village, schools and sprawling parkland target end-user families rather than speculators — the buyer base that underpins durable rental demand. Entry prices remain below comparable Emaar communities closer to the city, leaving room for capital growth as the master plan completes.",
-      "For investors, the combination of Emaar payment plans, a townhouse-heavy mix and a maturing location on a key growth corridor makes The Valley a balanced off-plan hold: moderate 5–6% yields with meaningful appreciation potential through handover.",
+      "For investors, the combination of Emaar payment plans, a townhouse-heavy mix and a maturing location on a key growth corridor makes The Valley a balanced off-plan hold: moderate 4.5–5.5% yields with meaningful appreciation potential through handover.",
     ],
     whatsNearby: [
       'Town Centre retail, dining and community market',
@@ -525,10 +525,10 @@ export const areas: Area[] = [
     faq: [
       { q: 'Who develops The Valley?', a: 'The Valley is an Emaar master community, which gives buyers strong delivery and resale confidence compared with less-established developers.' },
       { q: 'Is The Valley mainly off-plan?', a: 'Yes — most inventory is off-plan with handovers through 2026–2028 on Emaar staged payment plans. Early phases are already completing.' },
-      { q: 'What yields does The Valley offer?', a: 'As a townhouse-led family community it offers moderate gross yields around 5–6%, with the main upside in capital appreciation as the master plan matures.' },
+      { q: 'What yields does The Valley offer?', a: 'As a townhouse-led family community it offers moderate gross yields around 4.5–5.5%, with the main upside in capital appreciation as the master plan matures.' },
       { q: 'Is The Valley freehold?', a: 'Yes — it is a freehold community open to international buyers with full ownership.' },
     ],
-    metaDescription: 'Invest in The Valley by Emaar, Dubai — family townhouses and villas with 5–6% yields and strong growth potential. Browse listings with Worldwise Real Estate.',
+    metaDescription: 'Invest in The Valley by Emaar, Dubai — family townhouses and villas with 4.5–5.5% yields and strong growth potential. Browse listings with Worldwise Real Estate.',
   },
 ]
 
