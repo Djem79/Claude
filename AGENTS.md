@@ -53,10 +53,18 @@ feature is the lead** until told otherwise. When in doubt — ask the human.
 
 ### Communication with other sessions
 
-You can't talk to other Claude sessions live. The repo is the only shared
-medium. When you make a decision another session needs to know about,
-record it in one of:
+You can't talk to other Claude sessions live. When you make a decision another
+session needs to know about, record it in one of:
 
+- **`/home/claude/ops-journal.md` on the VPS — the cross-machine ops journal**
+  (Mac sessions ↔ the server instance; since 2026-08-01). This is the ONLY
+  medium both machines see instantly — the repo needs a pull/PR round-trip.
+  `tail -60` it at session start and BEFORE any outward marketing/PR action
+  (a journalist reply, a pitch, a directory submission, trashing a thread) —
+  the other instance may have already done it. Append an entry after every
+  outward action or hand-off: `## YYYY-MM-DD HH:MM MSK [mac|server] — title`
+  plus 1–5 lines of facts. Append-only; full rules live in the file header.
+  From a Mac: `ssh root@62.238.35.20 "tail -60 /home/claude/ops-journal.md"`.
 - `tasks/lessons.md` — for "do not repeat this" rules
 - `docs/superpowers/specs/` — for design that another session might extend
 - `tasks/todo.md` — for in-flight work the human is tracking
@@ -131,7 +139,9 @@ contract like any other session: branches → PRs, never a direct push to
 its production role is read-only ops (mail triage over IMAP/Gmail, cron-log
 health checks) driven by the human's Telegram requests. Its standing orders
 live in `/home/claude/CLAUDE.md` on the server (edited from a Mac session via
-scp). If you see recent branches authored by `Claude Server
+scp). It shares state with Mac sessions through the ops journal
+(`/home/claude/ops-journal.md`, see *Communication with other sessions*) —
+both sides read it before acting and append after acting. If you see recent branches authored by `Claude Server
 <claude-server@worldwise.pro>` — that's who it is; coordinate per this file.
 
 ---
