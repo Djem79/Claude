@@ -64,7 +64,7 @@ const orgJsonLd = {
   url: 'https://worldwise.pro',
   logo: 'https://worldwise.pro/images/logo.png',
   description:
-    'Dubai-based real estate investment agency specialising in off-plan and secondary market properties. RERA-certified. Gross rental yields of 4.5-7.5% by district, plus capital growth. 0% income tax.',
+    'Dubai-based real estate investment agency specialising in off-plan and secondary market properties. RERA-certified. 8-10% total ROI (rental income plus capital growth); gross rental yields of up to 8% by district. 0% income tax.',
   telephone: '+971506960435',
   email: 'info@worldwise.pro',
   address: {
