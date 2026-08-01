@@ -81,8 +81,8 @@ export const landings: Landing[] = [
           ['Downtown Dubai', 'AED 1.2M – AED 5M', '5–6%'],
           ['Business Bay', 'AED 700K – AED 2.5M', '6–7%'],
           ['Dubai Hills', 'AED 800K – AED 2.8M', '5.5–6.5%'],
-          ['Palm Jumeirah', 'AED 2M – AED 15M+', '5–6%'],
-          ['JLT', 'AED 550K – AED 1.8M', '7–8%'],
+          ['Palm Jumeirah', 'AED 2M – AED 15M+', '4–5%'],
+          ['JLT', 'AED 550K – AED 1.8M', '6.5–7.5%'],
         ],
       },
       {
@@ -131,7 +131,7 @@ export const landings: Landing[] = [
       {
         h2: 'Rental Yields and Investment Returns',
         body:
-          'Dubai apartments generate gross rental yields averaging 6–8% per annum, which is ' +
+          'Dubai apartments generate gross rental yields averaging 5.5–7.5% per annum, which is ' +
           'significantly higher than comparable freehold cities such as London (3–4%), Paris (3–4%), ' +
           'or Singapore (2–3%). There is no annual property tax and no capital gains tax in Dubai, ' +
           'so net yields are substantially higher than in most other markets.\n\n' +

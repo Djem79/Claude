@@ -83,16 +83,16 @@ If your goal is residency with the smallest property budget, Dubai's post-April-
     tag: 'Market Update',
     title: 'Dubai Rental Yields Report — Q3 2026: 12 Districts Compared',
     excerpt:
-      'Verified gross rental yields across 12 Dubai investment districts, from 5% in Downtown to 9% in Damac Hills 2. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
+      'Verified gross rental yields across 12 Dubai investment districts, from 4% on Palm Jumeirah to 7.5% in JLT. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
     readTime: '5 min read',
     content: `
-*Data last verified: 1 July 2026. Yields are reviewed monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
+*Data last verified: 1 August 2026. Yields are reviewed monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
 
-**The best gross rental yields in Dubai in 2026 are in Damac Hills 2 (7–9%) and JLT (7–8%).** Across the 12 districts we track, gross yields range from about 5% in the premium core — Downtown Dubai and Palm Jumeirah — to 9% in value-driven suburbs, with most established districts earning 5.5–7%.
+**The best gross rental yields in Dubai in 2026 are in JLT (6.5–7.5%) and Business Bay (6–7%).** Across the 12 districts we track, gross yields range from about 4% on Palm Jumeirah — where capital values have run hardest — to 7.5% in value-driven districts, with most established areas earning 5–6.5%.
 
 ## Headline Numbers
 
-Dubai's gross rental yields remain among the highest of any global property market — the citywide range across the districts we track runs **from about 5% in the premium core to 9% in value-driven suburban communities.** For comparison, prime London and Singapore yields sit near 2–3.5%.
+Dubai's gross rental yields remain among the highest of any global property market — the citywide range across the districts we track runs **from about 4% in the trophy waterfront core to 7.5% in value-driven districts.** For comparison, prime London and Singapore yields sit near 2–3.5%.
 
 Two patterns hold across 2026: affordable suburban communities out-yield the premium waterfront core, and smaller units out-yield larger ones within the same district.
 
@@ -100,18 +100,18 @@ Two patterns hold across 2026: affordable suburban communities out-yield the pre
 
 | District | Gross yield | Avg. price | Profile |
 |----------|-------------|-----------|---------|
-| [Damac Hills 2](/damac-hills-2) | 7–9% | AED 900/sqft | Value suburb, townhouses |
-| [JLT](/jlt) | 7–8% | AED 1,200/sqft | High-rise value next to Marina |
-| [Business Bay](/business-bay) | 6–7% | AED 1,600/sqft | Central business district |
-| [MBR City](/mbr-city) | 6–7% | AED 2,000/sqft | New premium inland district |
-| [Emaar Beachfront](/emaar-beachfront) | 6–7% | AED 2,500/sqft | New-build beachfront |
-| [Damac Hills](/damac-hills) | 6–7% | AED 1,300/sqft | Golf community, villas |
-| [Dubai Marina](/dubai-marina) | 5.5–6.5% | AED 1,850/sqft | Established waterfront |
-| [Dubai Hills](/dubai-hills) | 5.5–6.5% | AED 1,400/sqft | Family master community |
-| [Creek Harbour](/creek-harbour) | 5.5–6.5% | AED 1,700/sqft | Waterfront new-build |
-| [Downtown Dubai](/downtown-dubai) | 5–6% | AED 2,200/sqft | Premium core, Burj district |
-| [Palm Jumeirah](/palm-jumeirah) | 5–6% | AED 2,800/sqft | Trophy waterfront |
-| [The Valley](/the-valley) | 5–6% | AED 1,150/sqft | Emerging family suburb |
+| [JLT](/jlt) | 6.5–7.5% | AED 2,000/sqft | High-rise value next to Marina |
+| [Business Bay](/business-bay) | 6–7% | AED 2,400/sqft | Central business district |
+| [MBR City](/mbr-city) | 6–7% | AED 2,050/sqft | New premium inland district |
+| [Dubai Marina](/dubai-marina) | 5.5–6.5% | AED 2,300/sqft | Established waterfront |
+| [Dubai Hills](/dubai-hills) | 5.5–6.5% | AED 2,500/sqft | Family master community |
+| [Creek Harbour](/creek-harbour) | 5.5–6.5% | AED 2,650/sqft | Waterfront new-build |
+| [Emaar Beachfront](/emaar-beachfront) | 5.5–6.5% | AED 3,400/sqft | New-build beachfront |
+| [Damac Hills 2](/damac-hills-2) | 5.5–6.5% | AED 1,070/sqft | Value suburb, townhouses |
+| [Damac Hills](/damac-hills) | 5–6% | AED 1,930/sqft | Golf community, villas |
+| [Downtown Dubai](/downtown-dubai) | 5–6% | AED 3,350/sqft | Premium core, Burj district |
+| [The Valley](/the-valley) | 4.5–5.5% | AED 1,850/sqft | Emerging family suburb |
+| [Palm Jumeirah](/palm-jumeirah) | 4–5% | AED 4,150/sqft | Trophy waterfront |
 
 Figures are gross yields on long-term leases for typical unit mixes in each district. Short-term (holiday-let) operation typically adds 1.5–3 percentage points before operating costs in tourist-facing districts like Dubai Marina and Palm Jumeirah.
 
@@ -119,7 +119,7 @@ Figures are gross yields on long-term leases for typical unit mixes in each dist
 
 **Yield compresses as price appreciates.** Downtown and Palm Jumeirah yields look modest precisely because capital values there have run hardest — investors in the premium core are typically balancing rental income against stronger appreciation and trophy-asset liquidity.
 
-**The 7%+ club is a value play.** Damac Hills 2 and JLT deliver the city's strongest cash-on-cash returns because entry prices are the lowest per square foot relative to achievable rents. The trade-off is slower capital appreciation and, in newer suburbs, a shorter rental track record.
+**The top of the range is a value play.** JLT and Damac Hills 2 deliver the city's strongest cash-on-cash returns because entry prices are the lowest per square foot relative to achievable rents. The trade-off is slower capital appreciation and, in newer suburbs, a shorter rental track record.
 
 **Net yields run roughly 1.5–2.5 points below gross** once service charges, management and vacancy are accounted for — service charges vary widely by tower and community, which is why we always model the specific building before a client commits.
 
@@ -131,7 +131,7 @@ Yields are compiled from asking-rent and transaction data across Dubai Land Depa
 
 ## What This Means for Your Strategy
 
-Income-first investors should start in the 6.5%+ band and pay attention to service charges; appreciation-first investors will find the premium core's 5–6% acceptable as a holding cost for exposure to Dubai's strongest capital-growth districts. For a full walk-through of buying costs on top of these returns, see our [DLD fees guide](/blog/dld-fees-dubai-international-investors-guide), and calculate financing scenarios with the [mortgage calculator](/mortgage-calculator).
+Income-first investors should start in the 6%+ band and pay attention to service charges; appreciation-first investors will find the premium core's 4–6% acceptable as a holding cost for exposure to Dubai's strongest capital-growth districts. For a full walk-through of buying costs on top of these returns, see our [DLD fees guide](/blog/dld-fees-dubai-international-investors-guide), and calculate financing scenarios with the [mortgage calculator](/mortgage-calculator).
     `.trim(),
   },
   {
@@ -383,7 +383,7 @@ For investors purchasing at AED 2M+, we recommend applying directly for the [10-
       'Q2 2026 in numbers: AED 110bn in quarterly sales, prices up 5–7% year on year, gross yields near 6.6%. DLD-verified figures in one table, updated quarterly — free to cite with attribution.',
     readTime: '7 min read',
     content: `
-*Data last verified: 15 July 2026. This market report is updated quarterly from Dubai Land Department (DLD) transaction data and the major published market reviews. Journalists and researchers are welcome to cite these figures with a link to this page.*
+*Data last verified: 1 August 2026. This market report is updated quarterly from Dubai Land Department (DLD) transaction data and the major published market reviews. Journalists and researchers are welcome to cite these figures with a link to this page.*
 
 ## Is Dubai Property Still a Good Investment in 2026?
 
@@ -699,7 +699,7 @@ At Worldwise Real Estate we guide international investors through every stage �
       'How much are DLD fees in Dubai? The main charge is the 4% transfer fee — budget 6–7% of the price for all costs. Here is the full breakdown and who pays what.',
     readTime: '6 min read',
     content: `
-*Data last verified: 15 July 2026 against the published DLD and trustee-office fee schedules. Fixed fees are set by the authorities and can change; figures are free to cite with a link to this page.*
+*Data last verified: 1 August 2026 against the published DLD and trustee-office fee schedules. Fixed fees are set by the authorities and can change; figures are free to cite with a link to this page.*
 
 When you buy property in Dubai, the main government charge is the **DLD transfer fee of 4% of the purchase price**, plus a handful of fixed administrative and trustee fees. As a rule of thumb, budget roughly **6–7% of the price** for all transaction costs combined. Here is exactly what you pay, and who pays it.
 
