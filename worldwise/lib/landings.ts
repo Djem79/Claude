@@ -82,7 +82,7 @@ export const landings: Landing[] = [
           ['Business Bay', 'AED 700K – AED 2.5M', '6–7%'],
           ['Dubai Hills', 'AED 800K – AED 2.8M', '5.5–6.5%'],
           ['Palm Jumeirah', 'AED 2M – AED 15M+', '4–5%'],
-          ['JLT', 'AED 550K – AED 1.8M', '6.5–7.5%'],
+          ['JLT', 'AED 550K – AED 1.8M', '6–7%'],
         ],
       },
       {
