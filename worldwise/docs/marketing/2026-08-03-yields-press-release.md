@@ -186,6 +186,13 @@ of the world's strongest real estate markets in 2026», 29.07.2026). Это го
 проверенный путь для нашего отчёта: не выпрашивать место в чужой статье, а
 опубликовать исследование от своего имени на платформе LSEG.
 
+⚠️ **Про Zawya важно различать разделы.** `/en/press-release/` и
+`/en/business/real-estate/` — это перепечатки по синдикации (часть материалов
+подписана «Staff Writer, TradeArabia»), то есть площадка для размещения, а не
+журналистика. Оригинальный деск там один — **ZAWYA Projects** (`/en/projects/`),
+с живыми репортёрами. Поэтому Zawya даёт публикацию и ссылку, но не даёт
+медиа-цитирования; за цитированием идти к именным журналистам ниже.
+
 **Первая волна — писать на этой неделе:**
 
 | Адресат | Контакт | Формат | Почему |
@@ -229,6 +236,41 @@ PropertyWire для британских покупателей (`david@tpguk.co
 статье), затем Zawya и REM Times, следом Economy Middle East и CW Property.
 Вторая волна — после того, как страница отчёта получит внятный раздел
 «Методология»: и AGBI, и The National первым делом спросят именно про неё.
+
+### Именные журналисты (проверено 03.08.2026)
+
+Питч в редакционный ящик почти всегда слабее письма человеку, который уже пишет
+про доходность. Ниже — только те, чьи авторские страницы открывались вживую;
+адреса взяты с самих страниц, ни один не восстановлен по шаблону.
+
+**С рабочим e-mail — сюда писать первыми:**
+
+| Журналист | Издание | О чём пишет | Адрес |
+| --------- | ------- | ----------- | ----- |
+| **Somshankar Bandyopadhyay** | Khaleej Times, Associate Editor | «Dubai delivers record 24,800 new homes in H1 2026» (30.07) — **с доходностью по районам: 6,9% квартиры / 5,0% виллы**. Прямое попадание в нашу тему | `somshankar@khaleejtimes.com` |
+| **Waheed Abbas** | Khaleej Times, Assistant Editor | «Indian, UK, Egyptian investors top Dubai property buyers in 2026» (09.07) | `waheedabbas@khaleejtimes.com` |
+| **Will Milner** | Arabian Business | «Dubai property market: 8 figures that explain…» (30.07) — формат «N цифр» | `will.milner@itp.com` |
+| **Rajiv Pillai** | Gulf Business, Deputy Editor | Ведёт отчёты CBRE и JLL | `rajiv.pillai@motivate.ae` |
+| **Anoop Menon** | Zawya Projects, Editor (LSEG) | Вход в единственный оригинальный деск Zawya | `anoop.menon@lseg.com` |
+| **Federico Maccioni** | Reuters, Дубай | «Dubai property sector shows early signs of weakness» (20.03) | `Federico.Maccioni@thomsonreuters.com` |
+| **Hadeel Al Sayegh** | Reuters, Дубай | Соавтор тех же материалов | `Hadeel.AlSayegh@thomsonreuters.com` |
+| **Chloe Cornish** | Financial Times, Gulf | Ушла в широкий Gulf-бизнес — заходить через сделки и капитал, не через таблицу | `chloe.cornish@ft.com` |
+
+**Без публичного адреса — только через соцсети или редакцию:**
+
+- **Zainab Fattah** (Bloomberg) — формально цель №1: ведёт регулярный цикл по
+  ValuStrat / Knight Frank / REIDIN, наш отчёт ложится в её формат почти
+  буквально. Выход только через X `@ZainabFattah`.
+- **Josh Corder** (AGBI, Property & Construction Editor) — самый профильный
+  человек в регионе, недвижимость это весь его бит. Только LinkedIn.
+- **Katy Gillett** и **Fareed Rahman** (The National) — обе темы про охлаждение
+  аренды и переход к рынку покупателя. Только соцсети и Muck Rack.
+
+**Чего в списке нет и почему:** у Construction Week, Gulf Today и Arabian Post
+материалы по дубайским данным подписаны «Staff Writer» — именного репортёра на
+бите нет, поэтому персональный питч туда невозможен, только редакционный ящик.
+По Telegraph, The Times, WSJ и CNBC подтверждённых авторов по теме за период не
+нашлось.
 
 ### Индийское направление — незанятая ниша
 
