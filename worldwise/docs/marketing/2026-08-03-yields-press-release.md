@@ -247,8 +247,10 @@ PropertyWire для британских покупателей (`david@tpguk.co
 
 | Журналист | Издание | О чём пишет | Адрес |
 | --------- | ------- | ----------- | ----- |
-| **Somshankar Bandyopadhyay** | Khaleej Times, Associate Editor | «Dubai delivers record 24,800 new homes in H1 2026» (30.07) — **с доходностью по районам: 6,9% квартиры / 5,0% виллы**. Прямое попадание в нашу тему | `somshankar@khaleejtimes.com` |
-| **Waheed Abbas** | Khaleej Times, Assistant Editor | «Indian, UK, Egyptian investors top Dubai property buyers in 2026» (09.07) | `waheedabbas@khaleejtimes.com` |
+| **Somshankar Bandyopadhyay** | Khaleej Times, Associate Editor | «Dubai delivers record 24,800 new homes in H1 2026» (30.07) — **печатает валовую доходность по конкретным районам**: 6,9% квартиры / 5,0% виллы, Dubai Investments Park 9,7%, International City 8,9%. Ровно наш формат, плюс он редактор бизнес-деска | `somshankar@khaleejtimes.com` |
+| **Waheed Abbas** | Khaleej Times, Assistant Editor | Недвижимость прописана в его официальном бите; любит нарезку по коммьюнити («JVC leads Dubai's property listings», 15.07) | `waheedabbas@khaleejtimes.com` |
+| **Hind Aldah** | Khaleej Times, business reporter | «Indians, Britons lead Dubai property market as deals hit Dh225.7b» (19.07) | `hind@khaleejtimes.com` |
+| **Alyaa Aldhanhani** | Khaleej Times, business reporter | «Dubai property handovers hit multi-year high» (16.07, данные Savills) | `alyaaldhanhani@khaleejtimes.com` |
 | **Will Milner** | Arabian Business | «Dubai property market: 8 figures that explain…» (30.07) — формат «N цифр» | `will.milner@itp.com` |
 | **Rajiv Pillai** | Gulf Business, Deputy Editor | Ведёт отчёты CBRE и JLL | `rajiv.pillai@motivate.ae` |
 | **Anoop Menon** | Zawya Projects, Editor (LSEG) | Вход в единственный оригинальный деск Zawya | `anoop.menon@lseg.com` |
@@ -258,6 +260,12 @@ PropertyWire для британских покупателей (`david@tpguk.co
 
 **Без публичного адреса — только через соцсети или редакцию:**
 
+- **Nivetha Dayanand** (Gulf News, Assistant Business Editor) — основной байлайн
+  Gulf News по рыночным данным недвижимости, ведёт поток отчётов Cavendish
+  Maxwell / Knight Frank / CBRE и уже печатает доходность (~7% квартиры, 5%
+  виллы, 30.07). Топикально это самое точное попадание из всех, но почты на
+  авторской странице нет — только через редакцию Gulf News. Это и есть ответ на
+  вопрос, кому писать в Gulf News вместо мёртвого Property Weekly.
 - **Zainab Fattah** (Bloomberg) — формально цель №1: ведёт регулярный цикл по
   ValuStrat / Knight Frank / REIDIN, наш отчёт ложится в её формат почти
   буквально. Выход только через X `@ZainabFattah`.
@@ -271,6 +279,14 @@ PropertyWire для британских покупателей (`david@tpguk.co
 бите нет, поэтому персональный питч туда невозможен, только редакционный ящик.
 По Telegraph, The Times, WSJ и CNBC подтверждённых авторов по теме за период не
 нашлось.
+
+⚠️ **Адреса по шаблону не выводить.** У Khaleej Times единого формата нет —
+подтверждённые адреса идут вразнобой (`waheedabbas@`, `somshankar@`, `hind@`,
+`alyaaldhanhani@`). У The National подтверждён ровно один живой адрес
+(`acabral@thenationalnews.com`, но у Alvin Cabral бит — потребительские
+технологии, недвижимость эпизодически), и распространять этот формат на
+остальных сотрудников нельзя. Письмо на угаданный адрес уходит в никуда или в
+спам-репутацию домена.
 
 ### Индийское направление — незанятая ниша
 
