@@ -179,6 +179,48 @@ class StripLinks(unittest.TestCase):
         self.assertEqual(len(mw.find_fits("Seeking sources based in the U.A.E. for a feature")), 1)
 
 
+class PitchWatch(unittest.TestCase):
+    """Time-boxed watch for replies from the editors we pitched (2026-08-03)."""
+
+    def test_window_closes_by_itself(self):
+        self.assertTrue(mw.pitch_watch_active("2026-08-03"))
+        self.assertTrue(mw.pitch_watch_active(mw.PITCH_WATCH_UNTIL))
+        self.assertFalse(mw.pitch_watch_active("2026-08-18"))
+
+    def test_reply_without_our_vocabulary_still_produces_a_quote(self):
+        """"Yes, send it over" matches no FIT_PATTERN and must still push."""
+        fits = mw.pitch_reply_fits("Hi Dzhambulat,\nYes, please send the full table over.\nBest, Ed")
+        self.assertEqual(len(fits), 1)
+        self.assertIn("send the full table", fits[0]["quote"])
+
+    def test_quoted_pitch_is_not_mistaken_for_their_answer(self):
+        """The reply carries our own letter back; the editor's line must win."""
+        body = "> Our Q3 report covers 12 Dubai districts and is free to cite\nHappy to run this, what is the methodology?"
+        self.assertIn("methodology", mw.pitch_reply_fits(body)[0]["quote"])
+
+    def test_matching_body_still_uses_the_normal_quotes(self):
+        fits = mw.pitch_reply_fits("Can you comment on Dubai rental yields for our piece?")
+        self.assertIn("Dubai", fits[0]["quote"])
+
+    def test_empty_body_does_not_silently_drop_the_reply(self):
+        self.assertEqual(len(mw.pitch_reply_fits("")), 1)
+
+    def test_failed_body_fetch_still_leaves_a_fit_for_a_pitch_reply(self):
+        """No fits = context list = (with no other fit) no Telegram at all."""
+        class Broken:
+            def uid(self, *a):
+                raise OSError("connection reset")
+        self.assertEqual(len(mw.fetch_fits(Broken(), 1, pitch=True)), 1)
+        self.assertEqual(mw.fetch_fits(Broken(), 1), [])
+
+    def test_empty_fetch_response_still_leaves_a_fit_for_a_pitch_reply(self):
+        class Empty:
+            def uid(self, *a):
+                return "OK", [None]
+        self.assertEqual(len(mw.fetch_fits(Empty(), 1, pitch=True)), 1)
+        self.assertEqual(mw.fetch_fits(Empty(), 1), [])
+
+
 class FormatAlert(unittest.TestCase):
     def make(self, subject, fits=None, account="info@worldwise.pro"):
         return {"account": account, "from": "Qwoted <notifications@qwoted.com>",
@@ -202,6 +244,16 @@ class FormatAlert(unittest.TestCase):
     def test_mailbox_label_shown_per_item(self):
         text = mw.format_alert([self.make("HARO morning", account="dzhambulat@worldwise.pro")])
         self.assertIn("[dzhambulat]", text)
+
+    def test_pitch_reply_is_labelled_and_leads_the_fits(self):
+        """An unfamiliar editor domain must not read like just another digest."""
+        digest = self.make("BBC — new requests", [{"quote": "residents in the UAE", "deadline": None}])
+        reply = self.make("Re: Dubai yields by district", [{"quote": "what is the methodology?", "deadline": None}])
+        reply["pitch"] = True
+        reply["from"] = "Somshankar Bandyopadhyay <somshankar@khaleejtimes.com>"
+        text = mw.format_alert([digest, reply])
+        self.assertIn("✉️ ОТВЕТ НА ПИТЧ", text)
+        self.assertLess(text.index("khaleejtimes.com"), text.index("BBC — new requests"))
 
 
 class ChunkLines(unittest.TestCase):

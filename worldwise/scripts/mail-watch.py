@@ -39,9 +39,17 @@ re-reads both mailboxes and triages every digest by hand — so a FIT_RE false
 negative costs a delay, not the request. That is also why a silent run still
 advances the state cursor: the log line, not Telegram, is the record.
 
+Third tier, time-boxed (added 2026-08-03, expires 2026-08-17): mail from the
+editors we pitched the quarterly yields report to — PITCH_WATCH_DOMAINS — is
+promoted to ФИТ on the strength of the SENDER, because "Yes, send the table
+over" contains nothing FIT_RE could match and is still the most valuable mail
+in the box. Read the constant's comment before touching it: it is a dated
+allowlist of people we wrote to first, not a widening of RELEVANT_DOMAINS.
+
 Flags: --dry-run (print, no state write, no Telegram), --test (send one test
 Telegram message and exit).
 """
+import datetime
 import imaplib
 import json
 import os
@@ -71,6 +79,31 @@ RELEVANT_DOMAINS = (
     "expat.com",
     "hidubai.com",
 )
+
+# Editors we pitched by name on 2026-08-03 (quarterly yields report, 8 letters
+# from info@, see docs/marketing/2026-08-03-yields-report-pitch.md). Their reply
+# is the highest-value mail we can get and carries no platform domain, so it
+# would otherwise be visible only to a human reading the inbox.
+#
+# This is NOT the widening of RELEVANT_DOMAINS the user rejected on 2026-07-12.
+# That ban protects the signal from platform BULK: newsletters, ops mail, DLD
+# and developer blasts. This is a dated allowlist of individual people we wrote
+# to first, authorised by the user on 2026-08-03 — and it expires on its own, so
+# it cannot quietly become permanent. When the date passes, delete the block.
+PITCH_WATCH_UNTIL = "2026-08-17"
+PITCH_WATCH_DOMAINS = (
+    "khaleejtimes.com",     # Khaleej Times — business desk
+    "itp.com",              # Arabian Business
+    "motivate.ae",          # Gulf Business
+    "lseg.com",             # Zawya / Zawya Projects
+    "jcmediagroup.com",     # Economy Middle East
+    "eventyst.com",         # REM Times
+)
+
+
+def pitch_watch_active(today):
+    """True while the outreach window is open. `today` is an ISO date string."""
+    return today <= PITCH_WATCH_UNTIL
 
 
 # Our angle. Generic words are deliberately absent: "relocation", "overseas" and
@@ -321,20 +354,44 @@ def decode(value):
         return value or ""
 
 
-def fetch_fits(M, uid):
-    """Body scan for one message. Never fatal: a failed fetch just means no quote."""
+def pitch_reply_fits(text):
+    """Quotes for a reply from an editor we pitched — never empty.
+
+    An editor's answer can carry none of our vocabulary ("Yes, send it over" or
+    "What's the methodology?") and must still push, so when FIT_RE finds nothing
+    the first line of their own prose becomes the quote. Quoted text (">") is
+    skipped: that is our own pitch coming back in the reply.
+    """
+    hits = find_fits(text)
+    if hits:
+        return hits
+    for raw in text.splitlines():
+        line = re.sub(r"\s+", " ", strip_links(raw)).strip()
+        if len(line) >= 25 and not line.startswith(">"):
+            return [{"quote": line[:QUOTE_CHARS], "deadline": None}]
+    return [{"quote": "(ответ без текста — открыть письмо)", "deadline": None}]
+
+
+def fetch_fits(M, uid, pitch=False):
+    """Body scan for one message. Never fatal: a failed fetch just means no quote.
+
+    For a pitch reply the quote is optional but the ALERT is not: an item with
+    no fits sinks into the context list, and a run whose only fit was that
+    reply would then push nothing at all. So a failed fetch still yields a fit
+    — the sender alone already justifies the alert.
+    """
     try:
         typ, data = M.uid("fetch", str(uid), "(BODY.PEEK[])")
-        if not data or data[0] is None:
-            return []
-        return find_fits(body_text(email.message_from_bytes(data[0][1])))
+        if data and data[0] is not None:
+            text = body_text(email.message_from_bytes(data[0][1]))
+            return pitch_reply_fits(text) if pitch else find_fits(text)
     except Exception as e:
         print(f"mail-watch: body fetch failed for UID {uid}: {type(e).__name__}: {e}")
-        return []
+    return [{"quote": "(тело не прочиталось — открыть письмо)", "deadline": None}] if pitch else []
 
 
-def check_account(user, password, prev, dry_run):
-    """Returns (new_state_entry, relevant list of {from, subject, date, fits})."""
+def check_account(user, password, prev, dry_run, watch_pitches=False):
+    """Returns (new_state_entry, relevant list of {from, subject, date, fits, pitch})."""
     M = imaplib.IMAP4_SSL(IMAP_HOST, 993)
     M.login(user, password)
     typ, data = M.select("INBOX", readonly=True)
@@ -359,12 +416,15 @@ def check_account(user, password, prev, dry_run):
                 continue
             msg = email.message_from_bytes(msg_data[0][1])
             frm = decode(msg.get("From"))
-            if any(d in frm.lower() for d in RELEVANT_DOMAINS):
+            frm_l = frm.lower()
+            pitch = watch_pitches and any(d in frm_l for d in PITCH_WATCH_DOMAINS)
+            if pitch or any(d in frm_l for d in RELEVANT_DOMAINS):
                 relevant.append({
                     "from": frm,
                     "subject": decode(msg.get("Subject")),
                     "date": msg.get("Date", ""),
-                    "fits": fetch_fits(M, u),
+                    "fits": fetch_fits(M, u, pitch=pitch),
+                    "pitch": pitch,
                 })
     M.logout()
     return {"last_uid": max_uid, "uidvalidity": uidvalidity}, relevant
@@ -376,10 +436,15 @@ def format_alert(items):
     rest = [i for i in items if not i.get("fits")]
     lines = []
     if fits:
+        # A reply from an editor we pitched outranks any digest match, so it
+        # leads the message and says what it is — the user must not have to
+        # infer it from an unfamiliar sender domain.
+        fits.sort(key=lambda i: not i.get("pitch"))
         lines.append(f"🔥 ФИТ: {len(fits)} письмо(а) под наш профиль — ответить сегодня")
         for item in fits:
             box = item["account"].split("@")[0]
-            lines.append(f"\n• [{box}] {item['from']}\n  {item['subject']}")
+            tag = "✉️ ОТВЕТ НА ПИТЧ " if item.get("pitch") else ""
+            lines.append(f"\n{tag}• [{box}] {item['from']}\n  {item['subject']}")
             for hit in item["fits"]:
                 if hit["deadline"]:
                     lines.append(f"  ⏰ {hit['deadline']}")
@@ -411,6 +476,10 @@ def main():
         print(f"mail-watch: FATAL corrupt state: {e}")
         sys.exit(1)
 
+    watch_pitches = pitch_watch_active(datetime.date.today().isoformat())
+    print(f"mail-watch: вахта за ответами на питчи "
+          f"{'активна до ' + PITCH_WATCH_UNTIL if watch_pitches else 'истекла ' + PITCH_WATCH_UNTIL}")
+
     new_state = {"accounts": {}}
     all_relevant = []
     for user, pw_env in ACCOUNTS:
@@ -420,7 +489,7 @@ def main():
             continue
         prev = (state or {}).get("accounts", {}).get(user)
         try:
-            entry, relevant = check_account(user, password, prev, dry_run)
+            entry, relevant = check_account(user, password, prev, dry_run, watch_pitches)
         except Exception as e:
             print(f"mail-watch: {user}: check failed: {e}")
             if prev is not None:
