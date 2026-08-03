@@ -143,8 +143,9 @@ export const landings: Landing[] = [
         h2: 'Does Buying an Apartment Qualify You for Residency?',
         body:
           'Yes — Dubai property ownership is linked to two UAE investor visa categories:\n\n' +
-          '- AED 750,000 minimum property value: qualifies for a 2-year UAE Investor Visa, ' +
-          'renewable while the property is held.\n\n' +
+          '- 2-year UAE Investor Visa: since April 2026 there is no minimum property value for a ' +
+          'sole owner — any completed, registered property qualifies. Under joint ownership each ' +
+          'co-owner needs a share worth at least AED 400,000. Renewable while the property is held.\n\n' +
           '- AED 2,000,000 minimum property value: qualifies for the 10-year UAE Golden Visa ' +
           '(also known as the long-term residency visa). The property must be fully paid — ' +
           'mortgaged properties count toward the threshold only up to the equity held.\n\n' +
@@ -161,7 +162,7 @@ export const landings: Landing[] = [
       },
       {
         q: 'What is the minimum budget to buy an apartment in Dubai?',
-        a: 'Entry-level studios in emerging areas start from around AED 400,000 (approximately USD 109,000). One-bedroom apartments in established districts typically begin from AED 800,000–900,000. The minimum to qualify for a UAE investor visa is AED 750,000; for the 10-year Golden Visa, AED 2,000,000.',
+        a: 'Entry-level studios in emerging areas start from around AED 400,000 (approximately USD 109,000). One-bedroom apartments in established districts typically begin from AED 800,000–900,000. Since April 2026 the 2-year investor visa has no minimum property value for a sole owner (under joint ownership, AED 400,000 per share); the 10-year Golden Visa still requires AED 2,000,000.',
       },
       {
         q: 'What fees apply when buying an apartment in Dubai?',
@@ -173,7 +174,7 @@ export const landings: Landing[] = [
       },
       {
         q: 'Does buying an apartment in Dubai qualify me for residency?',
-        a: 'Yes. Purchasing a property valued at AED 750,000 or above qualifies you for a 2-year UAE Investor Visa. A purchase of AED 2,000,000 or above (in a fully paid property) qualifies for the 10-year UAE Golden Visa, which also covers your spouse and children.',
+        a: 'Yes. Since April 2026 any completed property registered in your sole name qualifies you for a 2-year UAE Investor Visa, with no minimum value; under joint ownership each co-owner needs a share worth at least AED 400,000. A purchase of AED 2,000,000 or above (in a fully paid property) qualifies for the 10-year UAE Golden Visa, which also covers your spouse and children.',
       },
     ],
 
