@@ -24,6 +24,12 @@
 Отправлен не был: письмо нашли за полтора часа до дедлайна. Этот случай и
 породил фит-детекцию в `scripts/mail-watch.py`.
 
+**Пущен в дело 03.08.2026.** BBC повторил запрос — «Looking for residents in
+UAE/Dubai?», дедлайн 03.08 23:33 MSK, помечен `NO PITCH CREDIT NEEDED`
+(man_on_the_street не тратит месячные питчи). Фит поймал крон, текст ушёл
+почти без правок — в этом и был смысл заготовки. Одно отличие: BBC добавил
+вопрос про конфликт, ответ на него ниже.
+
 > I'm Russian, I've lived in Dubai since 2022 and I run a brokerage here, so I get this question constantly, usually from people who are really asking whether they'd regret moving.
 >
 > They mostly don't. The quality of life here is high in a way that's hard to photograph. Things just work. I opened a bank account in a morning. I've never queued at a government office. I forget to lock my car and nothing happens, and after a while you stop noticing that you stopped worrying.
@@ -36,10 +42,31 @@
 >
 > Happy to answer follow-up questions by phone or in writing, in English or Russian.
 
+**Абзац про конфликт** (добавлен 03.08.2026 — BBC спросил «Has the conflict
+changed your experience of living there?»). Вставляется после абзаца с минусами.
+Задача — ответить честно и не дать втянуть себя в геополитику: только быт,
+только то, что видел сам, и прямой отказ от политических оценок.
+
+> On the conflict: from inside Dubai, I can't point to anything in daily life that changed. Same school run, same office, same weekend. What did change is the conversation — I get more calls from buyers asking whether the region is stable, and more often than not they are asking from places where they would feel less safe than they do here. I'd rather leave the politics to people who cover it; I can only tell you what a Tuesday looks like.
+
 **Почему он так написан.** Минусы названы прямо (жара, цена школ и медицины,
 рост аренды) — без них текст читается как реклама и не берётся. Совет приезжему
 даёт конкретику, которую нельзя нагуглить за минуту. Ни одного восклицательного
 знака и ни одного «vibrant».
+
+**Как упомянуть компанию, не убив питч** (решено 03.08.2026). Рекламная строка в
+теле — первое, что редакция режет, поэтому название заходит там, где оно
+является фактом о говорящем, а не плашкой:
+
+1. **Первая строка** — «I run a brokerage here» → «I run a brokerage here,
+   Worldwise Real Estate». Одно придаточное, это представление, а не врезка.
+2. **Подпись** — имя, должность, компания, `worldwise.pro`. Подпись ждут, её
+   никто не считает саморекламой; именно отсюда журналист берёт атрибуцию.
+3. **Причина назвать нас** — предложить данные по теме, которую сам и поднял в
+   тексте (аренда): «If you want the numbers behind the rent complaint — what
+   people actually pay by district now — I track that and can send it over».
+   Это делает нас источником, а не героем. Про доходность в lifestyle-питче не
+   писать: не по теме, читается как подмена темы.
 
 **Что просить, если журналист ответил:** указать не «работает в недвижимости»,
 а название компании — Worldwise Real Estate. Это единственная точка, где мы
