@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { findPlanDefects, formatDefectAlert } from './plan-lint-core.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
@@ -193,6 +194,15 @@ async function main() {
     log(`WARNING: no unsent posts after ${today} and ${path.basename(nextPlanPath)} does not exist yet`)
     await notifyAdmin(`⚠️ Автопост: план ${path.basename(PLAN_PATH)} заканчивается — после ${today} постов нет, а ${path.basename(nextPlanPath)} ещё не создан. Подготовь план на следующий месяц.`).catch(() => {})
   }
+  // Lint the polls still ahead of us. A poll skips the approval step and goes
+  // straight to the channel, so a malformed poll_options used to surface only
+  // as a failed send on the day itself — too late, the slot never repeats.
+  const defects = findPlanDefects(plan.posts, today)
+  if (defects.length > 0) {
+    log(`WARNING: ${defects.length} upcoming poll(s) with bad poll_options: ${defects.map(d => d.date).join(', ')}`)
+    await notifyAdmin(formatDefectAlert(defects, path.basename(PLAN_PATH))).catch(() => {})
+  }
+
   const todays = () =>
     plan.posts.map((p, i) => ({ p, i })).filter(({ p }) => p.date === today && !p.sent)
 
