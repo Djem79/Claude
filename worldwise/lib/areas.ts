@@ -86,7 +86,7 @@ export const areas: Area[] = [
     tagline: 'Live next to Burj Khalifa — the most prestigious address in the city.',
     coords: { lat: 25.1950, lng: 55.2744 },
     metrics: {
-      avgPrice: 'AED 3,350/sqft',
+      avgPrice: 'AED 3,200/sqft',
       roi: '5–6%',
       typicalSize: '700–1,800 sqft',
       handover: 'Mature secondary + select Emaar off-plan 2026–2027',
@@ -121,7 +121,7 @@ export const areas: Area[] = [
         a: 'Downtown service charges typically run AED 18–28/sqft per year. Address Residences and Burj Khalifa itself sit at the higher end; older Old Town low-rise buildings are at the lower end.',
       },
     ],
-    metaDescription: 'Buy property in Downtown Dubai — AED 3,350/sqft average, 5–6% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property in Downtown Dubai — AED 3,200/sqft average, 5–6% yields, Burj Khalifa views. Expert investment guidance from Worldwise Real Estate.',
   },
   {
     slug: 'palm-jumeirah',
@@ -264,7 +264,7 @@ export const areas: Area[] = [
     coords: { lat: 25.0693, lng: 55.1440 },
     metrics: {
       avgPrice: 'AED 2,000/sqft',
-      roi: '6.5–7.5%',
+      roi: '6–7%',
       typicalSize: '500–1,400 sqft',
       handover: 'Primarily secondary; select off-plan 2026–2027',
     },
@@ -298,7 +298,7 @@ export const areas: Area[] = [
         a: "Generally lower than Marina — AED 12–18/sqft per year for most towers, which combined with lower purchase prices is the main driver of JLT’s yield premium.",
       },
     ],
-    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 2,000/sqft, 6.5–7.5% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
+    metaDescription: 'Buy property in JLT (Jumeirah Lake Towers) — AED 2,000/sqft, 6–7% yields, Metro-served alternative to Dubai Marina. Worldwise Real Estate.',
   },
   {
     slug: 'mbr-city',
@@ -308,8 +308,8 @@ export const areas: Area[] = [
     tagline: "Canal-side central Dubai between Downtown and Meydan — the city's strongest capital-appreciation play.",
     coords: { lat: 25.1700, lng: 55.3000 },
     metrics: {
-      avgPrice: 'AED 2,050/sqft',
-      roi: '6–7%',
+      avgPrice: 'AED 2,100/sqft',
+      roi: '6–6.5%',
       typicalSize: '700–1,500 sqft',
       handover: 'Active off-plan pipeline 2026–2028 (Sobha-led)',
     },
@@ -343,7 +343,7 @@ export const areas: Area[] = [
         a: 'Very — it borders Downtown, Business Bay and Meydan, with Al Khail and Ras Al Khor roads putting DIFC and Dubai Mall about 10 minutes away and the airport around 15.',
       },
     ],
-    metaDescription: 'Buy investment property in MBR City (Sobha Hartland) — AED 2,050/sqft, 6–7% yields and central-Dubai capital growth. Worldwise Real Estate.',
+    metaDescription: 'Buy investment property in MBR City (Sobha Hartland) — AED 2,100/sqft, 6–6.5% yields and central-Dubai capital growth. Worldwise Real Estate.',
   },
   {
     slug: 'creek-harbour',
@@ -396,15 +396,15 @@ export const areas: Area[] = [
     tagline: 'Private island living next to Dubai Marina — beachfront residences with global resale appeal.',
     coords: { lat: 25.0950, lng: 55.1430 },
     metrics: {
-      avgPrice: 'AED 3,400/sqft',
-      roi: '5.5–6.5%',
+      avgPrice: 'AED 4,200/sqft',
+      roi: '4.5–5%',
       typicalSize: '700–3,500 sqft',
       handover: 'Multiple towers handing over 2026–2028',
     },
     whyInvest: [
       "Emaar Beachfront is a gated island development in Dubai Harbour, sitting between Dubai Marina and Palm Jumeirah. Every tower has direct beach access, marina views or both — the entire masterplan is designed around 1.5 km of private beach and a 1,400-berth super-yacht harbour next door.",
       "The combination of Emaar developer pedigree, private beach access and waterfront positioning gives properties here a strong global resale story. The buyer mix includes a high proportion of overseas investors from the UK, Russia, India and China who pay premium prices for the brand association — particularly on penthouses and beachfront-line apartments.",
-      "Long-let yields are estimated at around 5.5–6.5% for mid-tower one and two-bedroom units, with short-term let returns substantially higher given the beach access — premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory.",
+      "Long-let yields run around 4.5–5% on registered transactions — lower than mid-market Dubai, because beachfront prices have run ahead of rents. Short-term let returns are substantially higher given the beach access: premium furnished units on Emaar Beachfront regularly achieve average daily rates 30–60% above comparable Marina inventory, which is how most owners here close the gap.",
     ],
     whatsNearby: [
       'Private 1.5 km beach exclusive to residents',
@@ -431,7 +431,7 @@ export const areas: Area[] = [
         a: 'Emaar Beachfront service charges run AED 18–28/sqft per year, with beach maintenance and pool/gym facilities included. Premium towers like Address Beach Resort are at the higher end.',
       },
     ],
-    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 3,400/sqft, 5.5–6.5% yields. Premium investment guidance from Worldwise Real Estate.',
+    metaDescription: 'Buy property at Emaar Beachfront — private beach access, AED 4,200/sqft, 4.5–5% yields. Premium investment guidance from Worldwise Real Estate.',
   },
   {
     slug: 'damac-hills',
@@ -505,7 +505,7 @@ export const areas: Area[] = [
     tagline: "Emaar's master-planned town of townhouses and villas on the Dubai–Al Ain corridor.",
     coords: { lat: 25.0100, lng: 55.4200 },
     metrics: {
-      avgPrice: 'AED 1,850/sqft',
+      avgPrice: 'AED 1,350/sqft',
       roi: '4.5–5.5%',
       typicalSize: '3–4 BR townhouses / 2,000–3,500 sqft',
       handover: 'Off-plan, 2026–2028',

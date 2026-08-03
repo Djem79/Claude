@@ -83,16 +83,16 @@ If your goal is residency with the smallest property budget, Dubai's post-April-
     tag: 'Market Update',
     title: 'Dubai Rental Yields Report — Q3 2026: 12 Districts Compared',
     excerpt:
-      'Verified gross rental yields across 12 Dubai investment districts, from 4% on Palm Jumeirah to 7.5% in JLT. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
+      'Verified gross rental yields across 12 Dubai investment districts, from 4% on Palm Jumeirah to 7% in JLT. Data reviewed monthly against DLD transactions and major portal indices. Free to cite with attribution.',
     readTime: '5 min read',
     content: `
-*Data last verified: 1 August 2026. Yields are reviewed monthly against Dubai Land Department transaction data and the major portal indices. Journalists and researchers are welcome to cite these figures with a link to this page.*
+*Data last verified: 3 August 2026 against registered-transaction sources. Yields are reviewed monthly against Dubai Land Department transaction data and the major portal indices, and revised in both directions — the August review lowered our own published figures for Emaar Beachfront, JLT and MBR City, and corrected the average price for The Valley. Journalists and researchers are welcome to cite these figures with a link to this page.*
 
-**The best gross rental yields in Dubai in 2026 are in JLT (6.5–7.5%) and Business Bay (6–7%).** Across the 12 districts we track, gross yields range from about 4% on Palm Jumeirah — where capital values have run hardest — to 7.5% in value-driven districts, with most established areas earning 5–6.5%.
+**The best gross rental yields among the 12 districts we track are in JLT and Business Bay, both 6–7%.** Across the 12 districts we track, gross yields range from about 4% on Palm Jumeirah — where capital values have run hardest — to 7% in value-driven districts, with most established areas earning 5–6.5%.
 
 ## Headline Numbers
 
-Dubai's gross rental yields remain among the highest of any global property market — the citywide range across the districts we track runs **from about 4% in the trophy waterfront core to 7.5% in value-driven districts.** For comparison, prime London and Singapore yields sit near 2–3.5%.
+Dubai's gross rental yields remain among the highest of any global property market — the citywide range across the districts we track runs **from about 4% in the trophy waterfront core to 7% in value-driven districts.** For comparison, prime London and Singapore yields sit near 2–3.5%.
 
 Two patterns hold across 2026: affordable suburban communities out-yield the premium waterfront core, and smaller units out-yield larger ones within the same district.
 
@@ -100,17 +100,17 @@ Two patterns hold across 2026: affordable suburban communities out-yield the pre
 
 | District | Gross yield | Avg. price | Profile |
 |----------|-------------|-----------|---------|
-| [JLT](/jlt) | 6.5–7.5% | AED 2,000/sqft | High-rise value next to Marina |
+| [JLT](/jlt) | 6–7% | AED 2,000/sqft | High-rise value next to Marina |
 | [Business Bay](/business-bay) | 6–7% | AED 2,400/sqft | Central business district |
-| [MBR City](/mbr-city) | 6–7% | AED 2,050/sqft | New premium inland district |
+| [MBR City](/mbr-city) | 6–6.5% | AED 2,100/sqft | New premium inland district |
 | [Dubai Marina](/dubai-marina) | 5.5–6.5% | AED 2,300/sqft | Established waterfront |
 | [Dubai Hills](/dubai-hills) | 5.5–6.5% | AED 2,500/sqft | Family master community |
 | [Creek Harbour](/creek-harbour) | 5.5–6.5% | AED 2,650/sqft | Waterfront new-build |
-| [Emaar Beachfront](/emaar-beachfront) | 5.5–6.5% | AED 3,400/sqft | New-build beachfront |
+| [Emaar Beachfront](/emaar-beachfront) | 4.5–5% | AED 4,200/sqft | New-build beachfront |
 | [Damac Hills 2](/damac-hills-2) | 5.5–6.5% | AED 1,070/sqft | Value suburb, townhouses |
 | [Damac Hills](/damac-hills) | 5–6% | AED 1,930/sqft | Golf community, villas |
-| [Downtown Dubai](/downtown-dubai) | 5–6% | AED 3,350/sqft | Premium core, Burj district |
-| [The Valley](/the-valley) | 4.5–5.5% | AED 1,850/sqft | Emerging family suburb |
+| [Downtown Dubai](/downtown-dubai) | 5–6% | AED 3,200/sqft | Premium core, Burj district |
+| [The Valley](/the-valley) | 4.5–5.5% | AED 1,350/sqft | Emerging family suburb |
 | [Palm Jumeirah](/palm-jumeirah) | 4–5% | AED 4,150/sqft | Trophy waterfront |
 
 Figures are gross yields on long-term leases for typical unit mixes in each district. Short-term (holiday-let) operation typically adds 1.5–3 percentage points before operating costs in tourist-facing districts like Dubai Marina and Palm Jumeirah.
@@ -125,7 +125,11 @@ Figures are gross yields on long-term leases for typical unit mixes in each dist
 
 ## Methodology
 
-Yields are compiled from asking-rent and transaction data across Dubai Land Department records and the major listing portals, cross-checked against published market reports from established brokerages, then reviewed monthly. District averages describe typical apartment/townhouse stock for that district; individual buildings can deviate meaningfully — our [property listings](/properties) show the gross yield per listing where we have verified it.
+Yields are compiled from asking-rent and transaction data across Dubai Land Department records and the major listing portals, cross-checked against published market reports from established brokerages, then reviewed monthly. Where a portal index and registered-transaction data disagree, we follow the transaction data.
+
+**Two limits worth stating plainly.** First, average price per square foot is not comparable across property types: apartment districts (Marina, JLT, Downtown, Business Bay, Creek Harbour, Emaar Beachfront) are quoted on apartments, while villa and townhouse communities (The Valley, Damac Hills 2, Damac Hills) are quoted on that stock, and a villa square foot is structurally cheaper than an apartment one at equivalent prestige. Second, these 12 districts are the ones we actively transact in; they are not the whole market. Dubai's highest apartment yields sit in value communities outside this set — Dubai Investments Park and International City have both been reported near or above 9% — so read this table as a guide to these districts, not as a ranking of the emirate.
+
+**Market context (2026).** Residential values corrected through the first half of the year: ValuStrat put the citywide index down about 4% over the second quarter and roughly 10% below its late-February peak, with the monthly rate of decline easing to about 1% by June. Yields have held up because rents softened more slowly than prices. District averages describe typical stock for that district; individual buildings can deviate meaningfully — our [property listings](/properties) show the gross yield per listing where we have verified it.
 
 **Citation:** you are welcome to reference this data as "Worldwise Real Estate, Dubai Rental Yields Report" with a link to this page. For per-building yield data or a custom cut, [contact us](/#contact).
 
