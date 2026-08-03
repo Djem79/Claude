@@ -179,20 +179,56 @@ Subject: Updated yield figures for the June piece
 лежит без движения. Узкое место не в контактах, а в том, что wave-2 не отправлен
 с июля.
 
-| Адресат | Контакт | Формат | Почему сейчас |
-| ------- | ------- | ------ | ------------- |
-| **REM Times** | `megha@plan3media.com`, ред. `remtimes@plan3media.com` | Программа «Become a Contributor» — авторская колонка | Лучшая цель: формат прямо предполагает экспертный байлайн, отраслевое издание ОАЭ |
-| **Property News International** | `Editorial@blendsmediagroup.com` | Data-story питч | Международная инвесторская аудитория, наш угол ложится без адаптации |
-| **The National** | `newstips@thenationalnews.com`, назвать репортёра property-деска (Katy Gillett, Sarmad Khan, Alexander Christou) | Только как источник данных, гостевых постов нет | Самая ценная и самая трудная цель. Ждать методологического вопроса — на него у нас есть ответ |
-| **Estate Magazine** | форма `/contact-page/` | Готовая статья | Лёгкая ссылка, но издание слабое |
-| **UAE News 247** | `uaenews247@gmail.com` | Готовый релиз | PR-wire, берут почти всё; ценность низкая, отправка бесплатная |
-| Arabian Business | `abnews@itp.com` | — | Питчили в июне, ответа нет. Повторять тем же способом смысла нет |
-| Economy Middle East | `Editorial@jcmediagroup.com` | — | То же самое |
+**Главная находка проверки:** W Capital — такой же частный игрок рынка, как мы —
+в июле 2026 дважды опубликовал собственные цифровые отчёты по Дубаю через
+**Zawya** в разделе research-studies («Eight figures explain why Dubai remains one
+of the world's strongest real estate markets in 2026», 29.07.2026). Это готовый,
+проверенный путь для нашего отчёта: не выпрашивать место в чужой статье, а
+опубликовать исследование от своего имени на платформе LSEG.
+
+**Первая волна — писать на этой неделе:**
+
+| Адресат | Контакт | Формат | Почему |
+| ------- | ------- | ------ | ------ |
+| **Zawya (LSEG)** | `pressrelease.zawya@lseg.com` · ред. `editorial.zawya@lseg.com` | Research study от своего имени | Шаблон W Capital, платформа LSEG, максимальное соотношение веса к усилию |
+| **REM Times** | `riya@eventyst.com`, `tripti@eventyst.com` | Программа «Become a Contributor» + раздел Thought Leadership | Единственное издание с формальной бесплатной программой внешних авторов; требует эксклюзивности материала |
+| **Economy Middle East** | `Editorial@jcmediagroup.com` | Data-story | Их фирменный формат — «N ключевых цифр по рынку Дубая», это буквально наш отчёт. Уже цитируют чужие yield-отчёты (Bayut), значит место для второго источника есть |
+| **CW Property Middle East** | Shehzin Shaikh `shehzin.shaikh@itp.com`, Julianne Tolentino `julianne.tolentino@itp.com` | Market insights | На странице контактов прямо просят «market insights»; есть отдельный property-бренд |
+
+**Вторая волна — как источник для журналиста, не гостевая статья:**
+
+| Адресат | Контакт | Примечание |
+| ------- | ------- | ---------- |
+| **AGBI** | Josh Corder, Property & Construction Editor `josh.corder@agbi.com` | Самая ценная цитата по репутации. Гостевых не берут, пишет сам на данных DLD и Knight Frank |
+| **The National** | `newstips@thenationalnews.com` | Планка высокая: цитируют Knight Frank, Cavendish Maxwell, Fitch. Только после того, как методология описана на странице отчёта |
+| **Khaleej Times** | `letters@khaleejtimes.com` (раздел Contributions), ньюсдеск `news@khaleejtimes.com` | Отдельный property-раздел, явный адрес для внешних материалов |
+| **Gulf Business** | Gareth van Zyl `gareth.vanzyl@motivate.ae`, Neesha Salian `neesha.salian@motivate.ae` | Редакция названа поимённо, есть свой Real Estate Summit |
+| **Arabian Business** | `abnews@itp.com` | Питчили в июне, ответа нет. Тем же способом не повторять — заходить через данные |
+| **MEED** | Colin Foreman `colin.foreman@meed.com` | Платный доступ режет охват, но читатели институциональные; сами приглашают присылать истории |
+
+**Лёгкая, почти гарантированная публикация:** Arabian Post (`pr@thearabianpost.com`,
+открытая guest-post политика), Emirates 24/7 (`editorial@emirates247.com`),
+PropertyWire для британских покупателей (`david@tpguk.co.uk`, контакт требует
+перепроверки), Gulf Today (только через форму, e-mail не публикуют).
+
+**Куда НЕ ходить, вопреки июньскому плану:**
+
+- **MyBayut и Property Finder** — прямые конкуренты: выпускают собственные
+  отчёты по доходности на данных DLD и внешних авторов не публикуют. Property
+  Finder для нас канал лидов, а не PR-цель.
+- **estatemagazine.ae** — числился у нас в wave-2, но проверка показала: редакции
+  нет, на контактной странице шаблонные заглушки темы («info@examplemosh.com»),
+  рядом висит демо-контент вроде «The 30 Hottest Models in the World», а фичеры
+  продаёт relationship manager. Как SEO-ссылка сойдёт, как медиа-цитирование нет.
+- **Property Weekly** — бренд мёртв, свежее в ленте только partner content.
+  Живой адресат — property-деск Gulf News, но публичного редакционного адреса у
+  него нет.
+- **Time Out Dubai** — не тот жанр, читатель ищет бранч, а не доходность.
 
 Порядок: сначала письмо в Invest Dubai Today (вернуть ссылку в уже вышедшей
-статье), затем REM Times и Property News International — им новый угол,
-эксклюзивности не обещаем, но и одинаковых писем не шлём. The National — только
-после того, как таблица обновлена и методология описана на странице отчёта.
+статье), затем Zawya и REM Times, следом Economy Middle East и CW Property.
+Вторая волна — после того, как страница отчёта получит внятный раздел
+«Методология»: и AGBI, и The National первым делом спросят именно про неё.
 
 ### Индийское направление — незанятая ниша
 
