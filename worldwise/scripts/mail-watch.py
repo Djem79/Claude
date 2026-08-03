@@ -373,16 +373,21 @@ def pitch_reply_fits(text):
 
 
 def fetch_fits(M, uid, pitch=False):
-    """Body scan for one message. Never fatal: a failed fetch just means no quote."""
+    """Body scan for one message. Never fatal: a failed fetch just means no quote.
+
+    For a pitch reply the quote is optional but the ALERT is not: an item with
+    no fits sinks into the context list, and a run whose only fit was that
+    reply would then push nothing at all. So a failed fetch still yields a fit
+    — the sender alone already justifies the alert.
+    """
     try:
         typ, data = M.uid("fetch", str(uid), "(BODY.PEEK[])")
-        if not data or data[0] is None:
-            return []
-        text = body_text(email.message_from_bytes(data[0][1]))
-        return pitch_reply_fits(text) if pitch else find_fits(text)
+        if data and data[0] is not None:
+            text = body_text(email.message_from_bytes(data[0][1]))
+            return pitch_reply_fits(text) if pitch else find_fits(text)
     except Exception as e:
         print(f"mail-watch: body fetch failed for UID {uid}: {type(e).__name__}: {e}")
-        return []
+    return [{"quote": "(тело не прочиталось — открыть письмо)", "deadline": None}] if pitch else []
 
 
 def check_account(user, password, prev, dry_run, watch_pitches=False):

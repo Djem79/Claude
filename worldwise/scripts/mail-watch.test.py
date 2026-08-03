@@ -205,6 +205,21 @@ class PitchWatch(unittest.TestCase):
     def test_empty_body_does_not_silently_drop_the_reply(self):
         self.assertEqual(len(mw.pitch_reply_fits("")), 1)
 
+    def test_failed_body_fetch_still_leaves_a_fit_for_a_pitch_reply(self):
+        """No fits = context list = (with no other fit) no Telegram at all."""
+        class Broken:
+            def uid(self, *a):
+                raise OSError("connection reset")
+        self.assertEqual(len(mw.fetch_fits(Broken(), 1, pitch=True)), 1)
+        self.assertEqual(mw.fetch_fits(Broken(), 1), [])
+
+    def test_empty_fetch_response_still_leaves_a_fit_for_a_pitch_reply(self):
+        class Empty:
+            def uid(self, *a):
+                return "OK", [None]
+        self.assertEqual(len(mw.fetch_fits(Empty(), 1, pitch=True)), 1)
+        self.assertEqual(mw.fetch_fits(Empty(), 1), [])
+
 
 class FormatAlert(unittest.TestCase):
     def make(self, subject, fits=None, account="info@worldwise.pro"):
