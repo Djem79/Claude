@@ -224,9 +224,9 @@ The primary goal of the site is lead capture: getting a visitor to submit their 
 - Homepage — awareness + trust building. MortgageCalculator, Testimonials and BlogPreview support the journey to contact.
 
 **Lead `source` strings in use** (keep consistent for CRM analytics):
-`hero_cta`, `mortgage_calculator`, `mortgage_anchor`, `roi_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `golden_visa`, `lead_magnet_guide`, `brochure_request`, `floor_plan`, `property_card`, `mobile_bar`, `qualify`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `vk`, `ok`, `dzen`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`, `landing_buy_apartment_in_dubai`
+`hero_cta`, `mortgage_calculator`, `mortgage_anchor`, `roi_calculator`, `property_enquiry`, `lead_capture_section`, `floating_cta`, `blog_cta`, `golden_visa`, `lead_magnet_guide`, `brochure_request`, `floor_plan`, `property_card`, `mobile_bar`, `qualify`, `exit_intent`, `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `vk`, `ok`, `dzen`, `other`, `area_dubai_marina`, `area_downtown_dubai`, `area_palm_jumeirah`, `area_business_bay`, `area_dubai_hills`, `area_jlt`, `area_creek_harbour`, `area_emaar_beachfront`, `landing_buy_apartment_in_dubai`
 
-Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card` (per-listing WhatsApp button) and `mobile_bar` (mobile sticky bottom CTA on property/area pages) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `vk`, `ok`, `dzen`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
+Three groups: (1) on-site CTAs — `hero_cta` … `blog_cta` plus `property_card` (per-listing WhatsApp button) and `mobile_bar` (mobile sticky bottom CTA on property/area pages), and `exit_intent` (the site-wide exit-intent popup, `ExitIntentTrigger`) — set by the React component the user submitted from. (2) Telegram-bot intake — `telegram`, `property_finder`, `bayut`, `instagram_dm`, `whatsapp`, `vk`, `ok`, `dzen`, `other` — an agent pastes a lead into the bot, the bot saves it, and the source is chosen via inline buttons (default `telegram` until a button is tapped). (3) Area-page CTAs — `area_<slug_underscored>` — set automatically by the area landing pages, one source per district.
 
 **UX rules:**
 
@@ -360,7 +360,7 @@ A shared file manager for staff documents (`/admin/files`, `FilesClient.tsx`), g
 
 `POST /api/leads` enforces: honeypot field (`_hp`) check → phone digit validation (7–15 digits) → in-memory rate limit (10 submissions/IP/hour). Rate limit is counted after validation so typos don't consume quota. The `rateMap` resets per 1-hour window and lives in module state (single PM2 instance).
 
-All lead capture components (`LeadModal`, `LeadCaptureSection`, `PropertyEnquiryForm`, `QualifyingModal`, `BrochureGate`, `FloorPlanGate`, `GuideClient`; `FloatingCTA` opens `LeadModal`) submit through the shared `useLeadSubmit` hook and render `<Honeypot hpRef={hpRef} />` — the hook sends `_hp` automatically. Keep `source` strings consistent across components for analytics.
+All lead capture components (`LeadModal`, `LeadCaptureSection`, `PropertyEnquiryForm`, `QualifyingModal`, `BrochureGate`, `FloorPlanGate`, `GuideClient`; `FloatingCTA` opens `LeadModal`; `ExitIntentTrigger` renders `LeadModal` with `source: exit_intent` — desktop mouseout + mobile scroll-up heuristic, capped once/session, 30-day dismiss cooldown, off forever after submit) submit through the shared `useLeadSubmit` hook and render `<Honeypot hpRef={hpRef} />` — the hook sends `_hp` automatically. Keep `source` strings consistent across components for analytics.
 
 **Honeypot must be clip-hidden, not off-screen-left** — the canonical markup lives ONLY in `components/Honeypot.tsx` (the old `left:-9999px` pattern made pages horizontally scrollable on **iOS Safari** — a real shipped bug that Chrome clamps, so headless tests won't catch it). Never inline a honeypot input again; render the component.
 
@@ -475,7 +475,7 @@ Two DataForSEO-backed monitors mirroring the rank-tracker pattern (pure core + `
 
 `lib/analytics.ts` — thin `track(event, params?)` helper that calls `window.gtag()` when available. Import this in any client component that needs to fire a GA4 event. Do not call `window.gtag` directly.
 
-**Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title).
+**Events in use:** `lead_form_submit` (source + optional property), `whatsapp_click` (source + optional property), `property_view` (property title), `exit_popup_shown` (page — fired when the exit-intent popup opens; conversion = `lead_form_submit` with `source: exit_intent`).
 
 ### Marketing attribution (UTM / click-IDs)
 
