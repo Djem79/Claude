@@ -17,6 +17,8 @@ interface Props {
   propertySlug?: string
   propertyTitle?: string
   ctaLabel?: string
+  /** Called once after a successful submit (ExitIntentTrigger sets its permanent "submitted" flag here). */
+  onSuccess?: () => void
 }
 
 export default function LeadModal({
@@ -28,6 +30,7 @@ export default function LeadModal({
   propertySlug,
   propertyTitle,
   ctaLabel = 'Request Consultation',
+  onSuccess,
 }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -63,6 +66,7 @@ export default function LeadModal({
       // Clear the captured fields so a reopen of this long-lived instance can't
       // re-submit the previous lead's PII (fields only clear after a successful send).
       setName(''); setPhone(''); setEmail(''); setBudget('')
+      onSuccess?.()
     }
   }
 

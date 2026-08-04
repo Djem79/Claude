@@ -4,6 +4,7 @@ import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
 import Analytics from '@/components/Analytics'
 import UtmCapture from '@/components/UtmCapture'
+import ExitIntentTrigger from '@/components/ExitIntentTrigger'
 import JsonLd from '@/components/JsonLd'
 
 const cormorant = Cormorant_Garamond({
@@ -130,6 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieBanner />
         <Analytics />
         <UtmCapture />
+        <ExitIntentTrigger />
       </body>
     </html>
   )
