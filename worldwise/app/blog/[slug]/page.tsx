@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import AdvisorCard from '@/components/AdvisorCard'
 import { getArticleBySlug, getAllArticles } from '@/lib/articles'
+import { AUTHOR, personJsonLd } from '@/lib/author'
 import { faqPageJsonLd } from '@/lib/blog-faq'
 import JsonLd from '@/components/JsonLd'
 import type { Metadata } from 'next'
@@ -67,6 +68,7 @@ export default async function ArticlePage(props: Props) {
   // fabricate "now": rendering the current time made every static article claim
   // it was published today and shifted the JSON-LD dates on each revalidation.
   const publishedAt = 'publishedAt' in article ? article.publishedAt : null
+  const isAiGenerated = 'source' in article && article.source === 'ai-generated'
   const dateDisplay = publishedAt
     ? new Date(publishedAt).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -90,7 +92,15 @@ export default async function ArticlePage(props: Props) {
       ? `https://worldwise.pro${article.image}`
       : 'https://worldwise.pro/opengraph-image',
     ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
-    author: { '@type': 'Organization', name: 'Worldwise Real Estate', url: 'https://worldwise.pro' },
+    // E-E-A-T author layer: editorial articles carry the named Person as author;
+    // AI-generated ones stay honest — Organization authors them, the Person
+    // reviews them (the Telegram approval step IS a human review by him).
+    ...(isAiGenerated
+      ? {
+          author: { '@type': 'Organization', name: 'Worldwise Real Estate', url: 'https://worldwise.pro' },
+          reviewedBy: personJsonLd(),
+        }
+      : { author: personJsonLd() }),
     publisher: {
       '@type': 'Organization',
       name: 'Worldwise Real Estate',
@@ -123,7 +133,23 @@ export default async function ArticlePage(props: Props) {
               {article.title}
             </h1>
             <p className="text-white/60 text-sm">
-              {['By Worldwise Real Estate', dateDisplay, article.readTime].filter(Boolean).join(' · ')}
+              {isAiGenerated ? (
+                <>
+                  {['By Worldwise Real Estate', dateDisplay, article.readTime].filter(Boolean).join(' · ')}
+                  {' · Reviewed by '}
+                  <Link href="/about" className="text-gold/70 hover:text-gold">
+                    {AUTHOR.name}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {'By '}
+                  <Link href="/about" className="text-gold/70 hover:text-gold">
+                    {AUTHOR.name}
+                  </Link>
+                  {[`, ${AUTHOR.jobTitle}`, dateDisplay, article.readTime].filter(Boolean).join(' · ')}
+                </>
+              )}
             </p>
             {'image' in article && article.image && (
               // next/image (not a raw <img>) so the largest element on the page gets
