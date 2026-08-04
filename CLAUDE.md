@@ -423,6 +423,8 @@ exhausted the script skips the day and nudges `/add_keyword` rather than fall ba
 low-value summary. `data/article-mode.json` is a **leftover file, no longer read by any
 code** — don't wire new logic to it.
 
+**E-E-A-T gate (`missingEeatSignals`):** a generated draft is rejected (with a corrective retry) unless it carries a `## Frequently Asked Questions` section, at least one internal `[anchor](/path)` link, and — since 2026-08-04 — an **answer capsule**: a self-contained first paragraph of 40–90 words that does not open with a pronoun (AI Overviews/LLMs quote the opening paragraph out of context; a teaser quoted alone answers nothing).
+
 **Keyword bank exhaustion:** when `index >= keywords.length`, the script sends a Telegram notification and exits without generating an article or flipping the mode.
 
 **Approval flow:** generated article is saved to `data/article-draft.json`. Telegram message is sent with Publish / Skip inline buttons. `POST /api/telegram-webhook` handles button callbacks via `publishDraft()` / `deleteDraft()` from `lib/dynamic-articles.ts`. The `/add_keyword <query>` Telegram text command appends to `data/article-keywords.json` — only accepted from the first chat ID in `TELEGRAM_CHAT_ID`.
@@ -600,6 +602,9 @@ The featured-properties grid on the area page matches `Property.area` **tolerant
 - `app/properties/[slug]/page.tsx` — per-property `og:image`, JSON-LD `RealEstateListing` + `BreadcrumbList` + `FAQPage`; search-pattern titles/meta and the data-driven FAQ come from the pure `lib/property-seo.ts` (node:test'd — questions exist only when their source field does, golden-visa flag passed in from the call site)
 - `app/mortgage-calculator/page.tsx` — JSON-LD `WebApplication` + `FAQPage` (5 questions)
 - `public/llms.txt` — plain-text site summary for AI crawlers
+- **IndexNow (Bing → ChatGPT retrieval), since 2026-08-04** — `lib/indexnow.ts` fire-and-forget pings `api.indexnow.org` when an article is published (the ✅ button in `POST /api/telegram-webhook`). The key is a **committed constant + `public/d528057a….txt` by design** — the protocol requires the key publicly served, secrecy adds nothing; don't "fix" it into an env secret. Bing WMT connected (import from GSC) 2026-08-04; check the IndexNow section there for received submissions. A `bing.mjs` stats digest was deliberately deferred to ~Sept 2026 (no data yet).
+- **Author E-E-A-T layer, since 2026-08-04** — `lib/author.ts` is the single source of truth for the author entity (pure module; personal LinkedIn first in `sameAs`). `/about` carries the Person JSON-LD + portrait. **Honesty invariant on blog articles:** editorial (static) articles emit `author: Person`; AI-generated ones emit `author: Organization` + `reviewedBy: Person` (the Telegram approval IS his review) — never "upgrade" AI articles to a Person author. Visible bylines link to `/about`.
+- **Social short links** — `/ig`, `/tt`, `/yt` in `next.config.mjs` 302-redirect to `/` with UTM params (clean links for bios; `lib/utm.ts` attributes the leads). 302 on purpose — 301s cache in browsers and would fight retargeting.
 
 ### Images
 
