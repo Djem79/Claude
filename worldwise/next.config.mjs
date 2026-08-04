@@ -109,6 +109,16 @@ const nextConfig = {
       // (admin "duplicate" workflow produces "copy-<original>" — never a real listing)
       { source: '/properties/copy-:path', destination: '/properties', permanent: true },
 
+      // Short bio links for social profiles. A raw UTM query string in an
+      // Instagram bio reads as spam for a luxury brand; these keep the visible
+      // link clean ("worldwise.pro/ig") while landing with full first-touch
+      // attribution (lib/utm.ts stores utm_* into leads via useLeadSubmit).
+      // 302 (permanent: false) on purpose: a 301 lets browsers cache the hop
+      // and we may want to retarget campaigns without fighting cached redirects.
+      { source: '/ig', destination: '/?utm_source=instagram&utm_medium=social&utm_campaign=bio', permanent: false },
+      { source: '/tt', destination: '/?utm_source=tiktok&utm_medium=social&utm_campaign=bio', permanent: false },
+      { source: '/yt', destination: '/?utm_source=youtube&utm_medium=social&utm_campaign=channel', permanent: false },
+
       // Bare social media URLs (missing https://)
       { source: '/www.youtube.com/:path*',  destination: 'https://www.youtube.com/:path*',  permanent: true },
       { source: '/www.instagram.com/:path*', destination: 'https://www.instagram.com/:path*', permanent: true },
