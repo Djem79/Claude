@@ -13,9 +13,10 @@ export const AUTHOR = {
   jobTitle: 'Founder & Managing Director',
   url: 'https://worldwise.pro/about',
   image: 'https://worldwise.pro/images/author/dzhambulat-tkhazaplizhev.jpg',
-  // Cross-platform identity trail. The personal LinkedIn profile should be
-  // added here as soon as the URL is confirmed — it is the strongest sameAs.
+  // Cross-platform identity trail. The personal LinkedIn profile leads —
+  // it is the strongest sameAs signal for entity reconciliation.
   sameAs: [
+    'https://www.linkedin.com/in/dzhambulat-tkhazaplizhev-51506559',
     'https://app.qwoted.com/pr_users/dzhambulat-tkhazaplizhev',
     'https://www.linkedin.com/company/worldwise-real-estate-llc',
     'https://www.instagram.com/worldwiseofficial',
