@@ -46,6 +46,7 @@ export default function Footer() {
               <li><Link href="/properties?status=rent" className="hover:text-gold transition-colors">For Rent</Link></li>
               <li><Link href="/properties?type=villa" className="hover:text-gold transition-colors">Villas & Townhouses</Link></li>
               <li><Link href="/developers" className="hover:text-gold transition-colors">Developers</Link></li>
+              <li><Link href="/about" className="hover:text-gold transition-colors">About Us</Link></li>
             </ul>
           </div>
 
