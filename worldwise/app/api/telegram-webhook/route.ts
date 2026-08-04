@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { publishDraft, deleteDraft, DynamicArticle } from '@/lib/dynamic-articles'
+import { pingIndexNow } from '@/lib/indexnow'
 import { mutateJsonFile } from '@/lib/json-store'
 import fs from 'fs'
 import path from 'path'
@@ -478,6 +479,10 @@ async function handleCallback(callback: TgCallback) {
   if (data === 'publish_article') {
     const published = publishDraft()
     if (published) {
+      // Notify IndexNow-participating engines (Bing → ChatGPT retrieval) about
+      // the new article. Deliberately not awaited: never throws, and the
+      // callback answer must not wait on a third-party ping.
+      void pingIndexNow([`/blog/${published.slug}`, '/blog', '/sitemap.xml'])
       // Await the channel post so the button answer reflects reality — the old
       // fire-and-forget always answered "Опубликовано" even when the channel
       // post failed (revoked admin rights, bad TELEGRAM_CHANNEL_ID, image error).

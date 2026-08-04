@@ -107,6 +107,14 @@ function missingEeatSignals(content) {
   const missing = []
   if (!/#{2,4}\s*Frequently Asked Questions/i.test(c)) missing.push('FAQ')
   if (!/\]\(\/[a-z]/i.test(c)) missing.push('internal link')
+  // Answer capsule: AI Overviews/LLMs lift the opening paragraph verbatim, so
+  // it must be a self-contained 40–90 word answer. Too short = a teaser that
+  // defers the answer ("Many investors wonder…"), too long = not liftable.
+  // Pronoun-opening ("It depends…") breaks when quoted out of context.
+  const firstPara = c.split(/\n\s*\n/).map(p => p.trim()).find(p => p && !p.startsWith('#')) || ''
+  const words = firstPara.split(/\s+/).filter(Boolean).length
+  if (words < 40 || words > 90) missing.push('answer capsule (first paragraph must be 40-90 words)')
+  else if (/^(it|this|that|they|these|those)\b/i.test(firstPara)) missing.push('answer capsule (first paragraph must not open with a pronoun)')
   return missing
 }
 
@@ -116,7 +124,7 @@ async function generateArticle(tag, headlines, keyword, extraInstruction = '') {
 
 A potential investor just searched Google for: "${keyword}"
 
-Write a thorough, genuinely useful 900–1300 word SEO article that directly answers this search for international investors buying in DUBAI. Open with a direct answer in the first paragraph, then go deep. Requirements:
+Write a thorough, genuinely useful 900–1300 word SEO article that directly answers this search for international investors buying in DUBAI. Open with an ANSWER CAPSULE: a self-contained first paragraph of 40–90 words that fully answers the query on its own, names the entity it is about explicitly (never open with "It", "This" or another pronoun), and includes at least one concrete number. A reader — or an AI engine quoting the paragraph out of context — must get the complete short answer without reading further. Then go deep. Requirements:
 - Be specific and concrete — real numbers, AED thresholds, timeframes, step-by-step where relevant. No filler or generic "Dubai is a great market" padding.
 - Structure with ## h2 sections (### h3 where useful); include a markdown table when comparing options (payment plans, areas, visa tiers, etc.).
 - Add a "## Frequently Asked Questions" section with 3–4 concise Q&As.
@@ -348,7 +356,7 @@ async function main() {
         break
       }
       log(`Attempt ${attempt}: missing E-E-A-T signal(s): ${missing.join(', ')} — regenerating`)
-      repairNote = `IMPORTANT — the previous draft was rejected for missing: ${missing.join(', ')}. This version MUST include a "## Frequently Asked Questions" section with 3-4 Q&As AND at least one inline internal link in markdown [anchor](/path) form using one of /properties, /golden-visa, /mortgage-calculator, /guide.`
+      repairNote = `IMPORTANT — the previous draft was rejected for missing: ${missing.join(', ')}. This version MUST include a "## Frequently Asked Questions" section with 3-4 Q&As, at least one inline internal link in markdown [anchor](/path) form using one of /properties, /golden-visa, /mortgage-calculator, /guide, AND open with a self-contained 40-90 word answer capsule as the first paragraph (fully answers the query, names the entity, no pronoun opening, includes a concrete number).`
       await new Promise(r => setTimeout(r, 2000))
     } catch (e) {
       log(`Gemini attempt ${attempt} failed: ${e.message}`)
