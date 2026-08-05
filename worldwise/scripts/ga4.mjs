@@ -311,6 +311,28 @@ async function cmdFunnel(opts) {
   }
 }
 
+// Channel groups hide the thing we actually need to know once a campaign is
+// running: WHICH social network or referrer sent the session. "Organic Social"
+// merges Dzen, VK, OK, Telegram and Facebook into one number, so a channel we
+// pay for is indistinguishable from one we do not.
+async function cmdReferrers(opts) {
+  const rows = await runReport({
+    dimensions: ['sessionSource', 'sessionMedium'],
+    metrics: ['sessions', 'engagedSessions'],
+    days: opts.days,
+    orderBy: { metric: { metricName: 'sessions' }, desc: true },
+    limit: opts.limit || 25,
+  })
+  table(
+    `Traffic by source / medium — last ${opts.days} days`,
+    ['SOURCE', 'MEDIUM', 'SESSIONS', 'ENGAGED', 'ENG.RATE'],
+    rows.map(r => {
+      const [s, e] = r.values.map(num)
+      return [r.keys[0], r.keys[1], s, e, pct(e, s)]
+    }),
+  )
+}
+
 // ─── main ───────────────────────────────────────────────────────────────────
 
 const [cmd, ...rest] = process.argv.slice(2)
@@ -320,13 +342,14 @@ const commands = {
   auth: cmdAuth,
   overview: cmdOverview,
   sources: cmdSources,
+  referrers: cmdReferrers,
   pages: cmdPages,
   events: cmdEvents,
   funnel: cmdFunnel,
 }
 
 if (!cmd || !commands[cmd]) {
-  console.error('Usage: ga4.mjs <auth|overview|sources|pages|events|funnel> [--days=N] [--limit=N]')
+  console.error('Usage: ga4.mjs <auth|overview|sources|referrers|pages|events|funnel> [--days=N] [--limit=N]')
   process.exit(1)
 }
 
