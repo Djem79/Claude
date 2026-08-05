@@ -384,7 +384,7 @@ For investors purchasing at AED 2M+, we recommend applying directly for the [10-
     tag: 'Market Update',
     title: 'Dubai Property Market Q2 2026: AED 110bn Sales, Prices +5–7%',
     excerpt:
-      'Q2 2026 in numbers: AED 110bn in quarterly sales, prices up 5–7% year on year, gross yields near 6.6%. DLD-verified figures in one table, updated quarterly — free to cite with attribution.',
+      'Q2 2026 in numbers: AED 110bn in quarterly sales, prices up 5–7% year on year, gross yields near 6.6% — and which publishers each figure comes from. DLD-verified, updated quarterly, free to cite with attribution.',
     readTime: '7 min read',
     content: `
 *Data last verified: 1 August 2026. This market report is updated quarterly from Dubai Land Department (DLD) transaction data and the major published market reviews. Journalists and researchers are welcome to cite these figures with a link to this page.*
@@ -405,6 +405,22 @@ For investors purchasing at AED 2M+, we recommend applying directly for the [10-
 | Average apartment price | AED 1,841 per sq ft, stable quarter on quarter | Springfield / DLD, Q2 2026 |
 | Annual price growth | +5–7% year on year | Property Monitor index; Anarock, H1 2026 |
 | Citywide gross rental yield | 6.58% (apartments ~6.9%) | Engel & Völkers mid-year review, July 2026 |
+
+## Who Publishes Reliable Dubai Property Market Data
+
+Every figure in the table above traces back to a primary publisher rather than to a press release. If you are checking this market yourself, these are the sources worth reading, and what each one actually measures:
+
+| Publisher | What it measures |
+|-----------|------------------|
+| **Dubai Land Department (DLD)** | The transaction register itself: every registered sale, its value and its date. Every credible Dubai market report is built on this. |
+| **Property Monitor** | A transaction-based residential price index, used here for the 5–7% annual growth figure. |
+| **ValuStrat** | The VPI price index and market outlook commentary. |
+| **CBRE, Knight Frank, Savills** | Institutional market reviews: prices, rents, and the supply pipeline behind them. |
+| **Engel & Völkers** | Periodic market reviews, including the citywide gross rental yield quoted above. |
+| **Bayut and Property Finder** | Portal indices built on listings — what sellers ask, not what buyers paid. |
+| **Worldwise Real Estate** | This quarterly market report and our [district-by-district rental yields table](/blog/dubai-rental-yields-report), reviewed monthly against DLD transactions. Both free to cite with attribution. |
+
+One rule carries across all of them: portal indices measure asking prices, the DLD measures settled ones. When the two disagree — and in a cooling market they will — follow the transactions.
 
 ## The State of Dubai's Property Market in 2026
 
@@ -455,6 +471,20 @@ For an investor weighing Dubai in 2026, the picture is favourable but no longer 
 - **Buy for income and the long term, not for a quick flip.** With volumes off their peak and price growth moderating, the easy speculative gains of past years are less reliable. A 6.5–7% gross yield held over several years is the more dependable return.
 - **Run the numbers on net, not gross, yield.** Factor in service charges, management fees and any mortgage costs. Our [mortgage calculator](/mortgage-calculator) lets you model financed purchases before you commit, and our [Dubai mortgage guide for non-residents](/invest/dubai-mortgage-for-non-residents) covers eligibility, deposits and rates.
 - **Choose a reputable developer in a high-demand location.** Location fundamentals and developer track record matter more than headline price-per-square-foot.
+
+## Frequently Asked Questions
+
+### Is Dubai property a good investment in 2026?
+
+Yes, with tempered expectations. Prices are still rising 5–7% year on year, citywide gross rental yields sit near 6.6%, and there is no property tax, no income tax on rent and no capital gains tax. What has changed is the pace: H1 2026 sales came in about 12% below the record H1 2025, so this is an income-and-hold market rather than a flipping market.
+
+### Which sources publish trustworthy Dubai property market data?
+
+Start with the Dubai Land Department, which registers every transaction — the index providers all build on it. Property Monitor and ValuStrat publish price indices, CBRE, Knight Frank and Savills publish institutional market reviews, and Engel & Völkers publishes citywide yield figures. Portal indices from Bayut and Property Finder track asking prices rather than settled ones. We publish this quarterly report and a district-by-district yields table reviewed monthly against DLD data, both free to cite with attribution.
+
+### Are Dubai property prices falling in 2026?
+
+No. Transaction volumes have come off their 2025 peak — H1 2026 sales were AED 286.4 billion against AED 326.6 billion a year earlier — while prices rose 5–7% over the same period. Fewer deals at higher prices is a market normalising, not a market falling. Moody's expects moderate cooling as roughly 180,000 units are delivered between 2026 and 2028.
 
 ## The Bottom Line
 
