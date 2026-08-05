@@ -77,8 +77,18 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <p className="text-gray-400 text-sm mt-6">
-          ★ 5.0 · Rated on Google Reviews
+        {/* The quotes above are client reviews given to us directly. The rating
+            line is separate on purpose — it belongs to the Google profile and
+            links there, so a visitor can verify it rather than take our word. */}
+        <p className="text-gray-500 text-sm mt-6">
+          <a
+            href="https://www.google.com/maps/place/WORLDWISE+REAL+ESTATE+LLC/@25.1071856,55.1984163,17z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-navy transition-colors"
+          >
+            ★ 5.0 from 8 reviews on Google →
+          </a>
         </p>
       </div>
     </section>
