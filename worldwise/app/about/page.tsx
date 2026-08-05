@@ -117,6 +117,12 @@ export default function AboutPage() {
               off-plan contracts, developer track records and residency rules for the
               first time.
             </p>
+            <p>
+              The work does not stop at the purchase. The agency acts for owners on sales
+              and lettings, places tenants in units its own clients bought, and takes on
+              commercial property when a client asks. The listings published here are what
+              the team advertises rather than the limit of what it brokers.
+            </p>
 
             <h2 className="font-serif text-2xl text-navy pt-6">Published data work</h2>
             <ul className="space-y-4">

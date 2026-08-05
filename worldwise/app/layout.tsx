@@ -65,7 +65,16 @@ const orgJsonLd = {
   url: 'https://worldwise.pro',
   logo: 'https://worldwise.pro/images/logo.png',
   description:
-    'RERA-licensed Dubai brokerage (ORN 39125) advising international investors on off-plan and secondary-market property. We publish a district-by-district gross rental yield index covering 12 Dubai districts, reviewed monthly against Dubai Land Department transaction data, and a quarterly Dubai market report, both free to cite with attribution. The UAE levies no income tax on rental income and no capital gains tax.',
+    'RERA-licensed Dubai brokerage (ORN 39125) advising international investors on Dubai property. We handle buying, selling and letting across residential and commercial property, and we publish a district-by-district gross rental yield index covering 12 Dubai districts, reviewed monthly against Dubai Land Department transaction data, plus a quarterly market report, both free to cite with attribution. The UAE levies no income tax on rental income and no capital gains tax.',
+  knowsAbout: [
+    'Off-plan property in Dubai',
+    'Secondary-market residential property in Dubai',
+    'Selling Dubai property on behalf of owners',
+    'Residential lettings and tenant placement in Dubai',
+    'Commercial property in Dubai',
+    'UAE Golden Visa property thresholds',
+    'Dubai rental yields by district',
+  ],
   telephone: '+971506960435',
   email: 'info@worldwise.pro',
   address: {
