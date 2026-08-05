@@ -33,6 +33,16 @@ export interface RuMaterial {
 const SITE = 'https://worldwise.pro'
 const TG_LINK = 'https://t.me/worldwisellc'
 
+// The site link inside a Dzen post carries UTM so the visit is attributable.
+// Dzen wraps outgoing links in its own dzen.ru/away redirect, which strips the
+// referrer — without these parameters a reader who clicks through lands in GA4
+// as direct traffic and the channel looks dead even when it is working. Parsed
+// by lib/utm.ts and stored first-touch, so a lead months later still credits
+// Dzen. Plain SITE stays for feed <link> and image URLs, which must not carry
+// campaign parameters.
+const SITE_FROM_DZEN =
+  `${SITE}/?utm_source=dzen&utm_medium=article&utm_campaign=ru_feed`
+
 // Транслитерация для слагов — дубль карты из scripts/post-from-plan.mjs
 // (скрипт-.mjs не может импортировать .ts; менять — синхронно в обоих местах),
 // чтобы слаг материала совпадал со слагом карточки /api/blog-image.
@@ -81,7 +91,7 @@ export function postTextToHtml(text: string): string {
   kept.push(
     `<p>Больше цифр, разборов районов и кейсов — в телеграм-канале ` +
     `«Смотрим Дубай»: <a href="${TG_LINK}">t.me/worldwisellc</a>. ` +
-    `Каталог объектов — на <a href="${SITE}">worldwise.pro</a>.</p>`,
+    `Каталог объектов — на <a href="${SITE_FROM_DZEN}">worldwise.pro</a>.</p>`,
   )
   return kept.join('\n')
 }
