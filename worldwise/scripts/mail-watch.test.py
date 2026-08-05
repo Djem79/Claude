@@ -256,6 +256,37 @@ class FormatAlert(unittest.TestCase):
         self.assertLess(text.index("khaleejtimes.com"), text.index("BBC — new requests"))
 
 
+class ActivityDigest(unittest.TestCase):
+    """expat.com forum-activity mail must never reach the fit tier.
+
+    Its body is full of UAE and visa vocabulary because it quotes forum replies,
+    so FIT_RE matches it every time. A fit has to mean "answer this today".
+    """
+
+    def test_forum_activity_digest_is_recognised(self):
+        self.assertTrue(mw.is_activity_digest(
+            "What's up WorldwiseDubai ? Check out the latest forum activities!"))
+
+    def test_personal_platform_mail_still_promotes(self):
+        for subject in ("You have a new private message on Expat.com",
+                        "Re: your post about the Dubai investor visa",
+                        "New reply to a topic you created"):
+            self.assertFalse(mw.is_activity_digest(subject), subject)
+
+    def test_media_digests_are_untouched(self):
+        for subject in ("HARO Queries for August 5, 2026 - Morning Edition",
+                        "Reuters, BBC, CNN - new requests",
+                        ""):
+            self.assertFalse(mw.is_activity_digest(subject), subject)
+
+    def test_digest_body_would_otherwise_match(self):
+        body = ('Dive into the latest on the expat forum! New reply - '
+                'Investor visa : how many days stay outside UAE ? on the '
+                'United Arab Emirates forum.')
+        self.assertTrue(mw.find_fits(body),
+                        "guard is pointless unless the body really matches")
+
+
 class ChunkLines(unittest.TestCase):
     def test_long_fit_alert_is_split_under_the_telegram_limit(self):
         line = "• " + "x" * 300
