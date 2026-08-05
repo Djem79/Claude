@@ -5,23 +5,77 @@
 /** |Δpos| threshold for a keyword to appear in the movers section. */
 export const MIN_DELTA = 3
 
+/** Jaccard overlap of two keyword signatures above which they are one intent. */
+export const NEAR_DUP_THRESHOLD = 0.75
+
+/**
+ * Word set identifying a query's intent: case, punctuation, thousands
+ * separators and plural "s" carry no meaning to the SERP, so they carry none
+ * here either. "…minimum property value 750,000" and "…minimum property value
+ * 750000 2 years" differ by two tokens, not by intent.
+ */
+export function keywordSignature(kw) {
+  const words = String(kw ?? '')
+    .toLowerCase()
+    .replace(/(\d),(?=\d{3}(\D|$))/g, '$1')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map(w => (w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w))
+  return new Set(words)
+}
+
+export function jaccard(a, b) {
+  if (!a.size || !b.size) return 0
+  let shared = 0
+  for (const t of a) if (b.has(t)) shared++
+  return shared / (a.size + b.size - shared)
+}
+
 /**
  * Merge curated core terms with GSC top queries into the tracked set.
  * Core terms always survive; GSC rows fill the remainder by impressions desc.
  * Returns lowercase-trimmed unique keywords, capped.
+ *
+ * GSC rows are also collapsed against everything already kept when they are the
+ * same intent worded differently — GSC reports each phrasing separately, and in
+ * August 2026 nine near-identical Abu Dhabi visa queries held nine of the 100
+ * slots and moved as one block in the digest. Core terms are never collapsed:
+ * that list is curated, and a surprise removal there is a silent loss of a
+ * target we chose on purpose. `onDrop(dropped, keptTwin)` reports each collapse
+ * so the run can log what it gave up instead of truncating quietly.
  */
-export function mergeTrackedKeywords(gscRows, coreTerms, cap = 100) {
+export function mergeTrackedKeywords(gscRows, coreTerms, cap = 100, onDrop = null) {
   const seen = new Set()
   const out = []
-  const push = kw => {
-    const k = String(kw ?? '').toLowerCase().trim()
-    if (k.length < 3 || seen.has(k) || out.length >= cap) return
+  const sigs = []
+  const keep = k => {
     seen.add(k)
     out.push(k)
+    sigs.push(keywordSignature(k))
   }
-  for (const t of coreTerms) push(t)
+  const clean = kw => String(kw ?? '').toLowerCase().trim()
+
+  for (const t of coreTerms) {
+    const k = clean(t)
+    if (k.length < 3 || seen.has(k) || out.length >= cap) continue
+    keep(k)
+  }
+
   const sorted = [...gscRows].sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0))
-  for (const r of sorted) push(r.key)
+  for (const r of sorted) {
+    const k = clean(r.key)
+    if (k.length < 3 || seen.has(k) || out.length >= cap) continue
+    const sig = keywordSignature(k)
+    const twin = sigs.findIndex(s => jaccard(sig, s) >= NEAR_DUP_THRESHOLD)
+    if (twin !== -1) {
+      seen.add(k)
+      if (onDrop) onDrop(k, out[twin])
+      continue
+    }
+    keep(k)
+  }
   return out
 }
 

@@ -1,7 +1,7 @@
 // node --test scripts/rank-tracker-core.test.mjs
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mergeTrackedKeywords, parseSerp, computeDeltas, formatRankReport } from './rank-tracker-core.mjs'
+import { mergeTrackedKeywords, keywordSignature, parseSerp, computeDeltas, formatRankReport } from './rank-tracker-core.mjs'
 
 // ── mergeTrackedKeywords ─────────────────────────────────────────────────────
 
@@ -19,6 +19,50 @@ test('merge: cap respected, short/empty keys skipped', () => {
   const gsc = [{ key: 'ok', impressions: 10 }, { key: '', impressions: 9 }, { key: 'long keyword', impressions: 1 }]
   const out = mergeTrackedKeywords(gsc, ['a'], 1)
   assert.deepEqual(out, ['long keyword'])
+})
+
+test('signature: separators, plurals and punctuation carry no intent', () => {
+  assert.deepEqual([...keywordSignature('minimum value 750,000')].sort(),
+                   [...keywordSignature('minimum value 750000')].sort())
+  assert.deepEqual([...keywordSignature('2 years visa')].sort(),
+                   [...keywordSignature('2-year visa')].sort())
+})
+
+test('merge: one intent worded nine ways takes one slot, not nine', () => {
+  // Verbatim from /var/log/worldwise-rank-tracker.log, 2026-07-21..08-04.
+  const gsc = [
+    { key: 'abu dhabi property owner residence visa minimum property value 750,000', impressions: 90 },
+    { key: 'abu dhabi property owner residence visa 2 years minimum property value 750000', impressions: 80 },
+    { key: 'abu dhabi property owner residence visa 2 year minimum property value 750,000', impressions: 70 },
+    { key: 'abu dhabi property owner residence visa minimum value 750,000 2 years', impressions: 60 },
+    { key: 'abu dhabi 2-year residence visa property owner minimum value 750,000', impressions: 50 },
+    { key: 'dubai marina apartments for sale', impressions: 40 },
+  ]
+  const dropped = []
+  const out = mergeTrackedKeywords(gsc, [], 100, (kw, twin) => dropped.push([kw, twin]))
+  assert.deepEqual(out, [
+    'abu dhabi property owner residence visa minimum property value 750,000',
+    'dubai marina apartments for sale',
+  ])
+  assert.equal(dropped.length, 4)
+  assert.equal(dropped[0][1], 'abu dhabi property owner residence visa minimum property value 750,000')
+})
+
+test('merge: neighbouring districts are different intents, not duplicates', () => {
+  const gsc = [
+    { key: 'dubai marina apartments for sale', impressions: 90 },
+    { key: 'downtown dubai apartments for sale', impressions: 80 },
+    { key: 'buy property in dubai', impressions: 70 },
+  ]
+  assert.equal(mergeTrackedKeywords(gsc, ['buy apartment in dubai'], 100).length, 4)
+})
+
+test('merge: a curated core term is never collapsed away by a GSC twin', () => {
+  const gsc = [{ key: 'dubai rental yield', impressions: 999 }]
+  const dropped = []
+  const out = mergeTrackedKeywords(gsc, ['dubai rental yields'], 100, (kw, twin) => dropped.push([kw, twin]))
+  assert.deepEqual(out, ['dubai rental yields'])
+  assert.deepEqual(dropped, [['dubai rental yield', 'dubai rental yields']])
 })
 
 // ── parseSerp ────────────────────────────────────────────────────────────────

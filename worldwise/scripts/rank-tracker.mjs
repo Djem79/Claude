@@ -33,6 +33,8 @@ const GSC_ROW_LIMIT = 250
 // Keep in sync with GSC_LAG_DAYS in scripts/gsc.mjs — see fetchGscTopQueries().
 const GSC_LAG_DAYS = 3
 const REQUEST_GAP_MS = 250
+const SERP_RETRIES = 1      // one retry per keyword; the failures are transient, not systematic
+const RETRY_GAP_MS = 3000   // long enough that a retry is not the same second as the failure
 
 // Always-tracked commercial terms — aspirational targets GSC can't surface
 // while we don't rank for them yet. Area terms mirror lib/areas.ts districts.
@@ -173,27 +175,52 @@ async function main() {
     log(`GSC fetch failed (non-fatal, CORE_TERMS only): ${e.message}`)
   }
 
-  let keywords = mergeTrackedKeywords(gscRows, CORE_TERMS, KEYWORD_CAP)
+  const collapsed = []
+  let keywords = mergeTrackedKeywords(gscRows, CORE_TERMS, KEYWORD_CAP, (kw, twin) => collapsed.push([kw, twin]))
+  if (collapsed.length) {
+    // Never drop coverage silently: the freed slots go to other GSC queries, so
+    // the digest would otherwise just look different for no visible reason.
+    log(`Collapsed ${collapsed.length} near-duplicate quer${collapsed.length === 1 ? 'y' : 'ies'}: `
+        + collapsed.slice(0, 5).map(([kw, twin]) => `"${kw}" ≈ "${twin}"`).join('; ')
+        + (collapsed.length > 5 ? ` … +${collapsed.length - 5} more` : ''))
+  }
   if (DRY_RUN) keywords = keywords.slice(0, 5)
   log(`Tracking ${keywords.length} keywords`)
 
   const results = {}
   let cost = 0
   let errors = 0
+  let recovered = 0
   for (const kw of keywords) {
-    try {
-      const { items, cost: c } = await fetchSerp(kw)
-      cost += c
-      const p = parseSerp(items, OUR_DOMAIN)
-      results[kw] = { pos: p.ourPos, url: p.ourUrl, above: p.above, aiOverview: p.aiOverview }
-    } catch (e) {
-      errors++
-      log(`SERP failed for "${kw}": ${e.message}`)
-      // omit from results — computeDeltas must not see it as "dropped"
+    // DataForSEO answers "task 40101: Internal SE Server Error" for a handful of
+    // keywords every week — transient on their side, not a bad query: 9 of 100
+    // on 2026-08-04, 6 on 07-28, 13 on 07-21, a different mix each time. One
+    // retry after a pause costs $0.003 per failure and buys back a keyword that
+    // would otherwise be missing from the digest for the week.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const { items, cost: c } = await fetchSerp(kw)
+        cost += c
+        const p = parseSerp(items, OUR_DOMAIN)
+        results[kw] = { pos: p.ourPos, url: p.ourUrl, above: p.above, aiOverview: p.aiOverview }
+        if (attempt) recovered++
+        break
+      } catch (e) {
+        if (attempt < SERP_RETRIES) {
+          log(`SERP retry ${attempt + 1} for "${kw}": ${e.message}`)
+          await sleep(RETRY_GAP_MS)
+          continue
+        }
+        errors++
+        log(`SERP failed for "${kw}": ${e.message}`)
+        // omit from results — computeDeltas must not see it as "dropped"
+        break
+      }
     }
     await sleep(REQUEST_GAP_MS)
   }
-  log(`Fetched ${Object.keys(results).length}/${keywords.length} SERPs, ${errors} errors, cost $${cost.toFixed(4)}`)
+  log(`Fetched ${Object.keys(results).length}/${keywords.length} SERPs, ${errors} errors`
+      + `${recovered ? `, ${recovered} recovered on retry` : ''}, cost $${cost.toFixed(4)}`)
 
   const state = readState()
   const deltas = computeDeltas(results, state?.positions ?? null)
