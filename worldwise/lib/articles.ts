@@ -11,6 +11,125 @@ export interface Article {
 
 export const articles: Article[] = [
   {
+    slug: 'dubai-off-plan-consultants-overseas-buyers',
+    tag: 'Investment Guide',
+    title: 'Off-Plan Property Consultants in Dubai: What an Overseas Buyer Can Verify',
+    excerpt:
+      'The five public records that tell you whether a Dubai off-plan brokerage is licensed and whether your money is protected, plus who sold the most off-plan in H1 2026 and why published market shares disagree. Verified against DLD sources, free to cite with attribution.',
+    readTime: '8 min read',
+    content: `
+*Data last verified: 5 August 2026. Every figure below carries the name of whoever published it. Journalists and researchers are welcome to cite this page with a link.*
+
+**Checking a Dubai off-plan brokerage takes about ten minutes and costs nothing.** A licensed agency holds a RERA Office Registration Number (ORN), its agents hold Broker Registration Numbers (BRN), and each advertised unit carries a Trakheesi permit. Off-plan money belongs in a project escrow account under Law No. 8 of 2007, and the Dubai REST app shows whether the project has one. Published lists of "best off-plan consultants" rest on none of that. These five records do.
+
+## The Five Records That Decide It
+
+| Record | What it covers | Where you check it |
+|--------|----------------|--------------------|
+| **ORN** | The brokerage licence issued by RERA. Ours is 39125 | The DLD list of licensed brokerage offices; the Dubai REST app |
+| **BRN** | The individual agent you are talking to | Dubai REST |
+| **Trakheesi permit** | The advertisement for one specific unit | The permit number has to appear in the listing itself |
+| **Escrow account** | Your money on a registered off-plan project, required by Law No. 8 of 2007 (in force 28 June 2007) | The project record in Dubai REST |
+| **Oqood registration** | Provisional registration of an off-plan sale with the DLD, charged at 4% of the price plus fees | Your own buyer record in Dubai REST |
+
+Ask for the ORN in your first message. A licensed agency answers with a number in one line, because the number is public and the agency wants you to check it. If you get an explanation instead of a number, treat that as your answer.
+
+For off-plan, the escrow rule matters more than the licence. Your instalments go into an account tied to the project rather than to the developer's working capital, and the DLD releases funds against construction progress. If a salesperson asks you to transfer to a company account "to reserve the unit", stop there.
+
+## Dubai Off-Plan in H1 2026
+
+| Figure | Period | Publisher |
+|--------|--------|-----------|
+| 71.0% of sales were off-plan (56,565 of 79,698) | H1 2026 | Projectory, from DLD registrations, July 2026 |
+| 67% of transactions were off-plan (58,800) | H1 2026 | Truhauz H1 2026 market report |
+| 76% of residential transaction volume | June 2026 | Economy Middle East, July 2026 |
+| About 120,000 units due for handover | 2026 | Fitch Ratings |
+| 131,234 new units expected | 2026 | ValuStrat 2026 outlook |
+| More than 70,500 units projected | 2027 | Industry projections quoted July 2026 |
+
+## Why Three Reports Give Three Different Answers
+
+Those first three numbers describe the same market and disagree by nine points. The gap comes from what each one counts. Projectory counts registered sales across the whole market. Truhauz counts transactions. Economy Middle East counts residential volume in a single month, June, when off-plan ran hotter than the half-year average.
+
+None of them is wrong. Read the denominator and the period before you quote a share, and treat any article that gives you a bare percentage without both as a summary of somebody else's work.
+
+## Who Sold the Most Off-Plan in H1 2026
+
+| Developer | Registrations | Value |
+|-----------|---------------|-------|
+| Azizi Developments | 6,101 | AED 5.3bn |
+| DAMAC Properties | 5,610 | AED 14.6bn |
+| Binghatti | 4,863 | AED 7.7bn |
+| Emaar | 4,037 | AED 11.7bn |
+| Ellington Properties | 2,380 | AED 6.7bn |
+
+Source: Projectory, from DLD registrations, published 10 July 2026 and updated 22 July 2026. Meraas took fifth place by value at AED 6.4bn.
+
+Volume and value tell different stories. Azizi registered the most units while DAMAC took nearly three times as much money, which reflects the price bracket each one sells into rather than the quality of either. Selling the most is not the same as delivering the best, and neither figure tells you when your building will be finished.
+
+## The Ranking Problem
+
+Search for the best Dubai developer and you will find on-time delivery percentages presented as fact. Two lists published within a fortnight of each other in July 2026 put Emaar at 85 to 92% and at 95%, and DAMAC at 75% and at 88%. The DLD publishes no audited delivery statistic for either company, so both lists are estimates dressed as data.
+
+We do not publish a ranking of Dubai developers, because we cannot verify one. For the project in front of you, four things are checkable:
+
+- the completion date written into your sale and purchase agreement, and what the contract says happens if the developer misses it
+- the developer's record on projects in the same district, which the DLD project register shows by completion status
+- whether the escrow account is open and the project is registered, both visible in Dubai REST
+- the construction stage today rather than the render
+
+A project from a mid-tier developer with an open escrow account and 60% construction completion carries less risk than a launch from a famous name that broke ground last month.
+
+## What Overseas Buyers Deal With That Residents Do Not
+
+You can complete the whole purchase without flying in. A power of attorney lets a representative sign and register on your behalf, and the DLD accepts remote registration. That convenience creates its own exposure, so give the power of attorney to somebody whose licence you have checked.
+
+Payment plans stretch across construction, which means your currency risk stretches with them. A 60/40 plan on a three year build leaves you exposed to the AED peg against your home currency for three years of instalments. Our [guide to Dubai off-plan payment plans](/invest/dubai-off-plan-payment-plans) covers how the schedules work.
+
+After handover the questions change. Service charges and rental demand decide what you keep, and both vary by district. We track gross yields across 12 districts in our [Dubai rental yields report](/blog/dubai-rental-yields-report), reviewed monthly against DLD transactions.
+
+A purchase above AED 2M also opens the 10 year residence route, which we cover on our [Golden Visa page](/golden-visa).
+
+## Who Publishes Reliable Dubai Off-Plan Data
+
+| Publisher | What it measures |
+|-----------|------------------|
+| **Dubai Land Department** | The transaction register itself, plus the project register and escrow status. Everything credible starts here |
+| **Property Monitor** | A transaction-based price index |
+| **ValuStrat** | The VPI index and supply outlook |
+| **Fitch Ratings** | Supply and credit commentary on the developers |
+| **CBRE, Knight Frank, Savills** | Institutional market reviews covering prices, rents and the pipeline |
+| **Bayut and Property Finder** | Portal indices built on listings, which show what sellers ask rather than what buyers paid |
+| **Worldwise Real Estate** | This page, our [quarterly market report](/blog/dubai-property-market-q2-2026) and our district yields table. Free to cite with attribution |
+
+The same rule runs through all of them. Portals measure asking prices, the DLD measures settled ones, and when the two disagree you follow the transactions.
+
+## Frequently Asked Questions
+
+### Can I buy off-plan property in Dubai without travelling there?
+
+Yes. A power of attorney allows a representative to sign the sale and purchase agreement and complete DLD registration for you, and developers accept remote payment against the project escrow account. Check the brokerage ORN and the project escrow status yourself before you grant anyone a power of attorney over your money.
+
+### How do I check that an off-plan project is registered?
+
+Open the Dubai REST app, search the project, and confirm two things: that the DLD lists it as a registered project, and that it has an escrow account. Law No. 8 of 2007 requires developer funds for off-plan sales to sit in that account, released against verified construction progress. A project that does not appear is not one to pay into.
+
+### Which developer sold the most off-plan property in Dubai in 2026?
+
+Azizi Developments registered the most units in H1 2026 with 6,101 registrations, while DAMAC Properties led by value at AED 14.6bn across 5,610 registrations, according to Projectory's analysis of DLD data published in July 2026. Neither figure measures build quality or delivery record.
+
+### Are published rankings of the best off-plan consultants reliable?
+
+Treat them as advertising until you find the method. Most list agencies without stating what was measured, and the on-time delivery percentages that circulate for developers contradict each other between publishers. The ORN, BRN, Trakheesi permit and escrow status are public records, and they answer the question the rankings only gesture at.
+
+## The Bottom Line
+
+Off-plan is now most of the Dubai market, somewhere between 67 and 71% of the first half of 2026 depending on who counts. That scale attracts both serious developers and people who benefit from you not asking questions. The five records above take ten minutes and separate the two groups faster than any ranking will.
+
+Our ORN is 39125 and our team is listed on the DLD register. If you want the current off-plan options that match a budget and a district, [talk to us](/properties) and ask for the permit number on anything we show you.
+`,
+  },
+  {
     slug: 'abu-dhabi-property-investor-visa',
     tag: 'Visa & Residency',
     title: 'Abu Dhabi Property Investor Visa (2026): 2-Year Owner Visa and 10-Year Golden Visa Explained',
