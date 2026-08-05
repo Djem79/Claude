@@ -251,6 +251,25 @@ def nearest_deadline(lines, i):
     return best
 
 
+# Automated activity digests from a watched platform. These carry no request:
+# expat.com mails "What's up <user> ? Check out the latest forum activities!"
+# whenever somebody replies in a thread we subscribed to, and the replies are
+# full of UAE, Dubai and visa vocabulary, so FIT_RE matches every time. Promoting
+# them costs the alert its meaning — a 🔥 ФИТ has to mean "there is something to
+# answer today" (the 2026-07-30 rule). Personal mail from the same platform, a
+# private message or a reply to our own post, still promotes normally: the gate
+# is this one subject shape, not the sender.
+ACTIVITY_DIGEST_RE = re.compile(
+    r"check out the latest forum activities|latest (forum )?activit(y|ies) (on|at)\b",
+    re.I,
+)
+
+
+def is_activity_digest(subject):
+    """True for platform mail that reports activity rather than asking anything."""
+    return bool(ACTIVITY_DIGEST_RE.search(subject or ""))
+
+
 def find_fits(text, max_hits=MAX_FITS):
     """Quotes from `text` that match our angle, each with a deadline if nearby.
 
@@ -423,7 +442,10 @@ def check_account(user, password, prev, dry_run, watch_pitches=False):
                     "from": frm,
                     "subject": decode(msg.get("Subject")),
                     "date": msg.get("Date", ""),
-                    "fits": fetch_fits(M, u, pitch=pitch),
+                    # An activity digest still gets listed for context, with no fits,
+                    # so a quiet run stays quiet instead of pushing a false alarm.
+                    "fits": [] if is_activity_digest(decode(msg.get("Subject")))
+                            else fetch_fits(M, u, pitch=pitch),
                     "pitch": pitch,
                 })
     M.logout()
