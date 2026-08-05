@@ -29,14 +29,15 @@ export default function Hero() {
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white leading-tight">
             UAE Real Estate
             <br />
-            <span className="text-gold">8–10% ROI.</span>
+            <span className="text-gold">Up to 8% Yield.</span>
             <br />
             0% Tax.
           </h1>
 
           <p className="text-white/75 text-lg md:text-xl mt-6 leading-relaxed">
-            We&apos;ve helped investors from 30+ countries buy, grow capital and build
-            passive income through UAE real estate. Expert guidance, end-to-end support.
+            Gross rental yields reach 8% in value districts such as Dubai Sports City,
+            on top of 5–7% price growth across the market in 2026. We have helped
+            investors from 30+ countries buy and hold UAE property.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-10">

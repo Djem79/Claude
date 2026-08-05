@@ -93,7 +93,7 @@ export default async function OgImage() {
           <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 32, fontWeight: 400, color: IVORY, opacity: 0.92, letterSpacing: 0.4 }}>
             <span>Dubai Property Investment</span>
             <span style={{ color: GOLD, margin: '0 18px', fontWeight: 500 }}>·</span>
-            <span>8–10% ROI</span>
+            <span>Up to 8% Yield</span>
             <span style={{ color: GOLD, margin: '0 18px', fontWeight: 500 }}>·</span>
             <span>0% Tax</span>
           </div>

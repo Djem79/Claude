@@ -79,7 +79,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/30">
-          <span>© 2026 Worldwise Real Estate L.L.C. All rights reserved.</span>
+          <span>© 2026 Worldwise Real Estate L.L.C. RERA ORN 39125. All rights reserved.</span>
           <div className="flex gap-5">
             <Link href="/privacy" className="hover:text-white/60">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-white/60">Terms of Use</Link>
