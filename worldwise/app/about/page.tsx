@@ -86,7 +86,7 @@ export default function AboutPage() {
                 {AUTHOR.name}
               </h1>
               <p className="text-white/70 leading-relaxed">
-                Founder of Worldwise Real Estate, a RERA-certified brokerage in Al Barsha,
+                Founder of Worldwise Real Estate, a RERA-licensed brokerage (ORN 39125) in Al Barsha,
                 Dubai. Based in the city since 2022, working with international buyers in
                 English and Russian.
               </p>

@@ -23,14 +23,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://worldwise.pro'),
   title: {
-    default: 'Dubai Real Estate Investment | Worldwise — 8-10% ROI, 0% Tax',
+    default: 'Dubai Real Estate Investment | Worldwise — Up to 8% Yield, 0% Tax',
     template: '%s | Worldwise',
   },
   description:
-    'Buy off-plan and ready properties in Dubai with 8-10% total ROI (rental income plus capital growth). RERA-certified agency. 50+ investors from 30+ countries. Free consultation.',
+    'RERA-licensed Dubai brokerage (ORN 39125) for international investors. Gross rental yields up to 8% by district, reviewed monthly against DLD transaction data, plus 5-7% price growth in 2026.',
   openGraph: {
     title: 'Dubai Real Estate Investment | Worldwise',
-    description: 'Buy off-plan and ready properties in Dubai with 8-10% total ROI (rental income plus capital growth). RERA-certified agency. Free consultation.',
+    description: 'RERA-licensed Dubai brokerage (ORN 39125). Gross rental yields up to 8% by district, reviewed monthly against DLD data. Off-plan and ready property.',
     url: 'https://worldwise.pro',
     siteName: 'Worldwise Real Estate',
     type: 'website',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Dubai Real Estate Investment | Worldwise',
-    description: 'Buy off-plan and ready properties in Dubai with 8-10% total ROI — rental income plus capital growth.',
+    description: 'RERA-licensed Dubai brokerage (ORN 39125). District rental yields up to 8%, reviewed monthly against DLD data.',
     images: ['/opengraph-image'],
   },
   alternates: {
@@ -65,7 +65,7 @@ const orgJsonLd = {
   url: 'https://worldwise.pro',
   logo: 'https://worldwise.pro/images/logo.png',
   description:
-    'Dubai-based real estate investment agency specialising in off-plan and secondary market properties. RERA-certified. 8-10% total ROI (rental income plus capital growth); gross rental yields of up to 8% by district. 0% income tax.',
+    'RERA-licensed Dubai brokerage (ORN 39125) advising international investors on off-plan and secondary-market property. We publish a district-by-district gross rental yield index covering 12 Dubai districts, reviewed monthly against Dubai Land Department transaction data, and a quarterly Dubai market report, both free to cite with attribution. The UAE levies no income tax on rental income and no capital gains tax.',
   telephone: '+971506960435',
   email: 'info@worldwise.pro',
   address: {

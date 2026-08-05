@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://worldwise.pro/properties' },
   openGraph: {
     title: 'Dubai Investment Properties — Off-Plan & Secondary Market',
-    description: 'Browse 148+ properties in Dubai Marina, Downtown, Palm Jumeirah and more. 8-10% ROI. RERA-certified listings.',
+    description: 'Browse properties in Dubai Marina, Downtown, Palm Jumeirah and more. Gross rental yields up to 8% by district. RERA-licensed, ORN 39125.',
     url: 'https://worldwise.pro/properties',
     images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Dubai Investment Properties — Worldwise Real Estate' }],
   },
